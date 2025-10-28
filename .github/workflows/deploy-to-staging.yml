@@ -37,12 +37,15 @@ jobs:
         run: |
           rm -rf ./vaxviz-staging/dist
           cp -r ./vaxviz/dist/. ./vaxviz-staging/dist
-      - name: Push changes to vaxviz-staging
+      - name: Push dist changes to vaxviz-staging
         working-directory: ./vaxviz-staging
         run: |
           git checkout main
           git add .
-          git commit -m "Deploy staging for vaxviz commit $GITHUB_SHA"
-          git push origin main
-        
-
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Deploy staging for vaxviz commit $GITHUB_SHA"
+            git push origin main
+          else
+            echo "No changes to dist folder to deploy to staging"
+            exit 0
+          fi
