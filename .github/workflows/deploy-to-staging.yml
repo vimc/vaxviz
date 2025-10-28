@@ -29,6 +29,7 @@ jobs:
         with:
           repository: vimc/vaxviz-staging
           path: vaxviz-staging
+          token: ${{ secrets.VAXVIZ_STAGING_TOKEN }}
       - name: Build vaxviz
         working-directory: ./vaxviz
         run: ./scripts/build-app.sh
