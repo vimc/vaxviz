@@ -42,7 +42,7 @@ jobs:
         run: |
           git checkout main
           git add .
-          git commit -m 'Deploy staging for vaxviz commit $GITHUB_SHA'
+          git commit -m "Deploy staging for vaxviz commit $GITHUB_SHA"
           git push origin main
         
 
