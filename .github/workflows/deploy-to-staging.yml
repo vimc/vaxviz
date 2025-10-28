@@ -1,0 +1,47 @@
+name: Deploy vaxviz-staging
+on:
+  push:
+    branches: ["main", "vimc-8677-deploy-to-staging"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "staging"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set GitHub Actions as Commit Author
+        run: |
+        git config --global user.name github-actions
+        git config --global user.email github-actions@github.com
+      - name: Checkout vaxviz
+        uses: actions/checkout@v5
+        with:
+          path: vaxviz
+      - name: Checkout vaxviz-staging
+        uses: actions/checkout@v5
+        with:
+          repository: vimc/vaxviz-staging
+          path: vaxviz-staging
+      - name: Build vaxviz
+        working-directory: ./vaxviz
+        run: ./scripts/build-app.sh
+      - name: Copy dist to vaxviz-staging
+        run: |
+          rm -rf ./vaxviz-staging/dist
+          cp -r ./vaxviz/dist/. ./vaxviz-staging/dist
+      - name: Push changes to vaxviz-staging
+        working-directory: ./vaxviz-staging
+        run: |
+          git checkout main
+          git add .
+          git commit -m 'Deploy staging for vaxviz commit $GITHUB_SHA'
+          git push origin main
+        
+
