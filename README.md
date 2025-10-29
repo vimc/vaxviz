@@ -13,7 +13,7 @@ Go to https://github.com/vimc/vaxviz/releases/new to create a release.
 We also have a staging github pages deployment here: https://vimc.github.io/vaxviz-staging/
 
 This is linked to the [vaxviz-staging](https://github.com/vimc/vaxviz-staging) repo and is deployed from the main branch
-of vaxviz. When there is a push to main here, the `deploy-to-staging.yml` workflow runs which checks out both vaxviz and 
+of vaxviz. When there is a push to main in vaxviz, the `deploy-to-staging.yml` workflow runs which checks out both vaxviz and 
 vaxviz-staging, builds the app in vaxviz, copies the dist folder to vax-staging then commits and pushes
 the vaxviz-staging changes (on its main branch). An action in vaxviz-staging then deploys to pages on this push to main.
 
