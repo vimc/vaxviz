@@ -1,3 +1,6 @@
+# Post-processed files
+/public/data/*/json
+
 # Logs
 logs
 *.log
