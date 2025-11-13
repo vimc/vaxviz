@@ -31,6 +31,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '25'
       - name: Build app
         run: ./scripts/build-app.sh
       - name: Upload artifact

@@ -1,7 +1,7 @@
 name: Deploy vaxviz-staging
 on:
   push:
-    branches: ["main", "vimc-8677-deploy-to-staging"]
+    branches: ["main", "vimc-8784-add-build-to-gha"]
 
 permissions:
   contents: read
@@ -24,6 +24,10 @@ jobs:
         uses: actions/checkout@v5
         with:
           path: vaxviz
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '25'
       - name: Checkout vaxviz-staging
         uses: actions/checkout@v5
         with:
