@@ -15,6 +15,10 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      # Vite build needs to know the base url relative to the domain. This defaults to "./" for local dev and for our
+      # custom prod sub-domain, but is the project name within vimc.github.io on staging.
+      BASE_URL: "/vaxviz-staging"
     steps:
       - name: Set GitHub Actions as Commit Author
         run: |
