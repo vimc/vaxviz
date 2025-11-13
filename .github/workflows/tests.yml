@@ -17,7 +17,8 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: '24.9.0'
+          cache: 'npm'
       - name: Install Deps
         run: npm ci
       - name: Unit tests
@@ -35,22 +36,18 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
-      - name: Install Deps
-        run: npm ci
-      - name: Get installed Playwright version
-        id: playwright-version
-        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').packages['node_modules/@playwright/test'].version)")" >> $GITHUB_ENV
-        shell: bash
-      - name: Cache playwright binaries
-        uses: actions/cache@v4
-        id: playwright-cache
-        with:
-          path: |
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+          node-version: '24.9.0'
+          cache: 'npm'
+      # NB Playwright config is to use npm run preview on CI (but npm run dev locally) so we need to build too
+      - name: Build app
+        run: ./scripts/build-app.sh
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
       - name: Run e2e
         run: npm run test:e2e
+      - name: Upload e2e test output
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-report
+          path: playwright-report/
