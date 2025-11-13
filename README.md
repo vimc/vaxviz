@@ -23,6 +23,12 @@ as the token in the Checkout action. This token has been created as a fine-grain
 Contents of the vaxviz-staging repo only, and has been set as the VAXVIZ_STAGING_TOKEN secret in the vaxviz repo. VIMC
 does not allow creation of tokens without expiry and the current token will expire on 29/10/2026.
 
+## Node version
+
+Build with Node 24. There is currently (November '25) a problem with building @vue/devtools with Node 25 - an error 
+relating to local storage is thrown. As per [this issue](https://github.com/vuejs/devtools/issues/979), using Node 24
+is the current workaround. 
+
 ## Recommended IDE Setup
 
 [VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).

@@ -34,7 +34,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v6
         with:
-          node-version: '25'
+          node-version: '24'
       - name: Build app
         run: ./scripts/build-app.sh
       - name: Upload artifact
