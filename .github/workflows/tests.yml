@@ -21,4 +21,9 @@ jobs:
       - name: Install Deps
         run: npm ci
       - name: Unit tests
-        run: npm run test:unit # TODO: coverage
+        run: npm run test:coverage
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
