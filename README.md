@@ -74,6 +74,11 @@ npm run build
 npm run test:unit
 ```
 
+To run with test coverage:
+```sh
+npm run test:coverage
+```
+
 ### Run End-to-End Tests with [Playwright](https://playwright.dev)
 
 ```sh

@@ -1,0 +1,53 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.9.0'
+          cache: 'npm'
+      - name: Install Deps
+        run: npm ci
+      - name: Unit tests
+        run: npm run test:coverage
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+  e2e-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.9.0'
+          cache: 'npm'
+      # NB Playwright config is to use npm run preview on CI (but npm run dev locally) so we need to build too
+      - name: Build app
+        run: ./scripts/build-app.sh
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run e2e
+        run: npm run test:e2e
+      - name: Upload e2e test output
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-report
+          path: playwright-report/
