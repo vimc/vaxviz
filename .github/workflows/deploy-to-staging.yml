@@ -1,7 +1,7 @@
 name: Deploy vaxviz-staging
 on:
   push:
-    branches: ["main", "vimc-8784-add-build-to-gha"]
+    branches: ["main"]
 
 permissions:
   contents: read
