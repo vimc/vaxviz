@@ -1,26 +1,43 @@
 <template>
-  <form class="max-w-2xl m-5 flex gap-25">
+  <form class="w-full m-5 flex gap-x-20 gap-y-5 flex-wrap">
+    <div class="flex flex-col gap-10 my-5">
+      <FwbCheckbox v-model="appStore.useLogScale" label="Log scale" />
+      <FwbCheckbox v-model="appStore.splitByActivityType" label="Split by activity type" />
+    </div>
+    <fieldset class="gap-5" aria-required="true">
+      <legend class="block mb-5 font-medium text-heading">Burden metric:</legend>
+      <div>
+        <FwbRadio
+          v-for="({ label, value }) in appStore.metricOptions"
+          :key="value"
+          v-model="appStore.burdenMetric"
+          name="burdenMetric"
+          :label="label"
+          :value="value"
+          class="mb-1"
+        />
+      </div>
+    </fieldset>
     <fieldset class="gap-5" aria-required="true">
       <legend class="block mb-5 font-medium text-heading">Explore by:</legend>
       <div>
         <FwbRadio
-          v-for="({ label, value }) in exploreOptions"
+          v-for="({ label, value }) in appStore.exploreOptions"
           :key="value"
-          v-model="selectedExploreBy"
+          v-model="appStore.exploreBy"
           name="exploreBy"
           :label="label"
           :value="value"
-          class="mb-2"
-          @update:model-value="updateExploreBy"
+          class="mb-1"
         />
       </div>
     </fieldset>
-    <div class="mb-5 w-full">
+    <div class="mb-5 w-75">
       <label for="password" class="block mb-5 font-medium text-heading">
-        Focus {{ exploreByLabel.toLocaleLowerCase() }}:
+        Focus {{ appStore.exploreByLabel.toLocaleLowerCase() }}:
       </label>
       <VueSelect
-        v-model="selectedFocus"
+        v-model="appStore.focus"
         :isClearable="false"
         :options="selectOptions"
         :filter-by="(option, label, search) => label.toLowerCase().includes(search.toLowerCase()) || option.value === 'optgroup'"
@@ -40,74 +57,47 @@
 </template>
 
 <script setup lang="ts">
-import { FwbRadio } from 'flowbite-vue'
+import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
 import VueSelect from "vue3-select-component";
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
+import { useAppStore } from '../stores/appStore';
+import { Dimensions, LocResolutions } from '@/types';
 
-const exploreOptions = [
-  { label: "Disease", value: "disease" },
-  { label: "Geography", value: "geography" },
-];
+const appStore = useAppStore();
 
-const geographySelectOptions = [
-  {
+const geographySelectOptions = computed(() => {
+  const options = [{
     label: "Global",
     options: [
-      { label: "All 117 VIMC countries", value: "global" }
+      { label: `All ${appStore.countryOptions.length} VIMC countries`, value: LocResolutions.GLOBAL as string }
     ]
-  },
-  {
-    label: "Subregions",
-    options: [
-      { label: "African Region", value: "AFR" },
-      { label: "Region of the Americas", value: "AMR" },
-      { label: "South-East Asia Region", value: "SEAR" },
-      { label: "European Region", value: "EUR" },
-      { label: "Eastern Mediterranean Region", value: "EMR" },
-      { label: "Western Pacific Region", value: "WPR" }
-    ]
-  },
-  {
-    label: "Countries",
-    options: [
-      { label: "India", value: "IND" },
-      { label: "Nigeria", value: "NGA" },
-      { label: "Pakistan", value: "PAK" },
-      { label: "Indonesia", value: "IDN" }
-    ]
+  }];
+  if (appStore.subregionOptions.length > 0) {
+    options.push({
+      label: "Subregions",
+      options: appStore.subregionOptions
+    });
   }
-];
-
-const diseaseSelectOptions = [
-  { label: "Measles", value: "measles" },
-  { label: "Hepatitis B", value: "hepb" },
-  { label: "Haemophilus influenzae type b", value: "hib" },
-  { label: "Yellow Fever", value: "yf" }
-];
-
-const selectedFocus = ref("");
-const selectedExploreBy = ref("disease");
-
-const exploreByLabel = computed(() => {
-  const option = exploreOptions.find(o => o.value === selectedExploreBy.value);
-  return option ? option.label : "";
+  if (appStore.countryOptions.length > 0) {
+    options.push({
+      label: "Countries",
+      options: appStore.countryOptions
+    });
+  }
+  return options;
 });
 
 const selectOptions = computed(() => {
-  if (selectedExploreBy.value === "geography") {
-    return geographySelectOptions.map(group => {
+  if (appStore.exploreBy === Dimensions.LOCATION) {
+    return geographySelectOptions.value.map(group => {
       const optgroup = { label: group.label, value: "optgroup", disabled: true };
       return [optgroup, ...group.options];
     }).flat();
-  } else if (selectedExploreBy.value === "disease") {
-    return diseaseSelectOptions;
+  } else if (appStore.exploreBy === Dimensions.DISEASE) {
+    return appStore.diseaseOptions;
   }
   return [];
 });
-
-const updateExploreBy = () => {
-  selectedFocus.value = selectOptions.value.find(o => o.value !== "optgroup")?.value || "";
-};
 </script>
 
 <style lang="css" scoped>
