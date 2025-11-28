@@ -49,6 +49,7 @@
       </div>
     </div>
   </div>
+  {{ yAxisRanking }}
   <p>CSV file paths</p>
   <ul>
     <li v-for="path in histDataPaths" :key="path">{{ path }}</li>
@@ -162,15 +163,13 @@ const summaryTableDataPaths = computed(() => {
   });
 })
 
-
-
-
 const chartContainer = ref<HTMLDivElement | null>(null);
 
-// rainbow
-const colors = [ "#e81416", "#ffa500", "#faeb36", "#aAaD32", "#79c314", "#40e0d0", "#487de7", "#4b369d", "#70369d", "#555555" ];
+// The IBM categorical palette (maximises accessibility, specifically in this sequence):
+// https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
+const colors = ["#6929c4", "#1192e8", "#005d5d", "#9f1853", "#fa4d56", "#570408", "#198038", "#002d9c", "#ee538b", "#b28600", "#009d9a", "#012749", "#8a3800", "#a56eff"];
 
-type Metadata = {
+type LineMetadata = {
   withinBandAxisValue: string;
 };
 
@@ -180,7 +179,7 @@ enum HistCols {
   COUNTS = "Counts",
 }
 
-const linesRef = ref<Lines<Metadata>>([]);
+const linesRef = ref<Lines<LineMetadata>>([]);
 
 const doLoadData = () => {
   // TODO: Work out if there are any dependencies between the things that depend on the data loads.
@@ -188,16 +187,10 @@ const doLoadData = () => {
   loadData(summaryTableDataPaths.value).then(data => {
     summaryTablesData.value = data as SummaryTableDataRow[];
   }).then(() => {
-    // Note that we track categories in xCategories and yCategories separately from xAxisRanking and yAxisRanking,
-    // because the chart breaks if there is anything in the summary_table (e.g. Meningitis) that is not in the hist_counts,
-    // which is the case for e.g. hist_counts_dalys_disease_activity_type_log.csv vs summary_table_dalys_disease.csv.
-    // Thus xCategories and yCategories must be allowed to be subsets of the rankings.
     xCategories.value = new Set();
     yCategories.value = new Set();
     loadData(histDataPaths.value).then(data => {
-      console.log("Loaded data rows:", data.length);
-
-      const lines: Lines<Metadata> = [];
+      const lines: Lines<LineMetadata> = [];
       for (let i = 0; i < data.length; i++) {
         const d = data[i]!;
 
@@ -230,7 +223,6 @@ const doLoadData = () => {
             : undefined;
 
           if (xCat === prevRowXCat && yCat === prevRowYCat && withinBandCat === prevRowwithinBandCat) {
-            // console.log("DO CHECKS")
             if ((d[HistCols.LOWER_BOUND] as number) < (data[i - 1]![HistCols.LOWER_BOUND] as number)) {
               console.warn("Histogram data not sorted by lower bounds; this may cause rendering issues.", d, data[i - 1]);
               throw new Error("Histogram data not sorted by lower bounds");
@@ -251,10 +243,8 @@ const doLoadData = () => {
           }
         }
 
-        const lowerBound = appStore.useLogScale
-          ? Math.pow(10, d[HistCols.LOWER_BOUND] as number) : d[HistCols.LOWER_BOUND];
-        const upperBound = appStore.useLogScale
-          ? Math.pow(10, d[HistCols.UPPER_BOUND] as number) : d[HistCols.UPPER_BOUND];
+        const lowerBound = d[HistCols.LOWER_BOUND];
+        const upperBound = d[HistCols.UPPER_BOUND];
 
         const histogramTopLeftPoint = { x: lowerBound, y: d[HistCols.COUNTS] };
         const histogramTopRightPoint = { x: upperBound, y: d[HistCols.COUNTS] };
@@ -263,7 +253,7 @@ const doLoadData = () => {
         const closeOffPoint = { x: upperBound, y: 0 };
         
         // We need to plot at most one line for each of the combinations of dimensions in use.
-        const line = lines.find(({ bands, metadata }: Lines<Metadata>[0]) => {
+        const line = lines.find(({ bands, metadata }: Lines<LineMetadata>[0]) => {
           return bands?.x === xCat && bands?.y === yCat && metadata?.withinBandAxisValue === withinBandCat
         });
         
@@ -284,10 +274,9 @@ const doLoadData = () => {
             ],
             bands,
             style: {
-              // strokeColor: color,
               strokeWidth: 0.5,
-              opacity: 0.5,
-              // fillColor: color,
+              opacity: 1,
+              fillOpacity: 0.3,
             },
             metadata: withinBandCat ? { withinBandAxisValue: withinBandCat } : undefined,
             fill: true,
@@ -320,23 +309,12 @@ const doLoadData = () => {
           outOfOrderPoints++;
         }
       }));
-      console.log("Created lines:", lines);
       console.log("outOfOrderPoints", outOfOrderPoints);
 
       linesRef.value = lines;
     });
   });
 };
-
-onMounted(async () => {
-  if (!chartContainer.value) {
-    return;
-  }
-
-  doLoadData();
-});
-
-watch(histDataPaths, debounce(doLoadData, 25));
 
 const filteredLines = computed(() => {
   return linesRef.value.filter((line) => {
@@ -353,7 +331,6 @@ const filteredLines = computed(() => {
     }
     if (appStore.yCategoricalAxis) {
       const yCat = line.bands?.y;
-      console.warn("appStore.y", appStore.yCategoricalAxis, yCat, !appStore.locationFilter.length, appStore.locationFilter.length)
       switch (appStore.yCategoricalAxis) {
         case Dimensions.LOCATION:
           yMatch = !appStore.locationFilter.length || (!!yCat && appStore.locationFilter.includes(yCat))
@@ -361,7 +338,6 @@ const filteredLines = computed(() => {
         case Dimensions.DISEASE:
           yMatch = !appStore.diseaseFilter.length || (!!yCat && appStore.diseaseFilter.includes(yCat))
       }
-      console.warn("yMatch", yMatch);
 
     }
     if (appStore.withinBandAxis) {
@@ -374,7 +350,6 @@ const filteredLines = computed(() => {
           withinBandMatch = !appStore.diseaseFilter.length || (!!withinBandCat && appStore.diseaseFilter.includes(withinBandCat))
       }
     }
-    console.log("line match", xMatch, yMatch, withinBandMatch, line.bands, line.metadata);
     return xMatch && yMatch && withinBandMatch;
   });
 });
@@ -394,7 +369,7 @@ const colorAxis = computed(() => {
   };
 });
 
-const getColorAxisValueForLine = (line: LineConfig<Metadata>) => {
+const getColorAxisValueForLine = (line: LineConfig<LineMetadata>) => {
   switch (colorAxis.value) {
     case appStore.xCategoricalAxis:
       return line.bands?.x;
@@ -446,106 +421,46 @@ const filteredLinesWithColors = computed(() => {
   return lines;
 });
 
-// todo - make this take filtering into account!
+// TODO: I think the reason the ranking looks wrong may lie in the provided data rather than a bug here.
+// E.g. if you compare values in `hist_counts_deaths_disease.csv` with equivalents in the log version
+// of the same data file, `hist_counts_deaths_disease_log.csv`, the values bear no relation to each other.
+// For example, the range of values for Typhoid in the log data is 10^-1.518 to 10^-0.3016
+// (about 0.03 to 0.5), whereas in the non-log data it's 0.3 to 4.17. Thirdly, compare those against the mean value
+// provided by `summary_table_deaths_disease.csv`, which is about 0.7: this means it's more likely the log data
+// is wrong than the non-log.
 
-// We want to have some vaguely sensible *ranking* of the y-categorical axis (i.e. plot-rows).
 const yAxisRanking = computed(() => {
   if (!appStore.yCategoricalAxis) {
     return [];
   }
-  const rowsByYAxis: Record<string, number[]> = {};
+
+// We want to have some vaguely sensible *ranking* of the y-categorical axis (i.e. plot-rows).
+// We do this by taking the mean of the mean values for each category in the summary table data,
+// excepting categories that have been filtered out.
+  const meansByYCategory: Record<string, number[]> = {};
   for (let i = 0; i < summaryTablesData.value.length; i++) {
     const row = summaryTablesData.value[i]!;
     let yCat = row[appStore.yCategoricalAxis];
     if (!yCat && appStore.yCategoricalAxis === Dimensions.LOCATION) {
       yCat = "global";
     }
-    if (rowsByYAxis[yCat] === undefined) {
-      rowsByYAxis[yCat] = [];
+    if (meansByYCategory[yCat] === undefined) {
+      meansByYCategory[yCat] = [];
     }
-    rowsByYAxis[yCat] = [row.mean_value];
+    if ((appStore.yCategoricalAxis === Dimensions.DISEASE && (appStore.diseaseFilter.includes(yCat) || appStore.diseaseFilter.length === 0))
+    || (appStore.yCategoricalAxis === Dimensions.LOCATION && (appStore.locationFilter.includes(yCat) || appStore.locationFilter.length === 0))) {
+      console.log(row.disease, row.mean_value)
+      meansByYCategory[yCat]?.push(row.mean_value);
+    }
   }
   const meansOfMeans = Object.fromEntries(
-    Object.entries(rowsByYAxis).map(([cat, rows]) => {
+    Object.entries(meansByYCategory).map(([cat, rows]) => {
       const meanOfMeans = rows.reduce((a, b) => a + b, 0) / rows.length;
       return [cat, meanOfMeans];
     })
   );
-  return Object.entries(meansOfMeans).sort((a, b) => b[1] - a[1]).map(([cat]) => cat);
+  return Object.entries(meansOfMeans).sort((a, b) => a[1] - b[1]).map(([cat]) => cat);
 });
-
-// // todo - make this take filtering into account!
-// const xRankingAndYRankingShite = () => {
-//   loadData(summaryTableDataPaths.value).then(summaryTablesData => {
-//     // We want to have some vaguely sensible *ranking* of the categorical axes (e.g. plot-rows).
-//     // NB 'the mean of the medians' is not the same as the overall median,
-//     // but this is sufficient for our purpose of ranking the categories.
-//     // TODO: Check that this really is sufficient! Alternatively we can ask for true medians to be calculated.
-
-//     const rowsByYAxis: Record<string, number[]> = {};
-//     const rowsByXAxis: Record<string, number[]> = {};
-
-//     // TODO: Don't dynamically sort the activity type as it only has two values and we want a consistent order.
-
-//     // Iterate all rows and collect together medians by x/y category.
-//     // - For a y-axis of disease, if the x-axis is location and 'activity type' is the within-band axis,
-//     //   collect rows by disease (y-axis), one row for each location, but do not stratify by activity type.
-//     // - For the x-axis in that same scenario,
-//     //   collect rows by location (x-axis), one row for each disease, but do not stratify by activity type.
-//     // - For a y-axis of location, if the x-axis is disease and 'activity type' is the within-band axis,
-//     //   collect rows by location (y-axis), one row for each disease, but do not stratify by activity type.
-//     // - For the x-axis in that same scenario,
-//     //   collect rows by disease (x-axis), one row for each location, but do not stratify by activity type.
-//     // - For a y-axis of activity type, 
-//     // TODO: this iteration should skip out rows that are filtered out.
-//     for (let i = 0; i < summaryTablesData.length; i++) {
-//       const d = summaryTablesData[i]!;
-
-//       if (appStore.xCategoricalAxis && appStore.xCategoricalAxis !== Dimensions.ACTIVITY_TYPE) {
-//         let xCat = d[appStore.xCategoricalAxis];
-//         if (!xCat && appStore.xCategoricalAxis === Dimensions.LOCATION) {
-//           xCat = "global";
-//         }
-//         if (xCat) {
-//           if (rowsByXAxis[xCat] === undefined) {
-//             rowsByXAxis[xCat] = [];
-//           }
-//           rowsByXAxis[xCat] = [d["median_value"] as number];
-//         }
-//       }
-//       if (appStore.yCategoricalAxis && appStore.yCategoricalAxis !== Dimensions.ACTIVITY_TYPE) {
-//         let yCat = d[appStore.yCategoricalAxis];
-//         if (!yCat && appStore.yCategoricalAxis === Dimensions.LOCATION) {
-//           yCat = "global";
-//         }
-//         if (yCat) {
-//           if (rowsByYAxis[yCat] === undefined) {
-//             rowsByYAxis[yCat] = [];
-//           }
-//           rowsByYAxis[yCat] = [d["median_value"] as number];
-//         }
-//       }
-//     }
-//     const meanMedianByXAxis = Object.fromEntries(
-//       Object.entries(rowsByXAxis).map(([cat, rows]) => {
-//         const meanMedian = rows.reduce((a, b) => a + b, 0) / rows.length;
-//         return [cat, meanMedian];
-//       })
-//     );
-//     xAxisRanking.value = appStore.xCategoricalAxis === Dimensions.ACTIVITY_TYPE
-//       ? ["routine", "campaign"]
-//       : Object.entries(meanMedianByXAxis).sort((a, b) => b[1] - a[1]).map(([cat]) => cat);
-//     const meanMedianByYAxis = Object.fromEntries(
-//       Object.entries(rowsByYAxis).map(([cat, rows]) => {
-//         const meanMedian = rows.reduce((a, b) => a + b, 0) / rows.length;
-//         return [cat, meanMedian];
-//       })
-//     );
-//     yAxisRanking.value = appStore.yCategoricalAxis === Dimensions.ACTIVITY_TYPE
-//       ? ["routine", "campaign"]
-//       : Object.entries(meanMedianByYAxis).sort((a, b) => b[1] - a[1]).map(([cat]) => cat);
-//   })
-// }
 
 const categoricalScales = computed(() => {
   const xCategoricalScale = Array.from(xCategories.value).filter((cat) => {
@@ -567,7 +482,7 @@ const categoricalScales = computed(() => {
   return categoricalScales;
 });
 
-watch([filteredLinesWithColors, chartContainer], () => {
+const createChart = () => {
   if (!chartContainer.value || filteredLinesWithColors.value.length === 0) {
     return;
   }
@@ -577,17 +492,55 @@ watch([filteredLinesWithColors, chartContainer], () => {
 
   const scales = { x: { start: appStore.useLogScale ? minX : 0, end: maxX }, y: { start: 0, end: maxY } };
 
-  const chart = new Chart({ logScale: { x: appStore.useLogScale } })
+  const chart = new Chart()
     .addAxes({ x: "Impact ratio", y: appStore.yCategoricalAxis })
     .addTraces(filteredLinesWithColors.value)
     .addArea()
+    .addGridLines()
     .makeResponsive()
 
-  if (Object.values(categoricalScales).length <= 1) {
+  if (Object.values(categoricalScales.value).length <= 1) {
     chart.addZoom();
   }
 
   chart.appendTo(chartContainer.value, scales, {}, categoricalScales.value);
+
+  // NB this is a hack, that DOES NOT WORK if the chart is responsive and resized, nor if it's zoomed.
+  // It also doesn't work when we add a categorical x axis.
+  const interval = setInterval(() => {
+    const plot = document.getElementById("chartContainer")?.getElementsByTagName("svg")[0];
+    if (plot) {
+      const xAxis = Array.from(plot.children).filter(c => c.tagName === "g")[1];
+      if (xAxis) {
+        if (appStore.useLogScale && !appStore.xCategoricalAxis) {
+          Array.from(xAxis.getElementsByClassName("tick")).forEach((tick) => {
+            const textElem = tick.getElementsByTagName("text")[0];
+            if (textElem) {
+              textElem.style.fontSize = "1rem";
+              textElem.innerHTML = `10<tspan dy="-0.5rem" style="font-size: smaller; position: relative; top: 10px;"> ${textElem.textContent}</tspan>`;
+            }
+          });
+        }
+        clearInterval(interval);
+      }
+    }
+  }, 100);
+
+  setTimeout(() => {
+    clearInterval(interval); // Ensure the interval stops after 2 seconds
+  }, 2000);
+}
+
+watch([filteredLinesWithColors, chartContainer], createChart);
+
+watch(histDataPaths, debounce(doLoadData, 25));
+
+onMounted(async () => {
+  if (!chartContainer.value) {
+    return;
+  }
+
+  doLoadData();
 });
 </script>
 

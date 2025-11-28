@@ -3,7 +3,6 @@ set -ex
 
 # See README.md for instructions on steps to take before running this.
 
-
 if [ -z "$1" ]; then
   echo "Usage: $0 <packet-id>"
   exit 1
