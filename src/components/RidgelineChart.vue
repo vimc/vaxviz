@@ -2,7 +2,7 @@
   <div class="chart-container">
     <div ref="chartContainer" id="chartContainer"></div>
     <div style="width: fit-content; flex: 1; padding-left: 20px;">
-      <h2 v-if="colorAxis">{{ colorAxis.slice(0, 1).toUpperCase() + colorAxis.slice(1) }} legend</h2>
+      <h2 v-if="colorAxis">{{ titleCase(colorAxis) }} legend</h2>
       <ul>
         <template v-for="([category, color]) in colorsForKey" :key="category">
           <li style="padding-right: 10px; margin-right: 10px;">
@@ -92,6 +92,7 @@
 import { useAppStore } from "@/stores/appStore";
 import { Dimensions, LocResolutions } from "@/types";
 import loadData from "@/utils/loadData";
+import titleCase from "@/utils/titleCase";
 import { getCountryName } from "@/utils/regions";
 import { Chart, type Lines } from "@reside-ic/skadi-chart";
 import { debounce } from "perfect-debounce";
@@ -493,7 +494,7 @@ const createChart = () => {
   const scales = { x: { start: appStore.useLogScale ? minX : 0, end: maxX }, y: { start: 0, end: maxY } };
 
   const chart = new Chart()
-    .addAxes({ x: "Impact ratio", y: appStore.yCategoricalAxis })
+    .addAxes({ x: "Impact ratio", y: titleCase(appStore.yCategoricalAxis) })
     .addTraces(filteredLinesWithColors.value)
     .addArea()
     .addGridLines()
