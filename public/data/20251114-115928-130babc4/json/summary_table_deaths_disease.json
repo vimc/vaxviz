@@ -1,0 +1,16 @@
+[
+{"disease":"COVID-19","mean_value":0.123529,"lower_95":0.08092,"upper_95":0.185474,"median_value":0.118698},
+{"disease":"Cholera","mean_value":0.204111,"lower_95":0.056459,"upper_95":0.533479,"median_value":0.18349},
+{"disease":"HPV","mean_value":11.204829,"lower_95":9.840056,"upper_95":12.569894,"median_value":11.193834},
+{"disease":"HepB","mean_value":5.010461,"lower_95":3.536397,"upper_95":7.096351,"median_value":4.601285},
+{"disease":"Hib","mean_value":2.215303,"lower_95":1.654102,"upper_95":2.984435,"median_value":2.179024},
+{"disease":"JE","mean_value":0.177571,"lower_95":0.093687,"upper_95":0.305831,"median_value":0.171813},
+{"disease":"Malaria","mean_value":2.797978,"lower_95":2.256514,"upper_95":3.36933,"median_value":2.797468},
+{"disease":"Measles","mean_value":6.090888,"lower_95":5.026858,"upper_95":7.322182,"median_value":6.091235},
+{"disease":"Meningitis","mean_value":0.660558,"lower_95":0.567271,"upper_95":0.755851,"median_value":0.66193},
+{"disease":"PCV","mean_value":1.523125,"lower_95":0.70307,"upper_95":2.476692,"median_value":1.47755},
+{"disease":"Rota","mean_value":0.796474,"lower_95":0.185895,"upper_95":1.392224,"median_value":0.794574},
+{"disease":"Rubella","mean_value":0.21801,"lower_95":0.139655,"upper_95":0.336635,"median_value":0.209063},
+{"disease":"Typhoid","mean_value":0.704818,"lower_95":0.359686,"upper_95":1.970968,"median_value":0.608461},
+{"disease":"YF","mean_value":1.867207,"lower_95":0.813281,"upper_95":3.655649,"median_value":1.745966}
+]
