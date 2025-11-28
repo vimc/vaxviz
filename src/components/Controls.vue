@@ -1,9 +1,5 @@
 <template>
-  <form class="w-full m-5 flex gap-x-20 gap-y-5 flex-wrap">
-    <div class="flex flex-col gap-10 my-5">
-      <FwbCheckbox v-model="appStore.useLogScale" label="Log scale" />
-      <FwbCheckbox v-model="appStore.splitByActivityType" label="Split by activity type" />
-    </div>
+  <form class="m-5 flex gap-x-20 gap-y-5 flex-wrap">
     <fieldset class="gap-5" aria-required="true">
       <legend class="block mb-5 font-medium text-heading">Burden metric:</legend>
       <div>
@@ -32,7 +28,7 @@
         />
       </div>
     </fieldset>
-    <div class="mb-5 w-75">
+    <div class="mb-5 grow min-w-75 max-w-100">
       <label for="password" class="block mb-5 font-medium text-heading">
         Focus {{ appStore.exploreByLabel.toLocaleLowerCase() }}:
       </label>
@@ -53,6 +49,8 @@
         </template>
       </VueSelect>
     </div>
+    <FwbCheckbox v-model="appStore.useLogScale" label="Log scale" :wrapper-class="'self-center'"/>
+    <FwbCheckbox v-model="appStore.splitByActivityType" label="Split by activity type" :wrapper-class="'self-center'"/>
   </form>
 </template>
 
