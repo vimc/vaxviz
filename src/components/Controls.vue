@@ -29,7 +29,7 @@
       </div>
     </fieldset>
     <div class="mb-5 grow min-w-75 max-w-100">
-      <label for="password" class="block mb-5 font-medium text-heading">
+      <label id="focusLabel" for="focus" class="block mb-5 font-medium text-heading">
         Focus {{ appStore.exploreByLabel.toLocaleLowerCase() }}:
       </label>
       <VueSelect
@@ -37,6 +37,7 @@
         :isClearable="false"
         :options="selectOptions"
         :filter-by="(option, label, search) => label.toLowerCase().includes(search.toLowerCase()) || option.value === 'optgroup'"
+        :aria="{ labelledby: 'focusLabel' }"
       >
         <template #menu-header>
           <div class="p-2 ps-3 disabled-text-color">

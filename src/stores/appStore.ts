@@ -22,6 +22,7 @@ export const useAppStore = defineStore("app", () => {
 
   const burdenMetric = ref(BurdenMetrics.DEATHS);
   const useLogScale = ref(true);
+  const splitByActivityType = ref<boolean>(false);
 
   const exploreBy = ref(exploreOptions.find(o => o.value === Dimensions.DISEASE)?.value);
   const focus = ref("");
@@ -81,10 +82,8 @@ export const useAppStore = defineStore("app", () => {
     return option ? option.label : "";
   });
 
-  const splitByActivityType = ref<boolean>(false);
-
   watch(exploreBy, () => {
-    if (exploreBy.value === Dimensions.DISEASE && diseaseOptions.value[0]?.value) {
+    if (exploreBy.value === Dimensions.DISEASE && diseaseOptions.value[0]) {
       focus.value = diseaseOptions.value[0].value;
     } else if (exploreBy.value === Dimensions.LOCATION) {
       focus.value = LocResolutions.GLOBAL;
@@ -92,18 +91,18 @@ export const useAppStore = defineStore("app", () => {
   });
 
   return {
-    initialize,
-    initialized,
     burdenMetric,
-    useLogScale,
+    countryOptions,
+    diseaseOptions,
     exploreBy,
     exploreByLabel,
-    focus,
-    metricOptions,
     exploreOptions,
-    countryOptions,
-    subregionOptions,
-    diseaseOptions,
+    focus,
+    initialize,
+    initialized,
+    metricOptions,
     splitByActivityType,
+    subregionOptions,
+    useLogScale,
   };
 })
