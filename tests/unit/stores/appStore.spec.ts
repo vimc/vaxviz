@@ -49,9 +49,8 @@ describe("appStore", () => {
     })
   });
 
-  it("updates the focus value when exploreBy selection changes", () => {
+  it("updates the focus value when exploreBy selection changes", async () => {
     const store = useAppStore();
-
     store.initialize();
 
     expect(store.focus).toEqual("global");
@@ -70,7 +69,6 @@ describe("appStore", () => {
 
   it("returns the explore by label", async () => {
     const store = useAppStore();
-
     store.initialize();
 
     expect(store.exploreByLabel).toEqual("Geography");

@@ -8,10 +8,10 @@ import Controls from '@/components/Controls.vue'
 import { useAppStore } from "@/stores/appStore";
 
 describe('Controls component', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     setActivePinia(createPinia());
     const store = useAppStore();
-    await store.initialize();
+    store.initialize();
   });
 
   it('renders correctly', async () => {
