@@ -1,8 +1,9 @@
-import { BurdenMetrics, Dimensions, LocResolutions, type Option } from "@/types";
-import { dataDir } from "@/utils/loadData";
+import { BurdenMetrics, Dimensions, LocResolutions, type Option, type SummaryTableDataRow } from "@/types";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 import { getCountryName } from "@/utils/regions";
+import summaryTableDeathsDiseaseCountry from "@/data/summary/summary_table_deaths_disease_country.json";
+import summaryTableDeathsDiseaseSubregion from "@/data/summary/summary_table_deaths_disease_subregion.json";
 
 const metricOptions = [
   { label: "DALYs averted", value: BurdenMetrics.DALYS },
@@ -27,22 +28,20 @@ export const useAppStore = defineStore("app", () => {
   const exploreBy = ref(exploreOptions.find(o => o.value === Dimensions.LOCATION)?.value);
   const focus = ref<string>(LocResolutions.GLOBAL);
 
-  const initialize = async () => {
+  const initialize = () => {
     const countryOpts: Option[] = [];
     const subregionOpts: Option[] = [];
     const diseaseOpts: Option[] = [];
     // One-off initial loads of summary tables to find the options for controls.
     // NB Some diseases (e.g. Malaria) are included only at the subregional level.
-    await Promise.all([
-      "summary_table_deaths_disease_country.json",
-      "summary_table_deaths_disease_subregion.json",
-    ].map(async (path) => {
-      const response = await fetch(`${dataDir}/${path}`);
-      const rows = await response.json();
+    [
+      summaryTableDeathsDiseaseCountry,
+      summaryTableDeathsDiseaseSubregion,
+    ].map((rows: SummaryTableDataRow[]) => {
       for (const row of rows) {
-        const countryValue = row?.[LocResolutions.COUNTRY]?.toString();
-        const subregionValue = row?.[LocResolutions.SUBREGION]?.toString();
-        const diseaseValue = row?.[Dimensions.DISEASE]?.toString();
+        const countryValue = row[LocResolutions.COUNTRY]?.toString();
+        const subregionValue = row[LocResolutions.SUBREGION]?.toString();
+        const diseaseValue = row[Dimensions.DISEASE].toString();
         if (countryValue) {
           countryOpts.push({
             value: countryValue,
@@ -61,7 +60,7 @@ export const useAppStore = defineStore("app", () => {
           });
         }
       }
-    }));
+    });
 
     // Deduplicate and sort options.
     countryOptions.value = countryOpts.filter((option, index, self) =>

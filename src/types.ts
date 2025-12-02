@@ -17,5 +17,11 @@ export enum LocResolutions {
 }
 
 export type DataRow = Record<string, string | number>;
+export type SummaryTableDataRow = DataRow & {
+  [Dimensions.DISEASE]: string;
+  [LocResolutions.COUNTRY]?: string;
+  [LocResolutions.SUBREGION]?: string;
+};
+
 export type Option = { label: string; value: string };
 

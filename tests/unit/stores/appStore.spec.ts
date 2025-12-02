@@ -21,14 +21,14 @@ describe("appStore", () => {
     expect(store.focus).toBe("global");
   });
 
-  it("initializes country options, subregion options, and disease options", async () => {
+  it("initializes country options, subregion options, and disease options", () => {
     const store = useAppStore();
     expect(store.countryOptions).toHaveLength(0);
     expect(store.subregionOptions).toHaveLength(0);
     expect(store.diseaseOptions).toHaveLength(0);
     expect(store.initialized).toBe(false);
 
-    await store.initialize();
+    store.initialize();
 
     expect(store.initialized).toBe(true);
     expect(store.countryOptions).toHaveLength(117);
@@ -49,10 +49,10 @@ describe("appStore", () => {
     })
   });
 
-  it("updates the focus value when exploreBy selection changes", async () => {
+  it("updates the focus value when exploreBy selection changes", () => {
     const store = useAppStore();
 
-    await store.initialize();
+    store.initialize();
 
     expect(store.focus).toEqual("global");
     expect(store.exploreBy).toEqual("location");
@@ -71,7 +71,7 @@ describe("appStore", () => {
   it("returns the explore by label", async () => {
     const store = useAppStore();
 
-    await store.initialize();
+    store.initialize();
 
     expect(store.exploreByLabel).toEqual("Geography");
 

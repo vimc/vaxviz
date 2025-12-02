@@ -23,6 +23,12 @@ for filepath in $DATADIR/csv/*.csv; do
   echo "Converted $filepath to JSON."
 done
 
+# Copy all files that begin with the string 'summary_table' into the src/data folder
+SRCDATADIR=$here/../src/data/summary
+rm -rf $SRCDATADIR
+mkdir $SRCDATADIR
+cp $OUTPUTDIR/summary_table* $SRCDATADIR
+
 # Write to a file to record the packet-id and date-time stamp.
 DATE_TIME=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Packet $PACKET_ID converted to json at $DATE_TIME" > $DATADIR/packet-id.txt

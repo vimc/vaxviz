@@ -27,7 +27,7 @@ does not allow creation of tokens without expiry and the current token will expi
 
 Build with Node 24. There is currently (November '25) a problem with building @vue/devtools with Node 25 - an error 
 relating to local storage is thrown. As per [this issue](https://github.com/vuejs/devtools/issues/979), using Node 24
-is the current workaround. 
+is the current workaround.
 
 ## Recommended IDE Setup
 
