@@ -105,3 +105,4 @@ export const useAppStore = defineStore("app", () => {
     useLogScale,
   };
 })
+

@@ -3,11 +3,12 @@ import Controls from './components/Controls.vue';
 import { useAppStore } from './stores/appStore';
 
 const appStore = useAppStore();
-appStore.initialize();
 </script>
 
 <template>
-  <Controls />
+  <div v-if="appStore.initialized">
+    <Controls />
+  </div>
 </template>
 
 <style scoped>
