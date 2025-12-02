@@ -27,7 +27,8 @@ done
 SRCDATADIR=$here/../src/data/summary
 rm -rf $SRCDATADIR
 mkdir $SRCDATADIR
-cp $OUTPUTDIR/summary_table* $SRCDATADIR
+cp $OUTPUTDIR/summary_table_deaths_disease_country.json $SRCDATADIR
+cp $OUTPUTDIR/summary_table_deaths_disease_subregion.json $SRCDATADIR
 
 # Write to a file to record the packet-id and date-time stamp.
 DATE_TIME=$(date '+%Y-%m-%d %H:%M:%S')
