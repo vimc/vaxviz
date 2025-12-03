@@ -10,7 +10,6 @@ describe("appStore", () => {
 
   it("has correct default values", () => {
     const store = useAppStore();
-    expect(store.initialized).toBe(false);
     expect(store.countryOptions).toEqual([]);
     expect(store.subregionOptions).toEqual([]);
     expect(store.diseaseOptions).toEqual([]);
@@ -26,11 +25,9 @@ describe("appStore", () => {
     expect(store.countryOptions).toHaveLength(0);
     expect(store.subregionOptions).toHaveLength(0);
     expect(store.diseaseOptions).toHaveLength(0);
-    expect(store.initialized).toBe(false);
 
     store.initialize();
 
-    expect(store.initialized).toBe(true);
     expect(store.countryOptions).toHaveLength(117);
     expect(store.subregionOptions).toHaveLength(10);
     expect(store.diseaseOptions).toHaveLength(14);

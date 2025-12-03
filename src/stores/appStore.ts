@@ -16,7 +16,6 @@ const exploreOptions = [
 ];
 
 export const useAppStore = defineStore("app", () => {
-  const initialized = ref(false);
   const countryOptions = ref<Option[]>([]);
   const subregionOptions = ref<Option[]>([]);
   const diseaseOptions = ref<Option[]>([]);
@@ -72,8 +71,6 @@ export const useAppStore = defineStore("app", () => {
     diseaseOptions.value = diseaseOpts.filter((option, index, self) =>
       index === self.findIndex((o) => o.value === option.value)
     ).sort((a, b) => a.label.localeCompare(b.label));
-
-    initialized.value = true;
   };
 
   const exploreByLabel = computed(() => {
@@ -98,7 +95,6 @@ export const useAppStore = defineStore("app", () => {
     exploreOptions,
     focus,
     initialize,
-    initialized,
     metricOptions,
     splitByActivityType,
     subregionOptions,
