@@ -1,4 +1,4 @@
-import WHOSubRegions from "./WHORegions.json";
+import WHOSubRegions from "@/data/WHORegions.json";
 
 type SubregionRow = {
   country: string;

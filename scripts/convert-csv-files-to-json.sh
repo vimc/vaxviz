@@ -23,6 +23,13 @@ for filepath in $DATADIR/csv/*.csv; do
   echo "Converted $filepath to JSON."
 done
 
+# Copy some relatively small files into the src/data folder
+SRCDATADIR=$here/../src/data/summary
+rm -rf $SRCDATADIR
+mkdir $SRCDATADIR
+cp $OUTPUTDIR/summary_table_deaths_disease_country.json $SRCDATADIR
+cp $OUTPUTDIR/summary_table_deaths_disease_subregion.json $SRCDATADIR
+
 # Write to a file to record the packet-id and date-time stamp.
 DATE_TIME=$(date '+%Y-%m-%d %H:%M:%S')
 echo "Packet $PACKET_ID converted to json at $DATE_TIME" > $DATADIR/packet-id.txt
