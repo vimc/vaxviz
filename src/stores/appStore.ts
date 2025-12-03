@@ -15,16 +15,30 @@ const exploreOptions = [
 
 export const useAppStore = defineStore("app", () => {
   const burdenMetric = ref(BurdenMetrics.DEATHS);
-  const useLogScale = ref(true);
+  const logScaleEnabled = ref(true);
   const splitByActivityType = ref<boolean>(false);
 
-  const exploreBy = ref(exploreOptions.find(o => o.value === Dimensions.LOCATION)?.value);
+  // The x categorical axis corresponds to the horizontal slicing of the ridgeline plot for splitting by activity type.
+  const xCategoricalAxis = ref<Dimensions | null>(splitByActivityType.value ? Dimensions.ACTIVITY_TYPE : null);
+  // The y categorical axis corresponds to the rows of the ridgeline plot.
+  const yCategoricalAxis = ref<Dimensions>(Dimensions.DISEASE);
+  // The 'within-band' axis is often denoted by color. It distinguishes different lines that share the same categorical axis values.
+  const withinBandAxis = ref<Dimensions>(Dimensions.LOCATION);
+
+  const exploreBy = ref<Dimensions.LOCATION | Dimensions.DISEASE>(Dimensions.LOCATION);
   const focus = ref<string>(LocResolutions.GLOBAL);
 
   const exploreByLabel = computed(() => {
     const option = exploreOptions.find(o => o.value === exploreBy.value);
     return option ? option.label : "";
   });
+
+  // The dimensions currently in use: up to three will be in use at any given time.
+  const dimensions = computed(() => ({
+    x: xCategoricalAxis.value,
+    y: yCategoricalAxis.value,
+    withinBand: withinBandAxis.value
+  }));
 
   watch(exploreBy, () => {
     if (exploreBy.value === Dimensions.DISEASE && diseaseOptions[0]) {
@@ -34,15 +48,33 @@ export const useAppStore = defineStore("app", () => {
     };
   });
 
+  watch(focus, () => {
+    const focusIsADisease = diseaseOptions.find(d => d.value === focus.value);
+    if (focusIsADisease) {
+      yCategoricalAxis.value = Dimensions.LOCATION;
+      withinBandAxis.value = Dimensions.DISEASE;
+    } else {
+      // This is only one possible way of 'focusing' on a 'location':
+      // diseases as categorical Y axis, each row with up to 3 ridges.
+      // An alternative would be to have the 3 location rows laid out on the categorical Y axis,
+      // and disease(s) as color axis.
+      yCategoricalAxis.value = Dimensions.DISEASE;
+      withinBandAxis.value = Dimensions.LOCATION;
+    };
+  });
+
+  watch(splitByActivityType, (split) => xCategoricalAxis.value = split ? Dimensions.ACTIVITY_TYPE : null);
+
   return {
     burdenMetric,
+    dimensions,
     exploreBy,
     exploreByLabel,
     exploreOptions,
     focus,
+    logScaleEnabled,
     metricOptions,
     splitByActivityType,
-    useLogScale,
   };
 })
 
