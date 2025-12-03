@@ -22,46 +22,19 @@ describe('Controls component', () => {
       "Deaths averted",
       "Disease",
       "Geography",
-      "Focus disease:",
+      "Focus geography:",
       "Log scale",
       "Split by activity type",
     ]);
 
-    const burdenMetricRadios = wrapper.findAll('input[name="burdenMetric"]');
-    expect((burdenMetricRadios.find(e => e.element.value === "dalys")?.element.checked)).toBe(false);
-    expect((burdenMetricRadios.find(e => e.element.value === "deaths")?.element.checked)).toBe(true);
-
     const exploreByRadios = wrapper.findAll('input[name="exploreBy"]');
-    expect((exploreByRadios.find(e => e.element.value === "disease")?.element.checked)).toBe(true);
-    expect((exploreByRadios.find(e => e.element.value === "location")?.element.checked)).toBe(false);
+    expect((exploreByRadios.find(e => e.element.value === "disease")?.element.checked)).toBe(false);
+    expect((exploreByRadios.find(e => e.element.value === "location")?.element.checked)).toBe(true);
 
     const vueSelect = wrapper.findComponent(VueSelect);
     expect(vueSelect.props("aria").labelledby).toEqual("focusLabel");
-    expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus disease/);
-    await vueSelect.find(".dropdown-icon").trigger("click");
-    const renderedOptions = vueSelect.findAll(".menu .menu-option").filter(e => e.attributes("aria-disabled") === "false");
-    expect(renderedOptions.length).toBe(14);
-    expect(renderedOptions[0].text()).toBe("Cholera");
-
-    const logScaleCheckbox = wrapper.findAll('label').find(e => e.text().includes("Log scale"))?.find('input');
-    expect(logScaleCheckbox.element.checked).toBe(true);
-
-    const splitByActivityTypeCheckbox = wrapper.findAll('label').find(e => e.text().includes("Split by activity type"))?.find('input');
-    expect(splitByActivityTypeCheckbox.element.checked).toBe(false);
-  });
-
-  it("updates the focus label and select options when exploreBy selection changes", async () => {
-    const wrapper = mount(Controls);
-
-    const vueSelect = wrapper.findComponent(VueSelect);
-    expect(vueSelect.props("modelValue")).toBe("");
-
-    wrapper.findAll('input[name="exploreBy"]').find(e => e.element.value === "location")?.setChecked();
-    await nextTick();
-
     expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus geography/);
     expect(vueSelect.props("modelValue")).toBe("global");
-    // Expect the focus select to have updated options
     await vueSelect.find(".dropdown-icon").trigger("click");
     const disabledOptions = vueSelect.findAll(".menu .menu-option").filter(e => e.attributes("aria-disabled") === "true");
     expect(disabledOptions.length).toBe(3);
@@ -74,11 +47,39 @@ describe('Controls component', () => {
     expect(selectableOptions[1].text()).toBe("Central and Southern Asia");
     expect(selectableOptions[11].text()).toBe("Afghanistan");
 
+    const logScaleCheckbox = wrapper.findAll('label').find(e => e.text().includes("Log scale"))?.find('input');
+    expect(logScaleCheckbox.element.checked).toBe(true);
+
+    const splitByActivityTypeCheckbox = wrapper.findAll('label').find(e => e.text().includes("Split by activity type"))?.find('input');
+    expect(splitByActivityTypeCheckbox.element.checked).toBe(false);
+
+    const burdenMetricRadios = wrapper.findAll('input[name="burdenMetric"]');
+    expect((burdenMetricRadios.find(e => e.element.value === "dalys")?.element.checked)).toBe(false);
+    expect((burdenMetricRadios.find(e => e.element.value === "deaths")?.element.checked)).toBe(true);
+  });
+
+  it("updates the focus label and select options when exploreBy selection changes", async () => {
+    const wrapper = mount(Controls);
+
+    const vueSelect = wrapper.findComponent(VueSelect);
+    expect(vueSelect.props("modelValue")).toBe("global");
+
     wrapper.findAll('input[name="exploreBy"]').find(e => e.element.value === "disease")?.setChecked();
     await nextTick();
 
     expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus disease/);
     expect(vueSelect.props("modelValue")).toBe("Cholera");
+    // Expect the focus select to have updated options
+    await vueSelect.find(".dropdown-icon").trigger("click");
+    const renderedOptions = vueSelect.findAll(".menu .menu-option").filter(e => e.attributes("aria-disabled") === "false");
+    expect(renderedOptions.length).toBe(14);
+    expect(renderedOptions[0].text()).toBe("Cholera");
+
+    wrapper.findAll('input[name="exploreBy"]').find(e => e.element.value === "location")?.setChecked();
+    await nextTick();
+
+    expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus geography/);
+    expect(vueSelect.props("modelValue")).toBe("global");
   });
 
   it("filtering the select menu when exploring by geography works correctly", async () => {

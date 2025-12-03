@@ -24,8 +24,8 @@ export const useAppStore = defineStore("app", () => {
   const useLogScale = ref(true);
   const splitByActivityType = ref<boolean>(false);
 
-  const exploreBy = ref(exploreOptions.find(o => o.value === Dimensions.DISEASE)?.value);
-  const focus = ref("");
+  const exploreBy = ref(exploreOptions.find(o => o.value === Dimensions.LOCATION)?.value);
+  const focus = ref<string>(LocResolutions.GLOBAL);
 
   const initialize = async () => {
     const countryOpts: Option[] = [];

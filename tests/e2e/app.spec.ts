@@ -1,15 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-test('visits the app root url and selects a focus disease', async ({ page }) => {
+test('visits the app root url and selects a focus geography', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByText('Burden metric')).toBeVisible();
 
-  const diseaseOption = "Measles";
+  const geographyOption = "All 117 VIMC countries";
   await page.click(".dropdown-icon");
-  const option = page.locator(`.menu .menu-option:has-text('${diseaseOption}')`);
+  const option = page.locator(`.menu .menu-option:has-text('${geographyOption}')`);
   await expect(option).toBeVisible();
   await option.click();
 
-  await expect(page.getByRole("combobox", { name: "Focus disease:" }).locator(".single-value"))
-    .toHaveText(diseaseOption);
+  await expect(page.getByRole("combobox", { name: "Focus geography:" }).locator(".single-value"))
+    .toHaveText(geographyOption);
 });

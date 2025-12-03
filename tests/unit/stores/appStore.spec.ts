@@ -17,8 +17,8 @@ describe("appStore", () => {
     expect(store.burdenMetric).toBe("deaths");
     expect(store.useLogScale).toBe(true);
     expect(store.splitByActivityType).toBe(false);
-    expect(store.exploreBy).toBe("disease");
-    expect(store.focus).toBe("");
+    expect(store.exploreBy).toBe("location");
+    expect(store.focus).toBe("global");
   });
 
   it("initializes country options, subregion options, and disease options", async () => {
@@ -54,18 +54,18 @@ describe("appStore", () => {
 
     await store.initialize();
 
-    expect(store.focus).toEqual("");
-    expect(store.exploreBy).toEqual("disease");
-
-    store.exploreBy = "location";
-    await nextTick();
-
     expect(store.focus).toEqual("global");
+    expect(store.exploreBy).toEqual("location");
 
     store.exploreBy = "disease";
     await nextTick();
 
     expect(store.focus).toEqual("Cholera");
+
+    store.exploreBy = "location";
+    await nextTick();
+
+    expect(store.focus).toEqual("global");
   });
 
   it("returns the explore by label", async () => {
@@ -73,11 +73,11 @@ describe("appStore", () => {
 
     await store.initialize();
 
-    expect(store.exploreByLabel).toEqual("Disease");
+    expect(store.exploreByLabel).toEqual("Geography");
 
-    store.exploreBy = "location";
+    store.exploreBy = "disease";
     await nextTick();
 
-    expect(store.exploreByLabel).toEqual("Geography");
+    expect(store.exploreByLabel).toEqual("Disease");
   });
 });
