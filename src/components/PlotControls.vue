@@ -1,5 +1,5 @@
 <template>
-  <form class="m-5 flex gap-y-15 flex-wrap flex-col w-fit">
+  <form class="m-5 flex gap-y-20 flex-wrap flex-col w-fit">
     <div>
       <fieldset class="gap-5 mb-3" aria-required="true">
         <legend class="block mb-5 font-medium text-heading">Focus on:</legend>
@@ -38,8 +38,16 @@
         </VueSelect>
       </div>
     </div>
-    <FwbCheckbox v-model="appStore.splitByActivityType" label="Split by activity type"/>
-    <FwbCheckbox v-model="appStore.useLogScale" label="Log scale"/>
+    <FwbCheckbox
+      v-model="appStore.splitByActivityType"
+      label="Split by activity type"
+      :wrapper-class="'w-fit'"
+    />
+    <FwbCheckbox
+      v-model="appStore.logScaleEnabled"
+      label="Log scale"
+      :wrapper-class="'w-fit'"
+    />
     <fieldset class="gap-5" aria-required="true">
       <legend class="block mb-5 font-medium text-heading">Burden metric:</legend>
       <div>

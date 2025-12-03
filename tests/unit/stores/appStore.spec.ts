@@ -14,10 +14,15 @@ describe("appStore", () => {
     expect(store.subregionOptions).toEqual([]);
     expect(store.diseaseOptions).toEqual([]);
     expect(store.burdenMetric).toBe("deaths");
-    expect(store.useLogScale).toBe(true);
+    expect(store.logScaleEnabled).toBe(true);
     expect(store.splitByActivityType).toBe(false);
     expect(store.exploreBy).toBe("location");
     expect(store.focus).toBe("global");
+    expect(store.dimensions).toEqual({
+      x: null,
+      y: "disease",
+      withinBand: "location",
+    });
   });
 
   it("initializes country options, subregion options, and disease options", () => {
@@ -62,6 +67,33 @@ describe("appStore", () => {
     await nextTick();
 
     expect(store.focus).toEqual("global");
+  });
+
+  it("updates the y-categorical axis and within-band axis when focus changes", async () => {
+    const store = useAppStore();
+    store.initialize();
+    expect(store.focus).toEqual("global");
+    expect(store.exploreBy).toEqual("location");
+    expect(store.dimensions.y).toEqual("disease");
+    expect(store.dimensions.withinBand).toEqual("location");
+
+    store.focus = "AFG";
+    await nextTick();
+
+    expect(store.dimensions.y).toEqual("disease");
+    expect(store.dimensions.withinBand).toEqual("location");
+
+    store.focus = "Cholera";
+    await nextTick();
+
+    expect(store.dimensions.y).toEqual("location");
+    expect(store.dimensions.withinBand).toEqual("disease");
+
+    store.focus = "Central and Southern Asia";
+    await nextTick();
+
+    expect(store.dimensions.y).toEqual("disease");
+    expect(store.dimensions.withinBand).toEqual("location");
   });
 
   it("returns the explore by label", async () => {
