@@ -110,3 +110,13 @@ npm run lint
 1. Delete contents of `public/data/csv`
 1. Unzip the folder into `public/data/csv`
 1. Run `./scripts/convert-csv-files-to-json.sh <packet-id>` replacing the packet id argument
+
+### Other data sources
+
+For mapping from countries to subregions, use the same mapping as the paper.
+
+This can be located on the VIMC reporting portal, within the packet group `paper-four-figures`.
+
+Go to the latest packet and download `who_sub_regions.csv` (under 'Other files').
+
+That file has been transformed to `/src/utils/WHORegions.json`.

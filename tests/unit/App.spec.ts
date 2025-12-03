@@ -1,11 +1,16 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 
 import { mount } from '@vue/test-utils'
 import App from '../../src/App.vue'
+import { setActivePinia, createPinia } from 'pinia';
 
-describe('App', () => {
-  it('mounts renders properly', () => {
+describe('App component', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
+
+  it('renders correctly', () => {
     const wrapper = mount(App)
-    expect(wrapper.text()).toContain("Vue app")
+    expect(wrapper.text()).toContain("Burden metric")
   })
 })
