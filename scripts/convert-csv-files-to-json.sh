@@ -23,7 +23,7 @@ for filepath in $DATADIR/csv/*.csv; do
   echo "Converted $filepath to JSON."
 done
 
-# Copy all files that begin with the string 'summary_table' into the src/data folder
+# Copy some relatively small files into the src/data folder
 SRCDATADIR=$here/../src/data/summary
 rm -rf $SRCDATADIR
 mkdir $SRCDATADIR
