@@ -15,10 +15,13 @@ describe("appStore", () => {
     expect(store.subregionOptions).toEqual([]);
     expect(store.diseaseOptions).toEqual([]);
     expect(store.burdenMetric).toBe("deaths");
-    expect(store.useLogScale).toBe(true);
+    expect(store.logScaleEnabled).toBe(true);
     expect(store.splitByActivityType).toBe(false);
     expect(store.exploreBy).toBe("disease");
     expect(store.focus).toBe("");
+    expect(store.dimensions).toEqual(["disease"]);
+    expect(store.diseaseFilter).toEqual([]);
+    expect(store.locationFilter).toEqual([]);
   });
 
   it("initializes country options, subregion options, and disease options", async () => {

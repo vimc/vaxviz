@@ -50,7 +50,7 @@
         </template>
       </VueSelect>
     </div>
-    <FwbCheckbox v-model="appStore.useLogScale" label="Log scale" :wrapper-class="'self-center'"/>
+    <FwbCheckbox v-model="appStore.logScaleEnabled" label="Log scale" :wrapper-class="'self-center'"/>
     <FwbCheckbox v-model="appStore.splitByActivityType" label="Split by activity type" :wrapper-class="'self-center'"/>
   </form>
 </template>

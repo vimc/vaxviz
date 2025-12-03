@@ -2,6 +2,7 @@
 import { onMounted } from 'vue';
 import Controls from './components/Controls.vue';
 import { useAppStore } from './stores/appStore';
+import Plot from './components/Plot.vue';
 
 const appStore = useAppStore();
 
@@ -10,6 +11,7 @@ onMounted(async () => await appStore.initialize());
 
 <template>
   <Controls />
+  <Plot />
 </template>
 
 <style scoped>

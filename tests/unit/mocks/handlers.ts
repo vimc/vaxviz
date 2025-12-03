@@ -1,4 +1,4 @@
-import { dataDir } from '@/utils/loadData'
+import { dataDir } from '@/composables/useData'
 import { http, HttpResponse } from 'msw'
 import summaryTableDeathsDiseaseCountry from '../../../public/data/json/summary_table_deaths_disease_country.json'
 import summaryTableDeathsDiseaseSubregion from '../../../public/data/json/summary_table_deaths_disease_subregion.json'
