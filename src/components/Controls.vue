@@ -1,20 +1,6 @@
 <template>
   <form class="m-5 flex gap-x-20 gap-y-5 flex-wrap">
     <fieldset class="gap-5" aria-required="true">
-      <legend class="block mb-5 font-medium text-heading">Burden metric:</legend>
-      <div>
-        <FwbRadio
-          v-for="({ label, value }) in appStore.metricOptions"
-          :key="value"
-          v-model="appStore.burdenMetric"
-          name="burdenMetric"
-          :label="label"
-          :value="value"
-          class="mb-1"
-        />
-      </div>
-    </fieldset>
-    <fieldset class="gap-5" aria-required="true">
       <legend class="block mb-5 font-medium text-heading">Focus on:</legend>
       <div>
         <FwbRadio
@@ -52,6 +38,20 @@
     </div>
     <FwbCheckbox v-model="appStore.useLogScale" label="Log scale" :wrapper-class="'self-center'"/>
     <FwbCheckbox v-model="appStore.splitByActivityType" label="Split by activity type" :wrapper-class="'self-center'"/>
+    <fieldset class="gap-5" aria-required="true">
+      <legend class="block mb-5 font-medium text-heading">Burden metric:</legend>
+      <div>
+        <FwbRadio
+          v-for="({ label, value }) in appStore.metricOptions"
+          :key="value"
+          v-model="appStore.burdenMetric"
+          name="burdenMetric"
+          :label="label"
+          :value="value"
+          class="mb-1"
+        />
+      </div>
+    </fieldset>
   </form>
 </template>
 
