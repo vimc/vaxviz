@@ -1,43 +1,45 @@
 <template>
-  <form class="m-5 flex gap-x-20 gap-y-5 flex-wrap">
-    <fieldset class="gap-5" aria-required="true">
-      <legend class="block mb-5 font-medium text-heading">Focus on:</legend>
-      <div>
-        <FwbRadio
-          v-for="({ label, value }) in appStore.exploreOptions"
-          :key="value"
-          v-model="appStore.exploreBy"
-          name="exploreBy"
-          :label="label"
-          :value="value"
-          class="mb-1"
-        />
+  <form class="m-5 flex gap-y-15 flex-wrap flex-col w-fit">
+    <div>
+      <fieldset class="gap-5 mb-3" aria-required="true">
+        <legend class="block mb-5 font-medium text-heading">Focus on:</legend>
+        <div>
+          <FwbRadio
+            v-for="({ label, value }) in appStore.exploreOptions"
+            :key="value"
+            v-model="appStore.exploreBy"
+            name="exploreBy"
+            :label="label"
+            :value="value"
+            class="mb-1"
+          />
+        </div>
+      </fieldset>
+      <div class="w-75">
+        <label id="focusLabel" for="focus" class="sr-only">
+          Focus {{ appStore.exploreByLabel }}
+        </label>
+        <VueSelect
+          v-model="appStore.focus"
+          :isClearable="false"
+          :options="selectOptions"
+          :filter-by="(option, label, search) => label.toLowerCase().includes(search.toLowerCase()) || option.value === 'optgroup'"
+          :aria="{ labelledby: 'focusLabel' }"
+        >
+          <template #menu-header>
+            <div class="p-2 ps-3 disabled-text-color">
+              <h3 class="text-sm">Start typing to filter the list...</h3>
+            </div>
+          </template>
+          <template #option="{ option }">
+            <h4 v-if="option.value === 'optgroup'" class="font-medium text-sm text-heading disabled-text-color">{{ option.label }}</h4>
+            <span v-else class="ps-2">{{ option.label }}</span>
+          </template>
+        </VueSelect>
       </div>
-    </fieldset>
-    <div class="mb-5 grow min-w-75 max-w-100">
-      <label id="focusLabel" for="focus" class="block mb-5 font-medium text-heading">
-        Focus {{ appStore.exploreByLabel.toLocaleLowerCase() }}:
-      </label>
-      <VueSelect
-        v-model="appStore.focus"
-        :isClearable="false"
-        :options="selectOptions"
-        :filter-by="(option, label, search) => label.toLowerCase().includes(search.toLowerCase()) || option.value === 'optgroup'"
-        :aria="{ labelledby: 'focusLabel' }"
-      >
-        <template #menu-header>
-          <div class="p-2 ps-3 disabled-text-color">
-            <h3 class="text-sm">Start typing to filter the list...</h3>
-          </div>
-        </template>
-        <template #option="{ option }">
-          <h4 v-if="option.value === 'optgroup'" class="font-medium text-sm text-heading disabled-text-color">{{ option.label }}</h4>
-          <span v-else class="ps-2">{{ option.label }}</span>
-        </template>
-      </VueSelect>
     </div>
-    <FwbCheckbox v-model="appStore.useLogScale" label="Log scale" :wrapper-class="'self-center'"/>
-    <FwbCheckbox v-model="appStore.splitByActivityType" label="Split by activity type" :wrapper-class="'self-center'"/>
+    <FwbCheckbox v-model="appStore.splitByActivityType" label="Split by activity type"/>
+    <FwbCheckbox v-model="appStore.useLogScale" label="Log scale"/>
     <fieldset class="gap-5" aria-required="true">
       <legend class="block mb-5 font-medium text-heading">Burden metric:</legend>
       <div>

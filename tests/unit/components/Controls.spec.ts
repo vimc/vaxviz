@@ -18,13 +18,13 @@ describe('Controls component', () => {
     const wrapper = mount(Controls)
     const labels = wrapper.findAll('label').map(label => label.text());
     expect(labels).toEqual([
-      "DALYs averted",
-      "Deaths averted",
       "Disease",
       "Geography",
-      "Focus geography:",
-      "Log scale",
+      "Focus Geography",
       "Split by activity type",
+      "Log scale",
+      "DALYs averted",
+      "Deaths averted",
     ]);
 
     const exploreByRadios = wrapper.findAll('input[name="exploreBy"]');
@@ -33,7 +33,7 @@ describe('Controls component', () => {
 
     const vueSelect = wrapper.findComponent(VueSelect);
     expect(vueSelect.props("aria").labelledby).toEqual("focusLabel");
-    expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus geography/);
+    expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus Geography/);
     expect(vueSelect.props("modelValue")).toBe("global");
     await vueSelect.find(".dropdown-icon").trigger("click");
     const disabledOptions = vueSelect.findAll(".menu .menu-option").filter(e => e.attributes("aria-disabled") === "true");
@@ -67,7 +67,7 @@ describe('Controls component', () => {
     wrapper.findAll('input[name="exploreBy"]').find(e => e.element.value === "disease")?.setChecked();
     await nextTick();
 
-    expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus disease/);
+    expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus Disease/);
     expect(vueSelect.props("modelValue")).toBe("Cholera");
     // Expect the focus select to have updated options
     await vueSelect.find(".dropdown-icon").trigger("click");
@@ -78,7 +78,7 @@ describe('Controls component', () => {
     wrapper.findAll('input[name="exploreBy"]').find(e => e.element.value === "location")?.setChecked();
     await nextTick();
 
-    expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus geography/);
+    expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus Geography/);
     expect(vueSelect.props("modelValue")).toBe("global");
   });
 

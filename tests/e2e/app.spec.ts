@@ -9,6 +9,6 @@ test('visits the app root url and selects a focus geography', async ({ page }) =
   await expect(option).toBeVisible();
   await option.click();
 
-  await expect(page.getByRole("combobox", { name: "Focus geography:" }).locator(".single-value"))
+  await expect(page.getByRole("combobox", { name: "Focus Geography" }).locator(".single-value"))
     .toHaveText(geographyOption);
 });
