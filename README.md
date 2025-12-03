@@ -104,3 +104,9 @@ npm run test:e2e -- --debug
 npm run lint
 ```
 
+### Updating the static data
+
+1. Download the dataviz.zip file from the VIMC reporting portal (packet group name paper-four-figures) and make note of the packet id.
+1. Delete contents of `public/data/csv`
+1. Unzip the folder into `public/data/csv`
+1. Run `./scripts/convert-csv-files-to-json.sh <packet-id>` replacing the packet id argument
