@@ -4,7 +4,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import VueSelect from "vue3-select-component";
 import { nextTick } from "vue";
 
-import Controls from '@/components/Controls.vue'
+import PlotControls from '@/components/PlotControls.vue'
 import { useAppStore } from "@/stores/appStore";
 
 describe('Controls component', () => {
@@ -15,7 +15,7 @@ describe('Controls component', () => {
   });
 
   it('renders correctly', async () => {
-    const wrapper = mount(Controls)
+    const wrapper = mount(PlotControls)
     const labels = wrapper.findAll('label').map(label => label.text());
     expect(labels).toEqual([
       "Disease",
@@ -59,7 +59,7 @@ describe('Controls component', () => {
   });
 
   it("updates the focus label and select options when exploreBy selection changes", async () => {
-    const wrapper = mount(Controls);
+    const wrapper = mount(PlotControls);
 
     const vueSelect = wrapper.findComponent(VueSelect);
     expect(vueSelect.props("modelValue")).toBe("global");
@@ -83,7 +83,7 @@ describe('Controls component', () => {
   });
 
   it("filtering the select menu when exploring by geography works correctly", async () => {
-    const wrapper = mount(Controls);
+    const wrapper = mount(PlotControls);
 
     wrapper.findAll('input[name="exploreBy"]').find(e => e.element.value === "location")?.setChecked();
     await nextTick();
