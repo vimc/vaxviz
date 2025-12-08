@@ -13,8 +13,6 @@ export default () => {
   const fetchErrors = ref<{ e: Error, message: string }[]>([]);
   const histogramData = ref<DataRow[]>([]);
 
-  const dimensionsInUse = computed(() => Object.values(appStore.dimensions));
-
   // The geographical resolutions to use based on current exploreBy and focus selections.
   // This is currently exposed by the composable but that's only for manual testing purposes.
   const geographicalResolutions = computed(() => {
@@ -39,13 +37,13 @@ export default () => {
     return geographicalResolutions.value.map((geog) => {
       const fileNameParts = ["hist_counts", appStore.burdenMetric, "disease"];
       // NB files containing 'global' data simply omit location from the file name (as they have no location stratification).
-      if (dimensionsInUse.value.includes(Dimensions.LOCATION) && geog === LocResolutions.SUBREGION) {
+      if (geog === LocResolutions.SUBREGION) {
         fileNameParts.push(LocResolutions.SUBREGION);
       }
-      if (dimensionsInUse.value.includes(Dimensions.ACTIVITY_TYPE)) {
+      if (Object.values(appStore.dimensions).includes(Dimensions.ACTIVITY_TYPE)) {
         fileNameParts.push(Dimensions.ACTIVITY_TYPE);
       }
-      if (dimensionsInUse.value.includes(Dimensions.LOCATION) && geog === LocResolutions.COUNTRY) {
+      if (geog === LocResolutions.COUNTRY) {
         fileNameParts.push(LocResolutions.COUNTRY);
       }
       if (appStore.logScaleEnabled) {

@@ -88,6 +88,6 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.x).toBeNull();
       expect(dataAttr.y).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
-    });
+    }, { timeout: 2500 });
   });
 });

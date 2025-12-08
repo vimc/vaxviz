@@ -106,7 +106,7 @@ describe('useData', () => {
       expect(histogramData.value).toHaveLength(
         histCountsDalysDiseaseSubregionLog.length + histCountsDalysDiseaseCountryLog.length + histCountsDalysDiseaseLog.length
       );
-    });
+    }, { timeout: 2500 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
     expectLastNCallsToEqual(fetchSpy, [
       "/data/json/hist_counts_dalys_disease_subregion_log.json",

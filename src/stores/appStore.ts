@@ -18,7 +18,7 @@ export const useAppStore = defineStore("app", () => {
   const logScaleEnabled = ref(true);
   const splitByActivityType = ref<boolean>(false);
 
-  // The x categorical axis corresponds to the horizontal slicing of the ridgeline plot for splitting by activity type.
+  // The x categorical axis corresponds to horizontal slicing of the ridgeline plot (columns).
   const xCategoricalAxis = ref<Dimensions | null>(splitByActivityType.value ? Dimensions.ACTIVITY_TYPE : null);
   // The y categorical axis corresponds to the rows of the ridgeline plot.
   const yCategoricalAxis = ref<Dimensions>(Dimensions.DISEASE);
