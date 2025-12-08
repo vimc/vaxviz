@@ -23,10 +23,10 @@ for filepath in $DATADIR/csv/*.csv; do
   echo "Converted $filepath to JSON."
 done
 
-# Copy the file who_sub_regions.json to SRC_DATA_DIR. 
+# Move the file who_sub_regions.json to SRC_DATA_DIR.
 SRC_DATA_DIR=$here/../src/data
 rm -f $SRC_DATA_DIR/WHORegions.json
-cp $DATADIR/json/who_sub_regions.json $SRC_DATA_DIR/WHORegions.json
+mv $DATADIR/json/who_sub_regions.json $SRC_DATA_DIR/WHORegions.json
 
 # Derive options data from the converted JSON files.
 # NB this node script has a dependency on the WHORegions.json file that has just been written.
