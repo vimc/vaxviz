@@ -23,7 +23,7 @@
           v-model="appStore.focus"
           :isClearable="false"
           :options="selectOptions"
-          :filter-by="(option, label, search) => label.toLowerCase().includes(search.toLowerCase()) || option.value === 'optgroup'"
+          :filter-by="selectFilterBy"
           :aria="{ labelledby: 'focusLabel' }"
         >
           <template #menu-header>
@@ -59,46 +59,42 @@
 
 <script setup lang="ts">
 import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
-import VueSelect from "vue3-select-component";
+import VueSelect, { type Option } from "vue3-select-component";
 import { computed } from 'vue';
 import { useAppStore } from '../stores/appStore';
 import { Dimensions, LocResolutions } from '@/types';
+import countryOptions from '@/data/options/countryOptions.json';
+import diseaseOptions from '@/data/options/diseaseOptions.json';
+import subregionOptions from '@/data/options/subregionOptions.json';
 
 const appStore = useAppStore();
 
-const geographySelectOptions = computed(() => {
-  const options = [{
-    label: "Global",
-    options: [
-      { label: `All ${appStore.countryOptions.length} VIMC countries`, value: LocResolutions.GLOBAL as string }
-    ]
-  }];
-  if (appStore.subregionOptions.length > 0) {
-    options.push({
-      label: "Subregions",
-      options: appStore.subregionOptions
-    });
-  }
-  if (appStore.countryOptions.length > 0) {
-    options.push({
-      label: "Countries",
-      options: appStore.countryOptions
-    });
-  }
-  return options;
-});
-
 const selectOptions = computed(() => {
   if (appStore.exploreBy === Dimensions.LOCATION) {
-    return geographySelectOptions.value.map(group => {
+    return [{
+      label: "Global",
+      options: [
+        { label: `All ${countryOptions.length} VIMC countries`, value: LocResolutions.GLOBAL as string }
+      ]
+    }, {
+      label: "Subregions",
+      options: subregionOptions
+    }, {
+      label: "Countries",
+      options: countryOptions
+    }].map(group => {
       const optgroup = { label: group.label, value: "optgroup", disabled: true };
       return [optgroup, ...group.options];
     }).flat();
   } else if (appStore.exploreBy === Dimensions.DISEASE) {
-    return appStore.diseaseOptions;
+    return diseaseOptions;
   }
   return [];
 });
+
+const selectFilterBy = (option: Option<string>, label: string, search: string) => {
+  return label.toLowerCase().includes(search.toLowerCase()) || option.value === 'optgroup';
+};
 </script>
 
 <style lang="css" scoped>

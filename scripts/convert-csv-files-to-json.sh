@@ -12,23 +12,28 @@ PACKET_ID=$1
 here=$(dirname $0)
 DATADIR=$here/../public/data
 
-OUTPUTDIR=$DATADIR/json/
-rm -rf $OUTPUTDIR
-mkdir $OUTPUTDIR
+PUBLIC_JSON_DATA_DIR=$DATADIR/json/
+rm -rf $PUBLIC_JSON_DATA_DIR
+mkdir $PUBLIC_JSON_DATA_DIR
 
 # Iterate over all files in the data dir folder
 for filepath in $DATADIR/csv/*.csv; do
   # https://github.com/Keyang/node-csvtojson?tab=readme-ov-file#command-line-usage
-  npx csvtojson $filepath > $OUTPUTDIR/$(basename ${filepath%.csv}.json) --checkType=true
+  npx csvtojson $filepath > $PUBLIC_JSON_DATA_DIR/$(basename ${filepath%.csv}.json) --checkType=true
   echo "Converted $filepath to JSON."
 done
 
-# Copy some relatively small files into the src/data folder
-SRCDATADIR=$here/../src/data/summary
-rm -rf $SRCDATADIR
-mkdir $SRCDATADIR
-cp $OUTPUTDIR/summary_table_deaths_disease_country.json $SRCDATADIR
-cp $OUTPUTDIR/summary_table_deaths_disease_subregion.json $SRCDATADIR
+# Copy the file who_sub_regions.json to SRC_DATA_DIR. 
+SRC_DATA_DIR=$here/../src/data
+rm -f $SRC_DATA_DIR/WHORegions.json
+cp $DATADIR/json/who_sub_regions.json $SRC_DATA_DIR/WHORegions.json
+
+# Derive options data from the converted JSON files.
+# NB this node script has a dependency on the WHORegions.json file that has just been written.
+OPTIONS_TARGET_DIR=$SRC_DATA_DIR/options
+rm -rf $OPTIONS_TARGET_DIR
+mkdir $OPTIONS_TARGET_DIR
+node --experimental-transform-types $here/generateOptions.ts $PUBLIC_JSON_DATA_DIR $OPTIONS_TARGET_DIR
 
 # Write to a file to record the packet-id and date-time stamp.
 DATE_TIME=$(date '+%Y-%m-%d %H:%M:%S')

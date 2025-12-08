@@ -1,0 +1,58 @@
+[
+  {
+    "value": "Cholera",
+    "label": "Cholera"
+  },
+  {
+    "value": "COVID-19",
+    "label": "COVID-19"
+  },
+  {
+    "value": "HepB",
+    "label": "HepB"
+  },
+  {
+    "value": "Hib",
+    "label": "Hib"
+  },
+  {
+    "value": "HPV",
+    "label": "HPV"
+  },
+  {
+    "value": "JE",
+    "label": "JE"
+  },
+  {
+    "value": "Malaria",
+    "label": "Malaria"
+  },
+  {
+    "value": "Measles",
+    "label": "Measles"
+  },
+  {
+    "value": "Meningitis",
+    "label": "Meningitis"
+  },
+  {
+    "value": "PCV",
+    "label": "PCV"
+  },
+  {
+    "value": "Rota",
+    "label": "Rota"
+  },
+  {
+    "value": "Rubella",
+    "label": "Rubella"
+  },
+  {
+    "value": "Typhoid",
+    "label": "Typhoid"
+  },
+  {
+    "value": "YF",
+    "label": "YF"
+  }
+]

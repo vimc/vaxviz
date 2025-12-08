@@ -5,13 +5,10 @@ import VueSelect from "vue3-select-component";
 import { nextTick } from "vue";
 
 import Controls from '@/components/Controls.vue'
-import { useAppStore } from "@/stores/appStore";
 
 describe('Controls component', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
-    const store = useAppStore();
-    store.initialize();
   });
 
   it('renders correctly', async () => {

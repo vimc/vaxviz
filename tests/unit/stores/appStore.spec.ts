@@ -10,9 +10,6 @@ describe("appStore", () => {
 
   it("has correct default values", () => {
     const store = useAppStore();
-    expect(store.countryOptions).toEqual([]);
-    expect(store.subregionOptions).toEqual([]);
-    expect(store.diseaseOptions).toEqual([]);
     expect(store.burdenMetric).toBe("deaths");
     expect(store.useLogScale).toBe(true);
     expect(store.splitByActivityType).toBe(false);
@@ -20,35 +17,8 @@ describe("appStore", () => {
     expect(store.focus).toBe("global");
   });
 
-  it("initializes country options, subregion options, and disease options", () => {
-    const store = useAppStore();
-    expect(store.countryOptions).toHaveLength(0);
-    expect(store.subregionOptions).toHaveLength(0);
-    expect(store.diseaseOptions).toHaveLength(0);
-
-    store.initialize();
-
-    expect(store.countryOptions).toHaveLength(117);
-    expect(store.subregionOptions).toHaveLength(10);
-    expect(store.diseaseOptions).toHaveLength(14);
-
-    expect(store.countryOptions[0]).toEqual({
-      label: "Afghanistan",
-      value: "AFG",
-    })
-    expect(store.subregionOptions[0]).toEqual({
-      label: "Central and Southern Asia",
-      value: "Central and Southern Asia",
-    })
-    expect(store.diseaseOptions[0]).toEqual({
-      label: "Cholera",
-      value: "Cholera",
-    })
-  });
-
   it("updates the focus value when exploreBy selection changes", async () => {
     const store = useAppStore();
-    store.initialize();
 
     expect(store.focus).toEqual("global");
     expect(store.exploreBy).toEqual("location");
@@ -66,7 +36,6 @@ describe("appStore", () => {
 
   it("returns the explore by label", async () => {
     const store = useAppStore();
-    store.initialize();
 
     expect(store.exploreByLabel).toEqual("Geography");
 
