@@ -133,4 +133,25 @@ describe('useData', () => {
 
     expect(histogramData.value).toEqual([]);
   });
+
+  it('should handle non-OK HTTP statuses gracefully', async () => {
+    server.use(
+      http.get("/data/json/hist_counts_deaths_disease_log.json", async () => {
+        return HttpResponse.json(null, { status: 404 });
+      }),
+    );
+    const { histogramData, fetchErrors } = useData();
+
+    expect(fetchErrors.value).toEqual([]);
+
+    const fetchSpy = vi.spyOn(global, 'fetch')
+    await vi.waitFor(() => {
+      expect(fetchSpy).toBeCalled();
+      expect(fetchErrors.value).toEqual([expect.objectContaining(
+        { message: `Error loading data from path: hist_counts_deaths_disease_log.json. Error: HTTP 404: Not Found` }
+      )]);
+    });
+
+    expect(histogramData.value).toEqual([]);
+  });
 });
