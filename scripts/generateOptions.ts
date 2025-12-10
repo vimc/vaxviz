@@ -55,9 +55,14 @@ countryOpts = countryOpts.sort((a, b) => a.label.localeCompare(b.label));
 subregionOpts = subregionOpts.sort((a, b) => a.label.localeCompare(b.label));
 diseaseOpts = diseaseOpts.sort((a, b) => a.label.localeCompare(b.label));
 
+// Helper function to write options as JSON files.
+function writeJson(filename: string, options: Option[]) {
+  fs.writeFileSync(`${targetDir}/${filename}`, JSON.stringify(options, null, 2));
+}
+
 // Write options into target directory as JSON files.
-fs.writeFileSync(`${targetDir}/countryOptions.json`, JSON.stringify(countryOpts, null, 2));
-fs.writeFileSync(`${targetDir}/subregionOptions.json`, JSON.stringify(subregionOpts, null, 2));
-fs.writeFileSync(`${targetDir}/diseaseOptions.json`, JSON.stringify(diseaseOpts, null, 2));
+writeJson('countryOptions.json', countryOpts);
+writeJson('subregionOptions.json', subregionOpts);
+writeJson('diseaseOptions.json', diseaseOpts);
 
 console.log(`Generated options JSON files in ${targetDir}`);
