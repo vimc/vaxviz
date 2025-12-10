@@ -1,7 +1,7 @@
 import { useAppStore } from "@/stores/appStore";
 import { type DataRow, Dimensions, LocResolutions } from "@/types";
 import { debounce } from "perfect-debounce";
-import { computed, ref, shallowRef, watch } from "vue";
+import { computed, onUnmounted, ref, shallowRef, watch } from "vue";
 
 import countryOptions from '@/data/options/countryOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
@@ -13,6 +13,11 @@ export default () => {
   const fetchErrors = ref<{ e: Error, message: string }[]>([]);
   const histogramData = ref<DataRow[]>([]);
   const histogramDataCache = shallowRef<Record<string, DataRow[]>>({});
+
+  // Because some files are very large (up to 20MB), we support preemptive background loading of files.
+  // preemptiveControllers tracks the abort controllers, so that these preemptive fetches can be cancelled
+  // when we need to prioritize user-requested data loading.
+  const preemptiveControllers = new Map<string, AbortController>();
 
   // The geographical resolutions to use based on current exploreBy and focus selections.
   // This is currently exposed by the composable but that's only for manual testing purposes.
@@ -54,26 +59,59 @@ export default () => {
     });
   });
 
-  // Fetch and parse multiple JSONs, and merge together all data.
+  // Cancel all preemptive fetches (call this when user requests specific data)
+  const cancelPreemptiveFetches = () => {
+    console.error("I AM DOING A CANCEL for each of ", Array.from(preemptiveControllers.keys()));
+    preemptiveControllers.forEach((controller) => {
+      controller.abort();
+    });
+    preemptiveControllers.clear();
+  };
+
+  // Fetch a single file with optional abort support
+  const fetchWithAbort = async (path: string, signal?: AbortSignal): Promise<undefined> => {
+    if (histogramDataCache.value[path]) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${dataDir}/${path}`, { signal });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const rows = await response.json();
+      histogramDataCache.value = { ...histogramDataCache.value, [path]: rows };
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        // Silently ignore cancelled requests
+        return;
+      }
+      fetchErrors.value.push({ e: error as Error, message: `Error loading data from path: ${path}. ${error}` });
+    }
+  };
+
+  // Fetch and parse multiple JSONs with priority (cancels preemptive fetches first)
   const loadDataFromPaths = async (paths: string[]) => {
     fetchErrors.value = [];
-    await Promise.all(paths.map(async (path) => {
-      if (!histogramDataCache.value[path]) {
-        try {
-          const response = await fetch(`${dataDir}/${path}`);
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-          const rows = await response.json();
-          histogramDataCache.value[path] = rows;
-          return rows;
-        } catch (error) {
-          fetchErrors.value.push({ e: error as Error, message: `Error loading data from path: ${path}. ${error}` });
-        }
-      }
-    }));
+    cancelPreemptiveFetches(); // Cancel background fetches to prioritize user request
 
+    await Promise.all(paths.map((path) => fetchWithAbort(path)));
     histogramData.value = paths.flatMap((path) => histogramDataCache.value[path] || []);
+  };
+
+  // Preemptively load files in the background (cancelled when user requests data load)
+  const preemptiveLoad = async (paths: string[]) => {
+    for (const path of paths) {
+      if (histogramDataCache.value[path] || preemptiveControllers.has(path)) {
+        continue; // Already cached or already loading
+      }
+
+      const controller = new AbortController();
+      preemptiveControllers.set(path, controller);
+
+      await fetchWithAbort(path, controller.signal);
+      preemptiveControllers.delete(path);
+    }
   };
 
   const doLoadData = debounce(async () => {
@@ -89,5 +127,9 @@ export default () => {
     }
   }, { immediate: true });
 
-  return { histogramData, fetchErrors, geographicalResolutions };
+  onUnmounted(() => {
+    cancelPreemptiveFetches();
+  });
+
+  return { histogramData, fetchErrors, geographicalResolutions, preemptiveLoad };
 }

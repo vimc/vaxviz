@@ -23,10 +23,30 @@
 import useData from '@/composables/useData';
 import { useAppStore } from '@/stores/appStore';
 import { Dimensions } from '@/types';
+import { watch } from 'vue';
 
 const appStore = useAppStore();
 
-const { fetchErrors, geographicalResolutions, histogramData } = useData();
+const { fetchErrors, geographicalResolutions, histogramData, preemptiveLoad } = useData();
+
+const largestDataFilesInSizeOrder = [
+  "hist_counts_deaths_disease_activity_type_country_log.json", // 19.6MB
+  "hist_counts_dalys_disease_activity_type_country_log.json", // 19.4MB
+  "hist_counts_dalys_disease_activity_type_country.json", // 18.3MB
+  "hist_counts_deaths_disease_activity_type_country.json", // 17.9MB
+  "hist_counts_deaths_disease_country_log.json", // 9.7MB
+  "hist_counts_dalys_disease_country_log.json", // 9.5MB
+  "hist_counts_dalys_disease_country.json", // 8.7MB
+  "hist_counts_deaths_disease_country.json", // 8.7MB
+  // Next largest file is 3.6MB, so we stop here.
+]
+
+watch(histogramData, () => {
+  // Once the first user-requested data has loaded (histogramData),
+  // start preemptive loading of the largest data files.
+  // Don't await: this should be a background process, not block anything.
+  preemptiveLoad(largestDataFilesInSizeOrder)
+});
 </script>
 
 <style lang="css" scoped>

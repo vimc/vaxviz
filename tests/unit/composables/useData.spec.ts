@@ -1,5 +1,5 @@
 import { createPinia, setActivePinia } from 'pinia';
-import { it, expect, describe, beforeEach, vi, Mock } from 'vitest';
+import { afterEach, it, expect, describe, beforeEach, vi, Mock } from 'vitest';
 
 import { server } from '../mocks/server';
 import histCountsDeathsDiseaseLog from "@/../public/data/json/hist_counts_deaths_disease_log.json";
@@ -26,6 +26,10 @@ const expectLastNCallsToEqual = (spy: Mock, args: any[]) => {
 describe('useData', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('should initialize with correct data, and request correct data as store selections change', async () => {
@@ -153,5 +157,37 @@ describe('useData', () => {
     });
 
     expect(histogramData.value).toEqual([]);
+  });
+
+  it('should cancel preemptive fetches when any user-requested fetch is triggered', async () => {
+    // Make the preemptive fetch take a long time
+    server.use(
+      http.get("/data/json/hist_counts_dalys_disease_country_log.json", async () => {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        return HttpResponse.json(histCountsDalysDiseaseCountryLog);
+      }),
+    );
+
+    const fetchSpy = vi.spyOn(global, 'fetch')
+    const abortSpy = vi.spyOn(AbortController.prototype, 'abort');
+
+    const appStore = useAppStore();
+    const { histogramData, preemptiveLoad } = useData();
+    expect(histogramData.value).toEqual([]);
+
+    // Initial data
+    await vi.waitFor(() => {
+      expect(histogramData.value).toHaveLength(histCountsDeathsDiseaseLog.length);
+    });
+
+    // Start preemptive loading (don't await).
+    // This request is the long-lasting one which we will cause to be cancelled.
+    preemptiveLoad(["hist_counts_dalys_disease_country_log.json"]);
+    expect(fetchSpy).toHaveBeenCalledWith("/data/json/hist_counts_dalys_disease_country_log.json", { signal: expect.any(AbortSignal) });
+
+    // Trigger a user-requested data load, which should cancel the preemptive fetch.
+    appStore.focus = "Central and Southern Asia";
+
+    await vi.waitFor(() => expect(abortSpy).toHaveBeenCalled());
   });
 });
