@@ -1,0 +1,108 @@
+<template>
+  <form class="m-5 flex gap-y-15 flex-wrap flex-col w-fit">
+    <div>
+      <fieldset class="gap-5 mb-3" aria-required="true">
+        <legend class="block mb-5 font-medium text-heading">Focus on:</legend>
+        <div>
+          <FwbRadio
+            v-for="({ label, value }) in appStore.exploreOptions"
+            :key="value"
+            v-model="appStore.exploreBy"
+            name="exploreBy"
+            :label="label"
+            :value="value"
+            class="mb-1"
+          />
+        </div>
+      </fieldset>
+      <div class="w-75">
+        <label id="focusLabel" for="focus" class="sr-only">
+          Focus {{ appStore.exploreByLabel }}
+        </label>
+        <VueSelect
+          v-model="appStore.focus"
+          :isClearable="false"
+          :options="selectOptions"
+          :filter-by="selectFilterBy"
+          :aria="{ labelledby: 'focusLabel' }"
+        >
+          <template #menu-header>
+            <div class="p-2 ps-3 disabled-text-color">
+              <h3 class="text-sm">Start typing to filter the list...</h3>
+            </div>
+          </template>
+          <template #option="{ option }">
+            <h4 v-if="option.value === 'optgroup'" class="font-medium text-sm text-heading disabled-text-color">{{ option.label }}</h4>
+            <span v-else class="ps-2">{{ option.label }}</span>
+          </template>
+        </VueSelect>
+      </div>
+    </div>
+    <FwbCheckbox v-model="appStore.splitByActivityType" label="Split by activity type"/>
+    <FwbCheckbox v-model="appStore.useLogScale" label="Log scale"/>
+    <fieldset class="gap-5" aria-required="true">
+      <legend class="block mb-5 font-medium text-heading">Burden metric:</legend>
+      <div>
+        <FwbRadio
+          v-for="({ label, value }) in appStore.metricOptions"
+          :key="value"
+          v-model="appStore.burdenMetric"
+          name="burdenMetric"
+          :label="label"
+          :value="value"
+          class="mb-1"
+        />
+      </div>
+    </fieldset>
+  </form>
+</template>
+
+<script setup lang="ts">
+import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
+import VueSelect, { type Option } from "vue3-select-component";
+import { computed } from 'vue';
+import { useAppStore } from '../stores/appStore';
+import { Dimensions, LocResolutions } from '@/types';
+import countryOptions from '@/data/options/countryOptions.json';
+import diseaseOptions from '@/data/options/diseaseOptions.json';
+import subregionOptions from '@/data/options/subregionOptions.json';
+
+const appStore = useAppStore();
+
+const selectOptions = computed(() => {
+  if (appStore.exploreBy === Dimensions.LOCATION) {
+    return [{
+      label: "Global",
+      options: [
+        { label: `All ${countryOptions.length} VIMC countries`, value: LocResolutions.GLOBAL as string }
+      ]
+    }, {
+      label: "Subregions",
+      options: subregionOptions
+    }, {
+      label: "Countries",
+      options: countryOptions
+    }].map(group => {
+      const optgroup = { label: group.label, value: "optgroup", disabled: true };
+      return [optgroup, ...group.options];
+    }).flat();
+  } else if (appStore.exploreBy === Dimensions.DISEASE) {
+    return diseaseOptions;
+  }
+  return [];
+});
+
+const selectFilterBy = (option: Option<string>, label: string, search: string) => {
+  return label.toLowerCase().includes(search.toLowerCase()) || option.value === 'optgroup';
+};
+</script>
+
+<style lang="css" scoped>
+.d-flex .col-form-label {
+  width: 150px;
+}
+
+:deep(.disabled-text-color) {
+  color: var(--vs-option-disabled-text-color);
+}
+</style>

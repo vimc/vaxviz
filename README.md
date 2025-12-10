@@ -27,7 +27,7 @@ does not allow creation of tokens without expiry and the current token will expi
 
 Build with Node 24. There is currently (November '25) a problem with building @vue/devtools with Node 25 - an error 
 relating to local storage is thrown. As per [this issue](https://github.com/vuejs/devtools/issues/979), using Node 24
-is the current workaround. 
+is the current workaround.
 
 ## Recommended IDE Setup
 
@@ -107,6 +107,7 @@ npm run lint
 ### Updating the static data
 
 1. Download the dataviz.zip file from the VIMC reporting portal (packet group name paper-four-figures) and make note of the packet id.
-1. Delete contents of `public/data/csv`
-1. Unzip the folder into `public/data/csv`
+1. From the same packet, download `who_sub_regions.csv` (under 'Other files'). This provides the mapping from countries to subregions.
+1. Delete contents of `public/data/csv`.
+1. Unzip the dataviz.zip folder into `public/data/csv`, and move `who_sub_regions.csv` there too.
 1. Run `./scripts/convert-csv-files-to-json.sh <packet-id>` replacing the packet id argument

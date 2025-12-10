@@ -1,7 +1,12 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Controls from './components/Controls.vue';
+</script>
 
 <template>
-  <h5>Vue app</h5>
+  <div>
+    <Controls />
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>
