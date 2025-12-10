@@ -69,10 +69,9 @@ describe('useData', () => {
 
     // Change options: round 2
     appStore.exploreBy = "disease";
-    expectedFetches += 2;
     await vi.waitFor(() => {
       expect(appStore.focus).toEqual("Cholera")
-      expect(fetchSpy).toBeCalledTimes(expectedFetches);
+      expect(fetchSpy).toBeCalledTimes(expectedFetches); // No increment in expectedFetches due to cacheing.
     });
     appStore.focus = "Measles";
     expectedFetches += 2;
@@ -92,10 +91,9 @@ describe('useData', () => {
 
     // Change options: round 3
     appStore.exploreBy = "location";
-    expectedFetches += 1;
     await vi.waitFor(() => {
       expect(appStore.focus).toEqual("global")
-      expect(fetchSpy).toBeCalledTimes(expectedFetches);
+      expect(fetchSpy).toBeCalledTimes(expectedFetches); // No increment in expectedFetches due to cacheing.
     });
     appStore.focus = "AFG";
     expectedFetches += 3;
@@ -129,7 +127,7 @@ describe('useData', () => {
     await vi.waitFor(() => {
       expect(fetchSpy).toBeCalled();
       expect(fetchErrors.value).toEqual([expect.objectContaining(
-        { message: `Error loading data from paths: hist_counts_deaths_disease_log.json. TypeError: Failed to fetch` }
+        { message: `Error loading data from path: hist_counts_deaths_disease_log.json. TypeError: Failed to fetch` }
       )]);
     });
 
