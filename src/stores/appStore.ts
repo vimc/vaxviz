@@ -25,6 +25,10 @@ export const useAppStore = defineStore("app", () => {
   // The 'within-band' axis is often denoted by color. It distinguishes different lines that share the same categorical axis values.
   const withinBandAxis = ref<Dimensions>(Dimensions.LOCATION);
 
+  // The plot presents a slice of the data depending on the user's choice of a 'focus' value that is either
+  // a specific location or a specific disease of interest.
+  // Thus we first ask the user to choose whether to explore by location or by disease,
+  // and then present a dropdown of the relevant options.
   const exploreBy = ref<Dimensions.LOCATION | Dimensions.DISEASE>(Dimensions.LOCATION);
   const focus = ref<string>(LocResolutions.GLOBAL);
 
