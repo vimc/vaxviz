@@ -35,11 +35,6 @@ export const useAppStore = defineStore("app", () => {
   const exploreBy = ref<Dimensions.LOCATION | Dimensions.DISEASE>(Dimensions.LOCATION);
   const focus = ref<string>(LocResolutions.GLOBAL);
 
-  const filters = ref({
-    [Dimensions.LOCATION]: [] as string[],
-    [Dimensions.DISEASE]: [] as string[],
-  });
-
   const exploreByLabel = computed(() => {
     const option = exploreOptions.find(o => o.value === exploreBy.value);
     return option ? option.label : "";
@@ -70,6 +65,22 @@ export const useAppStore = defineStore("app", () => {
     }
   });
 
+  const focusIsADisease = computed(() => diseaseOptions.map(o => o.value).includes(focus.value));
+
+  const filters = computed(() => {
+    if (focusIsADisease.value) {
+      return {
+        [Dimensions.DISEASE]: [focus.value],
+        [Dimensions.LOCATION]: subregionOptions.map(o => o.value).concat([LocResolutions.GLOBAL]),
+      };
+    } else {
+      return {
+        [Dimensions.DISEASE]: diseaseOptions.map(d => d.value),
+        [Dimensions.LOCATION]: geographicalResolutions.value.map(getLocationForGeographicalResolution),
+      };
+    }
+  })
+
   const getLocationForGeographicalResolution = (geog: LocResolutions) => {
     switch (geog) {
       case LocResolutions.GLOBAL:
@@ -90,19 +101,11 @@ export const useAppStore = defineStore("app", () => {
     };
   });
 
-  // TODO: watch focusIsADisease instead? Then filters could be computed from that + focus?
-  watch(focus, () => {
-    const focusIsADisease = diseaseOptions.find(d => d.value === focus.value);
-    if (focusIsADisease) {
-      filters.value[Dimensions.DISEASE] = [focus.value];
-      filters.value[Dimensions.LOCATION] = subregionOptions.map(o => o.value).concat([LocResolutions.GLOBAL]);
-
+  watch(focusIsADisease, () => {
+    if (focusIsADisease.value) {
       yCategoricalAxis.value = Dimensions.LOCATION;
       withinBandAxis.value = Dimensions.DISEASE;
     } else {
-      filters.value[Dimensions.DISEASE] = diseaseOptions.map(d => d.value);
-      filters.value[Dimensions.LOCATION] = geographicalResolutions.value.map(getLocationForGeographicalResolution);
-
       // This is only one possible way of 'focusing' on a 'location':
       // diseases as categorical Y axis, each row with up to 3 ridges.
       // An alternative would be to have the 3 location rows laid out on the categorical Y axis,
