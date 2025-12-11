@@ -1,7 +1,10 @@
-import { BurdenMetrics, Dimensions, LocResolutions } from "@/types";
-import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
+import { getSubregionFromCountry } from "@/utils/regions"
+import { BurdenMetrics, Dimensions, LocResolutions } from "@/types";
+import countryOptions from '@/data/options/countryOptions.json';
+import subregionOptions from '@/data/options/subregionOptions.json';
+import diseaseOptions from '@/data/options/diseaseOptions.json';
 
 const metricOptions = [
   { label: "DALYs averted", value: BurdenMetrics.DALYS },
@@ -32,6 +35,11 @@ export const useAppStore = defineStore("app", () => {
   const exploreBy = ref<Dimensions.LOCATION | Dimensions.DISEASE>(Dimensions.LOCATION);
   const focus = ref<string>(LocResolutions.GLOBAL);
 
+  const filters = ref({
+    [Dimensions.LOCATION]: [] as string[],
+    [Dimensions.DISEASE]: [] as string[],
+  });
+
   const exploreByLabel = computed(() => {
     const option = exploreOptions.find(o => o.value === exploreBy.value);
     return option ? option.label : "";
@@ -44,6 +52,36 @@ export const useAppStore = defineStore("app", () => {
     withinBand: withinBandAxis.value
   }));
 
+  // The geographical resolutions to use based on current exploreBy and focus selections.
+  const geographicalResolutions = computed(() => {
+    if (exploreBy.value === Dimensions.DISEASE) {
+      return [LocResolutions.SUBREGION, LocResolutions.GLOBAL];
+    } else {
+      if (focus.value === LocResolutions.GLOBAL) {
+        return [LocResolutions.GLOBAL];
+      } else if (subregionOptions.find(o => o.value === focus.value)) {
+        return [LocResolutions.SUBREGION, LocResolutions.GLOBAL];
+      } else if (countryOptions.find(o => o.value === focus.value)) {
+        return [LocResolutions.COUNTRY, LocResolutions.SUBREGION, LocResolutions.GLOBAL];
+      }
+      // The following line should never be able to be evaluated, because exploreBy is always either
+      // 'disease' or 'location', and the three possible types of location are covered by the branches.
+      throw new Error(`Invalid focus selection '${focus.value}' for exploreBy '${exploreBy.value}'`);
+    }
+  });
+
+  const getLocationForGeographicalResolution = (geog: LocResolutions) => {
+    switch (geog) {
+      case LocResolutions.GLOBAL:
+        return LocResolutions.GLOBAL;
+      case LocResolutions.SUBREGION:
+        return subregionOptions.find(o => o.value === focus.value)?.value
+          ?? getSubregionFromCountry(focus.value);
+      case LocResolutions.COUNTRY:
+        return focus.value;
+    }
+  }
+
   watch(exploreBy, () => {
     if (exploreBy.value === Dimensions.DISEASE && diseaseOptions[0]) {
       focus.value = diseaseOptions[0].value;
@@ -52,12 +90,19 @@ export const useAppStore = defineStore("app", () => {
     };
   });
 
+  // TODO: watch focusIsADisease instead? Then filters could be computed from that + focus?
   watch(focus, () => {
     const focusIsADisease = diseaseOptions.find(d => d.value === focus.value);
     if (focusIsADisease) {
+      filters.value[Dimensions.DISEASE] = [focus.value];
+      filters.value[Dimensions.LOCATION] = subregionOptions.map(o => o.value).concat([LocResolutions.GLOBAL]);
+
       yCategoricalAxis.value = Dimensions.LOCATION;
       withinBandAxis.value = Dimensions.DISEASE;
     } else {
+      filters.value[Dimensions.DISEASE] = diseaseOptions.map(d => d.value);
+      filters.value[Dimensions.LOCATION] = geographicalResolutions.value.map(getLocationForGeographicalResolution);
+
       // This is only one possible way of 'focusing' on a 'location':
       // diseases as categorical Y axis, each row with up to 3 ridges.
       // An alternative would be to have the 3 location rows laid out on the categorical Y axis,
@@ -75,7 +120,9 @@ export const useAppStore = defineStore("app", () => {
     exploreBy,
     exploreByLabel,
     exploreOptions,
+    filters,
     focus,
+    geographicalResolutions,
     logScaleEnabled,
     metricOptions,
     splitByActivityType,

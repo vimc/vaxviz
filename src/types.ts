@@ -16,11 +16,26 @@ export enum LocResolutions {
   COUNTRY = "country",
 }
 
-export type DataRow = Record<string, string | number>;
+export enum HistCols {
+  LOWER_BOUND = "lower_bound",
+  UPPER_BOUND = "upper_bound",
+  COUNTS = "Counts",
+}
+
+type DataRow = Record<string, string | number>;
 export type SummaryTableDataRow = DataRow & {
   [Dimensions.DISEASE]: string;
   [LocResolutions.COUNTRY]?: string;
   [LocResolutions.SUBREGION]?: string;
+};
+export type HistDataRow = DataRow & {
+  [Dimensions.DISEASE]: string;
+  [LocResolutions.COUNTRY]?: string;
+  [LocResolutions.SUBREGION]?: string;
+  [Dimensions.LOCATION]?: string;
+  [HistCols.LOWER_BOUND]: number;
+  [HistCols.UPPER_BOUND]: number;
+  [HistCols.COUNTS]: number;
 };
 
 export type Option = { label: string; value: string };

@@ -1,11 +1,8 @@
-import { useAppStore } from "@/stores/appStore";
-import { type DataRow, Dimensions, LocResolutions } from "@/types";
 import { debounce } from "perfect-debounce";
 import { computed, ref, shallowRef, watch } from "vue";
-
-import countryOptions from '@/data/options/countryOptions.json';
-import subregionOptions from '@/data/options/subregionOptions.json';
 import { defineStore } from "pinia";
+import { useAppStore } from "@/stores/appStore";
+import { type HistDataRow, Dimensions, LocResolutions } from "@/types";
 
 export const dataDir = `/data/json`
 
@@ -13,31 +10,12 @@ export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
 
   const fetchErrors = ref<{ e: Error, message: string }[]>([]);
-  const histogramData = shallowRef<DataRow[]>([]);
-  const histogramDataCache: Record<string, DataRow[]> = {};
-
-  // The geographical resolutions to use based on current exploreBy and focus selections.
-  // This is currently exposed by the composable but that's only for manual testing purposes.
-  const geographicalResolutions = computed(() => {
-    if (appStore.exploreBy === Dimensions.DISEASE) {
-      return [LocResolutions.SUBREGION, LocResolutions.GLOBAL];
-    } else {
-      if (appStore.focus === LocResolutions.GLOBAL) {
-        return [LocResolutions.GLOBAL];
-      } else if (subregionOptions.find(o => o.value === appStore.focus)) {
-        return [LocResolutions.SUBREGION, LocResolutions.GLOBAL];
-      } else if (countryOptions.find(o => o.value === appStore.focus)) {
-        return [LocResolutions.COUNTRY, LocResolutions.SUBREGION, LocResolutions.GLOBAL];
-      }
-      // The following line should never be able to be evaluated, because exploreBy is always either
-      // 'disease' or 'location', and the three possible types of location are covered by the branches.
-      throw new Error(`Invalid focus selection '${appStore.focus}' for exploreBy '${appStore.exploreBy}'`);
-    }
-  });
+  const histogramData = shallowRef<HistDataRow[]>([]);
+  const histogramDataCache: Record<string, HistDataRow[]> = {};
 
   const histogramDataPaths = computed(() => {
     // When we are using multiple geographical resolutions, we need to load multiple data files, to be merged together later.
-    return geographicalResolutions.value.map((geog) => {
+    return appStore.geographicalResolutions.map((geog) => {
       const fileNameParts = ["hist_counts", appStore.burdenMetric, "disease"];
       // NB files containing 'global' data simply omit location from the file name (as they have no location stratification).
       if (geog === LocResolutions.SUBREGION) {
@@ -75,7 +53,17 @@ export const useDataStore = defineStore("data", () => {
       }
     }));
 
-    histogramData.value = paths.flatMap((path) => histogramDataCache[path] || []);
+    histogramData.value = paths.flatMap((path) => histogramDataCache[path] || []).map((row) => {
+      // Collapse all geographic columns into one 'location' column
+      if (row[LocResolutions.COUNTRY]) {
+        row[Dimensions.LOCATION] = row[LocResolutions.COUNTRY];
+        delete row[LocResolutions.COUNTRY];
+      } else if (row[LocResolutions.SUBREGION]) {
+        row[Dimensions.LOCATION] = row[LocResolutions.SUBREGION];
+        delete row[LocResolutions.SUBREGION];
+      }
+      return row;
+    });
   };
 
   const doLoadData = debounce(async () => {
@@ -91,5 +79,5 @@ export const useDataStore = defineStore("data", () => {
     }
   }, { immediate: true });
 
-  return { histogramData, fetchErrors, geographicalResolutions };
+  return { histogramData, fetchErrors };
 });

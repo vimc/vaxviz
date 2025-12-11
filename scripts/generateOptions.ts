@@ -6,7 +6,7 @@ import { getCountryName } from "../src/utils/regions.ts";
 
 const args = process.argv.slice(2);
 if (args.length !== 2) {
-  console.error("Usage: node generate-summary-json.js <data-source directory> <`./src/data` sub-directory>");
+  console.error("Usage: node generateOptions.ts <data-source directory> <`./src/data` sub-directory>");
   process.exit(1);
 }
 const dataSourceDir = args[0];
