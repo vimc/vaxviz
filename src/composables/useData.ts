@@ -11,8 +11,8 @@ export default () => {
   const appStore = useAppStore();
 
   const fetchErrors = ref<{ e: Error, message: string }[]>([]);
-  const histogramData = ref<DataRow[]>([]);
-  const histogramDataCache = shallowRef<Record<string, DataRow[]>>({});
+  const histogramData = shallowRef<DataRow[]>([]);
+  const histogramDataCache: Record<string, DataRow[]> = {};
 
   // The geographical resolutions to use based on current exploreBy and focus selections.
   // This is currently exposed by the composable but that's only for manual testing purposes.
@@ -58,14 +58,14 @@ export default () => {
   const loadDataFromPaths = async (paths: string[]) => {
     fetchErrors.value = [];
     await Promise.all(paths.map(async (path) => {
-      if (!histogramDataCache.value[path]) {
+      if (!histogramDataCache[path]) {
         try {
           const response = await fetch(`${dataDir}/${path}`);
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
           }
           const rows = await response.json();
-          histogramDataCache.value[path] = rows;
+          histogramDataCache[path] = rows;
           return rows;
         } catch (error) {
           fetchErrors.value.push({ e: error as Error, message: `Error loading data from path: ${path}. ${error}` });
@@ -73,7 +73,7 @@ export default () => {
       }
     }));
 
-    histogramData.value = paths.flatMap((path) => histogramDataCache.value[path] || []);
+    histogramData.value = paths.flatMap((path) => histogramDataCache[path] || []);
   };
 
   const doLoadData = debounce(async () => {
