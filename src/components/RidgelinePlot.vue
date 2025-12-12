@@ -32,10 +32,21 @@ const dataStore = useDataStore();
 
 const chartWrapper = ref<HTMLDivElement | null>(null);
 
+// A dict to keep track of which colors have been assigned to which values, so that we can
+// use the same color assignations consistently across rows.
+// The two nested maps map specific values to assigned colors.
+// In the future this will be passed as a prop to a legend component.
+const colorsByValue = ref<Record<string, Map<string, string>>>(
+  Object.freeze({
+    [Dimensions.LOCATION]: new Map<string, string>(),
+    [Dimensions.DISEASE]: new Map<string, string>(),
+  }),
+);
+
 type LineMetadata = {
-  withinBandVal?: string;
-  xVal?: string;
-  yVal?: string
+  withinBandVal: string;
+  xVal: string;
+  yVal: string
 };
 
 // Return corner coordinates of the histogram bar representing a row from a data file.
@@ -53,9 +64,28 @@ const initializeLine = (
   lowerBound: number,
   barCoords: Coords[],
   categories: LineMetadata,
-  color: string,
 ): Lines<LineMetadata>[0] => {
-  const { xVal, yVal } = categories;
+  const { xVal, yVal, withinBandVal } = categories;
+
+  // Determine colors based on which dimensions are in use on which axes,
+  // and whether the filters are single-valued or multi-valued.
+
+  // If we're filtered to just 1 value for the withinBand axis, we assign colors
+  // based on the dimension assigned to the y-axis
+  // (otherwise all lines would be the same color across all rows).
+  // If there are multiple filtered values for the withinBand axis, these values determine the colors.
+
+  // colorDimension is the dimension (i.e. 'location' or 'disease')
+  // whose values determine the colors for the lines.
+  const colorDimension = appStore.filters[appStore.dimensions.withinBand]?.length === 1
+    ? appStore.dimensions.y
+    : appStore.dimensions.withinBand;
+  // valueForColor is the specific value (e.g., a specific location or disease)
+  // whose assigned color we need to look up or assign.
+  const valueForColor = colorDimension === appStore.dimensions.y ? yVal : withinBandVal;
+  const colorMap = colorsByValue.value[colorDimension]!;
+  const color = colorMap.get(valueForColor) ?? colors[colorMap.size % colors.length]!;
+  colorMap.set(valueForColor, color);
 
   return {
     points: [
@@ -107,12 +137,7 @@ const ridgeLines = computed(() => {
     if (!line) {
       lines[xVal] ??= {};
       lines[xVal]![yVal] ??= {};
-
-      // TODO: assign colors in a smart way based on which dimensions are in use and have multiple values.
-      // TODO: persist color on changing the axes etc, where applicable.
-      const color = colors[Math.floor(Object.values(lines[xVal] ?? {}).length % colors.length)]!;
-
-      lines[xVal]![yVal]![withinBandVal] = initializeLine(lowerBound, barCoords, { xVal, yVal, withinBandVal }, color);
+      lines[xVal]![yVal]![withinBandVal] = initializeLine(lowerBound, barCoords, { xVal, yVal, withinBandVal });
     } else {
       // A line already exists for this combination of categorical axis values, so we can append some points to it.
       const previousPoint = line.points[line.points.length - 1];
