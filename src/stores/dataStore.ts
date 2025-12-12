@@ -1,17 +1,20 @@
 import { useAppStore } from "@/stores/appStore";
 import { type DataRow, Dimensions, LocResolutions } from "@/types";
 import { debounce } from "perfect-debounce";
-import { computed, ref, watch } from "vue";
+import { computed, ref, shallowRef, watch } from "vue";
 
 import countryOptions from '@/data/options/countryOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
+import { defineStore } from "pinia";
+
 export const dataDir = `/data/json`
 
-export default () => {
+export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
 
   const fetchErrors = ref<{ e: Error, message: string }[]>([]);
-  const histogramData = ref<DataRow[]>([]);
+  const histogramData = shallowRef<DataRow[]>([]);
+  const histogramDataCache: Record<string, DataRow[]> = {};
 
   // The geographical resolutions to use based on current exploreBy and focus selections.
   // This is currently exposed by the composable but that's only for manual testing purposes.
@@ -54,18 +57,25 @@ export default () => {
   });
 
   // Fetch and parse multiple JSONs, and merge together all data.
-  // TODO: cacheing strategies, e.g. if the new histDataPaths are a superset of the previous ones, only load the new paths
   const loadDataFromPaths = async (paths: string[]) => {
     fetchErrors.value = [];
-    const allRows = await Promise.all(paths.map(async (path) => {
-      const response = await fetch(`${dataDir}/${path}`);
-      const rows = await response.json();
-      return rows;
-    })).catch((error) => {
-      fetchErrors.value.push({ e: error, message: `Error loading data from paths: ${paths.join(", ")}. ${error}` });
-    });
+    await Promise.all(paths.map(async (path) => {
+      if (!histogramDataCache[path]) {
+        try {
+          const response = await fetch(`${dataDir}/${path}`);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          const rows = await response.json();
+          histogramDataCache[path] = rows;
+          return rows;
+        } catch (error) {
+          fetchErrors.value.push({ e: error as Error, message: `Error loading data from path: ${path}. ${error}` });
+        }
+      }
+    }));
 
-    histogramData.value = allRows?.flat() ?? [];
+    histogramData.value = paths.flatMap((path) => histogramDataCache[path] || []);
   };
 
   const doLoadData = debounce(async () => {
@@ -82,4 +92,4 @@ export default () => {
   }, { immediate: true });
 
   return { histogramData, fetchErrors, geographicalResolutions };
-}
+});

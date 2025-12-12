@@ -11,8 +11,8 @@ import histCountsDalysDiseaseLog from "@/../public/data/json/hist_counts_dalys_d
 import histCountsDeathsDiseaseSubregionActivityType from "@/../public/data/json/hist_counts_deaths_disease_subregion_activity_type.json";
 import histCountsDeathsDiseaseActivityType from "@/../public/data/json/hist_counts_deaths_disease_activity_type.json";
 import { BurdenMetrics } from '@/types';
-import useData from '@/composables/useData';
 import { useAppStore } from '@/stores/appStore';
+import { useDataStore } from '@/stores/dataStore';
 import { http, HttpResponse } from 'msw';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,14 +31,14 @@ describe('useData', () => {
   it('should initialize with correct data, and request correct data as store selections change', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch')
     const appStore = useAppStore();
-    const { histogramData } = useData();
-    expect(histogramData.value).toEqual([]);
+    const dataStore = useDataStore();
+    expect(dataStore.histogramData).toEqual([]);
 
     // Initial data
     let expectedFetches = 1;
     await vi.waitFor(() => {
-      expect(histogramData.value).toHaveLength(histCountsDeathsDiseaseLog.length);
-      expect(histogramData.value[0]).toEqual({
+      expect(dataStore.histogramData).toHaveLength(histCountsDeathsDiseaseLog.length);
+      expect(dataStore.histogramData[0]).toEqual({
         disease: "Cholera",
         Counts: 1,
         lower_bound: -2.434,
@@ -57,7 +57,7 @@ describe('useData', () => {
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
     await vi.waitFor(() => {
-      expect(histogramData.value).toHaveLength(
+      expect(dataStore.histogramData).toHaveLength(
         histCountsDalysDiseaseSubregionActivityType.length + histCountsDalysDiseaseActivityType.length
       );
     });
@@ -69,10 +69,9 @@ describe('useData', () => {
 
     // Change options: round 2
     appStore.exploreBy = "disease";
-    expectedFetches += 2;
     await vi.waitFor(() => {
       expect(appStore.focus).toEqual("Cholera")
-      expect(fetchSpy).toBeCalledTimes(expectedFetches);
+      expect(fetchSpy).toBeCalledTimes(expectedFetches); // No increment in expectedFetches due to cacheing.
     });
     appStore.focus = "Measles";
     expectedFetches += 2;
@@ -80,7 +79,7 @@ describe('useData', () => {
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
     await vi.waitFor(() => {
-      expect(histogramData.value).toHaveLength(
+      expect(dataStore.histogramData).toHaveLength(
         histCountsDeathsDiseaseSubregionActivityType.length + histCountsDeathsDiseaseActivityType.length
       );
     });
@@ -92,10 +91,9 @@ describe('useData', () => {
 
     // Change options: round 3
     appStore.exploreBy = "location";
-    expectedFetches += 1;
     await vi.waitFor(() => {
       expect(appStore.focus).toEqual("global")
-      expect(fetchSpy).toBeCalledTimes(expectedFetches);
+      expect(fetchSpy).toBeCalledTimes(expectedFetches); // No increment in expectedFetches due to cacheing.
     });
     appStore.focus = "AFG";
     expectedFetches += 3;
@@ -103,7 +101,7 @@ describe('useData', () => {
     appStore.logScaleEnabled = true;
     appStore.splitByActivityType = false;
     await vi.waitFor(() => {
-      expect(histogramData.value).toHaveLength(
+      expect(dataStore.histogramData).toHaveLength(
         histCountsDalysDiseaseSubregionLog.length + histCountsDalysDiseaseCountryLog.length + histCountsDalysDiseaseLog.length
       );
     }, { timeout: 2500 });
@@ -121,18 +119,39 @@ describe('useData', () => {
         return HttpResponse.error();
       }),
     );
-    const { histogramData, fetchErrors } = useData();
+    const dataStore = useDataStore();
 
-    expect(fetchErrors.value).toEqual([]);
+    expect(dataStore.fetchErrors).toEqual([]);
 
     const fetchSpy = vi.spyOn(global, 'fetch')
     await vi.waitFor(() => {
       expect(fetchSpy).toBeCalled();
-      expect(fetchErrors.value).toEqual([expect.objectContaining(
-        { message: `Error loading data from paths: hist_counts_deaths_disease_log.json. TypeError: Failed to fetch` }
+      expect(dataStore.fetchErrors).toEqual([expect.objectContaining(
+        { message: `Error loading data from path: hist_counts_deaths_disease_log.json. TypeError: Failed to fetch` }
       )]);
     });
 
-    expect(histogramData.value).toEqual([]);
+    expect(dataStore.histogramData).toEqual([]);
+  });
+
+  it('should handle non-OK HTTP statuses gracefully', async () => {
+    server.use(
+      http.get("/data/json/hist_counts_deaths_disease_log.json", async () => {
+        return HttpResponse.json(null, { status: 404 });
+      }),
+    );
+    const dataStore = useDataStore();
+
+    expect(dataStore.fetchErrors).toEqual([]);
+
+    const fetchSpy = vi.spyOn(global, 'fetch')
+    await vi.waitFor(() => {
+      expect(fetchSpy).toBeCalled();
+      expect(dataStore.fetchErrors).toEqual([expect.objectContaining(
+        { message: `Error loading data from path: hist_counts_deaths_disease_log.json. Error: HTTP 404: Not Found` }
+      )]);
+    });
+
+    expect(dataStore.histogramData).toEqual([]);
   });
 });
