@@ -55,14 +55,14 @@ test('visits the app root url, selects options, and loads correct data', async (
   expect(data0.withinBand).toBe("location");
 
   // Change options: round 1
-  await selectFocus(page, "location", "Central and Southern Asia");
+  await selectFocus(page, "location", "Middle Africa");
   await dalysRadio.click();
   await logScaleCheckbox.click();
   await activityTypeCheckbox.click();
 
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
-  await expectSelectedFocus(page, "location", "Central and Southern Asia");
+  await expectSelectedFocus(page, "location", "Middle Africa");
   await expect(activityTypeCheckbox).toBeChecked();
   await expect(logScaleCheckbox).not.toBeChecked();
   await expect(dalysRadio).toBeChecked();

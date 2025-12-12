@@ -51,7 +51,7 @@ describe('useData', () => {
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
     expect(appStore.focus).toEqual("global");
-    appStore.focus = "Central and Southern Asia";
+    appStore.focus = "Middle Africa";
     expectedFetches += 2;
     appStore.burdenMetric = BurdenMetrics.DALYS;
     appStore.logScaleEnabled = false;

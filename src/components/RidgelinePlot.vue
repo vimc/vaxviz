@@ -12,11 +12,6 @@
       })"
     />
     <p v-if="dataStore.fetchErrors.length" class="mt-5">Errors: {{ dataStore.fetchErrors }}</p>
-    <ul>
-      <li v-for="(line, index) in ridgeLines" :key="index">
-        Line {{ index + 1 }} - Bands: {{ line.bands }}, within band: {{ line.metadata?.withinBandVal }}
-      </li>
-    </ul>
 </div>
 </template>
 
@@ -29,6 +24,8 @@ import titleCase from '@/utils/titleCase';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { type Coords, Dimensions, HistCols, type HistDataRow } from '@/types';
+import { type Coords, Dimensions, HistCols, type HistDataRow } from '@/types';
+import colors from '@/utils/colors';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();
@@ -41,7 +38,7 @@ type LineMetadata = {
   yVal?: string
 };
 
-// Return corner coordinates of the histogram bar representing the current row.
+// Return corner coordinates of the histogram bar representing a row from a data file.
 const createBarCoords = (dataRow: HistDataRow): Coords[] => {
   const topLeftPoint = { x: dataRow[HistCols.LOWER_BOUND], y: dataRow[HistCols.COUNTS] };
   const topRightPoint = { x: dataRow[HistCols.UPPER_BOUND], y: dataRow[HistCols.COUNTS] };
@@ -52,8 +49,14 @@ const createBarCoords = (dataRow: HistDataRow): Coords[] => {
   return [topLeftPoint, topRightPoint, closingOffPoint];
 }
 
-const initializeLine = (lowerBound: number, barCoords: Coords[], categories: LineMetadata): Lines<LineMetadata>[0] => {
+const initializeLine = (
+  lowerBound: number,
+  barCoords: Coords[],
+  categories: LineMetadata,
+  color: string,
+): Lines<LineMetadata>[0] => {
   const { xVal, yVal } = categories;
+
   return {
     points: [
       { x: lowerBound, y: 0 },
@@ -64,9 +67,11 @@ const initializeLine = (lowerBound: number, barCoords: Coords[], categories: Lin
       ...(yVal ? { y: yVal } : {}),
     },
     style: {
-      strokeWidth: 0.5,
+      strokeColor: color,
+      strokeWidth: 1,
       opacity: 1,
-      fillOpacity: 0.3,
+      fillColor: color,
+      fillOpacity: 0.2, // Keep this value low since mixing translucent colours creates the illusion of an extra ridgeline.
     },
     metadata: categories,
     fill: true,
@@ -76,37 +81,38 @@ const initializeLine = (lowerBound: number, barCoords: Coords[], categories: Lin
 // Construct histogram/ridge-shaped lines by building area lines whose points trace the
 // outline of the histogram bars (including the spaces in between them).
 const ridgeLines = computed(() => {
-  const lines: Lines<LineMetadata> = [];
+  // A 3-dimensional dictionary of lines.
+  // We use x-value as the key at the first level, then y-value on the second, then withinBandValue.
+  // If the x-value (or anything else) is undefined, then the key should be an empty string.
+  const lines: Record<string, Record<string, Record<string, Lines<LineMetadata>[0]>>> = {};
+
   dataStore.histogramData.filter(dataRow =>
     [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
-      const dimensionCat = getDimensionCategory(dim, dataRow) ?? "";
+      const dimensionCat = getDimensionCategory(dim, dataRow);
       const filterValues = appStore.filters[dim]?.map(v => v.toLowerCase());
       return filterValues?.includes(dimensionCat.toLowerCase());
     })
   ).forEach(dataRow => {
     // Each line needs to know its category for each categorical axis in use.
-    const categories: LineMetadata = {
-      xVal: getDimensionCategory(appStore.dimensions.x, dataRow),
-      yVal: getDimensionCategory(appStore.dimensions.y, dataRow),
-      withinBandVal: getDimensionCategory(appStore.dimensions.withinBand, dataRow),
-    };
+    const xVal = getDimensionCategory(appStore.dimensions.x, dataRow);
+    const yVal = getDimensionCategory(appStore.dimensions.y, dataRow);
+    const withinBandVal = getDimensionCategory(appStore.dimensions.withinBand, dataRow);
 
     const lowerBound = dataRow[HistCols.LOWER_BOUND];
     const barCoords = createBarCoords(dataRow);
 
-    // TODO: Store lines in a nested dict/map? That would save manually storing a set of xCategories/yCategories.
     // We need to plot at most one line for each of the combinations of dimensions in use.
-    const line = lines.find(({ metadata }) => {
-      return metadata?.xVal === categories.xVal &&
-             metadata?.yVal === categories.yVal &&
-             metadata?.withinBandVal === categories.withinBandVal;
-    });
+    const line = lines[xVal]?.[yVal]?.[withinBandVal];
 
     if (!line) {
-      // The line does not already exist, so create it.
+      lines[xVal] ??= {};
+      lines[xVal]![yVal] ??= {};
 
+      // TODO: assign colors in a smart way based on which dimensions are in use and have multiple values.
       // TODO: persist color on changing the axes etc, where applicable.
-      lines.push(initializeLine(lowerBound, barCoords, categories));
+      const color = colors[Math.floor(Object.values(lines[xVal] ?? {}).length % colors.length)]!;
+
+      lines[xVal]![yVal]![withinBandVal] = initializeLine(lowerBound, barCoords, { xVal, yVal, withinBandVal }, color);
     } else {
       // A line already exists for this combination of categorical axis values, so we can append some points to it.
       const previousPoint = line.points[line.points.length - 1];
@@ -124,7 +130,19 @@ const ridgeLines = computed(() => {
     }
   });
 
-  return lines;
+  // Unpack the lines dictionary into an array.
+  return Object.values(lines)
+    .flatMap(y => Object.values(y)
+    .filter(z => {
+      if (appStore.dimensions.y === Dimensions.DISEASE && appStore.dimensions.withinBand === Dimensions.LOCATION) {
+        // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
+        const locations = Object.keys(z).map(k => k.toLowerCase());
+        return locations.includes(appStore.focus.toLowerCase());
+      } else {
+        return true;
+      };
+    })
+    .flatMap(z => Object.values(z)));
 });
 
 // Debounce chart updates so that there is no flickering as filters change at a different moment from focus/dimensions.
@@ -149,7 +167,11 @@ const updateChart = debounce(() => {
   };
 
   const chart = new Chart()
-    .addAxes({ x: "Impact ratio", y: titleCase(appStore.dimensions.y) })
+    .addAxes({
+      // TODO: Put the 10^n into the tick labels, pending release of https://github.com/mrc-ide/skadi-chart/pull/58
+      x: appStore.logScaleEnabled ? "Impact ratio (10^n)" : "Impact ratio",
+      y: titleCase(appStore.dimensions.y),
+    })
     .addTraces(ridgeLines.value)
     .addArea()
     // .addGridLines() // TODO: Enable gridlines only in x axis, pending release of https://github.com/mrc-ide/skadi-chart/pull/57
@@ -161,7 +183,7 @@ const updateChart = debounce(() => {
   }
 
   chart.appendTo(chartWrapper.value, numericalScales, {}, categoricalScales);
-}, 50);
+}, 100);
 
 watch([ridgeLines, chartWrapper], updateChart);
 </script>

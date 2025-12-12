@@ -13,6 +13,18 @@ import histCountsDalysDiseaseLog from "@/../public/data/json/hist_counts_dalys_d
 import { BurdenMetrics } from '@/types';
 import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
+import diseaseOptions from '@/data/options/diseaseOptions.json';
+
+vi.mock('@reside-ic/skadi-chart', () => ({
+  Chart: vi.fn().mockImplementation(class MockChart {
+    addAxes = vi.fn().mockReturnThis();
+    addTraces = vi.fn().mockReturnThis();
+    addArea = vi.fn().mockReturnThis();
+    addZoom = vi.fn().mockReturnThis();
+    makeResponsive = vi.fn().mockReturnThis();
+    appendTo = vi.fn();
+  }),
+}));
 
 describe('RidgelinePlot component', () => {
   beforeEach(() => {
@@ -26,6 +38,7 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
+      expect(dataAttr.lineCount).toEqual(diseaseOptions.length);
       // No columns
       expect(dataAttr.x).toBeNull();
       // Rows differ by disease
@@ -38,7 +51,7 @@ describe('RidgelinePlot component', () => {
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
     expect(appStore.focus).toEqual("global");
-    appStore.focus = "Central and Southern Asia";
+    appStore.focus = "Middle Africa";
     appStore.burdenMetric = BurdenMetrics.DALYS;
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
@@ -47,6 +60,7 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.histogramDataRowCount).toEqual(
         histCountsDalysDiseaseSubregionActivityType.length + histCountsDalysDiseaseActivityType.length
       );
+      expect(dataAttr.lineCount).toEqual(36); // Not all diseases have data for all subregions and activity types.
       expect(dataAttr.x).toEqual("activity_type");
       expect(dataAttr.y).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
@@ -66,6 +80,7 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.histogramDataRowCount).toEqual(
         histCountsDeathsDiseaseSubregionActivityType.length + histCountsDeathsDiseaseActivityType.length
       );
+      expect(dataAttr.lineCount).toEqual(22); // 10 applicable subregions with measles, + global, each with 2 activity types
       expect(dataAttr.x).toEqual("activity_type");
       expect(dataAttr.y).toEqual("location");
       expect(dataAttr.withinBand).toEqual("disease");
@@ -85,6 +100,7 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.histogramDataRowCount).toEqual(
         histCountsDalysDiseaseSubregionLog.length + histCountsDalysDiseaseCountryLog.length + histCountsDalysDiseaseLog.length
       );
+      expect(dataAttr.lineCount).toEqual(30); // 10 applicable diseases, each with 3 locations (AFG, subregion, global)
       expect(dataAttr.x).toBeNull();
       expect(dataAttr.y).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");

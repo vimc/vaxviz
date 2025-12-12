@@ -60,7 +60,7 @@ describe("appStore", () => {
     expect(store.dimensions.y).toEqual("location");
     expect(store.dimensions.withinBand).toEqual("disease");
 
-    store.focus = "Central and Southern Asia";
+    store.focus = "Middle Africa";
     await nextTick();
 
     expect(store.dimensions.y).toEqual("disease");
