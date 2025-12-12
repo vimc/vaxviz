@@ -25,9 +25,6 @@ const colors = [
 export const useColorStore = defineStore("color", () => {
   const appStore = useAppStore();
 
-  // TODO: watch histogramData.value and if it changes, reset the maps (so that we always prefer earlier colors
-  // in the IBM list)
-
   // A dict to keep track of which colors have been assigned to which values, so that we can
   // use the same color assignations consistently across rows.
   // The two nested maps map specific values to assigned colors.
@@ -52,6 +49,8 @@ export const useColorStore = defineStore("color", () => {
       : appStore.dimensions.withinBand;
   });
 
+  const colorMap = computed(() => colorsByValue.value[colorDimension.value]!);
+
   // Determine color for a line based on the line's categories,
   // which dimensions are in use on which axes,
   // and whether the filters are single-valued or multi-valued.
@@ -60,12 +59,19 @@ export const useColorStore = defineStore("color", () => {
     // whose assigned color we need to look up or assign.
     const value = colorDimension.value === appStore.dimensions.y
       ? categories.yVal
-      : categories.withinBandVal;;
-    const colorMap = colorsByValue.value[colorDimension.value]!;
-    const color = colorMap.get(value) ?? colors[colorMap.size % colors.length]!;
-    colorMap.set(value, color);
-    return color;
+      : categories.withinBandVal;
+    const color = colorMap.value.get(value) ?? colors[colorMap.value.size ?? 0 % colors.length]!;
+    colorMap.value.set(value, color);
+    return colorMap.value.get(value);
   }
 
-  return { getColorForLine };
+  // TODO: Ensure e.g. 'global' has the same color across chart updates.
+  const resetColorMapping = () => {
+    colorsByValue.value = Object.freeze({
+      [Dimensions.LOCATION]: new Map<string, string>(),
+      [Dimensions.DISEASE]: new Map<string, string>(),
+    });
+  }
+
+  return { colorMap, getColorForLine, resetColorMapping };
 });

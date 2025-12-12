@@ -12,6 +12,29 @@
       })"
     />
     <p v-if="dataStore.fetchErrors.length" class="mt-5">Errors: {{ dataStore.fetchErrors }}</p>
+    <!-- Legend for manual testing only -->
+    <div>
+      <h3>Legend, for manual testing only</h3>
+      <ul>
+        <li
+          v-for="([value, color]) in colorStore.colorMap"
+          :key="value"
+        >
+          <span
+            class="legend-color-box"
+            :style="{
+              backgroundColor: color,
+              width: '1em',
+              height: '1em',
+              display: 'inline-block',
+            }"
+          ></span>
+          <span>
+            value: {{ value }}
+          </span>
+        </li>
+      </ul>
+    </div>
 </div>
 </template>
 
@@ -78,6 +101,10 @@ const ridgeLines = computed(() => {
   // We use x-value as the key at the first level, then y-value on the second, then withinBandValue.
   // If the x-value (or anything else) is undefined, then the key should be an empty string.
   const lines: Record<string, Record<string, Record<string, Lines<LineMetadata>[0]>>> = {};
+
+  // `histogramData` has changed, so we reset the color mapping so that we always use the earliest
+  // colors in the list.
+  colorStore.resetColorMapping();
 
   dataStore.histogramData.filter(dataRow =>
     [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
