@@ -35,6 +35,11 @@ export const useAppStore = defineStore("app", () => {
   const exploreBy = ref<Dimensions.LOCATION | Dimensions.DISEASE>(Dimensions.LOCATION);
   const focus = ref<string>(LocResolutions.GLOBAL);
 
+  const filters = ref<Record<string, string[]>>({
+    [Dimensions.DISEASE]: diseaseOptions.map(d => d.value),
+    [Dimensions.LOCATION]: [LocResolutions.GLOBAL],
+  });
+
   const exploreByLabel = computed(() => {
     const option = exploreOptions.find(o => o.value === exploreBy.value);
     return option ? option.label : "";
@@ -65,22 +70,6 @@ export const useAppStore = defineStore("app", () => {
     }
   });
 
-  const focusIsADisease = computed(() => diseaseOptions.map(o => o.value).includes(focus.value));
-
-  const filters = computed(() => {
-    if (focusIsADisease.value) {
-      return {
-        [Dimensions.DISEASE]: [focus.value],
-        [Dimensions.LOCATION]: subregionOptions.map(o => o.value).concat([LocResolutions.GLOBAL]),
-      };
-    } else {
-      return {
-        [Dimensions.DISEASE]: diseaseOptions.map(d => d.value),
-        [Dimensions.LOCATION]: geographicalResolutions.value.map(getLocationForGeographicalResolution),
-      };
-    }
-  })
-
   const getLocationForGeographicalResolution = (geog: LocResolutions) => {
     switch (geog) {
       case LocResolutions.GLOBAL:
@@ -101,10 +90,15 @@ export const useAppStore = defineStore("app", () => {
     };
   });
 
-  watch(focusIsADisease, () => {
-    if (focusIsADisease.value) {
+  watch(focus, () => {
+    if (diseaseOptions.map(o => o.value).includes(focus.value)) {
       yCategoricalAxis.value = Dimensions.LOCATION;
       withinBandAxis.value = Dimensions.DISEASE;
+
+      filters.value = {
+        [Dimensions.DISEASE]: [focus.value],
+        [Dimensions.LOCATION]: subregionOptions.map(o => o.value).concat([LocResolutions.GLOBAL]),
+      };
     } else {
       // This is only one possible way of 'focusing' on a 'location':
       // diseases as categorical Y axis, each row with up to 3 ridges.
@@ -112,6 +106,11 @@ export const useAppStore = defineStore("app", () => {
       // and disease(s) as color axis.
       yCategoricalAxis.value = Dimensions.DISEASE;
       withinBandAxis.value = Dimensions.LOCATION;
+
+      filters.value = {
+        [Dimensions.DISEASE]: diseaseOptions.map(d => d.value),
+        [Dimensions.LOCATION]: geographicalResolutions.value.map(getLocationForGeographicalResolution),
+      };
     };
   });
 
