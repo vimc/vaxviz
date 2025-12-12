@@ -5,9 +5,11 @@ import { computed, ref, shallowRef, watch } from "vue";
 
 import countryOptions from '@/data/options/countryOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
+import { defineStore } from "pinia";
+
 export const dataDir = `/data/json`
 
-export default () => {
+export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
 
   const fetchErrors = ref<{ e: Error, message: string }[]>([]);
@@ -90,4 +92,4 @@ export default () => {
   }, { immediate: true });
 
   return { histogramData, fetchErrors, geographicalResolutions };
-}
+});
