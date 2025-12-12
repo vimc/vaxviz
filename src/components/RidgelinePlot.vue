@@ -22,13 +22,13 @@ import { Chart, type Lines } from '@reside-ic/skadi-chart';
 import { getDimensionCategory } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
+import { useColorStore } from '@/stores/colorStore';
 import { type Coords, Dimensions, HistCols, type HistDataRow, type LineMetadata } from '@/types';
 import titleCase from '@/utils/titleCase';
-import useColors from '@/composables/useColors';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();
-const { getColorForLine } = useColors();
+const colorStore = useColorStore();
 
 const chartWrapper = ref<HTMLDivElement | null>(null);
 
@@ -48,7 +48,7 @@ const initializeLine = (
   barCoords: Coords[],
   categories: LineMetadata,
 ): Lines<LineMetadata>[0] => {
-  const color = getColorForLine(categories);
+  const color = colorStore.getColorForLine(categories);
 
   return {
     points: [

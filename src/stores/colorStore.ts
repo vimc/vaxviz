@@ -1,3 +1,4 @@
+import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import { Dimensions, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
@@ -21,8 +22,11 @@ const colors = [
   "#a56eff",
 ];
 
-export default () => {
+export const useColorStore = defineStore("color", () => {
   const appStore = useAppStore();
+
+  // TODO: watch histogramData.value and if it changes, reset the maps (so that we always prefer earlier colors
+  // in the IBM list)
 
   // A dict to keep track of which colors have been assigned to which values, so that we can
   // use the same color assignations consistently across rows.
@@ -64,4 +68,4 @@ export default () => {
   }
 
   return { getColorForLine };
-}
+});
