@@ -41,3 +41,9 @@ export type HistDataRow = DataRow & {
 export type Option = { label: string; value: string };
 
 export type Coords = { x: number; y: number };
+
+export type LineMetadata = {
+  withinBandVal: string;
+  xVal: string;
+  yVal: string
+};

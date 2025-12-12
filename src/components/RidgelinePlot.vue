@@ -20,34 +20,17 @@ import { computed, ref, watch } from 'vue';
 import { debounce } from 'perfect-debounce';
 import { Chart, type Lines } from '@reside-ic/skadi-chart';
 import { getDimensionCategory } from '@/utils/fileParse';
-import titleCase from '@/utils/titleCase';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
-import { type Coords, Dimensions, HistCols, type HistDataRow } from '@/types';
-import { type Coords, Dimensions, HistCols, type HistDataRow } from '@/types';
-import colors from '@/utils/colors';
+import { type Coords, Dimensions, HistCols, type HistDataRow, type LineMetadata } from '@/types';
+import titleCase from '@/utils/titleCase';
+import useColors from '@/composables/useColors';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();
+const { getColorForLine } = useColors();
 
 const chartWrapper = ref<HTMLDivElement | null>(null);
-
-// A dict to keep track of which colors have been assigned to which values, so that we can
-// use the same color assignations consistently across rows.
-// The two nested maps map specific values to assigned colors.
-// In the future this will be passed as a prop to a legend component.
-const colorsByValue = ref<Record<string, Map<string, string>>>(
-  Object.freeze({
-    [Dimensions.LOCATION]: new Map<string, string>(),
-    [Dimensions.DISEASE]: new Map<string, string>(),
-  }),
-);
-
-type LineMetadata = {
-  withinBandVal: string;
-  xVal: string;
-  yVal: string
-};
 
 // Return corner coordinates of the histogram bar representing a row from a data file.
 const createBarCoords = (dataRow: HistDataRow): Coords[] => {
@@ -65,27 +48,7 @@ const initializeLine = (
   barCoords: Coords[],
   categories: LineMetadata,
 ): Lines<LineMetadata>[0] => {
-  const { xVal, yVal, withinBandVal } = categories;
-
-  // Determine colors based on which dimensions are in use on which axes,
-  // and whether the filters are single-valued or multi-valued.
-
-  // If we're filtered to just 1 value for the withinBand axis, we assign colors
-  // based on the dimension assigned to the y-axis
-  // (otherwise all lines would be the same color across all rows).
-  // If there are multiple filtered values for the withinBand axis, these values determine the colors.
-
-  // colorDimension is the dimension (i.e. 'location' or 'disease')
-  // whose values determine the colors for the lines.
-  const colorDimension = appStore.filters[appStore.dimensions.withinBand]?.length === 1
-    ? appStore.dimensions.y
-    : appStore.dimensions.withinBand;
-  // valueForColor is the specific value (e.g., a specific location or disease)
-  // whose assigned color we need to look up or assign.
-  const valueForColor = colorDimension === appStore.dimensions.y ? yVal : withinBandVal;
-  const colorMap = colorsByValue.value[colorDimension]!;
-  const color = colorMap.get(valueForColor) ?? colors[colorMap.size % colors.length]!;
-  colorMap.set(valueForColor, color);
+  const color = getColorForLine(categories);
 
   return {
     points: [
@@ -93,8 +56,8 @@ const initializeLine = (
       ...barCoords,
     ],
     bands: {
-      ...(xVal ? { x: xVal } : {}),
-      ...(yVal ? { y: yVal } : {}),
+      ...(categories.xVal ? { x: categories.xVal } : {}),
+      ...(categories.yVal ? { y: categories.yVal } : {}),
     },
     style: {
       strokeColor: color,
