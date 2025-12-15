@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { useAppStore } from "@/stores/appStore";
 import { nextTick } from "vue";
 
-describe("appStore", () => {
+describe("app store", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });

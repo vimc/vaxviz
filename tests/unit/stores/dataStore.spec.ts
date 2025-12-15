@@ -23,7 +23,7 @@ const expectLastNCallsToEqual = (spy: Mock, args: any[]) => {
   );
 }
 
-describe('useData', () => {
+describe('data store', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });

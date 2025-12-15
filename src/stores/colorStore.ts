@@ -77,5 +77,5 @@ export const useColorStore = defineStore("color", () => {
     });
   };
 
-  return { colorDimension, colorMap: colorMapping, getColorForLine, resetColorMapping };
+  return { colorDimension, colorMapping, getColorForLine, resetColorMapping };
 });

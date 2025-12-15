@@ -16,11 +16,11 @@
     />
     <p v-if="dataStore.fetchErrors.length" class="mt-5">Errors: {{ dataStore.fetchErrors }}</p>
     <!-- Legend for manual testing only -->
-    <div v-if="colorStore.colorMap && colorStore.colorMap.size >= 2">
+    <div v-if="colorStore.colorMapping && colorStore.colorMapping.size >= 2">
       <h3>Legend, for manual testing only</h3>
       <ul>
         <li
-          v-for="([value, color]) in colorStore.colorMap"
+          v-for="([value, color]) in colorStore.colorMapping"
           :key="value"
         >
           <span
