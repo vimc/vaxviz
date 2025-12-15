@@ -14,7 +14,9 @@
         ...appStore.dimensions,
       })"
     />
-    <p v-if="dataStore.fetchErrors.length" class="mt-5">Errors: {{ dataStore.fetchErrors }}</p>
+    <p v-if="dataStore.fetchErrors.length" class="mt-auto">
+      {{ dataStore.fetchErrors.map(error => error.message).join(', ') }}
+    </p>
     <!-- Legend for manual testing only -->
     <!-- <div v-if="colorStore.colorMapping && colorStore.colorMapping.size >= 2">
       <h3>Legend, for manual testing only</h3>
