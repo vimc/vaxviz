@@ -46,13 +46,15 @@ test('visits the app root url, selects options, and loads correct data', async (
   await expect(logScaleCheckbox).toBeChecked();
   await expect(dalysRadio).not.toBeChecked();
   await expect(deathsRadio).toBeChecked();
-
-  const dataAttr0 = await chartWrapper.getAttribute("data-test");
-  const data0 = JSON.parse(dataAttr0!);
-  expect(data0.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
-  expect(data0.x).toBeNull();
-  expect(data0.y).toBe("disease");
-  expect(data0.withinBand).toBe("location");
+  await expect(chartWrapper).toHaveAttribute("data-test",
+    JSON.stringify({
+      histogramDataRowCount: histCountsDeathsDiseaseLog.length,
+      lineCount: 14, // 14 diseases have global data for aggregated activity type.
+      x: null,
+      y: "disease",
+      withinBand: "location",
+    })
+  );
 
   // Change options: round 1
   await selectFocus(page, "location", "Middle Africa");
@@ -71,6 +73,7 @@ test('visits the app root url, selects options, and loads correct data', async (
     JSON.stringify({
       histogramDataRowCount: histCountsDalysDiseaseSubregionActivityType.length
         + histCountsDalysDiseaseActivityType.length,
+      lineCount: 44, // Not all diseases have data for all subregions and activity types.
       x: "activity_type",
       y: "disease",
       withinBand: "location",
@@ -94,6 +97,7 @@ test('visits the app root url, selects options, and loads correct data', async (
     JSON.stringify({
       histogramDataRowCount: histCountsDeathsDiseaseSubregionActivityType.length
         + histCountsDeathsDiseaseActivityType.length,
+      lineCount: 22, // 10 applicable subregions with measles, + global, each with 2 activity types
       x: "activity_type",
       y: "location",
       withinBand: "disease",
@@ -121,6 +125,7 @@ test('visits the app root url, selects options, and loads correct data', async (
         histCountsDalysDiseaseSubregionLog.length +
         histCountsDalysDiseaseCountryLog.length +
         histCountsDalysDiseaseLog.length,
+      lineCount: 30, // 10 applicable diseases, each with 3 locations (AFG, subregion, global)
       x: null,
       y: "disease",
       withinBand: "location",

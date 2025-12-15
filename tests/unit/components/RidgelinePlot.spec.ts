@@ -13,13 +13,13 @@ import histCountsDalysDiseaseLog from "@/../public/data/json/hist_counts_dalys_d
 import { BurdenMetrics } from '@/types';
 import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
-import diseaseOptions from '@/data/options/diseaseOptions.json';
 
 vi.mock('@reside-ic/skadi-chart', () => ({
   Chart: vi.fn().mockImplementation(class MockChart {
     addAxes = vi.fn().mockReturnThis();
     addTraces = vi.fn().mockReturnThis();
     addArea = vi.fn().mockReturnThis();
+    addGridLines = vi.fn().mockReturnThis();
     addZoom = vi.fn().mockReturnThis();
     makeResponsive = vi.fn().mockReturnThis();
     appendTo = vi.fn();
@@ -38,7 +38,7 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
-      expect(dataAttr.lineCount).toEqual(diseaseOptions.length);
+      expect(dataAttr.lineCount).toEqual(14); // 14 diseases have global data for aggregated activity type.
       // No columns
       expect(dataAttr.x).toBeNull();
       // Rows differ by disease
@@ -60,7 +60,7 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.histogramDataRowCount).toEqual(
         histCountsDalysDiseaseSubregionActivityType.length + histCountsDalysDiseaseActivityType.length
       );
-      expect(dataAttr.lineCount).toEqual(36); // Not all diseases have data for all subregions and activity types.
+      expect(dataAttr.lineCount).toEqual(44); // Not all diseases have data for all subregions and activity types.
       expect(dataAttr.x).toEqual("activity_type");
       expect(dataAttr.y).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
