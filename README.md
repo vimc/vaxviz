@@ -110,4 +110,5 @@ npm run lint
 1. From the same packet, download `who_sub_regions.csv` (under 'Other files'). This provides the mapping from countries to subregions.
 1. Delete contents of `public/data/csv`.
 1. Unzip the dataviz.zip folder into `public/data/csv`, and move `who_sub_regions.csv` there too.
+1. Ensure your current Node version is >= 24.
 1. Run `./scripts/convert-csv-files-to-json.sh <packet-id>` replacing the packet id argument
