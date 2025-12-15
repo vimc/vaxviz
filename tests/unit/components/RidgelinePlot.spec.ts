@@ -116,4 +116,29 @@ describe('RidgelinePlot component', () => {
     // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
     expect(colorStore.colorMapping.size).toEqual(3);
   }, 10000);
+
+  it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
+    const appStore = useAppStore();
+    const wrapper = mount(RidgelinePlot);
+
+    // It shows a chart initially
+    await vi.waitFor(() => {
+      const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
+      expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
+    });
+
+    // Set options that lead to no data
+    // There is no data for MenA except if we split by activity type.
+    appStore.exploreBy = "disease";
+    await vi.waitFor(() => {
+      expect(appStore.focus).toEqual("Cholera")
+    });
+    appStore.focus = "MenA";
+    appStore.splitByActivityType = false;
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain("No data available for the selected options.");
+      expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+    });
+  });
 });
