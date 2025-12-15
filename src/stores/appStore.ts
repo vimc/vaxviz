@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 import { getSubregionFromCountry } from "@/utils/regions"
-import { BurdenMetrics, Dimensions, LocResolutions } from "@/types";
+import { Axes, BurdenMetrics, Dimensions, LocResolutions } from "@/types";
 import countryOptions from '@/data/options/countryOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
@@ -36,12 +36,12 @@ export const useAppStore = defineStore("app", () => {
     return option ? option.label : "";
   });
 
-  // The dimensions currently in use: up to three will be in use at any given time.
+  // The dimensions currently in use, by axis: up to three will be in use at any given time.
   const dimensions = computed(() => ({
-    x: xCategoricalAxis.value,
-    y: yCategoricalAxis.value,
-    withinBand: withinBandAxis.value
-  }));
+    [Axes.X]: xCategoricalAxis.value,
+    [Axes.Y]: yCategoricalAxis.value,
+    [Axes.WITHIN_BAND]: withinBandAxis.value
+  } as Record<Axes, Dimensions>));
 
   // The geographical resolutions to use based on current exploreBy and focus selections.
   const geographicalResolutions = computed(() => {

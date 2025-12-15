@@ -1,8 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { Dimensions, LocResolutions, type LineMetadata } from "@/types";
+import { Axes, Dimensions, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
-import titleCase from "@/utils/titleCase";
 import { globalOption } from "@/utils/options";
 
 // The IBM categorical palette, which maximises accessibility, specifically in this ordering:
@@ -24,6 +23,8 @@ const colors = [
   "#a56eff",
 ];
 
+type ColorMapping = Record<string, Map<string, string>>;
+
 export const useColorStore = defineStore("color", () => {
   const appStore = useAppStore();
 
@@ -31,12 +32,7 @@ export const useColorStore = defineStore("color", () => {
   // use the same color assignations consistently across rows.
   // The two nested maps map specific values to assigned colors.
   // In the future this will be passed as a prop to a legend component.
-  const colorsByValue = ref<Record<string, Map<string, string>>>(
-    Object.freeze({
-      [Dimensions.LOCATION]: new Map<string, string>(),
-      [Dimensions.DISEASE]: new Map<string, string>(),
-    }),
-  );
+  const colorsByValue = ref<ColorMapping>();
 
   // colorDimension is the dimension (i.e. 'location' or 'disease')
   // whose values determine the colors for the lines.
@@ -46,33 +42,40 @@ export const useColorStore = defineStore("color", () => {
     // If we're filtered to just 1 value for the withinBand axis,
     // we assign colors based on the dimension assigned to the y-axis,
     // otherwise all lines would be the same color across all rows.
-    return appStore.filters[appStore.dimensions.withinBand]?.length === 1
-      ? appStore.dimensions.y
-      : appStore.dimensions.withinBand;
+    return appStore.filters[appStore.dimensions[Axes.WITHIN_BAND]]?.length === 1
+      ? appStore.dimensions[Axes.Y]
+      : appStore.dimensions[Axes.WITHIN_BAND];
   });
 
-  const colorMap = computed(() => colorsByValue.value[colorDimension.value]!);
+  const colorMapping = computed(() => colorsByValue.value?.[colorDimension.value]);
 
-  const getColorForLine = (categories: LineMetadata) => {
+  const getColorForLine = (categoryValues: LineMetadata) => {
+    const colorAxis = Object.keys(appStore.dimensions).find((axis) => {
+      return appStore.dimensions[axis as Axes] === colorDimension.value;
+    }) as Axes;
+    const colorMap = colorMapping.value;
+    if (!colorMap) {
+      return undefined;
+    }
     // `value` is the specific value, i.e. a specific location or disease,
     // whose color we need to look up or assign.
-    const value = colorDimension.value === appStore.dimensions.y
-      ? categories.yVal
-      : categories.withinBandVal;
-    const color = colorMap.value.get(value) ?? colors[colorMap.value.size % colors.length]!;
-    colorMap.value.set(value, color);
-    return colorMap.value.get(value);
+    const value = categoryValues[colorAxis];
+    let color = colorMap.get(value);
+    if (!color) {
+      color = colors[colorMap.size % colors.length]!;
+      colorMap.set(value, color);
+    }
+    return color;
   }
 
-  // TODO: Find a good way to ensure that 'global' gets the same color across chart updates.
   const resetColorMapping = () => {
-    const globalColor = colorMap.value.get(globalOption.value) ?? colors[0]!;
-
+    // By setting the global color once here, we ensure that it gets the same color across chart updates.
+    // NB `Object.freeze` is only a shallow freeze, preventing modification of the top-level object structure.
     colorsByValue.value = Object.freeze({
-      [Dimensions.LOCATION]: new Map<string, string>([[globalOption.value, globalColor]]),
+      [Dimensions.LOCATION]: new Map<string, string>([[globalOption.value, colors[0]!]]),
       [Dimensions.DISEASE]: new Map<string, string>(),
     });
-  }
+  };
 
-  return { colorDimension, colorMap, getColorForLine, resetColorMapping };
+  return { colorDimension, colorMap: colorMapping, getColorForLine, resetColorMapping };
 });

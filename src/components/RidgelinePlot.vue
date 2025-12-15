@@ -6,14 +6,12 @@
       :data-test="JSON.stringify({
         histogramDataRowCount: dataStore.histogramData.length,
         lineCount: ridgeLines.length,
-        x: appStore.dimensions.x,
-        y: appStore.dimensions.y,
-        withinBand: appStore.dimensions.withinBand,
+        ...appStore.dimensions,
       })"
     />
     <p v-if="dataStore.fetchErrors.length" class="mt-5">Errors: {{ dataStore.fetchErrors }}</p>
     <!-- Legend for manual testing only -->
-    <div>
+    <div v-if="colorStore.colorMap && colorStore.colorMap.size >= 2">
       <h3>Legend, for manual testing only</h3>
       <ul>
         <li
@@ -30,7 +28,7 @@
             }"
           ></span>
           <span>
-            {{ getCategoryLabel(colorStore.colorDimension, value) }}
+            {{ dimensionOptionLabel(colorStore.colorDimension, value) }}
           </span>
         </li>
       </ul>
@@ -39,21 +37,24 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { debounce } from 'perfect-debounce';
 import { Chart, type Lines } from '@reside-ic/skadi-chart';
-import { getDimensionCategoryValue, getCategoryLabel } from '@/utils/fileParse';
+import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
-import { type Coords, Dimensions, HistCols, type HistDataRow, type LineMetadata } from '@/types';
+import { Axes, type Coords, Dimensions, HistCols, type HistDataRow, type LineMetadata } from '@/types';
 import titleCase from '@/utils/titleCase';
+import { dimensionOptionLabel } from '@/utils/options';
+import type { LineConfig } from 'types';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();
 const colorStore = useColorStore();
 
 const chartWrapper = ref<HTMLDivElement | null>(null);
+const ridgeLines = ref<Lines<LineMetadata>>([]);
 
 // Return corner coordinates of the histogram bar representing a row from a data file.
 const createBarCoords = (dataRow: HistDataRow): Coords[] => {
@@ -69,15 +70,14 @@ const createBarCoords = (dataRow: HistDataRow): Coords[] => {
 const initializeLine = (
   lowerBound: number,
   barCoords: Coords[],
-  categories: LineMetadata,
+  categoryValues: LineMetadata,
 ): Lines<LineMetadata>[0] => {
-  const color = colorStore.getColorForLine(categories);
-  const { xVal, yVal } = categories;
+  const color = colorStore.getColorForLine(categoryValues);
+  const { x: xCat, y: yCat } = categoryValues;
   const { x: xDim, y: yDim } = appStore.dimensions;
 
-  const xLabel = xVal && xDim ? getCategoryLabel(xDim, xVal) : undefined;
-  const yLabel = yVal && yDim ? getCategoryLabel(yDim, yVal) : undefined;
-
+  const xLabel = xCat && xDim ? dimensionOptionLabel(xDim, xCat) : undefined;
+  const yLabel = yCat && yDim ? dimensionOptionLabel(yDim, yCat) : undefined;
   return {
     points: [
       { x: lowerBound, y: 0 },
@@ -94,22 +94,30 @@ const initializeLine = (
       fillColor: color,
       fillOpacity: 0.2, // Keep this value low since mixing translucent colours creates the illusion of an extra ridgeline.
     },
-    metadata: categories,
+    metadata: categoryValues,
     fill: true,
   };
+};
+
+const displayPlotRow = (lines: Record<string, LineConfig<LineMetadata>>) => {
+  if (appStore.dimensions[Axes.Y] !== Dimensions.DISEASE || appStore.dimensions[Axes.WITHIN_BAND] !== Dimensions.LOCATION) {
+    return true;
+  }
+
+  // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
+  // E.g. Say the focus value is 'Djibouti', a location. If for some row of ridgelines - i.e. some y-value, such as Malaria -
+  // there is no line for Djibouti, we should exclude the Malaria row entirely so that we only display rows that are relevant for Djibouti.
+  const locations = Object.keys(lines);
+  return locations.includes(appStore.focus);
 }
 
 // Construct histogram/ridge-shaped lines by building area lines whose points trace the
 // outline of the histogram bars (including the spaces in between them).
-const ridgeLines = computed(() => {
+const constructLines = () => {
   // A 3-dimensional dictionary of lines.
   // We use x-value as the key at the first level, then y-value on the second, then withinBandValue.
   // If the x-value (or anything else) is undefined, then the key should be an empty string.
-  const lines: Record<string, Record<string, Record<string, Lines<LineMetadata>[0]>>> = {};
-
-  // `histogramData` has changed, so we reset the color mapping so that we always use the earliest
-  // colors in the list.
-  colorStore.resetColorMapping();
+  const lines: Record<string, Record<string, Record<string, LineConfig<LineMetadata>>>> = {};
 
   dataStore.histogramData.filter(dataRow =>
     [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
@@ -118,20 +126,22 @@ const ridgeLines = computed(() => {
     })
   ).forEach(dataRow => {
     // Each line needs to know its category for each categorical axis in use.
-    const xVal = getDimensionCategoryValue(appStore.dimensions.x, dataRow);
-    const yVal = getDimensionCategoryValue(appStore.dimensions.y, dataRow);
-    const withinBandVal = getDimensionCategoryValue(appStore.dimensions.withinBand, dataRow);
+    const xCat = getDimensionCategoryValue(appStore.dimensions[Axes.X], dataRow);
+    const yCat = getDimensionCategoryValue(appStore.dimensions[Axes.Y], dataRow);
+    const withinBandCat = getDimensionCategoryValue(appStore.dimensions[Axes.WITHIN_BAND], dataRow);
 
     const lowerBound = dataRow[HistCols.LOWER_BOUND];
     const barCoords = createBarCoords(dataRow);
 
     // We need to plot at most one line for each of the combinations of dimensions in use.
-    const line = lines[xVal]?.[yVal]?.[withinBandVal];
+    const line = lines[xCat]?.[yCat]?.[withinBandCat];
 
     if (!line) {
-      lines[xVal] ??= {};
-      lines[xVal]![yVal] ??= {};
-      lines[xVal]![yVal]![withinBandVal] = initializeLine(lowerBound, barCoords, { xVal, yVal, withinBandVal });
+      // No line exists yet for this combination of categorical axis values, so we need to create it.
+      const newLine = initializeLine(lowerBound, barCoords, { x: xCat, y: yCat, withinBand: withinBandCat });
+      lines[xCat] ??= {};
+      lines[xCat]![yCat] ??= {};
+      lines[xCat]![yCat]![withinBandCat] = newLine;
     } else {
       // A line already exists for this combination of categorical axis values, so we can append some points to it.
       const previousPoint = line.points[line.points.length - 1];
@@ -150,23 +160,22 @@ const ridgeLines = computed(() => {
   });
 
   // Unpack the lines dictionary into an array.
-  return Object.values(lines)
+  ridgeLines.value = Object.values(lines)
     .flatMap(y => Object.values(y)
-    .filter(z => {
-      if (appStore.dimensions.y === Dimensions.DISEASE && appStore.dimensions.withinBand === Dimensions.LOCATION) {
-        // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
-        const locations = Object.keys(z);
-        return locations.includes(appStore.focus);
-      } else {
-        return true;
-      };
-    })
+    .filter(displayPlotRow)
     .flatMap(z => Object.values(z)));
-});
+};
 
 // Debounce chart updates so that there is no flickering as filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  if (!chartWrapper.value || ridgeLines.value.length === 0) {
+  if (!chartWrapper.value) {
+    return;
+  }
+  // `dataStore.histogramData` has changed, so we reset the color mapping so that we always use the earliest
+  // colors in the list.
+  colorStore.resetColorMapping();
+  constructLines();
+  if (ridgeLines.value.length === 0) {
     return;
   }
   const minX = Math.min(...ridgeLines.value.flatMap(l => l.points![0]?.x ?? 0));
@@ -204,7 +213,7 @@ const updateChart = debounce(() => {
   chart.appendTo(chartWrapper.value, numericalScales, {}, categoricalScales);
 }, 100);
 
-watch([ridgeLines, chartWrapper], updateChart);
+watch([() => dataStore.histogramData, chartWrapper], updateChart, { immediate: true });
 </script>
 
 <style lang="scss" scoped>
@@ -213,12 +222,13 @@ watch([ridgeLines, chartWrapper], updateChart);
   width: 100%;
   height: calc(100dvh - 2 * var(--chart-margin));
   display: flex;
+  flex-wrap: wrap;
 }
 
 #chartWrapper {
   width: 100%;
   height: 100%;
-  flex: 5;
+  flex: 1 1 auto;
   margin: var(--chart-margin);
 }
 </style>

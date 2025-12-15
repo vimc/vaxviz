@@ -14,13 +14,3 @@ export const getDimensionCategoryValue = (dim: Dimensions | null, dataRow: HistD
     return value;
   }
 };
-
-// TODO: Make this function more generic, like, actually-always look up the label.
-// TODO: Move to a more relevant file
-// Get an data category's human-readable label from its value & dimension.
-export const getCategoryLabel = (dim: Dimensions, value: string): string => {
-  if (dim === Dimensions.LOCATION && value === globalOption.value) {
-    return globalOption.label;
-  }
-  return value;
-};

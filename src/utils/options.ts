@@ -2,6 +2,9 @@
 // Static, automatically-generated options go in src/data/options/.
 import { BurdenMetrics, Dimensions, LocResolutions } from "@/types";
 import countryOptions from '@/data/options/countryOptions.json';
+import diseaseOptions from '@/data/options/diseaseOptions.json';
+import subregionOptions from '@/data/options/subregionOptions.json';
+import activityTypeOptions from '@/data/options/activityTypeOptions.json';
 
 export const metricOptions = [
   { label: "DALYs averted", value: BurdenMetrics.DALYS },
@@ -16,4 +19,17 @@ export const exploreOptions = [
 export const globalOption = {
   label: `All ${countryOptions.length} VIMC countries`,
   value: LocResolutions.GLOBAL as string
+};
+
+const locationOptions = countryOptions.concat(subregionOptions).concat([globalOption]);
+
+// Get an data category's human-readable label from its value & dimension.
+export const dimensionOptionLabel = (dim: Dimensions, value: string): string => {
+  const options = {
+    [Dimensions.LOCATION]: locationOptions,
+    [Dimensions.DISEASE]: diseaseOptions,
+    [Dimensions.ACTIVITY_TYPE]: activityTypeOptions,
+  }[dim];
+
+  return options?.find(o => o.value === value)?.label ?? value;
 };
