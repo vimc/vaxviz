@@ -23,7 +23,7 @@ export const globalOption = {
 
 const locationOptions = countryOptions.concat(subregionOptions).concat([globalOption]);
 
-// Get an data category's human-readable label from its value & dimension.
+// Get a data category's human-readable label from its value and dimension.
 export const dimensionOptionLabel = (dim: Dimensions, value: string): string => {
   const options = {
     [Dimensions.LOCATION]: locationOptions,
