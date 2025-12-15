@@ -5,16 +5,7 @@ import { BurdenMetrics, Dimensions, LocResolutions } from "@/types";
 import countryOptions from '@/data/options/countryOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
-
-const metricOptions = [
-  { label: "DALYs averted", value: BurdenMetrics.DALYS },
-  { label: "Deaths averted", value: BurdenMetrics.DEATHS },
-];
-
-const exploreOptions = [
-  { label: "Disease", value: Dimensions.DISEASE },
-  { label: "Geography", value: Dimensions.LOCATION },
-];
+import { exploreOptions, globalOption } from "@/utils/options";
 
 export const useAppStore = defineStore("app", () => {
   const burdenMetric = ref(BurdenMetrics.DEATHS);
@@ -73,7 +64,7 @@ export const useAppStore = defineStore("app", () => {
   const getLocationForGeographicalResolution = (geog: LocResolutions) => {
     switch (geog) {
       case LocResolutions.GLOBAL:
-        return LocResolutions.GLOBAL;
+        return globalOption.value;
       case LocResolutions.SUBREGION:
         return subregionOptions.find(o => o.value === focus.value)?.value
           ?? getSubregionFromCountry(focus.value);
@@ -126,7 +117,6 @@ export const useAppStore = defineStore("app", () => {
     focus,
     geographicalResolutions,
     logScaleEnabled,
-    metricOptions,
     splitByActivityType,
   };
 })

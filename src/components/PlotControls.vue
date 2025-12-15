@@ -52,7 +52,7 @@
       <legend class="block mb-5 font-medium text-heading">Burden metric:</legend>
       <div>
         <FwbRadio
-          v-for="({ label, value }) in appStore.metricOptions"
+          v-for="({ label, value }) in metricOptions"
           :key="value"
           v-model="appStore.burdenMetric"
           name="burdenMetric"
@@ -70,10 +70,11 @@ import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
 import VueSelect, { type Option } from "vue3-select-component";
 import { computed } from 'vue';
 import { useAppStore } from '../stores/appStore';
-import { Dimensions, LocResolutions } from '@/types';
+import { Dimensions } from '@/types';
 import countryOptions from '@/data/options/countryOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
+import { globalOption, metricOptions } from '@/utils/options';
 
 const appStore = useAppStore();
 
@@ -81,9 +82,7 @@ const selectOptions = computed(() => {
   if (appStore.exploreBy === Dimensions.LOCATION) {
     return [{
       label: "Global",
-      options: [
-        { label: `All ${countryOptions.length} VIMC countries`, value: LocResolutions.GLOBAL as string }
-      ]
+      options: [globalOption]
     }, {
       label: "Subregions",
       options: subregionOptions

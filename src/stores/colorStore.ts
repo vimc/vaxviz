@@ -1,7 +1,9 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { Dimensions, type LineMetadata } from "@/types";
+import { Dimensions, LocResolutions, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
+import titleCase from "@/utils/titleCase";
+import { globalOption } from "@/utils/options";
 
 // The IBM categorical palette, which maximises accessibility, specifically in this ordering:
 // https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
@@ -51,27 +53,26 @@ export const useColorStore = defineStore("color", () => {
 
   const colorMap = computed(() => colorsByValue.value[colorDimension.value]!);
 
-  // Determine color for a line based on the line's categories,
-  // which dimensions are in use on which axes,
-  // and whether the filters are single-valued or multi-valued.
   const getColorForLine = (categories: LineMetadata) => {
     // `value` is the specific value, i.e. a specific location or disease,
-    // whose assigned color we need to look up or assign.
+    // whose color we need to look up or assign.
     const value = colorDimension.value === appStore.dimensions.y
       ? categories.yVal
       : categories.withinBandVal;
-    const color = colorMap.value.get(value) ?? colors[colorMap.value.size ?? 0 % colors.length]!;
+    const color = colorMap.value.get(value) ?? colors[colorMap.value.size % colors.length]!;
     colorMap.value.set(value, color);
     return colorMap.value.get(value);
   }
 
-  // TODO: Ensure e.g. 'global' has the same color across chart updates.
+  // TODO: Find a good way to ensure that 'global' gets the same color across chart updates.
   const resetColorMapping = () => {
+    const globalColor = colorMap.value.get(globalOption.value) ?? colors[0]!;
+
     colorsByValue.value = Object.freeze({
-      [Dimensions.LOCATION]: new Map<string, string>(),
+      [Dimensions.LOCATION]: new Map<string, string>([[globalOption.value, globalColor]]),
       [Dimensions.DISEASE]: new Map<string, string>(),
     });
   }
 
-  return { colorMap, getColorForLine, resetColorMapping };
+  return { colorDimension, colorMap, getColorForLine, resetColorMapping };
 });

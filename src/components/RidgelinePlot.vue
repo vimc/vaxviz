@@ -30,7 +30,7 @@
             }"
           ></span>
           <span>
-            value: {{ value }}
+            {{ getCategoryLabel(colorStore.colorDimension, value) }}
           </span>
         </li>
       </ul>
@@ -42,7 +42,7 @@
 import { computed, ref, watch } from 'vue';
 import { debounce } from 'perfect-debounce';
 import { Chart, type Lines } from '@reside-ic/skadi-chart';
-import { getDimensionCategory } from '@/utils/fileParse';
+import { getDimensionCategoryValue, getCategoryLabel } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
@@ -72,6 +72,11 @@ const initializeLine = (
   categories: LineMetadata,
 ): Lines<LineMetadata>[0] => {
   const color = colorStore.getColorForLine(categories);
+  const { xVal, yVal } = categories;
+  const { x: xDim, y: yDim } = appStore.dimensions;
+
+  const xLabel = xVal && xDim ? getCategoryLabel(xDim, xVal) : undefined;
+  const yLabel = yVal && yDim ? getCategoryLabel(yDim, yVal) : undefined;
 
   return {
     points: [
@@ -79,8 +84,8 @@ const initializeLine = (
       ...barCoords,
     ],
     bands: {
-      ...(categories.xVal ? { x: categories.xVal } : {}),
-      ...(categories.yVal ? { y: categories.yVal } : {}),
+      ...(xLabel ? { x: xLabel } : {}),
+      ...(yLabel ? { y: yLabel } : {}),
     },
     style: {
       strokeColor: color,
@@ -108,15 +113,14 @@ const ridgeLines = computed(() => {
 
   dataStore.histogramData.filter(dataRow =>
     [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
-      const dimensionCat = getDimensionCategory(dim, dataRow);
-      const filterValues = appStore.filters[dim]?.map(v => v.toLowerCase());
-      return filterValues?.includes(dimensionCat.toLowerCase());
+      const dimensionVal = getDimensionCategoryValue(dim, dataRow);
+      return appStore.filters[dim]?.includes(dimensionVal);
     })
   ).forEach(dataRow => {
     // Each line needs to know its category for each categorical axis in use.
-    const xVal = getDimensionCategory(appStore.dimensions.x, dataRow);
-    const yVal = getDimensionCategory(appStore.dimensions.y, dataRow);
-    const withinBandVal = getDimensionCategory(appStore.dimensions.withinBand, dataRow);
+    const xVal = getDimensionCategoryValue(appStore.dimensions.x, dataRow);
+    const yVal = getDimensionCategoryValue(appStore.dimensions.y, dataRow);
+    const withinBandVal = getDimensionCategoryValue(appStore.dimensions.withinBand, dataRow);
 
     const lowerBound = dataRow[HistCols.LOWER_BOUND];
     const barCoords = createBarCoords(dataRow);
@@ -151,8 +155,8 @@ const ridgeLines = computed(() => {
     .filter(z => {
       if (appStore.dimensions.y === Dimensions.DISEASE && appStore.dimensions.withinBand === Dimensions.LOCATION) {
         // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
-        const locations = Object.keys(z).map(k => k.toLowerCase());
-        return locations.includes(appStore.focus.toLowerCase());
+        const locations = Object.keys(z);
+        return locations.includes(appStore.focus);
       } else {
         return true;
       };
