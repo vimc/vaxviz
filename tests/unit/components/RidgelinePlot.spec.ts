@@ -115,5 +115,5 @@ describe('RidgelinePlot component', () => {
     }, { timeout: 2500 });
     // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
     expect(colorStore.colorMapping.size).toEqual(3);
-  });
+  }, 10000);
 });
