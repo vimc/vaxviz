@@ -1,8 +1,13 @@
 <template>
   <div class="chart-container">
+    <p v-if="ridgeLines.length === 0" class="m-auto">
+      <!-- E.g. Focus disease MenA, without splitting by activity type. -->
+      No data available for the selected options.
+    </p>
     <div
       ref="chartWrapper"
       id="chartWrapper"
+      v-if="ridgeLines.length"
       :data-test="JSON.stringify({
         histogramDataRowCount: dataStore.histogramData.length,
         lineCount: ridgeLines.length,
@@ -168,14 +173,11 @@ const constructLines = () => {
 
 // Debounce chart updates so that there is no flickering as filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  if (!chartWrapper.value) {
-    return;
-  }
   // `dataStore.histogramData` has changed, so we reset the color mapping so that we always use the earliest
   // colors in the list.
   colorStore.resetColorMapping();
   constructLines();
-  if (ridgeLines.value.length === 0) {
+  if (ridgeLines.value.length === 0 || !chartWrapper.value) {
     return;
   }
   const minX = Math.min(...ridgeLines.value.flatMap(l => l.points![0]?.x ?? 0));
@@ -202,7 +204,7 @@ const updateChart = debounce(() => {
     })
     .addTraces(ridgeLines.value)
     .addArea()
-    // .addGridLines() // TODO: Enable gridlines only in x axis, pending release of https://github.com/mrc-ide/skadi-chart/pull/57
+    .addGridLines({ x: true })
     // .addTooltips() // TODO: Enable tooltips once behaviour is satisfactory for area charts (vimc-8117)
     .makeResponsive()
 
@@ -213,7 +215,9 @@ const updateChart = debounce(() => {
   chart.appendTo(chartWrapper.value, numericalScales, {}, categoricalScales);
 }, 100);
 
-watch([() => dataStore.histogramData, chartWrapper], updateChart, { immediate: true });
+watch([() => dataStore.histogramData, () => appStore.focus, chartWrapper],
+  updateChart,
+{ immediate: true });
 </script>
 
 <style lang="scss" scoped>
