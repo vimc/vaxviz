@@ -13,6 +13,7 @@ import histCountsDalysDiseaseLog from "@/../public/data/json/hist_counts_dalys_d
 import { BurdenMetrics } from '@/types';
 import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
+import { useColorStore } from '@/stores/colorStore';
 
 vi.mock('@reside-ic/skadi-chart', () => ({
   Chart: vi.fn().mockImplementation(class MockChart {
@@ -33,6 +34,7 @@ describe('RidgelinePlot component', () => {
 
   it('loads the correct data', async () => {
     const appStore = useAppStore();
+    const colorStore = useColorStore();
     const wrapper = mount(RidgelinePlot)
 
     await vi.waitFor(() => {
@@ -47,6 +49,8 @@ describe('RidgelinePlot component', () => {
       // (except that in this case there is only one location in use at the moment, 'global')
       expect(dataAttr.withinBand).toEqual("location");
     });
+    // Color by row; each disease has been assigned a color.
+    expect(colorStore.colorMapping.size).toEqual(14);
 
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
@@ -65,6 +69,8 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.y).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
     });
+    // Color by the 2 locations within each band: Middle Africa and global.
+    expect(colorStore.colorMapping.size).toEqual(2);
 
     // Change options: round 2
     appStore.exploreBy = "disease";
@@ -85,6 +91,8 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.y).toEqual("location");
       expect(dataAttr.withinBand).toEqual("disease");
     });
+    // Color by row; each location (10 subregions + global) has been assigned a color.
+    expect(colorStore.colorMapping.size).toEqual(11);
 
     // Change options: round 3
     appStore.exploreBy = "location";
@@ -105,5 +113,7 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.y).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
     }, { timeout: 2500 });
+    // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
+    expect(colorStore.colorMapping.size).toEqual(3);
   });
 });
