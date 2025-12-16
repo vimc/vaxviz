@@ -82,7 +82,8 @@ export const useAppStore = defineStore("app", () => {
   });
 
   watch(focus, () => {
-    if (diseaseOptions.map(o => o.value).includes(focus.value)) {
+    const focusIsADisease = diseaseOptions.find(d => d.value === focus.value);
+    if (focusIsADisease) {
       yCategoricalAxis.value = Dimensions.LOCATION;
       withinBandAxis.value = Dimensions.DISEASE;
 

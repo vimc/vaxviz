@@ -60,9 +60,8 @@ export const useColorStore = defineStore("color", () => {
     // `value` is the specific value, i.e. a specific location or disease,
     // whose color we need to look up or assign.
     const value = categoryValues[colorAxis];
-    let color = colorMap.get(value);
-    if (!color) {
-      color = colors[colorMap.size % colors.length]!;
+    const color = colorMap.get(value) ?? colors[colorMap.size];
+    if (color) {
       colorMap.set(value, color);
     }
     return color;

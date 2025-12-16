@@ -174,10 +174,10 @@ const constructLines = () => {
     .flatMap(z => Object.values(z)));
 };
 
-// Debounce chart updates so that there is no flickering as filters change at a different moment from focus/dimensions.
+// Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
   // `dataStore.histogramData` has changed, so we reset the color mapping so that we always use the earliest
-  // colors in the list.
+  // colors in the list (to optimise accessibility).
   colorStore.resetColorMapping();
   constructLines();
   if (ridgeLines.value.length === 0 || !chartWrapper.value) {
