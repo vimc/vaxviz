@@ -1,4 +1,4 @@
-import { dataDir } from "@/composables/useData"
+import { dataDir } from "@/stores/dataStore"
 import { http, HttpResponse } from "msw"
 
 const jsonDataFiles = [
