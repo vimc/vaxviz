@@ -169,16 +169,13 @@ const constructLines = () => {
 
   // Unpack the lines dictionary into an array.
   ridgeLines.value = Object.values(lines)
-    .flatMap(y => Object.values(y)
+    .flatMap(y => Object.values(y))
     .filter(shouldDisplayPlotRow)
-    .flatMap(z => Object.values(z)));
+    .flatMap(z => Object.values(z));
 };
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  // `dataStore.histogramData` has changed, so we reset the color mapping so that we always use the earliest
-  // colors in the list (to optimise accessibility).
-  colorStore.resetColorMapping();
   constructLines();
   if (ridgeLines.value.length === 0 || !chartWrapper.value) {
     return;
