@@ -190,6 +190,7 @@ const updateChart = debounce(() => {
   };
 
   const xCategoricalScale = ridgeLines.value.map(l => l.bands?.x).filter(c => !!c) as string[];
+  // TODO: Implement an ordering for the y categories, depending on the mean of means.
   const yCategoricalScale = ridgeLines.value.map(l => l.bands?.y).filter(c => !!c) as string[];
   const categoricalScales = {
     ...(xCategoricalScale.length ? { x: xCategoricalScale } : {}),

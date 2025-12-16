@@ -1,38 +1,33 @@
 import { defineStore } from "pinia";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { Axes, Dimensions, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
 import { globalOption } from "@/utils/options";
 
-// The IBM categorical palette, which maximises accessibility, specifically in this ordering:
+// The IBM categorical palettes, which aim to maximise accessibility:
 // https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
-const colors = [
-  "#6929c4",
-  "#1192e8",
-  "#005d5d",
-  "#9f1853",
-  "#fa4d56",
-  "#570408",
-  "#198038",
-  "#002d9c",
-  "#ee538b",
-  "#b28600",
-  "#009d9a",
-  "#012749",
-  "#8a3800",
-  "#a56eff",
-];
 
-type ColorMapping = Record<string, Map<string, string>>;
+// `ibmColors`: This sequence is to be used when the number of categories is unknown in advance, or > 5.
+// It should be used specifically in this ordering.
+const ibmColors = Object.freeze({
+  purple70: "#6929c4",
+  cyan50: "#1192e8",
+  teal70: "#005d5d",
+  magenta70: "#9f1853",
+  red50: "#fa4d56",
+  red90: "#570408",
+  green60: "#198038",
+  blue80: "#002d9c",
+  magenta50: "#ee538b",
+  yellow50: "#b28600",
+  teal50: "#009d9a",
+  cyan90: "#012749",
+  orange70: "#8a3800",
+  purple50: "#a56eff",
+});
 
 export const useColorStore = defineStore("color", () => {
   const appStore = useAppStore();
-
-  // A dict to keep track of which colors have been assigned to which values, so that we can
-  // use the same color assignations consistently across rows.
-  // The two nested maps map specific values to assigned colors.
-  // In the future this will be passed as a prop to a legend component.
-  const colorsByValue = ref<ColorMapping>();
 
   // colorDimension is the dimension (i.e. 'location' or 'disease')
   // whose values determine the colors for the lines.
@@ -47,34 +42,73 @@ export const useColorStore = defineStore("color", () => {
       : appStore.dimensions[Axes.WITHIN_BAND];
   });
 
-  const colorMapping = computed(() => colorsByValue.value?.[colorDimension.value]);
+  const categories = computed(() => appStore.filters[colorDimension.value]);
+
+  const colorList = computed(() => {
+    // Certain specific palettes are to be used when the number of categories is known in advance (1 to 5):
+    // https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
+    // These palettes were selected from the palette options so as to ensure there is always a purple70 in the mix.
+    let colors = Object.values(ibmColors);
+    switch (categories.value?.length) {
+      case 2:
+        // IBM 2-color group option 1
+        colors = [ibmColors.purple70, ibmColors.teal50];
+        break;
+      case 3:
+        // IBM 3-color group option 4
+        colors = [ibmColors.purple70, ibmColors.magenta50, ibmColors.cyan50];
+        break;
+      case 4:
+        // IBM 4-color group option 2
+        colors = [ibmColors.purple70, ibmColors.cyan90, ibmColors.teal50, ibmColors.magenta50];
+        break;
+      case 5:
+        // IBM 5-color group option 1
+        colors = [ibmColors.purple70, ibmColors.cyan50, ibmColors.teal70, ibmColors.magenta70, ibmColors.red90];
+        break;
+    }
+    // Ensure that purple70 / 'global' color is always the first color in the list.
+    const globalColor = Object.values(ibmColors)[0];
+    return colors.sort((a, b) => Number(b === globalColor) - Number(a === globalColor));
+  });
+
+
+  const colorMapping = computed(() => {
+    const colorMap = new Map<string, string>();
+
+    if (colorDimension.value === Dimensions.LOCATION) {
+      // By setting the global color first, we ensure that it gets the same color across chart updates.
+      colorMap.set(globalOption.value, colorList.value[0]!);
+    }
+
+    // TODO: When we have implemented ordering the categories, ensure that this ordering is reflected in
+    // the color assignment, since the palettes maximize contrast between neighboring colors.
+    categories.value?.forEach((category) => {
+      if (!colorMap.has(category)) {
+        const nextColor = colorList.value.find(c => !Array.from(colorMap.values()).includes(c));
+        if (nextColor) {
+          colorMap.set(category, nextColor);
+        } else {
+          // If there are more categories than pre-defined colors, recycle colors traversing the list backwards,
+          // since the palettes are designed to maximize contrast between neighboring colors.
+          const recycledColor = Array.from(colorList.value).reverse()[1 + (colorMap.size % colorList.value.length)]!;
+          colorMap.set(category, recycledColor);
+        }
+      }
+    });
+
+    console.log("Color mapping:", colorMap);
+
+    return colorMap;
+  });
 
   const getColorForLine = (categoryValues: LineMetadata) => {
     const colorAxis = Object.keys(appStore.dimensions).find((axis) => {
       return appStore.dimensions[axis as Axes] === colorDimension.value;
     }) as Axes;
-    const colorMap = colorMapping.value;
-    if (!colorMap) {
-      return undefined;
-    }
-    // `value` is the specific value, i.e. a specific location or disease,
-    // whose color we need to look up or assign.
-    const value = categoryValues[colorAxis];
-    const color = colorMap.get(value) ?? colors[colorMap.size];
-    if (color) {
-      colorMap.set(value, color);
-    }
-    return color;
-  }
-
-  const resetColorMapping = () => {
-    // By setting the global color once here, we ensure that it gets the same color across chart updates.
-    // NB `Object.freeze` is only a shallow freeze, preventing modification of the top-level object structure.
-    colorsByValue.value = Object.freeze({
-      [Dimensions.LOCATION]: new Map<string, string>([[globalOption.value, colors[0]!]]),
-      [Dimensions.DISEASE]: new Map<string, string>(),
-    });
+    const category = categoryValues[colorAxis];
+    return colorMapping.value?.get(category);
   };
 
-  return { colorDimension, colorMapping, getColorForLine, resetColorMapping };
+  return { colorDimension, colorMapping, getColorForLine };
 });
