@@ -205,7 +205,7 @@ const updateChart = debounce(() => {
     })
     .addTraces(ridgeLines.value)
     .addArea()
-    .addGridLines({ x: true })
+    .addGridLines({ x: !appStore.dimensions.x, y: false })
     // .addTooltips() // TODO: Enable tooltips once behaviour is satisfactory for area charts (vimc-8117)
     .makeResponsive()
 

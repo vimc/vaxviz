@@ -81,8 +81,8 @@ export const useColorStore = defineStore("color", () => {
       colorMap.set(globalOption.value, colorList.value[0]!);
     }
 
-    // TODO: When we have implemented ordering the categories, ensure that this ordering is reflected in
-    // the color assignment, since the palettes maximize contrast between neighboring colors.
+    // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
+    // the color assignment, since the palettes maximize contrast between _neighboring_ colors.
     categories.value?.forEach((category) => {
       if (!colorMap.has(category)) {
         const nextColor = colorList.value.find(c => !Array.from(colorMap.values()).includes(c));
@@ -96,8 +96,6 @@ export const useColorStore = defineStore("color", () => {
         }
       }
     });
-
-    console.log("Color mapping:", colorMap);
 
     return colorMap;
   });

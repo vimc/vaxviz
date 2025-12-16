@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia';
 
+import diseaseOptions from "@/data/options/diseaseOptions.json";
 import histCountsDeathsDiseaseLog from "@/../public/data/json/hist_counts_deaths_disease_log.json";
 import histCountsDalysDiseaseSubregionActivityType from "@/../public/data/json/hist_counts_dalys_disease_subregion_activity_type.json";
 import histCountsDalysDiseaseActivityType from "@/../public/data/json/hist_counts_dalys_disease_activity_type.json";
@@ -15,12 +16,14 @@ import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
 import { useColorStore } from '@/stores/colorStore';
 
+const addGridLinesSpy = vi.fn().mockReturnThis();
+
 vi.mock('@reside-ic/skadi-chart', () => ({
   Chart: vi.fn().mockImplementation(class MockChart {
     addAxes = vi.fn().mockReturnThis();
     addTraces = vi.fn().mockReturnThis();
     addArea = vi.fn().mockReturnThis();
-    addGridLines = vi.fn().mockReturnThis();
+    addGridLines = addGridLinesSpy;
     addZoom = vi.fn().mockReturnThis();
     makeResponsive = vi.fn().mockReturnThis();
     appendTo = vi.fn();
@@ -50,7 +53,8 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.withinBand).toEqual("location");
     });
     // Color by row; each disease has been assigned a color.
-    expect(colorStore.colorMapping.size).toEqual(14);
+    expect(colorStore.colorMapping.size).toEqual(diseaseOptions.length);
+    expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
 
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
@@ -71,6 +75,7 @@ describe('RidgelinePlot component', () => {
     });
     // Color by the 2 locations within each band: Middle Africa and global.
     expect(colorStore.colorMapping.size).toEqual(2);
+    expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
 
     // Change options: round 2
     appStore.exploreBy = "disease";
@@ -93,6 +98,7 @@ describe('RidgelinePlot component', () => {
     });
     // Color by row; each location (10 subregions + global) has been assigned a color.
     expect(colorStore.colorMapping.size).toEqual(11);
+    expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
 
     // Change options: round 3
     appStore.exploreBy = "location";
@@ -115,6 +121,7 @@ describe('RidgelinePlot component', () => {
     }, { timeout: 2500 });
     // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
     expect(colorStore.colorMapping.size).toEqual(3);
+    expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
   }, 10000);
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
