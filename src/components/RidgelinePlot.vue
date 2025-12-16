@@ -85,6 +85,8 @@ const initializeLine = (
 
   const xLabel = xCat && xDim ? dimensionOptionLabel(xDim, xCat) : undefined;
   const yLabel = yCat && yDim ? dimensionOptionLabel(yDim, yCat) : undefined;
+  // Keep `fillOpacity` value low since mixing translucent colours creates
+  // a third color, and hence the illusion of an extra ridgeline.
   return {
     points: [
       { x: lowerBound, y: 0 },
@@ -99,14 +101,14 @@ const initializeLine = (
       strokeWidth: 1,
       opacity: 1,
       fillColor: color,
-      fillOpacity: 0.2, // Keep this value low since mixing translucent colours creates the illusion of an extra ridgeline.
+      fillOpacity: 0.2,
     },
     metadata: categoryValues,
     fill: true,
   };
 };
 
-const displayPlotRow = (lines: Record<string, LineConfig<LineMetadata>>) => {
+const shouldDisplayPlotRow = (lines: Record<string, LineConfig<LineMetadata>>): boolean => {
   if (appStore.dimensions[Axes.Y] !== Dimensions.DISEASE || appStore.dimensions[Axes.WITHIN_BAND] !== Dimensions.LOCATION) {
     return true;
   }
@@ -159,8 +161,7 @@ const constructLines = () => {
         // we should remove the previous close-off point, as we are continuing the line directly from the previous bar to this bar.
         line.points.pop();
       } else if (previousPoint) {
-        // todo: check if we can survive without math max (Was this to handle overlapping histogram bars?)
-        line.points.push({ x: Math.max(lowerBound, previousPoint.x), y: 0 });
+        line.points.push({ x: lowerBound, y: 0 });
       }
       line.points.push(...barCoords);
     }
@@ -169,7 +170,7 @@ const constructLines = () => {
   // Unpack the lines dictionary into an array.
   ridgeLines.value = Object.values(lines)
     .flatMap(y => Object.values(y)
-    .filter(displayPlotRow)
+    .filter(shouldDisplayPlotRow)
     .flatMap(z => Object.values(z)));
 };
 
