@@ -71,8 +71,8 @@ describe('color store', () => {
 
       expect(colorStore.colorMapping.size).toBe(3);
       expect(colorStore.colorMapping.get(globalOption.value)).toEqual(colors.purple70);
-      expect(colorStore.colorMapping.get('AFG')).toBe(colors.magenta50);
-      expect(colorStore.colorMapping.get('CHN')).toBe(colors.cyan50);
+      expect(colorStore.colorMapping.get('AFG')).toBe(colors.cyan50);
+      expect(colorStore.colorMapping.get('CHN')).toBe(colors.magenta50);
     });
 
     it('when the color dimension is disease, it maps one color per disease', () => {
@@ -123,8 +123,8 @@ describe('color store', () => {
       expect(colorStore.colorDimension).toBe('location');
 
       expect(colorStore.getColorForLine({ withinBand: globalOption.value, y: 'Cholera' })).toBe(colors.purple70);
-      expect(colorStore.getColorForLine({ withinBand: 'CHN', y: 'Cholera' })).toBe(colors.cyan50);
-      expect(colorStore.getColorForLine({ withinBand: 'AFG', y: 'Cholera' })).toBe(colors.magenta50);
+      expect(colorStore.getColorForLine({ withinBand: 'CHN', y: 'Cholera' })).toBe(colors.magenta50);
+      expect(colorStore.getColorForLine({ withinBand: 'AFG', y: 'Cholera' })).toBe(colors.cyan50);
     });
   });
 

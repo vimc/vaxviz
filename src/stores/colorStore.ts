@@ -45,40 +45,27 @@ export const useColorStore = defineStore("color", () => {
   const categories = computed(() => appStore.filters[colorDimension.value]);
 
   const colorList = computed(() => {
+    if (!categories.value?.length) {
+      return [];
+    }
     // Certain specific palettes are to be used when the number of categories is known in advance (1 to 5):
     // https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
-    // These palettes were selected from the palette options so as to ensure there is always a purple70 in the mix.
-    let colors = Object.values(ibmColors);
-    switch (categories.value?.length) {
-      case 2:
-        // IBM 2-color group option 1
-        colors = [ibmColors.purple70, ibmColors.teal50];
-        break;
-      case 3:
-        // IBM 3-color group option 4
-        colors = [ibmColors.purple70, ibmColors.magenta50, ibmColors.cyan50];
-        break;
-      case 4:
-        // IBM 4-color group option 2
-        colors = [ibmColors.purple70, ibmColors.cyan90, ibmColors.teal50, ibmColors.magenta50];
-        break;
-      case 5:
-        // IBM 5-color group option 1
-        colors = [ibmColors.purple70, ibmColors.cyan50, ibmColors.teal70, ibmColors.magenta70, ibmColors.red90];
-        break;
-    }
-    // Ensure that purple70 / 'global' color is always the first color in the list.
-    const globalColor = Object.values(ibmColors)[0];
-    return colors.sort((a, b) => Number(b === globalColor) - Number(a === globalColor));
+    // The following palettes were selected from the palette options so as to ensure there is always a purple70 in the mix.
+    return {
+      2: [ibmColors.purple70, ibmColors.teal50], // IBM 2-color group option 1
+      3: [ibmColors.purple70, ibmColors.cyan50, ibmColors.magenta50], // IBM 3-color group option 4 (in reverse order to put purple70 first)
+      4: [ibmColors.purple70, ibmColors.cyan90, ibmColors.teal50, ibmColors.magenta50], // IBM 4-color group option 2
+      5: [ibmColors.purple70, ibmColors.cyan50, ibmColors.teal70, ibmColors.magenta70, ibmColors.red90], // IBM 5-color group option 1
+    }[categories.value.length] ?? Object.values(ibmColors);
   });
 
 
   const colorMapping = computed(() => {
     const colorMap = new Map<string, string>();
 
-    if (colorDimension.value === Dimensions.LOCATION) {
+    if (colorDimension.value === Dimensions.LOCATION && colorList.value[0]) {
       // By setting the global color first, we ensure that it gets the same color across chart updates.
-      colorMap.set(globalOption.value, colorList.value[0]!);
+      colorMap.set(globalOption.value, colorList.value[0]);
     }
 
     // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
