@@ -42,12 +42,9 @@ export const useColorStore = defineStore("color", () => {
       : appStore.dimensions[Axes.WITHIN_BAND];
   });
 
-  const categories = computed(() => appStore.filters[colorDimension.value]);
+  const categories = computed(() => appStore.filters[colorDimension.value] ?? []);
 
   const colorList = computed(() => {
-    if (!categories.value?.length) {
-      return [];
-    }
     // Certain specific palettes are to be used when the number of categories is known in advance (1 to 5):
     // https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
     // The following palettes were selected from the palette options so as to ensure there is always a purple70 in the mix.
@@ -59,13 +56,12 @@ export const useColorStore = defineStore("color", () => {
     }[categories.value.length] ?? Object.values(ibmColors);
   });
 
-
   const colorMapping = computed(() => {
     const colorMap = new Map<string, string>();
 
-    if (colorDimension.value === Dimensions.LOCATION && colorList.value[0]) {
+    if (colorDimension.value === Dimensions.LOCATION) {
       // By setting the global color first, we ensure that it gets the same color across chart updates.
-      colorMap.set(globalOption.value, colorList.value[0]);
+      colorMap.set(globalOption.value, colorList.value[0] ?? ibmColors.purple70);
     }
 
     // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
@@ -91,8 +87,7 @@ export const useColorStore = defineStore("color", () => {
     const colorAxis = Object.keys(appStore.dimensions).find((axis) => {
       return appStore.dimensions[axis as Axes] === colorDimension.value;
     }) as Axes;
-    const category = categoryValues[colorAxis];
-    return colorMapping.value?.get(category);
+    return colorMapping.value?.get(categoryValues[colorAxis]);
   };
 
   return { colorDimension, colorMapping, getColorForLine };

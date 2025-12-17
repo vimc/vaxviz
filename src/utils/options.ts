@@ -24,12 +24,8 @@ export const globalOption = {
 const locationOptions = countryOptions.concat(subregionOptions).concat([globalOption]);
 
 // Get a data category's human-readable label from its value and dimension.
-export const dimensionOptionLabel = (dim: Dimensions, value: string): string => {
-  const options = {
-    [Dimensions.LOCATION]: locationOptions,
-    [Dimensions.DISEASE]: diseaseOptions,
-    [Dimensions.ACTIVITY_TYPE]: activityTypeOptions,
-  }[dim];
-
-  return options?.find(o => o.value === value)?.label ?? value;
-};
+export const dimensionOptionLabel = (dim: Dimensions, value: string): string => ({
+  [Dimensions.LOCATION]: locationOptions,
+  [Dimensions.DISEASE]: diseaseOptions,
+  [Dimensions.ACTIVITY_TYPE]: activityTypeOptions,
+}[dim]?.find(o => o.value === value)?.label ?? value);

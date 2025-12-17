@@ -1,7 +1,3 @@
-export default (str?: string) => {
-  return str
-    ?.toLowerCase()
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
+export default (str?: string) => str?.split(' ').map((word) => {
+  return word.charAt(0).toUpperCase() + word?.toLowerCase().slice(1)
+}).join(' ');
