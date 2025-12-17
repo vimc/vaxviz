@@ -13,39 +13,25 @@ if (args.length !== 2) {
 const dataSourceDir = args[0];
 const targetDir = args[1];
 
+let countryOpts: Option[] = [];
+let subregionOpts: Option[] = [];
+let diseaseOpts: Option[] = [];
+let activityTypeOpts: Option[] = [];
+
 // Some diseases (e.g. Malaria) are included only at the subregional or the country level,
 // hence we need tables at both country and subregional levels in order to collect all disease options.
 // There are also some diseases (e.g. MenA) that are only included in tables that have an activity_type breakdown,
 // so we need to include those tables too.
 // All four permutations are required, since at least one disease (Meningitis) is picky about both those factors.
-const summaryTableDeathsDiseaseCountryJson = dataSourceDir + '/summary_table_deaths_disease_country.json';
-const summaryTableDeathsDiseaseSubregionJson = dataSourceDir + '/summary_table_deaths_disease_subregion.json';
-const summaryTableDeathsDiseaseCountryActivityTypeJson = dataSourceDir + '/summary_table_deaths_disease_activity_type_country.json';
-const summaryTableDeathsDiseaseSubregionActivityTypeJson = dataSourceDir + '/summary_table_deaths_disease_subregion_activity_type.json';
-
-const summaryTableDeathsDiseaseCountry: SummaryTableDataRow[] = JSON.parse(
-  fs.readFileSync(summaryTableDeathsDiseaseCountryJson, 'utf8')
-);
-const summaryTableDeathsDiseaseSubregion: SummaryTableDataRow[] = JSON.parse(
-  fs.readFileSync(summaryTableDeathsDiseaseSubregionJson, 'utf8')
-);
-const summaryTableDeathsDiseaseCountryActivityType: SummaryTableDataRow[] = JSON.parse(
-  fs.readFileSync(summaryTableDeathsDiseaseCountryActivityTypeJson, 'utf8')
-);
-const summaryTableDeathsDiseaseSubregionActivityType: SummaryTableDataRow[] = JSON.parse(
-  fs.readFileSync(summaryTableDeathsDiseaseSubregionActivityTypeJson, 'utf8')
-);
-
-let countryOpts: Option[] = [];
-let subregionOpts: Option[] = [];
-let diseaseOpts: Option[] = [];
-let activityTypeOpts: Option[] = [];
 [
-  summaryTableDeathsDiseaseCountry,
-  summaryTableDeathsDiseaseSubregion,
-  summaryTableDeathsDiseaseCountryActivityType,
-  summaryTableDeathsDiseaseSubregionActivityType
-].map((rows: SummaryTableDataRow[]) => {
+  `summary_table_deaths_disease_country.json`,
+  `summary_table_deaths_disease_subregion.json`,
+  `summary_table_deaths_disease_activity_type_country.json`,
+  `summary_table_deaths_disease_subregion_activity_type.json`
+].map((filename: string) => {
+  const rows: SummaryTableDataRow[] = JSON.parse(
+    fs.readFileSync(`${dataSourceDir}/${filename}`, 'utf8')
+  );
   for (const row of rows) {
     const countryValue = row[LocResolutions.COUNTRY]?.toString();
     const subregionValue = row[LocResolutions.SUBREGION]?.toString();
