@@ -199,7 +199,7 @@ const updateChart = debounce(() => {
 
   const chart = new Chart()
     .addAxes({
-      // TODO: Put the 10^n into the tick labels, pending release of https://github.com/mrc-ide/skadi-chart/pull/58
+      // TODO: Put the 10^n into the tick labels, pending release of https://github.com/mrc-ide/skadi-chart/pull/65
       x: appStore.logScaleEnabled ? "Impact ratio (10^n)" : "Impact ratio",
       y: titleCase(appStore.dimensions.y),
     })
