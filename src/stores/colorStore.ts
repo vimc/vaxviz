@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { Axes, Dimensions, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
 import { globalOption } from "@/utils/options";
@@ -7,9 +7,9 @@ import { globalOption } from "@/utils/options";
 // The IBM categorical palettes, which aim to maximise accessibility:
 // https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
 
-// `ibmColors`: This sequence is to be used when the number of categories is unknown in advance, or > 5.
+// `ibmAccessiblePalette`: This sequence is to be used when the number of categories is unknown in advance, or > 5.
 // It should be used specifically in this ordering.
-const ibmColors = Object.freeze({
+const ibmAccessiblePalette = Object.freeze({
   purple70: "#6929c4",
   cyan50: "#1192e8",
   teal70: "#005d5d",
@@ -26,15 +26,27 @@ const ibmColors = Object.freeze({
   purple50: "#a56eff",
 });
 
+// Not from IBM. We need to have as many color options as there are diseases.
+const extraColors = {
+  black: "#000000",
+  white: "#ffffff",
+};
+
 // Certain specific palettes are to be used when the number of categories is known in advance (1 to 5):
 // https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
 // The following palettes were selected from the palette options so as to ensure there is always a purple70 in the mix.
-const palettesByCategoryCount: Record<number, string[]> = Object.freeze({
-  2: [ibmColors.purple70, ibmColors.teal50], // IBM 2-color group option 1
-  3: [ibmColors.purple70, ibmColors.cyan50, ibmColors.magenta50], // IBM 3-color group option 4 (in reverse order to put purple70 first)
-  4: [ibmColors.purple70, ibmColors.cyan90, ibmColors.teal50, ibmColors.magenta50], // IBM 4-color group option 2
-  5: [ibmColors.purple70, ibmColors.cyan50, ibmColors.teal70, ibmColors.magenta70, ibmColors.red90], // IBM 5-color group option 1
-});
+const palettesByCategoryCount: Record<number, string[]> = Object.freeze(
+  Object.entries({
+    2: ["purple70", "teal50"], // IBM 2-color group option 1
+    3: ["purple70", "cyan50", "magenta50"], // IBM 3-color group option 4 (in reverse order to put purple70 first)
+    4: ["purple70", "cyan90", "teal50", "magenta50"], // IBM 4-color group option 2
+    5: ["purple70", "cyan50", "teal70", "magenta70", "red90"], // IBM 5-color group option 1
+  }).reduce((acc, [key, colorKeys]) => {
+    // Convert friendly-names to hex codes
+    acc[Number(key)] = colorKeys.map(colorKey => ibmAccessiblePalette[colorKey as keyof typeof ibmAccessiblePalette]);
+    return acc;
+  }, {} as Record<number, string[]>)
+);
 
 export const useColorStore = defineStore("color", () => {
   const appStore = useAppStore();
@@ -52,43 +64,45 @@ export const useColorStore = defineStore("color", () => {
       : appStore.dimensions[Axes.WITHIN_BAND];
   });
 
-  const categories = computed(() => appStore.filters[colorDimension.value] ?? []);
+  // The mapping from category value (e.g. a specific location or disease) to color hex code.
+  // By setting the global color first, we ensure that it gets the same color across chart updates.
+  const mapping = ref(
+    colorDimension.value === Dimensions.LOCATION
+      ? new Map<string, string>([[globalOption.value, ibmAccessiblePalette.purple70]])
+      : new Map<string, string>()
+  );
+  // Expose a read-only version of the mapping to consumers of the store.
+  const colorMapping = computed(() => mapping.value as ReadonlyMap<string, string>);
 
-  const colorList = computed(() => palettesByCategoryCount[categories.value.length] ?? Object.values(ibmColors));
-
-  const colorMapping = computed(() => {
-    const colorMap = new Map<string, string>();
-
-    if (colorDimension.value === Dimensions.LOCATION) {
-      // By setting the global color first, we ensure that it gets the same color across chart updates.
-      colorMap.set(globalOption.value, colorList.value[0] ?? ibmColors.purple70);
-    }
-
-    // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
-    // the color assignment, since the palettes maximize contrast between _neighboring_ colors.
-    categories.value?.forEach((category) => {
-      if (!colorMap.has(category)) {
-        const nextColor = colorList.value.find(c => !Array.from(colorMap.values()).includes(c));
-        if (nextColor) {
-          colorMap.set(category, nextColor);
-        } else {
-          // If there are more categories than pre-defined colors, recycle colors traversing the list backwards,
-          // since the palettes are designed to maximize contrast between neighboring colors.
-          const recycledColor = Array.from(colorList.value).reverse()[1 + (colorMap.size % colorList.value.length)]!;
-          colorMap.set(category, recycledColor);
-        }
-      }
-    });
-
-    return colorMap;
+  const colorList = computed(() => {
+    const categories = appStore.filters[colorDimension.value] ?? [];
+    return palettesByCategoryCount[categories.length] ?? Object.values({ ...ibmAccessiblePalette, ...extraColors })
   });
 
-  const getColorForLine = (categoryValues: LineMetadata) => {
+  // Given a line's category values, either fetch the color from the mapping,
+  // or assign it the next color in the list and return that.
+  const getColorsForLine = (categoryValues: LineMetadata) => {
     const colorAxis = Object.keys(appStore.dimensions).find((axis) => {
       return appStore.dimensions[axis as Axes] === colorDimension.value;
     }) as Axes;
-    return colorMapping.value?.get(categoryValues[colorAxis]);
+    // `value` is the specific value, i.e. a specific location or disease,
+    // whose color we need to look up or assign.
+    const value = categoryValues[colorAxis];
+    const fillColor = mapping.value?.get(value) ?? colorList.value[mapping.value.size];
+    if (fillColor) {
+      mapping.value.set(value, fillColor);
+    }
+    return {
+      fillColor: fillColor,
+      strokeColor: fillColor === extraColors.white ? extraColors.black : fillColor,
+    };
   };
 
-  return { colorDimension, colorMapping, getColorForLine };
+  const resetColorMapping = () => {
+    mapping.value = colorDimension.value === Dimensions.LOCATION
+      ? new Map<string, string>([[globalOption.value, ibmAccessiblePalette.purple70]])
+      : new Map<string, string>();
+  }
+
+  return { colorDimension, colorMapping, getColorsForLine, resetColorMapping };
 });

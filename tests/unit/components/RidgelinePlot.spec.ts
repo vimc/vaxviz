@@ -53,7 +53,7 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.withinBand).toEqual("location");
     });
     // Color by row; each disease has been assigned a color.
-    expect(colorStore.colorMapping.size).toEqual(diseaseOptions.length);
+    expect(colorStore.colorMapping.size).toEqual(14);
     expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
 
     // Change options: round 1

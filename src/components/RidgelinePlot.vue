@@ -81,7 +81,9 @@ const initializeLine = (
   barCoords: Coords[],
   categoryValues: LineMetadata,
 ): Lines<LineMetadata>[0] => {
-  const color = colorStore.getColorForLine(categoryValues);
+  // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
+  // the color assignment, since the palettes maximize contrast between _neighboring_ colors.
+  const { fillColor, strokeColor } = colorStore.getColorsForLine(categoryValues);
   const { x: xCat, y: yCat } = categoryValues;
   const { x: xDim, y: yDim } = appStore.dimensions;
 
@@ -94,10 +96,10 @@ const initializeLine = (
       y: yCat && yDim ? dimensionOptionLabel(yDim, yCat) : undefined,
     },
     style: {
-      strokeColor: color,
+      strokeColor: strokeColor,
       strokeWidth: 1,
       opacity: 1,
-      fillColor: color,
+      fillColor: fillColor,
       fillOpacity: 0.2,
     },
     metadata: categoryValues,
@@ -125,6 +127,8 @@ const constructLines = () => {
   // We use x-value as the key at the first level, then y-value on the second, then withinBandValue.
   // If the x-value (or anything else) is undefined, then the key should be an empty string.
   const lines: Record<string, Record<string, Record<string, LineConfig<LineMetadata>>>> = {};
+
+  colorStore.resetColorMapping();
 
   dataStore.histogramData.filter(dataRow =>
     [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
@@ -168,7 +172,7 @@ const constructLines = () => {
     }
   });
 
-  // Unpack the lines dictionary into an array.
+  // Unpack the lines dictionary into a flat array.
   ridgeLines.value = Object.values(lines)
     .flatMap(y => Object.values(y))
     .filter(shouldDisplayPlotRow)
