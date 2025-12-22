@@ -1,5 +1,3 @@
-import { useAppStore } from '@/stores/appStore';
-import { useColorStore } from '@/stores/colorStore';
 import { Axes, Dimensions, HistCols, type Coords, type HistDataRow, type LineMetadata } from '@/types';
 import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { dimensionOptionLabel } from '@/utils/options';
@@ -8,9 +6,13 @@ import { computed, toValue } from 'vue';
 
 // Construct histogram/ridge-shaped lines by building area lines whose points trace the
 // outline of the histogram.  
-export default (data: () => HistDataRow[]) => {
-  const appStore = useAppStore();
-  const colorStore = useColorStore();
+export default (
+  data: () => HistDataRow[],
+  dimensions: () => Record<Axes, string>,
+) => {
+  const xDimension = computed(() => toValue(dimensions)[Axes.X] as Dimensions);
+  const yDimension = computed(() => toValue(dimensions)[Axes.Y] as Dimensions);
+  const withinBandDimension = computed(() => toValue(dimensions)[Axes.WITHIN_BAND] as Dimensions);
 
   // Return corner coordinates of the histogram bar representing a row from a data file.
   const createBarCoords = (dataRow: HistDataRow): Coords[] => {
@@ -31,13 +33,12 @@ export default (data: () => HistDataRow[]) => {
     categoryValues: LineMetadata,
   ): Lines<LineMetadata>[0] => {
     const { x: xCat, y: yCat } = categoryValues;
-    const { x: xDim, y: yDim } = appStore.dimensions;
 
     return {
       points: barCoords,
       bands: {
-        x: xCat && xDim ? dimensionOptionLabel(xDim, xCat) : undefined,
-        y: yCat && yDim ? dimensionOptionLabel(yDim, yCat) : undefined,
+        x: xCat && xDimension.value ? dimensionOptionLabel(xDimension.value, xCat) : undefined,
+        y: yCat && yDimension.value ? dimensionOptionLabel(yDimension.value, yCat) : undefined,
       },
       style: {},
       metadata: categoryValues,
@@ -53,19 +54,11 @@ export default (data: () => HistDataRow[]) => {
     // If the x-value (or anything else) is undefined, then the key should be an empty string.
     const lines: Record<string, Record<string, Record<string, LineConfig<LineMetadata>>>> = {};
 
-    colorStore.resetColorMapping();
-
-    toValue(data).filter(dataRow =>
-      [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
-        const dimensionVal = getDimensionCategoryValue(dim, dataRow);
-        return appStore.filters[dim]?.includes(dimensionVal);
-      })
-    ).forEach(dataRow => {
+    toValue(data).forEach(dataRow => {
       // Each line needs to know its category for each categorical axis in use.
-      const xCat = getDimensionCategoryValue(appStore.dimensions[Axes.X], dataRow);
-      const yCat = getDimensionCategoryValue(appStore.dimensions[Axes.Y], dataRow);
-      const withinBandCat = getDimensionCategoryValue(appStore.dimensions[Axes.WITHIN_BAND], dataRow);
-
+      const xCat = getDimensionCategoryValue(xDimension.value, dataRow);
+      const yCat = getDimensionCategoryValue(yDimension.value, dataRow);
+      const withinBandCat = getDimensionCategoryValue(withinBandDimension.value, dataRow);
       const lowerBound = dataRow[HistCols.LOWER_BOUND];
       const barCoords = createBarCoords(dataRow);
 

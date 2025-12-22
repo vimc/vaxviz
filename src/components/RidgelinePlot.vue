@@ -47,6 +47,7 @@
 import { computed, ref, watch } from 'vue';
 import { debounce } from 'perfect-debounce';
 import { Chart } from '@reside-ic/skadi-chart';
+import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
@@ -60,7 +61,16 @@ const colorStore = useColorStore();
 
 const chartWrapper = ref<HTMLDivElement | null>(null);
 
-const { ridgeLines } = useHistogramLines(() => dataStore.histogramData);
+const data = () => {
+  return dataStore.histogramData.filter(dataRow =>
+    [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
+      const dimensionVal = getDimensionCategoryValue(dim, dataRow);
+      return appStore.filters[dim]?.includes(dimensionVal);
+    })
+  )
+};
+
+const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions);
 
 const linesToDisplay = computed(() => {
   // Only filter plot rows if each row represents a disease.
@@ -86,6 +96,7 @@ const updateChart = debounce(() => {
     return;
   }
 
+  colorStore.resetColorMapping();
   // Assign colors to each line based on its category values.
   linesToDisplay.value.forEach(line => {
     // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
