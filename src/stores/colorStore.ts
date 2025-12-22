@@ -26,6 +26,16 @@ const ibmColors = Object.freeze({
   purple50: "#a56eff",
 });
 
+// Certain specific palettes are to be used when the number of categories is known in advance (1 to 5):
+// https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
+// The following palettes were selected from the palette options so as to ensure there is always a purple70 in the mix.
+const palettesByCategoryCount: Record<number, string[]> = Object.freeze({
+  2: [ibmColors.purple70, ibmColors.teal50], // IBM 2-color group option 1
+  3: [ibmColors.purple70, ibmColors.cyan50, ibmColors.magenta50], // IBM 3-color group option 4 (in reverse order to put purple70 first)
+  4: [ibmColors.purple70, ibmColors.cyan90, ibmColors.teal50, ibmColors.magenta50], // IBM 4-color group option 2
+  5: [ibmColors.purple70, ibmColors.cyan50, ibmColors.teal70, ibmColors.magenta70, ibmColors.red90], // IBM 5-color group option 1
+});
+
 export const useColorStore = defineStore("color", () => {
   const appStore = useAppStore();
 
@@ -44,17 +54,7 @@ export const useColorStore = defineStore("color", () => {
 
   const categories = computed(() => appStore.filters[colorDimension.value] ?? []);
 
-  const colorList = computed(() => {
-    // Certain specific palettes are to be used when the number of categories is known in advance (1 to 5):
-    // https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
-    // The following palettes were selected from the palette options so as to ensure there is always a purple70 in the mix.
-    return {
-      2: [ibmColors.purple70, ibmColors.teal50], // IBM 2-color group option 1
-      3: [ibmColors.purple70, ibmColors.cyan50, ibmColors.magenta50], // IBM 3-color group option 4 (in reverse order to put purple70 first)
-      4: [ibmColors.purple70, ibmColors.cyan90, ibmColors.teal50, ibmColors.magenta50], // IBM 4-color group option 2
-      5: [ibmColors.purple70, ibmColors.cyan50, ibmColors.teal70, ibmColors.magenta70, ibmColors.red90], // IBM 5-color group option 1
-    }[categories.value.length] ?? Object.values(ibmColors);
-  });
+  const colorList = computed(() => palettesByCategoryCount[categories.value.length] ?? Object.values(ibmColors));
 
   const colorMapping = computed(() => {
     const colorMap = new Map<string, string>();

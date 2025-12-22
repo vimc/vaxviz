@@ -5,9 +5,9 @@
       No data available for the selected options.
     </p>
     <div
+      v-else
       ref="chartWrapper"
       id="chartWrapper"
-      v-if="ridgeLines.length"
       :data-test="JSON.stringify({
         histogramDataRowCount: dataStore.histogramData.length,
         lineCount: ridgeLines.length,
@@ -70,12 +70,14 @@ const createBarCoords = (dataRow: HistDataRow): Coords[] => {
   // closingOffPoint is a point at y=0 to close off the histogram bar, which will be needed if either:
   // 1) this ends up being the last bar in the line, or
   // 2) there is a data gap until the next bar in this line.
+  // Since we don't know if (1) or (2) hold at this point (we haven't processed the next bar yet),
+  // we always add the closingOffPoint, and remove it later if unneeded.
   const closingOffPoint = { x: dataRow[HistCols.UPPER_BOUND], y: 0 };
   return [topLeftPoint, topRightPoint, closingOffPoint];
 }
 
+// Initialize a skadi-chart LineConfig object to be used to draw a 'ridgeline' (the outline of a histogram).
 const initializeLine = (
-  lowerBound: number,
   barCoords: Coords[],
   categoryValues: LineMetadata,
 ): Lines<LineMetadata>[0] => {
@@ -83,18 +85,13 @@ const initializeLine = (
   const { x: xCat, y: yCat } = categoryValues;
   const { x: xDim, y: yDim } = appStore.dimensions;
 
-  const xLabel = xCat && xDim ? dimensionOptionLabel(xDim, xCat) : undefined;
-  const yLabel = yCat && yDim ? dimensionOptionLabel(yDim, yCat) : undefined;
   // Keep `fillOpacity` value low since mixing translucent colours creates
   // a third color, and hence the illusion of an extra ridgeline.
   return {
-    points: [
-      { x: lowerBound, y: 0 },
-      ...barCoords,
-    ],
+    points: barCoords,
     bands: {
-      ...(xLabel ? { x: xLabel } : {}),
-      ...(yLabel ? { y: yLabel } : {}),
+      x: xCat && xDim ? dimensionOptionLabel(xDim, xCat) : undefined,
+      y: yCat && yDim ? dimensionOptionLabel(yDim, yCat) : undefined,
     },
     style: {
       strokeColor: color,
@@ -109,15 +106,16 @@ const initializeLine = (
 };
 
 const shouldDisplayPlotRow = (lines: Record<string, LineConfig<LineMetadata>>): boolean => {
-  if (appStore.dimensions[Axes.Y] !== Dimensions.DISEASE || appStore.dimensions[Axes.WITHIN_BAND] !== Dimensions.LOCATION) {
-    return true;
+  // Only filter plot rows if each row represents a disease.
+  if (appStore.dimensions[Axes.Y] === Dimensions.DISEASE && appStore.dimensions[Axes.WITHIN_BAND] === Dimensions.LOCATION) {
+    // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
+    // E.g. Say the focus value is 'Djibouti', a location. If for some row of ridgelines - i.e. some y-value, such as Malaria -
+    // there is no line for Djibouti, we should exclude the Malaria row entirely so that we only display rows that are relevant for Djibouti.
+    const locations = Object.keys(lines);
+    return locations.includes(appStore.focus);
   }
 
-  // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
-  // E.g. Say the focus value is 'Djibouti', a location. If for some row of ridgelines - i.e. some y-value, such as Malaria -
-  // there is no line for Djibouti, we should exclude the Malaria row entirely so that we only display rows that are relevant for Djibouti.
-  const locations = Object.keys(lines);
-  return locations.includes(appStore.focus);
+  return true;
 }
 
 // Construct histogram/ridge-shaped lines by building area lines whose points trace the
@@ -147,7 +145,8 @@ const constructLines = () => {
 
     if (!line) {
       // No line exists yet for this combination of categorical axis values, so we need to create it.
-      const newLine = initializeLine(lowerBound, barCoords, { x: xCat, y: yCat, withinBand: withinBandCat });
+      barCoords.unshift({ x: lowerBound, y: 0 }); // Start the first bar at y=0.
+      const newLine = initializeLine(barCoords, { x: xCat, y: yCat, withinBand: withinBandCat });
       lines[xCat] ??= {};
       lines[xCat]![yCat] ??= {};
       lines[xCat]![yCat]![withinBandCat] = newLine;
@@ -161,6 +160,8 @@ const constructLines = () => {
         // we should remove the previous close-off point, as we are continuing the line directly from the previous bar to this bar.
         line.points.pop();
       } else if (previousPoint) {
+        // There is a previous section, complete with close-off point, but this bar is disconnected from it.
+        // Leave the previous close-off point and make a new starting point at y=0.
         line.points.push({ x: lowerBound, y: 0 });
       }
       line.points.push(...barCoords);
