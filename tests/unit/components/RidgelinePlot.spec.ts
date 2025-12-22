@@ -51,10 +51,11 @@ describe('RidgelinePlot component', () => {
       // Ridges within a band 'differ' by location
       // (except that in this case there is only one location in use at the moment, 'global')
       expect(dataAttr.withinBand).toEqual("location");
+
+      // Color by row; each disease has been assigned a color.
+      expect(colorStore.colorMapping.size).toEqual(14);
+      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
     });
-    // Color by row; each disease has been assigned a color.
-    expect(colorStore.colorMapping.size).toEqual(14);
-    expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
 
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
@@ -68,14 +69,16 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.histogramDataRowCount).toEqual(
         histCountsDalysDiseaseSubregionActivityType.length + histCountsDalysDiseaseActivityType.length
       );
-      expect(dataAttr.lineCount).toEqual(44); // Not all diseases have data for all subregions and activity types.
+      // Not all diseases have data for all subregions and activity types.
+      expect(dataAttr.lineCount).toEqual(44);
       expect(dataAttr.x).toEqual("activity_type");
       expect(dataAttr.y).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
+
+      // Color by the 2 locations within each band: Middle Africa and global.
+      expect(colorStore.colorMapping.size).toEqual(2);
+      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
     });
-    // Color by the 2 locations within each band: Middle Africa and global.
-    expect(colorStore.colorMapping.size).toEqual(2);
-    expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
 
     // Change options: round 2
     appStore.exploreBy = "disease";
@@ -95,10 +98,11 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.x).toEqual("activity_type");
       expect(dataAttr.y).toEqual("location");
       expect(dataAttr.withinBand).toEqual("disease");
+
+      // Color by row; each location (10 subregions + global) has been assigned a color.
+      expect(colorStore.colorMapping.size).toEqual(11);
+      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
     });
-    // Color by row; each location (10 subregions + global) has been assigned a color.
-    expect(colorStore.colorMapping.size).toEqual(11);
-    expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
 
     // Change options: round 3
     appStore.exploreBy = "location";
@@ -118,10 +122,11 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.x).toBeNull();
       expect(dataAttr.y).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
+
+      // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
+      expect(colorStore.colorMapping.size).toEqual(3);
+      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
     }, { timeout: 2500 });
-    // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
-    expect(colorStore.colorMapping.size).toEqual(3);
-    expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
   }, 10000);
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {

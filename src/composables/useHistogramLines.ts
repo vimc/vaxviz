@@ -1,0 +1,105 @@
+import { useAppStore } from '@/stores/appStore';
+import { useColorStore } from '@/stores/colorStore';
+import { Axes, Dimensions, HistCols, type Coords, type HistDataRow, type LineMetadata } from '@/types';
+import { getDimensionCategoryValue } from '@/utils/fileParse';
+import { dimensionOptionLabel } from '@/utils/options';
+import type { LineConfig, Lines } from 'types';
+import { computed, toValue } from 'vue';
+
+// Construct histogram/ridge-shaped lines by building area lines whose points trace the
+// outline of the histogram.  
+export default (data: () => HistDataRow[]) => {
+  const appStore = useAppStore();
+  const colorStore = useColorStore();
+
+  // Return corner coordinates of the histogram bar representing a row from a data file.
+  const createBarCoords = (dataRow: HistDataRow): Coords[] => {
+    const topLeftPoint = { x: dataRow[HistCols.LOWER_BOUND], y: dataRow[HistCols.COUNTS] };
+    const topRightPoint = { x: dataRow[HistCols.UPPER_BOUND], y: dataRow[HistCols.COUNTS] };
+    // closingOffPoint is a point at y=0 to close off the histogram bar, which will be needed if either:
+    // 1) this ends up being the last bar in the line, or
+    // 2) there is a data gap until the next bar in this line.
+    // Since we don't know if (1) or (2) hold at this point (we haven't processed the next bar yet),
+    // we always add the closingOffPoint, and remove it later if unneeded.
+    const closingOffPoint = { x: dataRow[HistCols.UPPER_BOUND], y: 0 };
+    return [topLeftPoint, topRightPoint, closingOffPoint];
+  }
+
+  // Initialize a skadi-chart LineConfig object to be used to draw a 'ridgeline' (the outline of a histogram).
+  const initializeLine = (
+    barCoords: Coords[],
+    categoryValues: LineMetadata,
+  ): Lines<LineMetadata>[0] => {
+    const { x: xCat, y: yCat } = categoryValues;
+    const { x: xDim, y: yDim } = appStore.dimensions;
+
+    return {
+      points: barCoords,
+      bands: {
+        x: xCat && xDim ? dimensionOptionLabel(xDim, xCat) : undefined,
+        y: yCat && yDim ? dimensionOptionLabel(yDim, yCat) : undefined,
+      },
+      style: {},
+      metadata: categoryValues,
+      fill: true,
+    };
+  };
+
+  // Construct histogram/ridge-shaped lines by building area lines whose points trace the
+  // outline of the histogram bars (including the spaces in between them).
+  const ridgeLines = computed((): Lines<LineMetadata> => {
+    // A 3-dimensional dictionary of lines.
+    // We use x-value as the key at the first level, then y-value on the second, then withinBandValue.
+    // If the x-value (or anything else) is undefined, then the key should be an empty string.
+    const lines: Record<string, Record<string, Record<string, LineConfig<LineMetadata>>>> = {};
+
+    colorStore.resetColorMapping();
+
+    toValue(data).filter(dataRow =>
+      [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
+        const dimensionVal = getDimensionCategoryValue(dim, dataRow);
+        return appStore.filters[dim]?.includes(dimensionVal);
+      })
+    ).forEach(dataRow => {
+      // Each line needs to know its category for each categorical axis in use.
+      const xCat = getDimensionCategoryValue(appStore.dimensions[Axes.X], dataRow);
+      const yCat = getDimensionCategoryValue(appStore.dimensions[Axes.Y], dataRow);
+      const withinBandCat = getDimensionCategoryValue(appStore.dimensions[Axes.WITHIN_BAND], dataRow);
+
+      const lowerBound = dataRow[HistCols.LOWER_BOUND];
+      const barCoords = createBarCoords(dataRow);
+
+      // We need to plot at most one line for each of the combinations of dimensions in use.
+      const line = lines[xCat]?.[yCat]?.[withinBandCat];
+
+      if (!line) {
+        // No line exists yet for this combination of categorical axis values, so we need to create it.
+        barCoords.unshift({ x: lowerBound, y: 0 }); // Start the first bar at y=0.
+        const newLine = initializeLine(barCoords, { x: xCat, y: yCat, withinBand: withinBandCat });
+        lines[xCat] ??= {};
+        lines[xCat]![yCat] ??= {};
+        lines[xCat]![yCat]![withinBandCat] = newLine;
+      } else {
+        // A line already exists for this combination of categorical axis values, so we can append some points to it.
+        const previousPoint = line.points[line.points.length - 1];
+        // If you encounter overlapping histogram bars, you can use >= instead of === in the below condition,
+        // though this is not expected.
+        if (previousPoint && previousPoint.x === lowerBound && previousPoint.y === 0) {
+          // If the previous bar's upper bound is the same as this bar's lower bound,
+          // we should remove the previous close-off point, as we are continuing the line directly from the previous bar to this bar.
+          line.points.pop();
+        } else if (previousPoint) {
+          // There is a previous section, complete with close-off point, but this bar is disconnected from it.
+          // Leave the previous close-off point and make a new starting point at y=0.
+          line.points.push({ x: lowerBound, y: 0 });
+        }
+        line.points.push(...barCoords);
+      }
+    });
+
+    // Unpack the lines dictionary into a flat array.
+    return Object.values(lines).flatMap(y => Object.values(y)).flatMap(z => Object.values(z));
+  });
+
+  return { ridgeLines }
+}
