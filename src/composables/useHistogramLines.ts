@@ -8,11 +8,15 @@ import { computed, toValue } from 'vue';
 // outline of the histogram.  
 export default (
   data: () => HistDataRow[],
-  dimensions: () => Record<Axes, string>,
+  dimensions: () => {
+    [Axes.X]: Dimensions | null;
+    [Axes.Y]: Dimensions;
+    [Axes.WITHIN_BAND]: Dimensions;
+  },
 ) => {
-  const xDimension = computed(() => toValue(dimensions)[Axes.X] as Dimensions);
-  const yDimension = computed(() => toValue(dimensions)[Axes.Y] as Dimensions);
-  const withinBandDimension = computed(() => toValue(dimensions)[Axes.WITHIN_BAND] as Dimensions);
+  const xDimension = computed(() => toValue(dimensions)[Axes.X]);
+  const yDimension = computed(() => toValue(dimensions)[Axes.Y]);
+  const withinBandDimension = computed(() => toValue(dimensions)[Axes.WITHIN_BAND]);
 
   // Return corner coordinates of the histogram bar representing a row from a data file.
   const createBarCoords = (dataRow: HistDataRow): Coords[] => {

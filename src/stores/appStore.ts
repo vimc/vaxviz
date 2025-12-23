@@ -41,7 +41,7 @@ export const useAppStore = defineStore("app", () => {
     [Axes.X]: xCategoricalAxis.value,
     [Axes.Y]: yCategoricalAxis.value,
     [Axes.WITHIN_BAND]: withinBandAxis.value
-  } as Record<Axes, Dimensions>));
+  }));
 
   // The geographical resolutions to use based on current exploreBy and focus selections.
   const geographicalResolutions = computed(() => {
