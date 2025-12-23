@@ -28,5 +28,5 @@
 
 /* For vue3-select-component */
 :root {
-  --vs-menu-height: 80dvh;
+  --vs-menu-height: 50dvh;
 }

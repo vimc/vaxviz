@@ -1,9 +1,10 @@
 import { setActivePinia, createPinia } from "pinia";
 import { describe, it, expect, beforeEach } from "vitest";
-import { useAppStore } from "@/stores/appStore";
 import { nextTick } from "vue";
+import diseaseOptions from '@/data/options/diseaseOptions.json';
+import { useAppStore } from "@/stores/appStore";
 
-describe("appStore", () => {
+describe("app store", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
@@ -17,9 +18,30 @@ describe("appStore", () => {
     expect(store.exploreBy).toBe("location");
     expect(store.focus).toBe("global");
     expect(store.dimensions).toEqual({
-      x: null,
-      y: "disease",
+      column: null,
+      row: "disease",
       withinBand: "location",
+    });
+    expect(store.filters).toEqual({
+      disease: [
+        "Cholera",
+        "COVID-19",
+        "HepB",
+        "Hib",
+        "HPV",
+        "JE",
+        "Malaria",
+        "Measles",
+        "MenA",
+        "MenACWYX",
+        "Meningitis",
+        "PCV",
+        "Rota",
+        "Rubella",
+        "Typhoid",
+        "YF",
+      ],
+      location: ["global"],
     });
   });
 
@@ -40,31 +62,40 @@ describe("appStore", () => {
     expect(store.focus).toEqual("global");
   });
 
-  it("updates the y-categorical axis and within-band axis when focus changes", async () => {
+  it("updates the dimensions and filters when focus changes", async () => {
     const store = useAppStore();
 
     expect(store.focus).toEqual("global");
     expect(store.exploreBy).toEqual("location");
-    expect(store.dimensions.y).toEqual("disease");
+    expect(store.dimensions.row).toEqual("disease");
     expect(store.dimensions.withinBand).toEqual("location");
+    expect(store.filters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.filters.location).toEqual(["global"]);
 
     store.focus = "AFG";
     await nextTick();
 
-    expect(store.dimensions.y).toEqual("disease");
+    expect(store.dimensions.row).toEqual("disease");
     expect(store.dimensions.withinBand).toEqual("location");
+    expect(store.filters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.filters.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
 
     store.focus = "Cholera";
     await nextTick();
 
-    expect(store.dimensions.y).toEqual("location");
+    expect(store.dimensions.row).toEqual("location");
     expect(store.dimensions.withinBand).toEqual("disease");
+    expect(store.filters.disease).toEqual(["Cholera"]);
+    expect(store.filters.location).toHaveLength(11);
+    expect(store.filters.location).toContain("global");
 
-    store.focus = "Central and Southern Asia";
+    store.focus = "Middle Africa";
     await nextTick();
 
-    expect(store.dimensions.y).toEqual("disease");
+    expect(store.dimensions.row).toEqual("disease");
     expect(store.dimensions.withinBand).toEqual("location");
+    expect(store.filters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.filters.location).toEqual(["Middle Africa", "global"]);
   });
 
   it("returns the explore by label", async () => {

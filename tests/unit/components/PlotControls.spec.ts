@@ -4,6 +4,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import VueSelect from "vue3-select-component";
 import { nextTick } from "vue";
 
+import diseaseOptions from '@/data/options/diseaseOptions.json';
 import PlotControls from '@/components/PlotControls.vue'
 
 describe('Controls component', () => {
@@ -69,7 +70,7 @@ describe('Controls component', () => {
     // Expect the focus select to have updated options
     await vueSelect.find(".dropdown-icon").trigger("click");
     const renderedOptions = vueSelect.findAll(".menu .menu-option").filter(e => e.attributes("aria-disabled") === "false");
-    expect(renderedOptions.length).toBe(14);
+    expect(renderedOptions.length).toBe(diseaseOptions.length);
     expect(renderedOptions[0].text()).toBe("Cholera");
 
     wrapper.findAll('input[name="exploreBy"]').find(e => e.element.value === "location")?.setChecked();
