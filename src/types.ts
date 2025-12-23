@@ -42,12 +42,12 @@ export type Option = { label: string; value: string };
 
 export type Coords = { x: number; y: number };
 
-// The x categorical axis corresponds to horizontal slicing of the ridgeline plot (columns).
-// The y categorical axis corresponds to the rows of the ridgeline plot.
+// The column axis corresponds to horizontal splitting of the ridgeline plot, known internally to skadi-chart as the 'x categorical' axis.
+// The row axis corresponds to the rows of the ridgeline plot, known internally to skadi-chart as the 'y categorical' axis.
 // The 'within-band' axis is often denoted by color. It distinguishes different lines that share the same categorical axis values.
 export enum Axes {
-  X = "x",
-  Y = "y",
+  COLUMN = "column",
+  ROW = "row",
   WITHIN_BAND = "withinBand",
 }
 

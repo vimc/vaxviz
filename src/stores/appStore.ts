@@ -12,12 +12,12 @@ export const useAppStore = defineStore("app", () => {
   const logScaleEnabled = ref(true);
   const splitByActivityType = ref<boolean>(false);
 
-  // The x categorical axis corresponds to horizontal slicing of the ridgeline plot (columns).
-  const xCategoricalAxis = ref<Dimensions | null>(splitByActivityType.value ? Dimensions.ACTIVITY_TYPE : null);
-  // The y categorical axis corresponds to the rows of the ridgeline plot.
-  const yCategoricalAxis = ref<Dimensions>(Dimensions.DISEASE);
+  // The column axis corresponds to horizontal splitting of the ridgeline plot, known internally to skadi-chart as the 'x categorical' axis.
+  // The row axis corresponds to the rows of the ridgeline plot, known internally to skadi-chart as the 'y categorical' axis.
   // The 'within-band' axis is often denoted by color. It distinguishes different lines that share the same categorical axis values.
-  const withinBandAxis = ref<Dimensions>(Dimensions.LOCATION);
+  const columnDimension = ref<Dimensions | null>(splitByActivityType.value ? Dimensions.ACTIVITY_TYPE : null);
+  const rowDimension = ref<Dimensions>(Dimensions.DISEASE);
+  const withinBandDimension = ref<Dimensions>(Dimensions.LOCATION);
 
   // The plot presents a slice of the data depending on the user's choice of a 'focus' value that is either
   // a specific location or a specific disease of interest.
@@ -38,9 +38,9 @@ export const useAppStore = defineStore("app", () => {
 
   // The dimensions currently in use, by axis: up to three will be in use at any given time.
   const dimensions = computed(() => ({
-    [Axes.X]: xCategoricalAxis.value,
-    [Axes.Y]: yCategoricalAxis.value,
-    [Axes.WITHIN_BAND]: withinBandAxis.value
+    [Axes.COLUMN]: columnDimension.value,
+    [Axes.ROW]: rowDimension.value,
+    [Axes.WITHIN_BAND]: withinBandDimension.value
   }));
 
   // The geographical resolutions to use based on current exploreBy and focus selections.
@@ -84,8 +84,8 @@ export const useAppStore = defineStore("app", () => {
   watch(focus, () => {
     const focusIsADisease = diseaseOptions.find(d => d.value === focus.value);
     if (focusIsADisease) {
-      yCategoricalAxis.value = Dimensions.LOCATION;
-      withinBandAxis.value = Dimensions.DISEASE;
+      rowDimension.value = Dimensions.LOCATION;
+      withinBandDimension.value = Dimensions.DISEASE;
 
       filters.value = {
         [Dimensions.DISEASE]: [focus.value],
@@ -93,11 +93,11 @@ export const useAppStore = defineStore("app", () => {
       };
     } else {
       // This is only one possible way of 'focusing' on a 'location':
-      // diseases as categorical Y axis, each row with up to 3 ridges.
-      // An alternative would be to have the 3 location rows laid out on the categorical Y axis,
+      // diseases as row axis, each row with up to 3 ridges.
+      // An alternative would be to have the 3 location rows laid out on the row axis,
       // and disease(s) as color axis.
-      yCategoricalAxis.value = Dimensions.DISEASE;
-      withinBandAxis.value = Dimensions.LOCATION;
+      rowDimension.value = Dimensions.DISEASE;
+      withinBandDimension.value = Dimensions.LOCATION;
 
       filters.value = {
         [Dimensions.DISEASE]: diseaseOptions.map(d => d.value),
@@ -106,7 +106,7 @@ export const useAppStore = defineStore("app", () => {
     };
   });
 
-  watch(splitByActivityType, (split) => xCategoricalAxis.value = split ? Dimensions.ACTIVITY_TYPE : null);
+  watch(splitByActivityType, (split) => columnDimension.value = split ? Dimensions.ACTIVITY_TYPE : null);
 
   return {
     burdenMetric,

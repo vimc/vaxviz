@@ -60,7 +60,7 @@ export const useColorStore = defineStore("color", () => {
     // we assign colors based on the dimension assigned to the y-axis,
     // otherwise all lines would be the same color across all rows.
     return appStore.filters[appStore.dimensions[Axes.WITHIN_BAND]]?.length === 1
-      ? appStore.dimensions[Axes.Y]
+      ? appStore.dimensions[Axes.ROW]
       : appStore.dimensions[Axes.WITHIN_BAND];
   });
 

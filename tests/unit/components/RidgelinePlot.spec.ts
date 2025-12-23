@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia';
 
-import diseaseOptions from "@/data/options/diseaseOptions.json";
 import histCountsDeathsDiseaseLog from "@/../public/data/json/hist_counts_deaths_disease_log.json";
 import histCountsDalysDiseaseSubregionActivityType from "@/../public/data/json/hist_counts_dalys_disease_subregion_activity_type.json";
 import histCountsDalysDiseaseActivityType from "@/../public/data/json/hist_counts_dalys_disease_activity_type.json";
@@ -45,9 +44,9 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
       expect(dataAttr.lineCount).toEqual(14); // 14 diseases have global data for aggregated activity type.
       // No columns
-      expect(dataAttr.x).toBeNull();
+      expect(dataAttr.column).toBeNull();
       // Rows differ by disease
-      expect(dataAttr.y).toEqual("disease");
+      expect(dataAttr.row).toEqual("disease");
       // Ridges within a band 'differ' by location
       // (except that in this case there is only one location in use at the moment, 'global')
       expect(dataAttr.withinBand).toEqual("location");
@@ -71,8 +70,8 @@ describe('RidgelinePlot component', () => {
       );
       // Not all diseases have data for all subregions and activity types.
       expect(dataAttr.lineCount).toEqual(44);
-      expect(dataAttr.x).toEqual("activity_type");
-      expect(dataAttr.y).toEqual("disease");
+      expect(dataAttr.column).toEqual("activity_type");
+      expect(dataAttr.row).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
 
       // Color by the 2 locations within each band: Middle Africa and global.
@@ -95,8 +94,8 @@ describe('RidgelinePlot component', () => {
         histCountsDeathsDiseaseSubregionActivityType.length + histCountsDeathsDiseaseActivityType.length
       );
       expect(dataAttr.lineCount).toEqual(22); // 10 applicable subregions with measles, + global, each with 2 activity types
-      expect(dataAttr.x).toEqual("activity_type");
-      expect(dataAttr.y).toEqual("location");
+      expect(dataAttr.column).toEqual("activity_type");
+      expect(dataAttr.row).toEqual("location");
       expect(dataAttr.withinBand).toEqual("disease");
 
       // Color by row; each location (10 subregions + global) has been assigned a color.
@@ -119,8 +118,8 @@ describe('RidgelinePlot component', () => {
         histCountsDalysDiseaseSubregionLog.length + histCountsDalysDiseaseCountryLog.length + histCountsDalysDiseaseLog.length
       );
       expect(dataAttr.lineCount).toEqual(30); // 10 applicable diseases, each with 3 locations (AFG, subregion, global)
-      expect(dataAttr.x).toBeNull();
-      expect(dataAttr.y).toEqual("disease");
+      expect(dataAttr.column).toBeNull();
+      expect(dataAttr.row).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
 
       // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.

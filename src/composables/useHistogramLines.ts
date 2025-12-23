@@ -1,5 +1,4 @@
 import { Axes, Dimensions, HistCols, type Coords, type HistDataRow, type LineMetadata } from '@/types';
-import { getDimensionCategoryValue } from '@/utils/fileParse';
 import type { LineConfig, Lines } from 'types';
 import { computed, toValue } from 'vue';
 
@@ -7,16 +6,15 @@ import { computed, toValue } from 'vue';
 // outline of the histogram.  
 export default (
   data: () => HistDataRow[],
-  dimensions: () => {
-    [Axes.X]: Dimensions | null;
-    [Axes.Y]: Dimensions;
+  axisDimensions: () => {
+    [Axes.COLUMN]: Dimensions | null;
+    [Axes.ROW]: Dimensions;
     [Axes.WITHIN_BAND]: Dimensions;
   },
-  categoryLabelFn: (dim: Dimensions, value: string) => string,
+  getCategory: (dim: Dimensions | null, dataRow: HistDataRow) => string,
+  getLabel: (dim: Dimensions | null, value: string) => string | undefined,
 ) => {
-  const xDimension = computed(() => toValue(dimensions)[Axes.X]);
-  const yDimension = computed(() => toValue(dimensions)[Axes.Y]);
-  const withinBandDimension = computed(() => toValue(dimensions)[Axes.WITHIN_BAND]);
+  const dimensions = toValue(axisDimensions);
 
   // Return corner coordinates of the histogram bar representing a row from a data file.
   const createBarCoords = (dataRow: HistDataRow): Coords[] => {
@@ -36,13 +34,11 @@ export default (
     barCoords: Coords[],
     categoryValues: LineMetadata,
   ): Lines<LineMetadata>[0] => {
-    const { x: xCat, y: yCat } = categoryValues;
-
     return {
       points: barCoords,
       bands: {
-        x: xCat && xDimension.value ? categoryLabelFn(xDimension.value, xCat) : undefined,
-        y: yCat && yDimension.value ? categoryLabelFn(yDimension.value, yCat) : undefined,
+        x: getLabel(dimensions[Axes.COLUMN], categoryValues[Axes.COLUMN]),
+        y: getLabel(dimensions[Axes.ROW], categoryValues[Axes.ROW]),
       },
       style: {},
       metadata: categoryValues,
@@ -60,22 +56,24 @@ export default (
 
     toValue(data).forEach(dataRow => {
       // Each line needs to know its category for each categorical axis in use.
-      const xCat = getDimensionCategoryValue(xDimension.value, dataRow);
-      const yCat = getDimensionCategoryValue(yDimension.value, dataRow);
-      const withinBandCat = getDimensionCategoryValue(withinBandDimension.value, dataRow);
+      const columnCat = getCategory(dimensions[Axes.COLUMN], dataRow);
+      const rowCat = getCategory(dimensions[Axes.ROW], dataRow);
+      const withinBandCat = getCategory(dimensions[Axes.WITHIN_BAND], dataRow);
+      const categoryValues = { [Axes.COLUMN]: columnCat, [Axes.ROW]: rowCat, [Axes.WITHIN_BAND]: withinBandCat };
+
       const lowerBound = dataRow[HistCols.LOWER_BOUND];
       const barCoords = createBarCoords(dataRow);
 
       // We need to plot at most one line for each of the combinations of dimensions in use.
-      const line = lines[xCat]?.[yCat]?.[withinBandCat];
+      const line = lines[columnCat]?.[rowCat]?.[withinBandCat];
 
       if (!line) {
         // No line exists yet for this combination of categorical axis values, so we need to create it.
         barCoords.unshift({ x: lowerBound, y: 0 }); // Start the first bar at y=0.
-        const newLine = initializeLine(barCoords, { x: xCat, y: yCat, withinBand: withinBandCat });
-        lines[xCat] ??= {};
-        lines[xCat]![yCat] ??= {};
-        lines[xCat]![yCat]![withinBandCat] = newLine;
+        const newLine = initializeLine(barCoords, categoryValues);
+        lines[columnCat] ??= {};
+        lines[columnCat]![rowCat] ??= {};
+        lines[columnCat]![rowCat]![withinBandCat] = newLine;
       } else {
         // A line already exists for this combination of categorical axis values, so we can append some points to it.
         const previousPoint = line.points[line.points.length - 1];

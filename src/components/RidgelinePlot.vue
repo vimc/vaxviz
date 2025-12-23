@@ -71,11 +71,11 @@ const data = () => {
   )
 };
 
-const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, dimensionOptionLabel);
+const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
 
 const linesToDisplay = computed(() => {
   // Only filter plot rows if each row represents a disease.
-  if (appStore.dimensions[Axes.Y] !== Dimensions.DISEASE || appStore.dimensions[Axes.WITHIN_BAND] !== Dimensions.LOCATION) {
+  if (appStore.dimensions[Axes.ROW] !== Dimensions.DISEASE || appStore.dimensions[Axes.WITHIN_BAND] !== Dimensions.LOCATION) {
     return ridgeLines.value;
   };
 
@@ -83,9 +83,9 @@ const linesToDisplay = computed(() => {
     // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
     // E.g. Say the focus value is 'Djibouti', a location. If for some row of ridgelines - i.e. some y-value, such as Malaria -
     // there is no line for Djibouti, we should exclude the Malaria row entirely so that we only display rows that are relevant for Djibouti.
-    const disease = line.metadata?.[Axes.Y];
+    const disease = line.metadata?.[Axes.ROW];
     const locationsForDisease = ridgeLines.value
-      .filter(l => l.metadata?.[Axes.Y] === disease)
+      .filter(l => l.metadata?.[Axes.ROW] === disease)
       .map(({ metadata }) => metadata?.withinBand);
     return locationsForDisease.includes(appStore.focus);
   });
@@ -124,7 +124,7 @@ const updateChart = debounce(() => {
   };
 
   const xCategoricalScale = linesToDisplay.value.map(l => l.bands?.x).filter(c => !!c) as string[];
-  // TODO: Implement an ordering for the y categories, depending on the mean of means.
+  // TODO: Implement an ordering for the row categories, depending on the mean of means.
   const yCategoricalScale = linesToDisplay.value.map(l => l.bands?.y).filter(c => !!c) as string[];
   const categoricalScales = {
     ...(xCategoricalScale.length ? { x: xCategoricalScale } : {}),
@@ -135,11 +135,11 @@ const updateChart = debounce(() => {
     .addAxes({
       // TODO: Put the 10^n into the tick labels, pending release of https://github.com/mrc-ide/skadi-chart/pull/65
       x: appStore.logScaleEnabled ? "Impact ratio (10^n)" : "Impact ratio",
-      y: titleCase(appStore.dimensions.y),
+      y: titleCase(appStore.dimensions[Axes.ROW]),
     })
     .addTraces(linesToDisplay.value)
     .addArea()
-    .addGridLines({ x: !appStore.dimensions.x, y: false })
+    .addGridLines({ x: !appStore.dimensions[Axes.COLUMN], y: false })
     // .addTooltips() // TODO: Enable tooltips once behaviour is satisfactory for area charts (vimc-8117)
     .makeResponsive()
 

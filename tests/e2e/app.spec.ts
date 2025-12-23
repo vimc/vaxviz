@@ -50,8 +50,8 @@ test('visits the app root url, selects options, and loads correct data', async (
     JSON.stringify({
       histogramDataRowCount: histCountsDeathsDiseaseLog.length,
       lineCount: 14, // 14 diseases have global data for aggregated activity type.
-      x: null,
-      y: "disease",
+      column: null,
+      row: "disease",
       withinBand: "location",
     })
   );
@@ -74,8 +74,8 @@ test('visits the app root url, selects options, and loads correct data', async (
       histogramDataRowCount: histCountsDalysDiseaseSubregionActivityType.length
         + histCountsDalysDiseaseActivityType.length,
       lineCount: 44, // Not all diseases have data for all subregions and activity types.
-      x: "activity_type",
-      y: "disease",
+      column: "activity_type",
+      row: "disease",
       withinBand: "location",
     })
   );
@@ -98,8 +98,8 @@ test('visits the app root url, selects options, and loads correct data', async (
       histogramDataRowCount: histCountsDeathsDiseaseSubregionActivityType.length
         + histCountsDeathsDiseaseActivityType.length,
       lineCount: 22, // 10 applicable subregions with measles, + global, each with 2 activity types
-      x: "activity_type",
-      y: "location",
+      column: "activity_type",
+      row: "location",
       withinBand: "disease",
     })
   );
@@ -126,8 +126,8 @@ test('visits the app root url, selects options, and loads correct data', async (
         histCountsDalysDiseaseCountryLog.length +
         histCountsDalysDiseaseLog.length,
       lineCount: 30, // 10 applicable diseases, each with 3 locations (AFG, subregion, global)
-      x: null,
-      y: "disease",
+      column: null,
+      row: "disease",
       withinBand: "location",
     })
   );
