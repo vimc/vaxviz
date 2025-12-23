@@ -54,6 +54,7 @@ import { useColorStore } from '@/stores/colorStore';
 import { Axes, Dimensions } from '@/types';
 import titleCase from '@/utils/titleCase';
 import useHistogramLines from '@/composables/useHistogramLines';
+import { dimensionOptionLabel } from '@/utils/options';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();
@@ -70,7 +71,7 @@ const data = () => {
   )
 };
 
-const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions);
+const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, dimensionOptionLabel);
 
 const linesToDisplay = computed(() => {
   // Only filter plot rows if each row represents a disease.

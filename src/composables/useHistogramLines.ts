@@ -1,6 +1,5 @@
 import { Axes, Dimensions, HistCols, type Coords, type HistDataRow, type LineMetadata } from '@/types';
 import { getDimensionCategoryValue } from '@/utils/fileParse';
-import { dimensionOptionLabel } from '@/utils/options';
 import type { LineConfig, Lines } from 'types';
 import { computed, toValue } from 'vue';
 
@@ -13,6 +12,7 @@ export default (
     [Axes.Y]: Dimensions;
     [Axes.WITHIN_BAND]: Dimensions;
   },
+  categoryLabelFn: (dim: Dimensions, value: string) => string,
 ) => {
   const xDimension = computed(() => toValue(dimensions)[Axes.X]);
   const yDimension = computed(() => toValue(dimensions)[Axes.Y]);
@@ -41,8 +41,8 @@ export default (
     return {
       points: barCoords,
       bands: {
-        x: xCat && xDimension.value ? dimensionOptionLabel(xDimension.value, xCat) : undefined,
-        y: yCat && yDimension.value ? dimensionOptionLabel(yDimension.value, yCat) : undefined,
+        x: xCat && xDimension.value ? categoryLabelFn(xDimension.value, xCat) : undefined,
+        y: yCat && yDimension.value ? categoryLabelFn(yDimension.value, yCat) : undefined,
       },
       style: {},
       metadata: categoryValues,
