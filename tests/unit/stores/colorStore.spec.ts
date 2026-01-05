@@ -58,91 +58,83 @@ describe('color store', () => {
     });
   });
 
-  describe('getColorsForLine', () => {
-    it("when the color dimension is location, it returns colors depending on line's location, and has the correct global option color", () => {
-      const appStore = useAppStore();
-      appStore.dimensions.withinBand = 'location';
-      appStore.dimensions.column = 'activity_type';
-      appStore.dimensions.row = 'disease';
-      appStore.filters = {
-        location: ['AFG', 'CHN', globalOption.value],
-        disease: ['Cholera'],
-      };
+  it("when the color dimension is location, it sets colors depending on lines' unique locations, and has the correct global option color", async () => {
+    const appStore = useAppStore();
+    appStore.dimensions.withinBand = 'location';
+    appStore.dimensions.column = 'activity_type';
+    appStore.dimensions.row = 'disease';
+    appStore.filters = {
+      location: ['AFG', 'CHN', globalOption.value],
+      disease: ['Cholera'],
+    };
 
-      const colorStore = useColorStore();
-      expect(colorStore.colorDimension).toBe('location');
+    const colorStore = useColorStore();
+    expect(colorStore.colorDimension).toBe('location');
 
-      colorStore.resetColorMapping();
-      colorStore.getColorsForLine({ withinBand: 'CHN', row: 'Cholera', column: 'campaign' });
-      colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Cholera', column: 'campaign' });
-      colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Cholera', column: 'routine' });
-      colorStore.getColorsForLine({ withinBand: 'global', row: 'Cholera', column: 'campaign' });
+    colorStore.setColors([
+      { metadata: { withinBand: 'CHN', row: 'Cholera', column: 'campaign' } },
+      { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'routine' } },
+      { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'campaign' } },
+      { metadata: { withinBand: 'global', row: 'Cholera', column: 'campaign' } },
+    ]);
 
-      expect(colorStore.colorMapping.size).toBe(3);
-      expect(colorStore.colorMapping.get(globalOption.value)).toEqual(colors.purple70);
-      expect(colorStore.colorMapping.get('CHN')).toEqual(colors.cyan50);
-      expect(colorStore.colorMapping.get('AFG')).toEqual(colors.magenta50);
-    });
+    expect(colorStore.colorMapping.size).toBe(3);
 
-    it("when the color dimension is disease, it returns colors depending on line's disease", () => {
-      const appStore = useAppStore();
-      appStore.dimensions.withinBand = 'location';
-      appStore.dimensions.column = 'activity_type';
-      appStore.dimensions.row = 'disease';
-      appStore.filters = {
-        location: ['AFG'],
-        disease: ['Cholera', 'Rubella'],
-      };
-
-      const colorStore = useColorStore();
-      expect(colorStore.colorDimension).toBe('disease');
-      colorStore.resetColorMapping();
-      colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Cholera', column: 'campaign' });
-      colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Rubella', column: 'campaign' });
-      colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Rubella', column: 'routine' });
-
-      expect(colorStore.colorMapping.size).toBe(2);
-      expect(colorStore.colorMapping.get('Cholera')).toEqual(colors.purple70);
-      expect(colorStore.colorMapping.get('Rubella')).toEqual(colors.teal50);
-    });
-
-    it('when the color has already been assigned, it returns that color, without assigning any more', () => {
-      const appStore = useAppStore();
-      appStore.dimensions.withinBand = 'location';
-      appStore.dimensions.row = 'disease';
-      appStore.filters = {
-        location: ['AFG'],
-        disease: ['Cholera', 'Rubella'],
-      };
-
-      const colorStore = useColorStore();
-      expect(colorStore.colorDimension).toBe('disease');
-      colorStore.resetColorMapping();
-      expect(colorStore.colorMapping.size).toBe(0);
-      colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Cholera' });
-      colorStore.getColorsForLine({ withinBand: 'CHN', row: 'Cholera' });
-      colorStore.getColorsForLine({ withinBand: 'global', row: 'Cholera' });
-      // Should return only 1 disease-color mapping
-      expect(colorStore.colorMapping.size).toBe(1);
-      expect(colorStore.colorMapping.get("Cholera")).toEqual(colors.purple70);
-    });
+    expect(
+      colorStore.getColorsForLine({ withinBand: 'global', row: 'Cholera', column: 'campaign' }).fillColor
+    ).toEqual(colors.purple70);
+    expect(
+      colorStore.getColorsForLine({ withinBand: 'CHN', row: 'Cholera', column: 'campaign' }).fillColor
+    ).toEqual(colors.cyan50);
+    expect(
+      colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Cholera', column: 'routine' }).fillColor
+    ).toEqual(colors.magenta50);
   });
 
-  it('chooses the color palette depending on number of categories in filter', () => {
+  it("when the color dimension is disease, it sets colors depending on lines' unique diseases", () => {
+    const appStore = useAppStore();
+    appStore.dimensions.withinBand = 'location';
+    appStore.dimensions.column = 'activity_type';
+    appStore.dimensions.row = 'disease';
+    appStore.filters = {
+      location: ['AFG'],
+      disease: ['Cholera', 'Rubella'],
+    };
+
+    const colorStore = useColorStore();
+    expect(colorStore.colorDimension).toBe('disease');
+    colorStore.setColors([
+      { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'campaign' } },
+      { metadata: { withinBand: 'AFG', row: 'Rubella', column: 'campaign' } },
+      { metadata: { withinBand: 'AFG', row: 'Rubella', column: 'routine' } },
+    ]);
+
+    expect(colorStore.colorMapping.size).toBe(2);
+    expect(
+      colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Cholera', column: 'campaign' }).fillColor
+    ).toEqual(colors.purple70);
+    expect(
+      colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Rubella', column: 'campaign' }).fillColor
+    ).toEqual(colors.teal50);
+  });
+
+  it('chooses the color palette depending on number of unique values', () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
     appStore.dimensions.column = 'activity_type';
 
     const assignColorsByLocation = () => {
       expect(colorStore.colorDimension).toBe('location');
-      colorStore.resetColorMapping();
-      appStore.filters.location.forEach((loc) => {
-        ["campaign", "routine"].forEach((activity) => colorStore.getColorsForLine({
-          column: activity,
-          row: appStore.filters.disease[0],
-          withinBand: loc,
+      const lines = appStore.filters.location.flatMap((loc) => {
+        return ["campaign", "routine"].map((activity) => ({
+          metadata: {
+            column: activity,
+            row: appStore.filters.disease[0],
+            withinBand: loc,
+          },
         }));
       })
+      colorStore.setColors(lines);
     };
 
     appStore.dimensions.withinBand = 'location';
@@ -170,14 +162,16 @@ describe('color store', () => {
 
     const assignColorsByDisease = () => {
       expect(colorStore.colorDimension).toBe('disease');
-      colorStore.resetColorMapping();
-      appStore.filters.disease.forEach((disease) => {
-        ["campaign", "routine"].forEach((activity) => colorStore.getColorsForLine({
-          column: activity,
-          row: appStore.filters.location[0],
-          withinBand: disease,
+      const lines = appStore.filters.disease.flatMap((disease) => {
+        return ["campaign", "routine"].map((activity) => ({
+          metadata: {
+            column: activity,
+            row: appStore.filters.location[0],
+            withinBand: disease,
+          },
         }));
       })
+      colorStore.setColors(lines);
     }
 
     appStore.dimensions.withinBand = 'disease';

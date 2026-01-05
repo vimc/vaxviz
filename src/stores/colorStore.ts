@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import { Axes, Dimensions, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
 import { globalOption } from "@/utils/options";
+import type { Lines } from "@reside-ic/skadi-chart";
 
 // The IBM categorical palettes, which aim to maximise accessibility:
 // https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
@@ -64,44 +65,46 @@ export const useColorStore = defineStore("color", () => {
       : appStore.dimensions[Axes.WITHIN_BAND];
   });
 
+  const colorAxis = computed(() => Object.keys(appStore.dimensions).find((axis) => {
+    return appStore.dimensions[axis as Axes] === colorDimension.value;
+  }) as Axes);
+
   // The mapping from category value (e.g. a specific location or disease) to color hex code.
   const mapping = ref(new Map<string, string>());
-
-  // By setting the global color first, we ensure that it gets the same color across chart updates.
-  const resetColorMapping = () => {
-    mapping.value = colorDimension.value === Dimensions.LOCATION
-      ? new Map<string, string>([[globalOption.value, ibmAccessiblePalette.purple70]])
-      : new Map<string, string>();
-  }
-
-  resetColorMapping();
 
   // Expose a read-only version of the mapping to consumers of the store.
   const colorMapping = computed(() => mapping.value as ReadonlyMap<string, string>);
 
-  const colorList = computed(() => {
-    const categories = appStore.filters[colorDimension.value] ?? [];
-    return palettesByCategoryCount[categories.length] ?? Object.values({ ...ibmAccessiblePalette, ...extraColors })
-  });
+  // Based on an array of all the lines, set up the color mapping.
+  const setColors = (lines: Lines<LineMetadata>) => {
+    mapping.value = new Map<string, string>()
 
-  // Given a line's category values, either fetch the color from the mapping,
-  // or assign it the next color in the list and return that.
+    // `value` refers to the specific location or disease whose color we need to assign.
+    const uniqueValues = Array.from(new Set(lines.map(line => line.metadata?.[colorAxis.value]))) as string[];
+    const colorList = palettesByCategoryCount[uniqueValues.length] ?? Object.values({ ...ibmAccessiblePalette, ...extraColors })
+
+    // Set the 'global' option first to ensure it gets the same color across chart updates.
+    if (uniqueValues.includes(globalOption.value)) {
+      mapping.value.set(globalOption.value, ibmAccessiblePalette.purple70);
+    }
+
+    uniqueValues.filter(value => value !== globalOption.value).forEach((value) => {
+      // Assign the next color in the list.
+      mapping.value.set(value, colorList[mapping.value.size % colorList.length]!);
+    });
+  }
+
+  // Given a line's category values, fetch the color from the mapping.
   const getColorsForLine = (categoryValues: LineMetadata) => {
-    const colorAxis = Object.keys(appStore.dimensions).find((axis) => {
-      return appStore.dimensions[axis as Axes] === colorDimension.value;
-    }) as Axes;
     // `value` is the specific value, i.e. a specific location or disease,
     // whose color we need to look up or assign.
-    const value = categoryValues[colorAxis];
-    const fillColor = mapping.value?.get(value) ?? colorList.value[mapping.value.size];
-    if (fillColor) {
-      mapping.value.set(value, fillColor);
-    }
+    const value = categoryValues[colorAxis.value];
+    const fillColor = colorMapping.value.get(value);
     return {
       fillColor: fillColor,
       strokeColor: fillColor === extraColors.white ? extraColors.black : fillColor,
     };
   };
 
-  return { colorDimension, colorMapping, getColorsForLine, resetColorMapping };
+  return { colorDimension, colorMapping, getColorsForLine, setColors };
 });

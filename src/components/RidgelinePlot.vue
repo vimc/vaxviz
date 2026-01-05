@@ -97,8 +97,8 @@ const updateChart = debounce(() => {
     return;
   }
 
-  colorStore.resetColorMapping();
-  // Assign colors to each line based on its category values.
+  colorStore.setColors(linesToDisplay.value);
+
   linesToDisplay.value.forEach(line => {
     // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
     // the color assignment, since the palettes maximize contrast between _neighboring_ colors.
