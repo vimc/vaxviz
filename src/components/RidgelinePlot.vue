@@ -81,7 +81,7 @@ const linesToDisplay = computed(() => {
 
   return ridgeLines.value.filter((line) => {
     // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
-    // E.g. Say the focus value is 'Djibouti', a location. If for some row of ridgelines - i.e. some y-value, such as Malaria -
+    // E.g. Say the focus value is 'Djibouti', a location. If for some row of ridgelines - where rows are diseases, such as Malaria -
     // there is no line for Djibouti, we should exclude the Malaria row entirely so that we only display rows that are relevant for Djibouti.
     const disease = line.metadata?.[Axes.ROW];
     const locationsForDisease = ridgeLines.value
