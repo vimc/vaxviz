@@ -65,12 +65,17 @@ export const useColorStore = defineStore("color", () => {
   });
 
   // The mapping from category value (e.g. a specific location or disease) to color hex code.
+  const mapping = ref(new Map<string, string>());
+
   // By setting the global color first, we ensure that it gets the same color across chart updates.
-  const mapping = ref(
-    colorDimension.value === Dimensions.LOCATION
+  const resetColorMapping = () => {
+    mapping.value = colorDimension.value === Dimensions.LOCATION
       ? new Map<string, string>([[globalOption.value, ibmAccessiblePalette.purple70]])
-      : new Map<string, string>()
-  );
+      : new Map<string, string>();
+  }
+
+  resetColorMapping();
+
   // Expose a read-only version of the mapping to consumers of the store.
   const colorMapping = computed(() => mapping.value as ReadonlyMap<string, string>);
 
@@ -97,12 +102,6 @@ export const useColorStore = defineStore("color", () => {
       strokeColor: fillColor === extraColors.white ? extraColors.black : fillColor,
     };
   };
-
-  const resetColorMapping = () => {
-    mapping.value = colorDimension.value === Dimensions.LOCATION
-      ? new Map<string, string>([[globalOption.value, ibmAccessiblePalette.purple70]])
-      : new Map<string, string>();
-  }
 
   return { colorDimension, colorMapping, getColorsForLine, resetColorMapping };
 });
