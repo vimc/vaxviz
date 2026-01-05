@@ -50,6 +50,7 @@ const data = () => {
 
 const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
 
+// TODO: (vimc-9191) order the plot rows by the mean of means.
 const linesToDisplay = computed(() => {
   // Only filter plot rows if each row represents a disease.
   if (appStore.dimensions[Axes.ROW] !== Dimensions.DISEASE || appStore.dimensions[Axes.WITHIN_BAND] !== Dimensions.LOCATION) {

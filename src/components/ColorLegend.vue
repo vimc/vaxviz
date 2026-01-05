@@ -34,7 +34,7 @@ import { dimensionOptionLabel } from '@/utils/options';
 const colorStore = useColorStore();
 
 const colors = computed(() => {
-  // TODO: a less hacky way of getting the same ordering on the legend as on the plot (this way doesn't work for persisted mappings like global)
+  // TODO: (vimc-9191) a less hacky way of getting the same ordering on the legend as on the plot (this way doesn't work for persisted mappings like global)
   return Array.from(colorStore.colorMapping).toReversed();
 })
 
