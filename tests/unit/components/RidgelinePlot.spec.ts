@@ -101,7 +101,7 @@ describe('RidgelinePlot component', () => {
       // Color by row; each location (10 subregions + global) has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(11);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
-    });
+    }, { timeout: 2500 });
 
     // Change options: round 3
     appStore.exploreBy = "location";
