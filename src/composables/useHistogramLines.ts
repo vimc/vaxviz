@@ -14,7 +14,7 @@ export default (
   getCategory: (dim: Dimensions | null, dataRow: HistDataRow) => string,
   getLabel: (dim: Dimensions | null, value: string) => string | undefined,
 ) => {
-  const dimensions = toValue(axisDimensions);
+  const dimensions = computed(() => toValue(axisDimensions));
 
   // Return corner coordinates of the histogram bar representing a row from a data file.
   const createBarCoords = (dataRow: HistDataRow): Coords[] => {
@@ -37,8 +37,8 @@ export default (
     return {
       points: barCoords,
       bands: {
-        x: getLabel(dimensions[Axes.COLUMN], categoryValues[Axes.COLUMN]),
-        y: getLabel(dimensions[Axes.ROW], categoryValues[Axes.ROW]),
+        x: getLabel(dimensions.value[Axes.COLUMN], categoryValues[Axes.COLUMN]),
+        y: getLabel(dimensions.value[Axes.ROW], categoryValues[Axes.ROW]),
       },
       style: {},
       metadata: categoryValues,
@@ -56,9 +56,9 @@ export default (
 
     toValue(data).forEach(dataRow => {
       // Each line needs to know its category for each categorical axis in use.
-      const columnCat = getCategory(dimensions[Axes.COLUMN], dataRow);
-      const rowCat = getCategory(dimensions[Axes.ROW], dataRow);
-      const withinBandCat = getCategory(dimensions[Axes.WITHIN_BAND], dataRow);
+      const columnCat = getCategory(dimensions.value[Axes.COLUMN], dataRow);
+      const rowCat = getCategory(dimensions.value[Axes.ROW], dataRow);
+      const withinBandCat = getCategory(dimensions.value[Axes.WITHIN_BAND], dataRow);
       const categoryValues = { [Axes.COLUMN]: columnCat, [Axes.ROW]: rowCat, [Axes.WITHIN_BAND]: withinBandCat };
 
       const lowerBound = dataRow[HistCols.LOWER_BOUND];
