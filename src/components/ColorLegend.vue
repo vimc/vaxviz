@@ -2,6 +2,7 @@
   <div
     v-if="colors && colors.length >= 2"
     class="max-w-full h-full"
+    id="colorLegend"
   >
     <h3 class="fs-3 font-medium mb-5 text-heading mb-2">
       Legend
