@@ -221,7 +221,9 @@ describe('color store', () => {
     const diseaseWithWhiteColor = diseaseOptions.map(o => o.value).at(-1);
     expect(colorStore.getColorsForLine({ row: 'AFG', withinBand: diseaseWithWhiteColor })).toEqual({
       fillColor: colors.white,
+      fillOpacity: 0.2,
       strokeColor: colors.black,
+      strokeOpacity: 1,
     });
   });
 });

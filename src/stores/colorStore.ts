@@ -49,6 +49,11 @@ const palettesByCategoryCount: Record<number, string[]> = Object.freeze(
   }, {} as Record<number, string[]>)
 );
 
+// Keep `fillOpacity` value low since mixing translucent colours creates
+// a third color, and hence the illusion of an extra ridgeline.
+const fillOpacity = 0.2;
+const strokeOpacity = 1;
+
 export const useColorStore = defineStore("color", () => {
   const appStore = useAppStore();
 
@@ -94,17 +99,21 @@ export const useColorStore = defineStore("color", () => {
     });
   }
 
+  const colorPropertiesForFillColor = (fillColor?: string) => ({
+    fillColor,
+    fillOpacity,
+    strokeColor: fillColor === extraColors.white ? extraColors.black : fillColor,
+    strokeOpacity,
+  });
+
   // Given a line's category values, fetch the color from the mapping.
   const getColorsForLine = (categoryValues: LineMetadata) => {
     // `value` is the specific value, i.e. a specific location or disease,
     // whose color we need to look up or assign.
     const value = categoryValues[colorAxis.value];
     const fillColor = colorMapping.value.get(value);
-    return {
-      fillColor: fillColor,
-      strokeColor: fillColor === extraColors.white ? extraColors.black : fillColor,
-    };
+    return colorPropertiesForFillColor(fillColor);
   };
 
-  return { colorDimension, colorMapping, getColorsForLine, setColors };
+  return { colorDimension, colorMapping, colorPropertiesForFillColor, getColorsForLine, setColors };
 });

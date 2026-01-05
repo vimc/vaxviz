@@ -17,30 +17,7 @@
     <p v-if="dataStore.fetchErrors.length" class="mt-auto">
       {{ dataStore.fetchErrors.map(error => error.message).join(', ') }}
     </p>
-    <!-- Legend for manual testing only -->
-    <!-- <div v-if="colorStore.colorMapping && colorStore.colorMapping.size >= 2">
-      <h3>Legend, for manual testing only</h3>
-      <ul>
-        <li
-          v-for="([value, color]) in colorStore.colorMapping"
-          :key="value"
-        >
-          <span
-            class="legend-color-box"
-            :style="{
-              backgroundColor: color,
-              width: '1em',
-              height: '1em',
-              display: 'inline-block',
-            }"
-          ></span>
-          <span>
-            {{ dimensionOptionLabel(colorStore.colorDimension, value) }}
-          </span>
-        </li>
-      </ul>
-    </div> -->
-</div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -102,16 +79,9 @@ const updateChart = debounce(() => {
   linesToDisplay.value.forEach(line => {
     // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
     // the color assignment, since the palettes maximize contrast between _neighboring_ colors.
-    const { fillColor, strokeColor } = colorStore.getColorsForLine(line.metadata!);
-    // Keep `fillOpacity` value low since mixing translucent colours creates
-    // a third color, and hence the illusion of an extra ridgeline.
-    line.style = {
-      strokeWidth: 1,
-      opacity: 1,
-      fillOpacity: 0.2,
-      strokeColor,
-      fillColor,
-    };
+    const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
+
+    line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
   });
 
   const minX = Math.min(...linesToDisplay.value.flatMap(l => l.points![0]?.x ?? 0));
