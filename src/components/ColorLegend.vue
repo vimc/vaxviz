@@ -1,5 +1,4 @@
 <template>
-  <!-- TODO: exclude colors that are assigned to rows that are not displayed -->
   <div
     v-if="colors && colors.length >= 2"
     class="max-w-full h-full"
