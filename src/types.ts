@@ -1,3 +1,5 @@
+import type { Point } from "@reside-ic/skadi-chart";
+
 export enum BurdenMetrics {
   DALYS = "dalys",
   DEATHS = "deaths"
@@ -51,4 +53,7 @@ export enum Axes {
   WITHIN_BAND = "withinBand",
 }
 
-export type LineMetadata = Record<Axes, string>;
+// Metadata associated with each line in a ridgeline plot, which skadi-chart copies onto each line's points.
+export type Metadata = Record<Axes, string>;
+
+export type PointWithMetadata = Point & { metadata?: Metadata };
