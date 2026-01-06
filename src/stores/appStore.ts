@@ -61,6 +61,10 @@ export const useAppStore = defineStore("app", () => {
     }
   });
 
+  const getAxisForDimension = (dimension: Dimensions | null) => (Object.entries(dimensions.value).find(([, dim]) => {
+    return dim === dimension
+  }) as [Axes, Dimensions] | undefined)?.[0];
+
   const getLocationForGeographicalResolution = (geog: LocResolutions) => {
     switch (geog) {
       case LocResolutions.GLOBAL:
@@ -117,6 +121,7 @@ export const useAppStore = defineStore("app", () => {
     filters,
     focus,
     geographicalResolutions,
+    getAxisForDimension,
     logScaleEnabled,
     splitByActivityType,
   };

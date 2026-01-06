@@ -1,11 +1,11 @@
-import { Axes, Dimensions, HistCols, type Coords, type HistDataRow, type LineMetadata } from '@/types';
+import { Axes, Dimensions, HistCols, type Coords, type HistDataRow, type Metadata } from '@/types';
 import type { LineConfig, Lines } from 'types';
-import { computed, toValue } from 'vue';
+import { computed, toValue, type ComputedRef, type MaybeRefOrGetter } from 'vue';
 
 // Construct histogram/ridge-shaped lines by building area lines whose points trace the
 // outline of the histogram.  
 export default (
-  data: () => HistDataRow[],
+  data: MaybeRefOrGetter<HistDataRow[]>,
   axisDimensions: () => {
     [Axes.COLUMN]: Dimensions | null;
     [Axes.ROW]: Dimensions;
@@ -32,8 +32,8 @@ export default (
   // Initialize a skadi-chart LineConfig object to be used to draw a 'ridgeline' (the outline of a histogram).
   const initializeLine = (
     barCoords: Coords[],
-    categoryValues: LineMetadata,
-  ): Lines<LineMetadata>[0] => {
+    categoryValues: Metadata,
+  ): Lines<Metadata>[0] => {
     return {
       points: barCoords,
       bands: {
@@ -48,11 +48,11 @@ export default (
 
   // Construct histogram/ridge-shaped lines by building area lines whose points trace the
   // outline of the histogram bars (including the spaces in between them).
-  const ridgeLines = computed((): Lines<LineMetadata> => {
+  const ridgeLines = computed((): Lines<Metadata> => {
     // A 3-dimensional dictionary of lines.
     // We use x-value as the key at the first level, then y-value on the second, then withinBandValue.
     // If the x-value (or anything else) is undefined, then the key should be an empty string.
-    const lines: Record<string, Record<string, Record<string, LineConfig<LineMetadata>>>> = {};
+    const lines: Record<string, Record<string, Record<string, LineConfig<Metadata>>>> = {};
 
     toValue(data).forEach(dataRow => {
       // Each line needs to know its category for each categorical axis in use.

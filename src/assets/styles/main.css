@@ -30,3 +30,15 @@
 :root {
   --vs-menu-height: 50dvh;
 }
+
+.tooltip {
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 0.25em;
+  padding: 0.5em;
+  opacity: 0.8;
+  position: relative;
+  top: 40px;
+  right: 100px;
+  width: 1000px;
+}
