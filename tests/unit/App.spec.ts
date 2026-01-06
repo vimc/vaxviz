@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 
 import { mount } from '@vue/test-utils'
-import App from '../../src/App.vue'
+import App from '@/App.vue'
 import { setActivePinia, createPinia } from 'pinia';
 
 describe('App component', () => {

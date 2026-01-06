@@ -32,6 +32,14 @@
     "label": "Measles"
   },
   {
+    "value": "MenA",
+    "label": "MenA"
+  },
+  {
+    "value": "MenACWYX",
+    "label": "MenACWYX"
+  },
+  {
     "value": "Meningitis",
     "label": "Meningitis"
   },

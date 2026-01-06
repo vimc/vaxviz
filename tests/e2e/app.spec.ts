@@ -46,23 +46,25 @@ test('visits the app root url, selects options, and loads correct data', async (
   await expect(logScaleCheckbox).toBeChecked();
   await expect(dalysRadio).not.toBeChecked();
   await expect(deathsRadio).toBeChecked();
-
-  const dataAttr0 = await chartWrapper.getAttribute("data-test");
-  const data0 = JSON.parse(dataAttr0!);
-  expect(data0.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
-  expect(data0.x).toBeNull();
-  expect(data0.y).toBe("disease");
-  expect(data0.withinBand).toBe("location");
+  await expect(chartWrapper).toHaveAttribute("data-test",
+    JSON.stringify({
+      histogramDataRowCount: histCountsDeathsDiseaseLog.length,
+      lineCount: 14, // 14 diseases have global data for aggregated activity type.
+      column: null,
+      row: "disease",
+      withinBand: "location",
+    })
+  );
 
   // Change options: round 1
-  await selectFocus(page, "location", "Central and Southern Asia");
+  await selectFocus(page, "location", "Middle Africa");
   await dalysRadio.click();
   await logScaleCheckbox.click();
   await activityTypeCheckbox.click();
 
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
-  await expectSelectedFocus(page, "location", "Central and Southern Asia");
+  await expectSelectedFocus(page, "location", "Middle Africa");
   await expect(activityTypeCheckbox).toBeChecked();
   await expect(logScaleCheckbox).not.toBeChecked();
   await expect(dalysRadio).toBeChecked();
@@ -71,8 +73,9 @@ test('visits the app root url, selects options, and loads correct data', async (
     JSON.stringify({
       histogramDataRowCount: histCountsDalysDiseaseSubregionActivityType.length
         + histCountsDalysDiseaseActivityType.length,
-      x: "activity_type",
-      y: "disease",
+      lineCount: 44, // Not all diseases have data for all subregions and activity types.
+      column: "activity_type",
+      row: "disease",
       withinBand: "location",
     })
   );
@@ -94,8 +97,9 @@ test('visits the app root url, selects options, and loads correct data', async (
     JSON.stringify({
       histogramDataRowCount: histCountsDeathsDiseaseSubregionActivityType.length
         + histCountsDeathsDiseaseActivityType.length,
-      x: "activity_type",
-      y: "location",
+      lineCount: 22, // 10 applicable subregions with measles, + global, each with 2 activity types
+      column: "activity_type",
+      row: "location",
       withinBand: "disease",
     })
   );
@@ -121,8 +125,9 @@ test('visits the app root url, selects options, and loads correct data', async (
         histCountsDalysDiseaseSubregionLog.length +
         histCountsDalysDiseaseCountryLog.length +
         histCountsDalysDiseaseLog.length,
-      x: null,
-      y: "disease",
+      lineCount: 30, // 10 applicable diseases, each with 3 locations (AFG, subregion, global)
+      column: null,
+      row: "disease",
       withinBand: "location",
     })
   );
