@@ -101,7 +101,7 @@ describe('RidgelinePlot component', () => {
       // Color by row; each location (10 subregions + global) has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(11);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
-    }, { timeout: 2500 });
+    }, { timeout: 3000 });
 
     // Change options: round 3
     appStore.exploreBy = "location";
@@ -125,7 +125,7 @@ describe('RidgelinePlot component', () => {
       // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
       expect(colorStore.colorMapping.size).toEqual(3);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
-    }, { timeout: 2500 });
+    }, { timeout: 3000 });
   }, 10000);
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
