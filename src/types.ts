@@ -57,3 +57,8 @@ export enum Axes {
 export type Metadata = Record<Axes, string>;
 
 export type PointWithMetadata = Point & { metadata?: Metadata };
+
+export type LineColors = {
+  fillColor: string | undefined;
+  strokeColor: string | undefined;
+};

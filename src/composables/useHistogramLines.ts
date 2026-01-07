@@ -1,6 +1,6 @@
 import { Axes, Dimensions, HistCols, type Coords, type HistDataRow, type Metadata } from '@/types';
 import type { LineConfig, Lines } from 'types';
-import { computed, toValue, type ComputedRef, type MaybeRefOrGetter } from 'vue';
+import { computed, toValue, type MaybeRefOrGetter } from 'vue';
 
 // Construct histogram/ridge-shaped lines by building area lines whose points trace the
 // outline of the histogram.  
