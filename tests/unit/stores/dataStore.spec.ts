@@ -45,7 +45,7 @@ describe('data store', () => {
         upper_bound: -2.422,
       });
       expect(fetchSpy).toBeCalledTimes(expectedFetches);
-      expectLastNCallsToEqual(fetchSpy, ["/data/json/hist_counts_deaths_disease_log.json"]);
+      expectLastNCallsToEqual(fetchSpy, ["./data/json/hist_counts_deaths_disease_log.json"]);
     });
 
     // Change options: round 1
@@ -63,8 +63,8 @@ describe('data store', () => {
     });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
     expectLastNCallsToEqual(fetchSpy, [
-      "/data/json/hist_counts_dalys_disease_subregion_activity_type.json",
-      "/data/json/hist_counts_dalys_disease_activity_type.json",
+      "./data/json/hist_counts_dalys_disease_subregion_activity_type.json",
+      "./data/json/hist_counts_dalys_disease_activity_type.json",
     ]);
 
     // Change options: round 2
@@ -85,8 +85,8 @@ describe('data store', () => {
     });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
     expectLastNCallsToEqual(fetchSpy, [
-      "/data/json/hist_counts_deaths_disease_subregion_activity_type.json",
-      "/data/json/hist_counts_deaths_disease_activity_type.json",
+      "./data/json/hist_counts_deaths_disease_subregion_activity_type.json",
+      "./data/json/hist_counts_deaths_disease_activity_type.json",
     ]);
 
     // Change options: round 3
@@ -107,15 +107,15 @@ describe('data store', () => {
     }, { timeout: 2500 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
     expectLastNCallsToEqual(fetchSpy, [
-      "/data/json/hist_counts_dalys_disease_subregion_log.json",
-      "/data/json/hist_counts_dalys_disease_country_log.json",
-      "/data/json/hist_counts_dalys_disease_log.json",
+      "./data/json/hist_counts_dalys_disease_subregion_log.json",
+      "./data/json/hist_counts_dalys_disease_country_log.json",
+      "./data/json/hist_counts_dalys_disease_log.json",
     ]);
   })
 
   it('should handle fetch errors gracefully', async () => {
     server.use(
-      http.get("/data/json/hist_counts_deaths_disease_log.json", async () => {
+      http.get("./data/json/hist_counts_deaths_disease_log.json", async () => {
         return HttpResponse.error();
       }),
     );
@@ -136,7 +136,7 @@ describe('data store', () => {
 
   it('should handle non-OK HTTP statuses gracefully', async () => {
     server.use(
-      http.get("/data/json/hist_counts_deaths_disease_log.json", async () => {
+      http.get("./data/json/hist_counts_deaths_disease_log.json", async () => {
         return HttpResponse.json(null, { status: 404 });
       }),
     );
