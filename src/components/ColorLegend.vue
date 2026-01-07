@@ -7,7 +7,7 @@
     <h3 class="fs-3 font-medium mb-5 text-heading mb-2">
       Legend
     </h3>
-    <ul class="flex flex-col gap-y-1 max-h-full max-w-full">
+    <ul class="flex flex-col flex-wrap gap-y-1 max-h-full max-w-full">
       <li
         v-for="([value, color]) in colors"
         :key="value"
