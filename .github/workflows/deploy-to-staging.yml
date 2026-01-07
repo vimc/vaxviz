@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: '24.9.0'
           cache: 'npm'
-          package-manager-cache: 'false'
+          cache-dependency-path: vaxviz/package-lock.json
       - name: Checkout vaxviz-staging
         uses: actions/checkout@v5
         with:
