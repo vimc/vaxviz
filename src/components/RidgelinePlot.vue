@@ -167,17 +167,21 @@ const updateChart = debounce(() => {
     return `<div class="tooltip text-xs flex flex-col gap-1">
       <div class="flex gap-1 items-center">
         <span style="color:${fillColor}; font-size: 1.3rem;" class=>●</span>
-        <span class="mt-1 flex flex-wrap gap-5">
-          <span>
-            ${titleCase(colorStore.colorDimension)}: <strong>${dimensionOptionLabel(colorStore.colorDimension, point.metadata?.[colorStore.colorAxis])}</strong>
-          </span>
-          <span>
-            Count: <strong>${point.y}</strong>
-          </span>
+        <span class="mt-1">
+          ${titleCase(colorStore.colorDimension)}: <strong>${dimensionOptionLabel(colorStore.colorDimension, point.metadata?.[colorStore.colorAxis])}</strong>
         </span>
       </div>
       <p>
+        Count: <strong>${point.y}</strong>
+      </p>
+      <p>
         ${tooltipImpactRatioFormatter(point)}
+      </p>
+      <p>
+        Median: 1.23 × 10^4
+      </p>
+      <p>
+        95% CI: [1.00 × 10^3, 2.00 × 10^4]
       </p>
     </div>`
   }
@@ -205,7 +209,7 @@ const updateChart = debounce(() => {
     chart.addZoom();
   }
 
-  const margins = { left: yAxisNeedsMuchSpace ? 170 : 100 }; // Leave space for long y-axis labels.
+  const margins = { left: yAxisNeedsMuchSpace ? 170 : 100, top: -50 }; // Leave space for long y-axis labels.
 
   chart.appendTo(chartWrapper.value, numericalScales, {}, categoricalScales, margins);
 }, 100);
@@ -217,7 +221,7 @@ watch([linesToDisplay, () => appStore.focus, chartWrapper], updateChart, { immed
 .chart-container {
   --chart-margin: 80px;
   width: 100%;
-  height: calc(100dvh - 2 * var(--chart-margin));
+  height: calc(calc(100dvh - 2 * var(--chart-margin)) - 150px);
   display: flex;
   flex-wrap: wrap;
 }
