@@ -2,6 +2,8 @@
 
 Vaccine impact visualisation tool
 
+For broad context, see the Knowledge Base article: https://mrc-ide.myjetbrains.com/youtrack/articles/mrc-A-174/Vaxviz
+
 ## Deployment
 
 Vaxviz is deployed to github pages with a custom url: https://vaxviz.vaccineimpact.org
