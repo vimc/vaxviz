@@ -12,12 +12,12 @@ export default () => {
   const tooltipCallback = (point: PointWithMetadata) => {
     if (!point.metadata) return "";
 
-    const { fillColor } = colorStore.getColorsForLine(point.metadata!)
+    const { fillColor } = colorStore.getColorsForLine(point.metadata)
     const { colorDimension } = colorStore;
     const { dimensions } = appStore;
 
-    const rowOptionLabel = dimensionOptionLabel(colorDimension, point.metadata?.[colorStore.colorAxis]);
-    const columnOptionLabel = dimensionOptionLabel(dimensions.column, point.metadata?.[Axes.COLUMN]);
+    const rowOptionLabel = dimensionOptionLabel(colorDimension, point.metadata[colorStore.colorAxis]);
+    const columnOptionLabel = dimensionOptionLabel(dimensions.column, point.metadata[Axes.COLUMN]);
 
     return `<div class="tooltip text-xs flex flex-col gap-1 w-75">
       <div class="flex gap-1 items-center">
