@@ -19,7 +19,6 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@pinia/testing": "^1.0.3",
     "@reside-ic/skadi-chart": "^1.1.7-alpha.0",
     "flowbite": "^4.0.1",
     "flowbite-vue": "^0.2.2",
@@ -30,6 +29,7 @@
     "vue3-select-component": "^0.14.0"
   },
   "devDependencies": {
+    "@pinia/testing": "^1.0.3",
     "@playwright/test": "^1.56.1",
     "@tailwindcss/vite": "^4.1.17",
     "@tsconfig/node24": "^24.0.3",
