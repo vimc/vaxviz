@@ -1,12 +1,13 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 import { mount } from '@vue/test-utils'
 import App from '@/App.vue'
-import { setActivePinia, createPinia } from 'pinia';
+import { setActivePinia } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 describe('App component', () => {
   beforeEach(() => {
-    setActivePinia(createPinia());
+    setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
   });
 
   it('renders the controls', () => {

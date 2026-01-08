@@ -1,12 +1,13 @@
-import { setActivePinia, createPinia } from "pinia";
-import { describe, it, expect, beforeEach } from "vitest";
+import { setActivePinia } from "pinia";
+import { createTestingPinia } from "@pinia/testing";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { nextTick } from "vue";
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { useAppStore } from "@/stores/appStore";
 
 describe("app store", () => {
   beforeEach(() => {
-    setActivePinia(createPinia());
+    setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
   });
 
   it("has correct default values", () => {
@@ -108,4 +109,33 @@ describe("app store", () => {
 
     expect(store.exploreByLabel).toEqual("Disease");
   });
+
+  it("updates the column dimension when splitByActivityType changes", async () => {
+    const store = useAppStore();
+
+    expect(store.splitByActivityType).toBe(false);
+    expect(store.dimensions.column).toBeNull();
+
+    store.splitByActivityType = true;
+    await nextTick();
+
+    expect(store.dimensions.column).toEqual("activity_type");
+
+    store.splitByActivityType = false;
+    await nextTick();
+
+    expect(store.dimensions.column).toBeNull();
+  });
+
+  it("can get the axis for a given dimension", async () => {
+    const store = useAppStore();
+
+    expect(store.getAxisForDimension("location")).toEqual("withinBand");
+    expect(store.getAxisForDimension("disease")).toEqual("row");
+
+    store.splitByActivityType = true;
+    await nextTick();
+
+    expect(store.getAxisForDimension("activity_type")).toEqual("column");
+  })
 });

@@ -74,6 +74,8 @@ npm run build
 npm run test:unit
 ```
 
+If your unit tests fail with { code: 'ERR_REQUIRE_ESM' }, ensure you're using Node >= 24.
+
 To run with test coverage:
 ```sh
 npm run test:coverage

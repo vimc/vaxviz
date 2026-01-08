@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { setActivePinia, createPinia } from 'pinia';
+import { setActivePinia } from 'pinia';
+import { createTestingPinia } from '@pinia/testing'
+import { Chart } from '@reside-ic/skadi-chart';
 
 import histCountsDeathsDiseaseLog from "@/../public/data/json/hist_counts_deaths_disease_log.json";
 import histCountsDalysDiseaseSubregionActivityType from "@/../public/data/json/hist_counts_dalys_disease_subregion_activity_type.json";
@@ -10,28 +12,34 @@ import histCountsDeathsDiseaseActivityType from "@/../public/data/json/hist_coun
 import histCountsDalysDiseaseSubregionLog from "@/../public/data/json/hist_counts_dalys_disease_subregion_log.json";
 import histCountsDalysDiseaseCountryLog from "@/../public/data/json/hist_counts_dalys_disease_country_log.json";
 import histCountsDalysDiseaseLog from "@/../public/data/json/hist_counts_dalys_disease_log.json";
+import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { BurdenMetrics } from '@/types';
 import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
 import { useColorStore } from '@/stores/colorStore';
 
+const addAxesSpy = vi.fn().mockReturnThis();
+const addTracesSpy = vi.fn().mockReturnThis();
 const addGridLinesSpy = vi.fn().mockReturnThis();
+const addTooltipsSpy = vi.fn().mockReturnThis();
+const addAppendToSpy = vi.fn().mockReturnThis();
 
 vi.mock('@reside-ic/skadi-chart', () => ({
   Chart: vi.fn().mockImplementation(class MockChart {
-    addAxes = vi.fn().mockReturnThis();
-    addTraces = vi.fn().mockReturnThis();
+    addAxes = addAxesSpy;
+    addTraces = addTracesSpy;
     addArea = vi.fn().mockReturnThis();
     addGridLines = addGridLinesSpy;
+    addTooltips = addTooltipsSpy;
     addZoom = vi.fn().mockReturnThis();
     makeResponsive = vi.fn().mockReturnThis();
-    appendTo = vi.fn();
+    appendTo = addAppendToSpy;
   }),
 }));
 
 describe('RidgelinePlot component', () => {
   beforeEach(() => {
-    setActivePinia(createPinia());
+    setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
   });
 
   it('loads the correct data', async () => {
@@ -150,6 +158,84 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("No data available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+    });
+  });
+
+  it('passes correct options to Chart', async () => {
+    mount(RidgelinePlot);
+
+    await vi.waitFor(() => {
+      // Access the mock calls
+      const chartMock = vi.mocked(Chart);
+      expect(chartMock).toHaveBeenCalled();
+
+      // Get the options from the most recent call
+      const lastCallArgs = chartMock.mock.calls[chartMock.mock.calls.length - 1];
+      const { tickConfig } = lastCallArgs[0]; // First argument to constructor
+
+      expect(tickConfig).toEqual(expect.objectContaining({
+        numerical: expect.objectContaining({
+          x: expect.objectContaining({
+            padding: 30,
+            rotate: -45,
+            formatter: expect.any(Function),
+          }),
+        }),
+        categorical: expect.objectContaining({
+          y: expect.objectContaining({
+            padding: 30,
+            formatter: undefined,
+          }),
+        }),
+      }));
+
+      const axesLastCallArgs = addAxesSpy.mock.calls[addAxesSpy.mock.calls.length - 1];
+      expect(axesLastCallArgs).toContainEqual(expect.objectContaining({
+        x: "Impact ratio",
+        y: "Disease",
+      }));
+
+      const tracesLastCallArgs = addTracesSpy.mock.calls[addTracesSpy.mock.calls.length - 1];
+      const lines = tracesLastCallArgs[0];
+
+      expect(lines).toHaveLength(14);
+
+      const lineRows = lines.map(l => l.metadata.row);
+      const diseases = diseaseOptions.filter(d => lineRows.includes(d.value));
+      expect(diseases).toHaveLength(14);
+
+      expect(lines.every(l => l.metadata.withinBand === "global")).toBe(true);
+      expect(lines.every(l => l.metadata.column === undefined)).toBe(true);
+
+      const tooltipsLastCallArgs = addTooltipsSpy.mock.calls[addTooltipsSpy.mock.calls.length - 1];
+      const tooltipHTMLCallback = tooltipsLastCallArgs[0];
+      expect(tooltipHTMLCallback).toEqual(expect.any(Function));
+      const tooltipDistance = tooltipsLastCallArgs[1];
+      expect(tooltipDistance).toEqual(100);
+
+      const appendToLastCallArgs = addAppendToSpy.mock.calls[addAppendToSpy.mock.calls.length - 1];
+      const chartWrapperDiv = appendToLastCallArgs[0];
+      expect(chartWrapperDiv.id).toEqual("chartWrapper");
+      const numScales = appendToLastCallArgs[1];
+      expect(numScales).toEqual(expect.objectContaining({
+        x: {
+          end: expect.closeTo(1.0431),
+          start: expect.closeTo(-2.434),
+        },
+        y: {
+          end: 29,
+          start: 0,
+        },
+      }));
+      const catScales = appendToLastCallArgs[3];
+      expect(catScales).toEqual(expect.objectContaining({
+        x: [],
+        y: expect.arrayContaining(diseases.map(d => d.label)),
+      }));
+      const margins = appendToLastCallArgs[4];
+      expect(margins).toEqual(expect.objectContaining({
+        left: 100,
+      }));
     });
   });
 });

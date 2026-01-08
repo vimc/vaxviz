@@ -19,6 +19,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@pinia/testing": "^1.0.3",
     "@reside-ic/skadi-chart": "^1.1.7-alpha.0",
     "flowbite": "^4.0.1",
     "flowbite-vue": "^0.2.2",

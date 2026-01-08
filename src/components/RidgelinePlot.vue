@@ -129,7 +129,7 @@ const updateChart = debounce(() => {
     .addGridLines(
       { x: !appStore.dimensions[Axes.COLUMN], y: false },
     )
-    .addTooltips(tooltipCallback, Infinity, "x")
+    .addTooltips(tooltipCallback, 100)
     .makeResponsive()
     .addZoom()
     .appendTo(chartWrapper.value, ...chartAppendConfig);
