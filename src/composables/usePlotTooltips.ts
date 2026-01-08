@@ -21,7 +21,7 @@ export default () => {
 
     return `<div class="tooltip text-xs flex flex-col gap-1 w-75">
       <div class="flex gap-1 items-center">
-        <span style="color: ${fillColor}; font-size: 1.3rem;" class=>●</span>
+        <span style="color: ${fillColor}; font-size: 1.3rem;">●</span>
         <span class="mt-1 flex flex-wrap gap-5">
           <span>
             ${sentenceCase(colorDimension)}: <strong>${rowOptionLabel}</strong>
