@@ -99,7 +99,7 @@ describe('plotConfiguration', () => {
 
     it('log scale numerical formatter excludes mantissa unless it is not 1', () => {
       const config = plotConfiguration(Dimensions.DISEASE, true, lines);
-      const formatter = config.tickConfig.numerical?.x?.formatter;;
+      const formatter = config.tickConfig.numerical?.x?.formatter;
       expect(formatter(0.01)).toBe('10⁻²');
       expect(formatter(2500)).toBe('2.5×10³');
     });

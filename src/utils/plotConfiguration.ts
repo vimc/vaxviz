@@ -40,7 +40,7 @@ const superscripts = [
 
 const applySubstitutions = (str: string, substitutions: readonly (readonly [string, string])[]): string => {
   return substitutions.reduce(
-    (acc, [original, replacement]) => acc.replace(original, replacement),
+    (acc, [original, replacement]) => acc.replaceAll(original, replacement),
     str
   );
 };
