@@ -137,5 +137,5 @@ describe("app store", () => {
     await nextTick();
 
     expect(store.getAxisForDimension("activity_type")).toEqual("column");
-  })
+  });
 });

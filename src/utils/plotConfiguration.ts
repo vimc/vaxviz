@@ -1,5 +1,6 @@
 import { Dimensions, type Metadata } from "@/types";
 import { globalOption } from "./options";
+// "Chart" and "types" are modules declared by @reside-ic/skadi-chart
 import type { CategoricalScales, PartialChartOptions } from "Chart";
 import type { Lines, Scales } from "@reside-ic/skadi-chart";
 import type { Bounds, XY } from "types";

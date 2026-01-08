@@ -120,7 +120,7 @@ describe('usePlotTooltips', () => {
       const campaignTooltip = tooltipCallback({ x: 1, y: 2, metadata: campaignPointMetadata.metadata! });
 
       expect(campaignTooltip).toContain('Disease: <strong>Cholera</strong>');
-      expect(routineTooltip).toContain('Activity type: <strong>Routine</strong>');
+      expect(campaignTooltip).toContain('Activity type: <strong>Campaign</strong>');
       expect(campaignTooltip).toContain('style="color: #6929c4'); // purple70
       expect(campaignTooltip).not.toContain('Location');
     });
