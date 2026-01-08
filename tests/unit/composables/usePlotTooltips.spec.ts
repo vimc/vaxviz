@@ -55,7 +55,7 @@ describe('usePlotTooltips', () => {
       expect(globalTooltip).not.toContain('Activity type');
     });
 
-    it('generates tooltip HTML for location dimension', () => {
+    it('generates tooltip HTML for disease dimension', () => {
       const choleraPointMetadata = { metadata: { [Axes.WITHIN_BAND]: 'AFG', [Axes.ROW]: 'Cholera', [Axes.COLUMN]: '' } };
       const measlesPointMetadata = { metadata: { [Axes.WITHIN_BAND]: 'AFG', [Axes.ROW]: 'Measles', [Axes.COLUMN]: '' } };
 
