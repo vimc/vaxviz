@@ -33,6 +33,7 @@
     "@playwright/test": "^1.56.1",
     "@tailwindcss/vite": "^4.1.17",
     "@tsconfig/node24": "^24.0.3",
+    "@types/color-convert": "^2.0.4",
     "@types/jsdom": "^27.0.0",
     "@types/node": "^24.9.2",
     "@vitejs/plugin-vue": "^6.0.1",

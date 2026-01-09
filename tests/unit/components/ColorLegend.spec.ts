@@ -12,7 +12,7 @@ describe('RidgelinePlot component', () => {
     setActivePinia(createPinia());
   });
 
-  it('renders the correct labels and colors when the color dimension is location', async () => {
+  it('renders the correct labels and colors when the color dimension is location, sorting them by resolution', async () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
     const wrapper = mount(ColorLegend);
@@ -20,7 +20,7 @@ describe('RidgelinePlot component', () => {
     appStore.dimensions.column = 'activity_type';
     appStore.dimensions.row = 'disease';
     appStore.filters = {
-      location: ['AFG', 'CHN', globalOption.value],
+      location: ['Central and Southern Asia', globalOption.value, 'AFG'],
       disease: ['Cholera'],
     };
     expect(colorStore.colorDimension).toBe('location');
@@ -30,12 +30,12 @@ describe('RidgelinePlot component', () => {
     expect(wrapper.findAll(".legend-label").length).toBe(0);
 
     // No legend required if only one color
-    colorStore.setColors([{ metadata: { withinBand: 'CHN', row: 'Cholera', column: 'campaign' } }]);
+    colorStore.setColors([{ metadata: { withinBand: 'Central and Southern Asia', row: 'Cholera', column: 'campaign' } }]);
     expect(colorStore.colorMapping.size).toBe(1);
     expect(wrapper.findAll(".legend-label").length).toBe(0);
 
     colorStore.setColors([
-      { metadata: { withinBand: 'CHN', row: 'Cholera', column: 'campaign' } },
+      { metadata: { withinBand: 'Central and Southern Asia', row: 'Cholera', column: 'campaign' } },
       { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'routine' } },
       { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'campaign' } },
       { metadata: { withinBand: 'global', row: 'Cholera', column: 'campaign' } },
@@ -54,7 +54,7 @@ describe('RidgelinePlot component', () => {
     expect(colorBoxes[0].element.style.borderColor).toBe("rgb(238, 83, 139)"); // magenta50
     expect(colorBoxes[0].element.style.backgroundColor).toBe("rgba(238, 83, 139, 0.2)");
 
-    expect(labels[1].text()).toBe('China');
+    expect(labels[1].text()).toBe('Central and Southern Asia');
     expect(colorBoxes[1].element.style.borderColor).toBe("rgb(17, 146, 232)"); // cyan50
     expect(colorBoxes[1].element.style.backgroundColor).toBe("rgba(17, 146, 232, 0.2)");
 
@@ -108,13 +108,13 @@ describe('RidgelinePlot component', () => {
     appStore.dimensions.column = 'activity_type';
     appStore.dimensions.row = 'disease';
     appStore.filters = {
-      location: ['AFG', 'CHN', globalOption.value],
+      location: ['Central and Southern Asia', globalOption.value, 'AFG'],
       disease: ['Cholera', 'Rubella'],
     };
     expect(colorStore.colorDimension).toBe('location');
 
     colorStore.setColors([
-      { metadata: { withinBand: 'CHN', row: 'Cholera', column: 'campaign' } },
+      { metadata: { withinBand: 'Central and Southern Asia', row: 'Cholera', column: 'campaign' } },
       { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'routine' } },
       { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'campaign' } },
       { metadata: { withinBand: 'global', row: 'Cholera', column: 'campaign' } },
@@ -133,7 +133,7 @@ describe('RidgelinePlot component', () => {
     expect(colorBoxes[0].element.style.borderColor).toBe("rgb(238, 83, 139)"); // magenta50
     expect(colorBoxes[0].element.style.backgroundColor).toBe("rgba(238, 83, 139, 0.2)");
 
-    expect(labels[1].text()).toBe('China');
+    expect(labels[1].text()).toBe('Central and Southern Asia');
     expect(colorBoxes[1].element.style.borderColor).toBe("rgb(17, 146, 232)"); // cyan50
     expect(colorBoxes[1].element.style.backgroundColor).toBe("rgba(17, 146, 232, 0.2)");
 

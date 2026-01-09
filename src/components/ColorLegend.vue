@@ -30,10 +30,29 @@ import { computed } from 'vue';
 import convert, { type HEX } from "color-convert";
 import { useColorStore } from '@/stores/colorStore';
 import { dimensionOptionLabel } from '@/utils/options';
+import { useAppStore } from '@/stores/appStore';
+import { Axes, Dimensions, LocResolutions } from '@/types';
 
+const appStore = useAppStore();
 const colorStore = useColorStore();
 
 const colors = computed(() => {
+  const { colorDimension } = colorStore;
+  if (colorDimension === appStore.dimensions[Axes.WITHIN_BAND] && colorDimension === Dimensions.LOCATION) {
+
+    // Sort by the geographical resolution (LocResolutions) of the values.
+    return Array.from(colorStore.colorMapping).sort(([aVal], [bVal]) => {
+      const [aLocRes, bLocRes] = [
+        appStore.geographicalResolutionForLocation(aVal),
+        appStore.geographicalResolutionForLocation(bVal)
+      ];
+      const [aRank, bRank] = [
+        aLocRes ? Object.values(LocResolutions).indexOf(aLocRes) : -1,
+        bLocRes ? Object.values(LocResolutions).indexOf(bLocRes) : -1,
+      ];
+      return bRank - aRank;
+    });
+  }
   // TODO: (vimc-9191) a less hacky way of getting the same ordering on the legend as on the plot (this way doesn't work for persisted mappings like global)
   return Array.from(colorStore.colorMapping).toReversed();
 })
@@ -50,7 +69,7 @@ const colorBoxStyle = (color: HEX) => {
 
 <style scoped>
 .legend-color-box {
-  min-width: 1rem;
+  width: 1rem;
   height: 1rem;
   display: inline-block;
   border-width: 2px;

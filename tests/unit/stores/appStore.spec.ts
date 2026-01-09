@@ -108,4 +108,13 @@ describe("app store", () => {
 
     expect(store.exploreByLabel).toEqual("Disease");
   });
+
+  it("can return the geographical resolution for a given location", async () => {
+    const store = useAppStore();
+
+    expect(store.geographicalResolutionForLocation("global")).toEqual("global");
+    expect(store.geographicalResolutionForLocation("AFG")).toEqual("country");
+    expect(store.geographicalResolutionForLocation("Central and Southern Asia")).toEqual("subregion");
+    expect(store.geographicalResolutionForLocation("Cholera")).toBeUndefined();
+  });
 });
