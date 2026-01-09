@@ -5,21 +5,36 @@
     id="colorLegend"
   >
     <h3 class="fs-3 font-medium mb-5 text-heading mb-2">
-      Legend
+      {{ exploreOptions.find(o => o.value === colorStore.colorDimension)?.pluralLabel }}
     </h3>
     <ul class="flex flex-col gap-y-1 max-h-full max-w-full">
       <li
         v-for="([value, color]) in colors"
         :key="value"
-        class="flex gap-x-2 text-sm"
       >
-        <span
-          class="legend-color-box"
-          :style="colorBoxStyle(color)"
-        />
-        <span class="legend-label">
-          {{ dimensionOptionLabel(colorStore.colorDimension, value) }}
-        </span>
+        <button
+          type="button"
+          class="legend-button flex gap-x-2 cursor-pointer"
+          :class="{
+            'filtered-by-legend': isFilteredByLegend(value),
+          }"
+          @click="handleClick(value)"
+          @mouseover="appStore.hoveredValue = value"
+          @mouseleave="appStore.hoveredValue = null"
+        >
+          <div class="flex gap-x-2 items-center text-sm">
+            <span
+              class="legend-color-box"
+              :style="colorBoxStyle(color)"
+            />
+            <span class="legend-label">
+              {{ dimensionOptionLabel(colorStore.colorDimension, value) }}
+            </span>
+          </div>
+          <span class="text-xs text-gray-500 ms-auto close-button">
+            &times;
+          </span>
+        </button>
       </li>
     </ul>
   </div>
@@ -29,7 +44,7 @@
 import { computed } from 'vue';
 import { type HEX } from "color-convert";
 import { useColorStore } from '@/stores/colorStore';
-import { dimensionOptionLabel } from '@/utils/options';
+import { dimensionOptionLabel, exploreOptions } from '@/utils/options';
 import { useAppStore } from '@/stores/appStore';
 import { Axes, Dimensions, LocResolutions } from '@/types';
 
@@ -57,6 +72,8 @@ const colors = computed(() => {
   return Array.from(colorStore.colorMapping).toReversed();
 })
 
+const isFilteredByLegend = (value: string) => !appStore.softFilters[colorStore.colorDimension]?.includes(value);
+
 const colorBoxStyle = (color: HEX) => {
   const { fillColor, strokeColor } = colorStore.colorProperties(color);
   return {
@@ -64,20 +81,68 @@ const colorBoxStyle = (color: HEX) => {
     borderColor: strokeColor,
   }
 }
+
+const handleClick = (value: string) => {
+  if (!appStore.softFilters[colorStore.colorDimension]) {
+    return;
+  }
+
+  if (appStore.softFilters[colorStore.colorDimension]?.includes(value)) {
+    appStore.softFilters[colorStore.colorDimension] = appStore.softFilters[colorStore.colorDimension]!.filter(v => v !== value);
+  } else {
+    appStore.softFilters[colorStore.colorDimension]?.push(value);
+  }
+}
 </script>
 
 <style scoped>
-.legend-color-box {
-  width: 1rem;
-  height: 1rem;
-  display: inline-block;
-  border-width: 2px;
-  border-style: solid;
-}
-
 .legend-label {
   line-height: 1rem;
   margin-top: 1px;
   word-wrap: normal;
+}
+
+.legend-color-box {
+  width: 1rem;
+  height: 1rem;
+  display: inline-block;
+  border-style: solid;
+}
+
+.legend-button {
+  &.filtered-by-legend {
+    text-decoration: line-through;
+    text-decoration-color: gray;
+
+    .close-button {
+      display: none;
+    }
+
+    &:not(:hover) {
+      color: var(--color-gray-500);
+
+      .legend-color-box {
+        background-color: var(--color-gray-200) !important;
+      }
+    }
+
+    &:hover {
+      color: var(--color-gray-800);
+    }
+  }
+
+  &:not(.filtered-by-legend) {
+    &:hover {
+      opacity: 0.75;
+
+      .close-button {
+        color: red;
+      }
+    }
+
+    .legend-color-box {
+      border-width: 2px;
+    }
+  }
 }
 </style>

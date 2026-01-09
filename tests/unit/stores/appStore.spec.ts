@@ -22,7 +22,7 @@ describe("app store", () => {
       row: "disease",
       withinBand: "location",
     });
-    expect(store.filters).toEqual({
+    expect(store.hardFilters).toEqual({
       disease: [
         "Cholera",
         "COVID-19",
@@ -69,33 +69,33 @@ describe("app store", () => {
     expect(store.exploreBy).toEqual("location");
     expect(store.dimensions.row).toEqual("disease");
     expect(store.dimensions.withinBand).toEqual("location");
-    expect(store.filters.disease).toHaveLength(diseaseOptions.length);
-    expect(store.filters.location).toEqual(["global"]);
+    expect(store.hardFilters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.hardFilters.location).toEqual(["global"]);
 
     store.focus = "AFG";
     await nextTick();
 
     expect(store.dimensions.row).toEqual("disease");
     expect(store.dimensions.withinBand).toEqual("location");
-    expect(store.filters.disease).toHaveLength(diseaseOptions.length);
-    expect(store.filters.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
+    expect(store.hardFilters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.hardFilters.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
 
     store.focus = "Cholera";
     await nextTick();
 
     expect(store.dimensions.row).toEqual("location");
     expect(store.dimensions.withinBand).toEqual("disease");
-    expect(store.filters.disease).toEqual(["Cholera"]);
-    expect(store.filters.location).toHaveLength(11);
-    expect(store.filters.location).toContain("global");
+    expect(store.hardFilters.disease).toEqual(["Cholera"]);
+    expect(store.hardFilters.location).toHaveLength(11);
+    expect(store.hardFilters.location).toContain("global");
 
     store.focus = "Middle Africa";
     await nextTick();
 
     expect(store.dimensions.row).toEqual("disease");
     expect(store.dimensions.withinBand).toEqual("location");
-    expect(store.filters.disease).toHaveLength(diseaseOptions.length);
-    expect(store.filters.location).toEqual(["Middle Africa", "global"]);
+    expect(store.hardFilters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.hardFilters.location).toEqual(["Middle Africa", "global"]);
   });
 
   it("returns the explore by label", async () => {

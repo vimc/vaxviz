@@ -12,8 +12,8 @@ export const metricOptions = [
 ];
 
 export const exploreOptions = [
-  { label: "Disease", value: Dimensions.DISEASE },
-  { label: "Geography", value: Dimensions.LOCATION },
+  { label: "Disease", value: Dimensions.DISEASE, pluralLabel: "Diseases" },
+  { label: "Geography", value: Dimensions.LOCATION, pluralLabel: "Geographies" },
 ];
 
 export const globalOption = {

@@ -26,10 +26,20 @@ export const useAppStore = defineStore("app", () => {
   const exploreBy = ref<Dimensions.LOCATION | Dimensions.DISEASE>(Dimensions.LOCATION);
   const focus = ref<string>(LocResolutions.GLOBAL);
 
-  const filters = ref<Record<string, string[]>>({
+  // Two levels of filtering:
+  // 'Hard' filters are about the palette of diseases or locations that are on offer in the current view,
+  // and are determined by the selection of focus and exploreBy.
+  // 'Soft' filters are a second level of filtration, on top of the options currently on offer,
+  // e.g. via the color legend. They are easy to toggle on and off without changing the overall view.
+  // Whenever hard filters update (and initially), soft filters are reset to match the hard filters.
+  const hardFilters = ref<Record<string, string[]>>({
     [Dimensions.DISEASE]: diseaseOptions.map(d => d.value),
     [Dimensions.LOCATION]: [LocResolutions.GLOBAL],
   });
+  const softFilters = ref<Record<string, string[]>>({ ...hardFilters.value });
+
+  // TODO: use the tooltip HTML callback to update hoveredValue in the store.
+  const hoveredValue = ref<string | null>(null);
 
   const exploreByLabel = computed(() => {
     const option = exploreOptions.find(o => o.value === exploreBy.value);
@@ -100,7 +110,7 @@ export const useAppStore = defineStore("app", () => {
       rowDimension.value = Dimensions.LOCATION;
       withinBandDimension.value = Dimensions.DISEASE;
 
-      filters.value = {
+      hardFilters.value = {
         [Dimensions.DISEASE]: [focus.value],
         [Dimensions.LOCATION]: subregionOptions.map(o => o.value).concat([LocResolutions.GLOBAL]),
       };
@@ -112,7 +122,7 @@ export const useAppStore = defineStore("app", () => {
       rowDimension.value = Dimensions.DISEASE;
       withinBandDimension.value = Dimensions.LOCATION;
 
-      filters.value = {
+      hardFilters.value = {
         [Dimensions.DISEASE]: diseaseOptions.map(d => d.value),
         [Dimensions.LOCATION]: geographicalResolutions.value.map(getLocationForGeographicalResolution),
       };
@@ -121,17 +131,21 @@ export const useAppStore = defineStore("app", () => {
 
   watch(splitByActivityType, (split) => columnDimension.value = split ? Dimensions.ACTIVITY_TYPE : null);
 
+  watch(hardFilters, (newHardFilters) => softFilters.value = { ...newHardFilters });
+
   return {
     burdenMetric,
     dimensions,
     exploreBy,
     exploreByLabel,
     exploreOptions,
-    filters,
     focus,
     geographicalResolutions,
+    hardFilters,
+    hoveredValue,
     geographicalResolutionForLocation,
     logScaleEnabled,
+    softFilters,
     splitByActivityType,
   };
 })
