@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import convert, { type HEX } from "color-convert";
+import { type HEX } from "color-convert";
 import { useColorStore } from '@/stores/colorStore';
 import { dimensionOptionLabel } from '@/utils/options';
 import { useAppStore } from '@/stores/appStore';
@@ -59,9 +59,8 @@ const colors = computed(() => {
 
 const colorBoxStyle = (color: HEX) => {
   const { fillColor, fillOpacity, strokeColor } = colorStore.colorPropertiesForFillColor(color);
-  const fillRgb = fillColor ? convert.hex.rgb(fillColor) : [0, 0, 0];
   return {
-    backgroundColor: `rgba(${fillRgb[0]}, ${fillRgb[1]}, ${fillRgb[2]}, ${fillOpacity})`,
+    backgroundColor: colorStore.hexToRgba(fillColor, fillOpacity),
     borderColor: strokeColor,
   }
 }

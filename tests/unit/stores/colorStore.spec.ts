@@ -226,4 +226,11 @@ describe('color store', () => {
       strokeOpacity: 1,
     });
   });
+
+  it("hexToRgba converts hex color codes and opacity to rgba strings", () => {
+    const colorStore = useColorStore();
+    expect(colorStore.hexToRgba("#ff00ff", 0.5)).toBe("rgba(255, 0, 255, 0.5)");
+    expect(colorStore.hexToRgba("#000000", 1)).toBe("rgba(0, 0, 0, 1)");
+    expect(colorStore.hexToRgba()).toBe("rgba(0, 0, 0, 1)");
+  });
 });

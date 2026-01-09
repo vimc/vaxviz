@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { Axes, Dimensions, type LineMetadata } from "@/types";
+import type { Lines } from "@reside-ic/skadi-chart";
+import convert, { type HEX } from "color-convert";
+import { Axes, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
 import { globalOption } from "@/utils/options";
-import type { Lines } from "@reside-ic/skadi-chart";
 
 // The IBM categorical palettes, which aim to maximise accessibility:
 // https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
@@ -115,5 +116,8 @@ export const useColorStore = defineStore("color", () => {
     return colorPropertiesForFillColor(fillColor);
   };
 
-  return { colorDimension, colorMapping, colorPropertiesForFillColor, getColorsForLine, setColors };
+  const hexToRgba = (hex: HEX = "#000000", opacity: number = 1) =>
+    `rgba(${convert.hex.rgb(hex).concat(opacity).join(", ")})`;
+
+  return { colorDimension, colorMapping, colorPropertiesForFillColor, getColorsForLine, hexToRgba, setColors };
 });
