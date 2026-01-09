@@ -82,13 +82,13 @@ describe('color store', () => {
 
     expect(
       colorStore.getColorsForLine({ withinBand: 'global', row: 'Cholera', column: 'campaign' }).fillColor
-    ).toEqual(colors.purple70);
+    ).toEqual("rgba(105, 41, 196, 0.2)"); // purple70
     expect(
       colorStore.getColorsForLine({ withinBand: 'CHN', row: 'Cholera', column: 'campaign' }).fillColor
-    ).toEqual(colors.cyan50);
+    ).toEqual("rgba(17, 146, 232, 0.2)"); // cyan50
     expect(
       colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Cholera', column: 'routine' }).fillColor
-    ).toEqual(colors.magenta50);
+    ).toEqual("rgba(238, 83, 139, 0.2)"); // magenta50
   });
 
   it("when the color dimension is disease, it sets colors depending on lines' unique diseases", () => {
@@ -112,10 +112,10 @@ describe('color store', () => {
     expect(colorStore.colorMapping.size).toBe(2);
     expect(
       colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Cholera', column: 'campaign' }).fillColor
-    ).toEqual(colors.purple70);
+    ).toEqual("rgba(105, 41, 196, 0.2)"); // purple70
     expect(
       colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Rubella', column: 'campaign' }).fillColor
-    ).toEqual(colors.teal50);
+    ).toEqual("rgba(0, 157, 154, 0.2)"); // teal50
   });
 
   it('chooses the color palette depending on number of unique values', () => {
@@ -220,17 +220,10 @@ describe('color store', () => {
     expect(Array.from(colorStore.colorMapping.values())).not.toContain(undefined);
     const diseaseWithWhiteColor = diseaseOptions.map(o => o.value).at(-1);
     expect(colorStore.getColorsForLine({ row: 'AFG', withinBand: diseaseWithWhiteColor })).toEqual({
-      fillColor: colors.white,
-      fillOpacity: 0.2,
+      fillColor: "rgba(255, 255, 255, 0.2)",
+      fillOpacity: 1,
       strokeColor: colors.black,
       strokeOpacity: 1,
     });
-  });
-
-  it("hexToRgba converts hex color codes and opacity to rgba strings", () => {
-    const colorStore = useColorStore();
-    expect(colorStore.hexToRgba("#ff00ff", 0.5)).toBe("rgba(255, 0, 255, 0.5)");
-    expect(colorStore.hexToRgba("#000000", 1)).toBe("rgba(0, 0, 0, 1)");
-    expect(colorStore.hexToRgba()).toBe("rgba(0, 0, 0, 1)");
   });
 });

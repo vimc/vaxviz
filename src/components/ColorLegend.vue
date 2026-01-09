@@ -58,9 +58,9 @@ const colors = computed(() => {
 })
 
 const colorBoxStyle = (color: HEX) => {
-  const { fillColor, fillOpacity, strokeColor } = colorStore.colorPropertiesForFillColor(color);
+  const { fillColor, strokeColor } = colorStore.colorProperties(color);
   return {
-    backgroundColor: colorStore.hexToRgba(fillColor, fillOpacity),
+    backgroundColor: fillColor,
     borderColor: strokeColor,
   }
 }
