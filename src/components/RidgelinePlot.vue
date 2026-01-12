@@ -68,7 +68,7 @@ const relevantLines = computed(() => {
     const locationsForDisease = ridgeLines.value
       .filter(l => l.metadata?.[Axes.ROW] === disease)
       .map(({ metadata }) => metadata?.withinBand);
-    return locationsForDisease.includes(appStore.focus);
+    return appStore.focus.every(f => locationsForDisease.includes(f));
   });
 })
 
@@ -85,8 +85,6 @@ const softFilteredLines = computed(() => {
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  console.error("Recalc")
-
   if (relevantLines.value.length === 0 || !chartWrapper.value) {
     return;
   }
@@ -101,12 +99,21 @@ const updateChart = debounce(() => {
   softFilteredLines.value.forEach(line => {
     // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
     // the color assignment, since the palettes maximize contrast between _neighboring_ colors.
-    const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
+    const {
+      fillColor,
+      fillOpacity: defaultFillOpacity,
+      strokeColor,
+      strokeOpacity: defaultStrokeOpacity,
+    } = colorStore.getColorsForLine(line.metadata!);
 
     const isHovered = appStore.hoveredValue && line.metadata?.[colorStore.colorAxis] === appStore.hoveredValue;
+    const anotherIsHovered = appStore.hoveredValue && !isHovered;
+
+    const fillOpacity = isHovered ? 0.5 : anotherIsHovered ? 0.2 : defaultFillOpacity;
+    const strokeOpacity = anotherIsHovered ? 0.2 : defaultStrokeOpacity;
 
     line.style = {
-      fillOpacity: isHovered ? 0.5 : fillOpacity,
+      fillOpacity: fillOpacity,
       fillColor: isHovered ? strokeColor : fillColor,
       strokeWidth: 1,
       opacity: strokeOpacity,

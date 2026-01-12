@@ -24,7 +24,7 @@ export const useAppStore = defineStore("app", () => {
   // Thus we first ask the user to choose whether to explore by location or by disease,
   // and then present a dropdown of the relevant options.
   const exploreBy = ref<Dimensions.LOCATION | Dimensions.DISEASE>(Dimensions.LOCATION);
-  const focus = ref<string>(LocResolutions.GLOBAL);
+  const focus = ref<string[]>([LocResolutions.GLOBAL]);
 
   // Two levels of filtering:
   // 'Hard' filters are about the palette of diseases or locations that are on offer in the current view,
@@ -36,7 +36,7 @@ export const useAppStore = defineStore("app", () => {
     [Dimensions.DISEASE]: diseaseOptions.map(d => d.value),
     [Dimensions.LOCATION]: [LocResolutions.GLOBAL],
   });
-  const softFilters = ref<Record<string, string[]>>({ ...hardFilters.value });
+  const softFilters = ref<Record<string, string[]>>({});
 
   // TODO: use the tooltip HTML callback to update hoveredValue in the store.
   const hoveredValue = ref<string | null>(null);
@@ -53,8 +53,14 @@ export const useAppStore = defineStore("app", () => {
     [Axes.WITHIN_BAND]: withinBandDimension.value
   }));
 
+  const resetSoftFilters = () => softFilters.value = {
+    [Dimensions.DISEASE]: [...(hardFilters.value[Dimensions.DISEASE] ?? [])],
+    [Dimensions.LOCATION]: [...(hardFilters.value[Dimensions.LOCATION] ?? [])],
+  };
+  resetSoftFilters();
+
   const geographicalResolutionForLocation = (location: string): LocResolutions | undefined => {
-    if (location === LocResolutions.GLOBAL) {
+    if (location === globalOption.value) {
       return LocResolutions.GLOBAL;
     } else if (subregionOptions.find(o => o.value === location)) {
       return LocResolutions.SUBREGION;
@@ -68,50 +74,72 @@ export const useAppStore = defineStore("app", () => {
     if (exploreBy.value === Dimensions.DISEASE) {
       return [LocResolutions.SUBREGION, LocResolutions.GLOBAL];
     } else {
-      const locRes = geographicalResolutionForLocation(focus.value);
-      switch (locRes) {
-        case LocResolutions.GLOBAL:
-          return [LocResolutions.GLOBAL];
-        case LocResolutions.SUBREGION:
-          return [LocResolutions.SUBREGION, LocResolutions.GLOBAL];
-        case LocResolutions.COUNTRY:
-          return [LocResolutions.COUNTRY, LocResolutions.SUBREGION, LocResolutions.GLOBAL];
-        default:
-          // The following line should never be able to be evaluated, because exploreBy is always either
-          // 'disease' or 'location', and the three possible types of location are covered by the branches.
-          throw new Error(`Invalid focus selection '${focus.value}' for exploreBy '${exploreBy.value}'`);
-      }
+      const resolutionsPerFocus = focus.value.map(loc => {
+        switch (geographicalResolutionForLocation(loc)) {
+          case LocResolutions.GLOBAL:
+            return [LocResolutions.GLOBAL];
+          case LocResolutions.SUBREGION:
+            return [LocResolutions.SUBREGION, LocResolutions.GLOBAL];
+          case LocResolutions.COUNTRY:
+            return [LocResolutions.COUNTRY, LocResolutions.SUBREGION, LocResolutions.GLOBAL];
+          default:
+            // The following line should never be able to be evaluated, because exploreBy is always either
+            // 'disease' or 'location', and the three possible types of location are covered by the branches.
+            throw new Error(`Invalid focus selection '${focus.value}' for exploreBy '${exploreBy.value}'`);
+        }
+      });
+      // Flatten and deduplicate the array of arrays.
+      return Array.from(new Set(resolutionsPerFocus.flat()));
     }
   });
 
-  const getLocationForGeographicalResolution = (geog: LocResolutions) => {
-    switch (geog) {
-      case LocResolutions.GLOBAL:
-        return globalOption.value;
-      case LocResolutions.SUBREGION:
-        return subregionOptions.find(o => o.value === focus.value)?.value
-          ?? getSubregionFromCountry(focus.value);
-      case LocResolutions.COUNTRY:
-        return focus.value;
+  // Based on the current focus selection of locations, return an array of locations
+  // that includes the corresponding zoomed-out resolutions where applicable.
+  const getLocationsAndZoomedOutResolutions = () => {
+    const subregionsForCountries: string[] = [];
+    let locs = focus.value.map((loc) => {
+      switch (geographicalResolutionForLocation(loc)) {
+        case LocResolutions.GLOBAL:
+          return [globalOption.value];
+        case LocResolutions.SUBREGION:
+          return [loc, globalOption.value];
+        case LocResolutions.COUNTRY:
+          const subregion = getSubregionFromCountry(loc);
+          subregionsForCountries.push(subregion);
+          return [loc, getSubregionFromCountry(loc), globalOption.value];
+        default:
+          return [loc];
+      }
+    }).flat();
+
+    if (subregionsForCountries.length > 1) {
+      // There are multiple inferred subregions for the focus countries;
+      // in order to reduce clutter we will remove these from the set of locations,
+      // but we'll retain any subregions that are directly selected as focus.
+      locs = locs.filter(loc => !subregionsForCountries.includes(loc) || focus.value.includes(loc));
     }
+
+    // Flatten and deduplicate the array of arrays.
+    return Array.from(new Set(locs));
   }
 
-  watch(exploreBy, () => {
+  const focusIsEmpty = computed(() => focus.value.length === 0);
+
+  watch([exploreBy, focusIsEmpty], () => {
     if (exploreBy.value === Dimensions.DISEASE && diseaseOptions[0]) {
-      focus.value = diseaseOptions[0].value;
+      focus.value = [diseaseOptions[0].value];
     } else if (exploreBy.value === Dimensions.LOCATION) {
-      focus.value = LocResolutions.GLOBAL;
+      focus.value = [LocResolutions.GLOBAL];
     };
   });
 
   watch(focus, () => {
-    const focusIsADisease = diseaseOptions.find(d => d.value === focus.value);
-    if (focusIsADisease) {
+    if (exploreBy.value === Dimensions.DISEASE) {
       rowDimension.value = Dimensions.LOCATION;
       withinBandDimension.value = Dimensions.DISEASE;
 
       hardFilters.value = {
-        [Dimensions.DISEASE]: [focus.value],
+        [Dimensions.DISEASE]: focus.value,
         [Dimensions.LOCATION]: subregionOptions.map(o => o.value).concat([LocResolutions.GLOBAL]),
       };
     } else {
@@ -124,14 +152,14 @@ export const useAppStore = defineStore("app", () => {
 
       hardFilters.value = {
         [Dimensions.DISEASE]: diseaseOptions.map(d => d.value),
-        [Dimensions.LOCATION]: geographicalResolutions.value.map(getLocationForGeographicalResolution),
+        [Dimensions.LOCATION]: getLocationsAndZoomedOutResolutions(),
       };
     };
   });
 
   watch(splitByActivityType, (split) => columnDimension.value = split ? Dimensions.ACTIVITY_TYPE : null);
 
-  watch(hardFilters, (newHardFilters) => softFilters.value = { ...newHardFilters });
+  watch(hardFilters, resetSoftFilters);
 
   return {
     burdenMetric,
@@ -145,6 +173,7 @@ export const useAppStore = defineStore("app", () => {
     hoveredValue,
     geographicalResolutionForLocation,
     logScaleEnabled,
+    resetSoftFilters,
     softFilters,
     splitByActivityType,
   };

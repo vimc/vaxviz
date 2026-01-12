@@ -20,11 +20,15 @@
           Focus {{ appStore.exploreByLabel }}
         </label>
         <VueSelect
+          v-if="focusIsMultiSelect"
           v-model="appStore.focus"
-          :isClearable="false"
+          :hide-selected-options="false"
+          :is-clearable="appStore.focus.length > 1"
           :options="selectOptions"
           :filter-by="selectFilterBy"
           :aria="{ labelledby: 'focusLabel' }"
+          :is-multi="true"
+          :select-on-blur="false"
         >
           <template #menu-header>
             <div class="p-2 ps-3 disabled-text-color">
@@ -36,6 +40,35 @@
             <span v-else class="ps-2">{{ option.label }}</span>
           </template>
         </VueSelect>
+
+        <VueSelect
+          v-else
+          v-model="singletonFocus"
+          :hide-selected-options="false"
+          :is-clearable="false"
+          :options="selectOptions"
+          :filter-by="selectFilterBy"
+          :aria="{ labelledby: 'focusLabel' }"
+          :is-multi="false"
+          :select-on-blur="true"
+        >
+          <template #menu-header>
+            <div class="p-2 ps-3 disabled-text-color">
+              <h3 class="text-sm">Start typing to filter the list...</h3>
+            </div>
+          </template>
+          <template #option="{ option }">
+            <h4 v-if="option.value === 'optgroup'" class="font-medium text-sm text-heading disabled-text-color">{{ option.label }}</h4>
+            <span v-else class="ps-2">{{ option.label }}</span>
+          </template>
+        </VueSelect>
+      </div>
+      <div class="mt-1">
+        <FwbCheckbox
+          v-model="focusIsMultiSelect"
+          label="Allow multiple focus selections"
+          :wrapper-class="'w-fit'"
+        />
       </div>
     </div>
     <fieldset class="gap-5" aria-required="true">
@@ -71,7 +104,7 @@
 <script setup lang="ts">
 import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
 import VueSelect, { type Option } from "vue3-select-component";
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useAppStore } from '../stores/appStore';
 import { Dimensions } from '@/types';
 import countryOptions from '@/data/options/countryOptions.json';
@@ -80,6 +113,27 @@ import subregionOptions from '@/data/options/subregionOptions.json';
 import { globalOption, metricOptions } from '@/utils/options';
 
 const appStore = useAppStore();
+
+const focusIsMultiSelect = ref(appStore.focus.length > 1);
+// For single-select mode, we need a separate ref to bind to the select component.
+const singletonFocus = ref(appStore.focus[0]);
+
+watch(() => appStore.focus, (newFocus) => singletonFocus.value = newFocus[0]);
+
+watch(singletonFocus, (newVal) => {
+  if (newVal && !focusIsMultiSelect.value) {
+    appStore.focus = [newVal];
+  }
+});
+
+watch(focusIsMultiSelect, (multi) => {
+  if (multi) {
+    appStore.focus = singletonFocus.value ? [singletonFocus.value] : [];
+  } else {
+    singletonFocus.value = appStore.focus[0];
+    appStore.focus = appStore.focus.slice(0, 1);
+  }
+});
 
 const selectOptions = computed(() => {
   if (appStore.exploreBy === Dimensions.LOCATION) {
