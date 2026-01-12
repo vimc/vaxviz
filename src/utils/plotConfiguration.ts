@@ -92,9 +92,13 @@ const tickConfiguration = (
         padding: xAxisNeedsSpace ? 30 : 10,
         rotate: xAxisNeedsSpace ? -45 : 0,
         formatter: xNumTickFormatter,
+        count: 5, // This prop only guarantees the number of ticks is 'approximately' count.
       },
     },
     categorical: {
+      x: {
+        padding: xAxisNeedsSpace ? 65 : 30,
+      },
       y: {
         padding: yAxisNeedsSpace ? 10 : 30,
         formatter: yCategoricalTickFormatter,
