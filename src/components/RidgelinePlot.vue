@@ -54,7 +54,7 @@ import { useColorStore } from '@/stores/colorStore';
 import { Axes, Dimensions } from '@/types';
 import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel } from '@/utils/options';
-import { plotConfiguration } from '@/utils/plotConfiguration';
+import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
 import usePlotTooltips from '@/composables/usePlotTooltips';
 
 const appStore = useAppStore();
@@ -129,7 +129,7 @@ const updateChart = debounce(() => {
     .addGridLines(
       { x: !appStore.dimensions[Axes.COLUMN], y: false },
     )
-    .addTooltips(tooltipCallback, 100)
+    .addTooltips(tooltipCallback, TOOLTIP_RADIUS_PX)
     .makeResponsive()
     .addZoom()
     .appendTo(chartWrapper.value, ...chartAppendConfig);
