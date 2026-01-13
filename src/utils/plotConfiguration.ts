@@ -1,4 +1,4 @@
-import { Dimensions, type Metadata } from "@/types";
+import { Dimensions, type LineMetadata } from "@/types";
 import { globalOption } from "./options";
 // "Chart" and "types" are modules declared by @reside-ic/skadi-chart
 import type { CategoricalScales, PartialChartOptions } from "Chart";
@@ -108,7 +108,7 @@ const tickConfiguration = (
   };
 }
 
-const numericalScales = (logScaleEnabled: boolean, lines: Lines<Metadata>): Scales => {
+const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): Scales => {
   const maxX = Math.max(...lines.flatMap(l => {
     const lastPoint = l.points[l.points.length - 1]!;
     return lastPoint.x;
@@ -125,7 +125,7 @@ const numericalScales = (logScaleEnabled: boolean, lines: Lines<Metadata>): Scal
   };
 };
 
-const categoricalScales = (lines: Lines<Metadata>): CategoricalScales => {
+const categoricalScales = (lines: Lines<LineMetadata>): CategoricalScales => {
   const xCategoricalScale = [...new Set(lines.map(l => l.bands?.x).filter(c => !!c))] as string[];
   const yCategoricalScale = [...new Set(lines.map(l => l.bands?.y).filter(c => !!c))] as string[];
 
@@ -154,7 +154,7 @@ const axisConfiguration = (
 export const plotConfiguration = (
   rowDimension: Dimensions,
   logScaleEnabled: boolean,
-  lines: Lines<Metadata>,
+  lines: Lines<LineMetadata>,
 ): {
   tickConfig: PartialChartOptions["tickConfig"]
   axisConfig: AxisConfig

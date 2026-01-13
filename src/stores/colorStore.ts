@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import { Axes, type LineColors, type Metadata } from "@/types";
+import { Axes, type LineColors, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
 import { globalOption } from "@/utils/options";
 import type { Lines } from "@reside-ic/skadi-chart";
@@ -76,7 +76,7 @@ export const useColorStore = defineStore("color", () => {
   const colorMapping = computed(() => mapping.value as ReadonlyMap<string, string>);
 
   // Based on an array of all the lines, set up the color mapping.
-  const setColors = (lines: Lines<Metadata>) => {
+  const setColors = (lines: Lines<LineMetadata>) => {
     mapping.value = new Map<string, string>()
 
     // `value` refers to the specific location or disease whose color we need to assign.
@@ -95,7 +95,7 @@ export const useColorStore = defineStore("color", () => {
   }
 
   // Given a line's category values, fetch the color from the mapping.
-  const getColorsForLine = (categoryValues: Metadata): LineColors => {
+  const getColorsForLine = (categoryValues: LineMetadata): LineColors => {
     // `value` is the specific value, i.e. a specific location or disease,
     // whose color we need to look up or assign.
     const value = categoryValues[colorAxis.value];

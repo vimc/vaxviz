@@ -54,9 +54,9 @@ export enum Axes {
 }
 
 // Metadata associated with each line in a ridgeline plot, which skadi-chart copies onto each line's points.
-export type Metadata = Record<Axes, string>;
+export type LineMetadata = Record<Axes, string>;
 
-export type PointWithMetadata = Point & { metadata?: Metadata };
+export type PointWithMetadata = Point & { metadata?: LineMetadata };
 
 export type LineColors = {
   fillColor: string | undefined;
