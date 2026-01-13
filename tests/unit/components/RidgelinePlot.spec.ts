@@ -13,6 +13,7 @@ import histCountsDalysDiseaseLog from "@/../public/data/json/hist_counts_dalys_d
 import { BurdenMetrics } from '@/types';
 import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
+import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
 
 const addGridLinesSpy = vi.fn().mockReturnThis();
@@ -150,6 +151,34 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("No data available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+    });
+  });
+
+  it('shows a loading spinner while data is being loaded', async () => {
+    const pinia = createPinia();
+    setActivePinia(pinia);
+
+    const dataStore = useDataStore();
+
+    // Initially, isLoading should be true
+    expect(dataStore.isLoading).toBe(true);
+
+    const wrapper = mount(RidgelinePlot);
+
+    // While loading, spinner should be shown and "No data available" message should not be shown
+    expect(wrapper.find('svg[role="status"]').exists()).toBe(true);
+    expect(wrapper.text()).not.toContain("No data available for the selected options.");
+    expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+
+    // Wait for data to load
+    await vi.waitFor(() => {
+      expect(dataStore.isLoading).toBe(false);
+    });
+
+    // After loading, spinner should be hidden and chart should be shown
+    await vi.waitFor(() => {
+      expect(wrapper.find('svg[role="status"]').exists()).toBe(false);
+      expect(wrapper.find("#chartWrapper").exists()).toBe(true);
     });
   });
 });

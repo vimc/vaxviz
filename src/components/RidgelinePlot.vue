@@ -1,6 +1,7 @@
 <template>
   <div class="chart-container">
-    <p v-if="linesToDisplay.length === 0" class="m-auto">
+    <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="12" />
+    <p v-else-if="linesToDisplay.length === 0" class="m-auto">
       <!-- E.g. Focus disease MenA, without splitting by activity type. -->
       No data available for the selected options.
     </p>
@@ -46,6 +47,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { debounce } from 'perfect-debounce';
+import { FwbSpinner } from 'flowbite-vue';
 import { Chart } from '@reside-ic/skadi-chart';
 import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
