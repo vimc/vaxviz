@@ -34,8 +34,11 @@ export const useSummaryDownload = () => {
       link.href = `${csvDataDir}/${path}`;
       link.download = path;
       document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      try {
+        link.click();
+      } finally {
+        document.body.removeChild(link);
+      }
     });
   };
 
