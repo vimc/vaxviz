@@ -1,6 +1,6 @@
 <template>
   <div class="chart-container">
-    <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="12" />
+    <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
     <p v-else-if="noDataToDisplay" class="m-auto">
       <!-- E.g. Focus disease MenA, without splitting by activity type. -->
       No data available for the selected options.
