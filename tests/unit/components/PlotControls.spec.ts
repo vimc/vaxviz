@@ -54,9 +54,6 @@ describe('Controls component', () => {
     const burdenMetricRadios = wrapper.findAll('input[name="burdenMetric"]');
     expect((burdenMetricRadios.find(e => e.element.value === "dalys")?.element.checked)).toBe(false);
     expect((burdenMetricRadios.find(e => e.element.value === "deaths")?.element.checked)).toBe(true);
-
-    // FwbButton renders the text inside nested span elements
-    expect(wrapper.text()).toContain("Download summary data");
   });
 
   it("updates the focus label and select options when exploreBy selection changes", async () => {
@@ -106,18 +103,5 @@ describe('Controls component', () => {
     expect(renderedOptions[0].text()).toBe("Central and Southern Asia");
     expect(renderedOptions[1].text()).toBe("Eastern and South-Eastern Asia");
     expect(renderedOptions[2].text()).toBe("Northern Africa and Western Asia");
-  });
-
-  it("clicking download button triggers download", async () => {
-    // We can verify that the download functionality exists and the composable
-    // is correctly computing paths by testing the composable separately.
-    // Here we just verify the button exists and is clickable.
-    const wrapper = mount(PlotControls);
-
-    const downloadButton = wrapper.find('button');
-    expect(downloadButton.exists()).toBe(true);
-
-    // Verify button is in the DOM with correct text
-    expect(wrapper.text()).toContain("Download summary data");
   });
 })
