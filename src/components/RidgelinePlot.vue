@@ -1,7 +1,7 @@
 <template>
   <div class="chart-container">
     <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="12" />
-    <p v-else-if="linesToDisplay.length === 0" class="m-auto">
+    <p v-else-if="noDataToDisplay" class="m-auto">
       <!-- E.g. Focus disease MenA, without splitting by activity type. -->
       No data available for the selected options.
     </p>
@@ -63,6 +63,9 @@ const dataStore = useDataStore();
 const colorStore = useColorStore();
 
 const chartWrapper = ref<HTMLDivElement | null>(null);
+// noDataToDisplay is a ref rather than computed so that we can debounce updates to it, preventing flickering
+// if appStore changes at a different moment from linesToDisplay.
+const noDataToDisplay = ref<boolean>(false);
 
 const data = () => {
   return dataStore.histogramData.filter(dataRow =>
@@ -95,7 +98,9 @@ const linesToDisplay = computed(() => {
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  if (linesToDisplay.value.length === 0 || !chartWrapper.value) {
+  noDataToDisplay.value = linesToDisplay.value.length === 0;
+
+  if (noDataToDisplay.value || !chartWrapper.value) {
     return;
   }
 
