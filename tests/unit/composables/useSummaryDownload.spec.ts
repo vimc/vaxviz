@@ -156,6 +156,7 @@ describe("useSummaryDownload", () => {
 
       // Mock fetch for zip download
       vi.spyOn(global, "fetch").mockResolvedValue({
+        ok: true,
         text: () => Promise.resolve("csv,content"),
       } as Response);
       vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");

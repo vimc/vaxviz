@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia';
+import { ref } from 'vue';
 import { useAppStore } from '@/stores/appStore';
 import DownloadButton from '@/components/DownloadButton.vue'
 import * as useSummaryDownloadModule from '@/composables/useSummaryDownload';
@@ -30,7 +31,7 @@ describe('DownloadButton component', () => {
   it('calls downloadSummaryTables when clicked', async () => {
     const mockDownloadSummaryTables = vi.fn();
     vi.spyOn(useSummaryDownloadModule, 'useSummaryDownload').mockReturnValue({
-      summaryTablePaths: { value: ["file.csv"] } as unknown as ReturnType<typeof useSummaryDownloadModule.useSummaryDownload>['summaryTablePaths'],
+      summaryTablePaths: ref(["file.csv"]),
       downloadSummaryTables: mockDownloadSummaryTables,
     });
 

@@ -45,6 +45,9 @@ export const useSummaryDownload = () => {
     await Promise.all(
       paths.map(async (path) => {
         const response = await fetch(`${dataDir}/${path}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch ${path}: ${response.statusText}`);
+        }
         const content = await response.text();
         zip.file(path, content);
       })
