@@ -155,29 +155,21 @@ describe('RidgelinePlot component', () => {
   });
 
   it('shows a loading spinner while data is being loaded', async () => {
-    const pinia = createPinia();
-    setActivePinia(pinia);
-
     const dataStore = useDataStore();
-
-    // Initially, isLoading should be true
-    expect(dataStore.isLoading).toBe(true);
-
     const wrapper = mount(RidgelinePlot);
+    const spinnerMatcher = 'svg[role="status"]';
 
-    // While loading, spinner should be shown and "No data available" message should not be shown
-    expect(wrapper.find('svg[role="status"]').exists()).toBe(true);
+    expect(dataStore.isLoading).toBe(true);
+    expect(wrapper.find(spinnerMatcher).exists()).toBe(true);
     expect(wrapper.text()).not.toContain("No data available for the selected options.");
     expect(wrapper.find("#chartWrapper").exists()).toBe(false);
 
-    // Wait for data to load
     await vi.waitFor(() => {
       expect(dataStore.isLoading).toBe(false);
     });
 
-    // After loading, spinner should be hidden and chart should be shown
     await vi.waitFor(() => {
-      expect(wrapper.find('svg[role="status"]').exists()).toBe(false);
+      expect(wrapper.find(spinnerMatcher).exists()).toBe(false);
       expect(wrapper.find("#chartWrapper").exists()).toBe(true);
     });
   });
