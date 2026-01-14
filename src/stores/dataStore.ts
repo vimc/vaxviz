@@ -4,7 +4,7 @@ import { defineStore } from "pinia";
 import { useAppStore } from "@/stores/appStore";
 import { type HistDataRow, Dimensions, LocResolutions } from "@/types";
 
-export const dataDir = `/data/json`
+export const dataDir = `./data/json`
 
 export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
