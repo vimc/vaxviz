@@ -31,7 +31,6 @@ vi.mock('@reside-ic/skadi-chart', () => ({
     addArea = vi.fn().mockReturnThis();
     addGridLines = addGridLinesSpy;
     addTooltips = addTooltipsSpy;
-    addZoom = vi.fn().mockReturnThis();
     makeResponsive = vi.fn().mockReturnThis();
     appendTo = addAppendToSpy;
   }),

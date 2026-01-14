@@ -133,7 +133,6 @@ const updateChart = debounce(() => {
     )
     .addTooltips(tooltipCallback, TOOLTIP_RADIUS_PX)
     .makeResponsive()
-    .addZoom()
     .appendTo(chartWrapper.value, ...chartAppendConfig);
 }, 100);
 
