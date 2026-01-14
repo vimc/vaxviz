@@ -46,9 +46,6 @@ const applySubstitutions = (str: string, substitutions: readonly (readonly [stri
   );
 };
 
-// Determine if y-axis need extra space (for categorical axis labels).
-const yAxisNeedsExtraSpace = (rowDimension: Dimensions): boolean => rowDimension === Dimensions.LOCATION;
-
 // Returns a callback for formatting numerical tick labels for log scales.
 const logScaleNumTickFormatter = () => (exponentForTen: number): string => {
   // NB the number passed in (derived from data files) is not the raw impact burden itself,
@@ -69,6 +66,9 @@ const logScaleNumTickFormatter = () => (exponentForTen: number): string => {
     .join("");
   return `10${superscriptExponent}`;
 };
+
+// Determine if y-axis need extra space (for long categorical axis labels).
+const yAxisNeedsExtraSpace = (rowDimension: Dimensions): boolean => rowDimension === Dimensions.LOCATION;
 
 // Returns a callback for formatting categorical tick labels for locations.
 // Many locations have an unwieldy length.
@@ -151,7 +151,7 @@ export const plotConfiguration = (
 } => {
   const numScales = numericalScales(logScaleEnabled, lines);
   const catScales = categoricalScales(lines);
-  const margins = { left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 100 }; // Leave space for long y-axis labels.
+  const margins = { left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 100 };
   const tickConfig = tickConfiguration(logScaleEnabled, rowDimension);
   const axisConfig = axisConfiguration(rowDimension);
 

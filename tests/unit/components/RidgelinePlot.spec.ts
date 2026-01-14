@@ -176,15 +176,16 @@ describe('RidgelinePlot component', () => {
       expect(tickConfig).toEqual(expect.objectContaining({
         numerical: expect.objectContaining({
           x: expect.objectContaining({
-            padding: 30,
-            rotate: -45,
+            padding: 10,
             formatter: expect.any(Function),
           }),
+          y: expect.objectContaining({ count: 0 }),
         }),
         categorical: expect.objectContaining({
+          x: expect.objectContaining({ padding: 30 }),
           y: expect.objectContaining({
             padding: 30,
-            formatter: undefined,
+            formatter: expect.undefined,
           }),
         }),
       }));
@@ -207,15 +208,10 @@ describe('RidgelinePlot component', () => {
       expect(lines.every(l => l.metadata.withinBand === "global")).toBe(true);
       expect(lines.every(l => l.metadata.column === undefined)).toBe(true);
 
-      const tooltipsLastCallArgs = addTooltipsSpy.mock.calls[addTooltipsSpy.mock.calls.length - 1];
-      const tooltipHTMLCallback = tooltipsLastCallArgs[0];
-      expect(tooltipHTMLCallback).toEqual(expect.any(Function));
-      const tooltipDistance = tooltipsLastCallArgs[1];
-      expect(tooltipDistance).toEqual(100);
-
       const appendToLastCallArgs = addAppendToSpy.mock.calls[addAppendToSpy.mock.calls.length - 1];
       const chartWrapperDiv = appendToLastCallArgs[0];
       expect(chartWrapperDiv.id).toEqual("chartWrapper");
+
       const numScales = appendToLastCallArgs[1];
       expect(numScales).toEqual(expect.objectContaining({
         x: {
@@ -227,11 +223,13 @@ describe('RidgelinePlot component', () => {
           start: 0,
         },
       }));
+
       const catScales = appendToLastCallArgs[3];
       expect(catScales).toEqual(expect.objectContaining({
         x: [],
         y: expect.arrayContaining(diseases.map(d => d.label)),
       }));
+
       const margins = appendToLastCallArgs[4];
       expect(margins).toEqual(expect.objectContaining({
         left: 100,

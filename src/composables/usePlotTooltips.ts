@@ -31,9 +31,9 @@ export default () => {
           </span>` : ''}
         </span>
       </div>
-      <p>Tooltip content is TBC.</p>
+      <p>Tooltip content is TODO.</p>
       <p>
-        Option 1 of tooltips: Show the bounds and count for the bin. Option 2: Show the median/mean values and 95% confidence interval for the whole line.
+        Show the median/mean values and 95% confidence interval for the whole line.
       </p>
     </div>`
   }

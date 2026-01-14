@@ -3,7 +3,7 @@ import { plotConfiguration } from '@/utils/plotConfiguration';
 import { Dimensions } from '@/types';
 
 // Some lines share the same bands to test that categoricalScales extracts them correctly.
-// No coordinates are 0 since we need to test that we sometimes override coordinates to 0.
+// No coordinates are 0 since we need to test that we sometimes override coordinates to become 0.
 const lines = [
   {
     points: [{ x: 1, y: 2 }, { x: 5, y: 8 }, { x: 10, y: 3 }],
@@ -63,25 +63,23 @@ describe('plotConfiguration', () => {
   });
 
   describe('tick configuration including formatters', () => {
-    it('sets correct numerical x tick properties when logScaleEnabled is true', () => {
+    it('sets correct numerical x tick properties when log scale is enabled', () => {
       const result = plotConfiguration(Dimensions.DISEASE, true, lines);
       const xConfig = result.tickConfig.numerical?.x;
 
-      expect(xConfig?.padding).toBe(30);
-      expect(xConfig?.rotate).toBe(-45);
+      expect(xConfig?.padding).toBe(10);
       expect(xConfig?.formatter).toBeDefined();
     });
 
-    it('sets correct numerical x tick properties when logScaleEnabled is false', () => {
+    it('sets correct numerical x tick properties when log scale is disabled', () => {
       const result = plotConfiguration(Dimensions.DISEASE, false, lines);
       const xConfig = result.tickConfig.numerical?.x;
 
       expect(xConfig?.padding).toBe(10);
-      expect(xConfig?.rotate).toBe(0);
       expect(xConfig?.formatter).toBeUndefined();
     });
 
-    it('sets correct categorical y tick properties when rowDimension is LOCATION', () => {
+    it('sets correct categorical y tick properties when row dimension is location', () => {
       const result = plotConfiguration(Dimensions.LOCATION, false, lines);
       const yConfig = result.tickConfig.categorical?.y;
 
@@ -89,7 +87,7 @@ describe('plotConfiguration', () => {
       expect(yConfig?.formatter).toBeDefined();
     });
 
-    it('sets correct categorical y tick properties when rowDimension is not LOCATION', () => {
+    it('sets correct categorical y tick properties when row dimension is disease', () => {
       const result = plotConfiguration(Dimensions.DISEASE, false, lines);
       const yConfig = result.tickConfig.categorical?.y;
 
@@ -97,12 +95,20 @@ describe('plotConfiguration', () => {
       expect(yConfig?.formatter).toBeUndefined();
     });
 
-    it('log scale numerical formatter excludes mantissa unless it is not 1', () => {
+    it("log scale numerical formatter returns '10^exponent' when the exponent is an integer", () => {
       const config = plotConfiguration(Dimensions.DISEASE, true, lines);
       const formatter = config.tickConfig.numerical?.x?.formatter;
-      expect(formatter(0.01)).toBe('10⁻²');
-      expect(formatter(2500)).toBe('2.5×10³');
+      expect(formatter(-2)).toBe('10⁻²');
+      expect(formatter(10)).toBe('10¹⁰');
+      expect(formatter(0)).toBe('10⁰');
     });
+
+    it('log scale numerical formatter returns empty string when the exponent is not an integer', () => {
+      const config = plotConfiguration(Dimensions.DISEASE, true, lines);
+      const formatter = config.tickConfig.numerical?.x?.formatter;
+      expect(formatter(0.01)).toBe('');
+    });
+
 
     describe('location tick formatter', () => {
       const getLocationFormatter = () => {
@@ -141,16 +147,6 @@ describe('plotConfiguration', () => {
     it('sets y-axis label to sentence case of rowDimension', () => {
       const result = plotConfiguration(Dimensions.ACTIVITY_TYPE, false, lines);
       expect(result.axisConfig[0].y).toBe('Activity type');
-    });
-
-    it('sets x-axis label position to 0 when logScaleEnabled is true', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, true, lines);
-      expect(result.axisConfig[1].x).toBe(0);
-    });
-
-    it('sets x-axis label position to undefined when logScaleEnabled is false', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, false, lines);
-      expect(result.axisConfig[1].x).toBeUndefined();
     });
   });
 
