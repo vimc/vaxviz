@@ -31,9 +31,9 @@ export default () => {
           </span>` : ''}
         </span>
       </div>
-      <p>Tooltip content is TODO.</p>
+      <p>Tooltip content is TODO. VIMC-9196</p>
       <p>
-        Show the median/mean values and 95% confidence interval for the whole line.
+        Will show the median/mean values and 95% confidence interval for the whole line.
       </p>
     </div>`
   }
