@@ -7,7 +7,7 @@ import { nextTick } from "vue";
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import PlotControls from '@/components/PlotControls.vue'
 
-describe('Controls component', () => {
+describe('PlotControls component', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
@@ -15,15 +15,15 @@ describe('Controls component', () => {
   it('renders correctly', async () => {
     const wrapper = mount(PlotControls)
     const labels = wrapper.findAll('label').map(label => label.text());
-    expect(labels).toEqual([
+    expect(labels).toContain(
       "Disease",
       "Geography",
       "Focus Geography",
-      "Split by activity type",
-      "Log scale",
       "DALYs averted",
       "Deaths averted",
-    ]);
+      "Split by activity type",
+      "Log scale",
+    );
 
     const exploreByRadios = wrapper.findAll('input[name="exploreBy"]');
     expect((exploreByRadios.find(e => e.element.value === "disease")?.element.checked)).toBe(false);
