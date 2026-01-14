@@ -60,5 +60,7 @@ export type PointWithMetadata = Point & { metadata?: LineMetadata };
 
 export type LineColors = {
   fillColor: string | undefined;
+  fillOpacity: number;
   strokeColor: string | undefined;
+  strokeOpacity: number;
 };
