@@ -51,7 +51,7 @@ import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
-import { Axes, Dimensions } from '@/types';
+import { Axis, Dimension } from '@/types';
 import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
@@ -65,7 +65,7 @@ const { tooltipCallback } = usePlotTooltips();
 const chartWrapper = ref<HTMLDivElement | null>(null);
 
 const data = computed(() => dataStore.histogramData.filter(dataRow =>
-  [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
+  [Dimension.LOCATION, Dimension.DISEASE].every(dim => {
     const dimensionVal = getDimensionCategoryValue(dim, dataRow);
     return appStore.filters[dim]?.includes(dimensionVal);
   })),
@@ -75,7 +75,7 @@ const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, getDim
 
 const linesToDisplay = computed(() => {
   // Only filter plot rows if each row represents a disease.
-  if (appStore.dimensions[Axes.ROW] !== Dimensions.DISEASE || appStore.dimensions[Axes.WITHIN_BAND] !== Dimensions.LOCATION) {
+  if (appStore.dimensions[Axis.ROW] !== Dimension.DISEASE || appStore.dimensions[Axis.WITHIN_BAND] !== Dimension.LOCATION) {
     return ridgeLines.value;
   };
 
@@ -83,9 +83,9 @@ const linesToDisplay = computed(() => {
     // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
     // E.g. Say the focus value is 'Djibouti', a location. If for some row of ridgelines - where rows are diseases, such as Malaria -
     // there is no line for Djibouti, we should exclude the Malaria row entirely so that we only display rows that are relevant for Djibouti.
-    const disease = line.metadata?.[Axes.ROW];
+    const disease = line.metadata?.[Axis.ROW];
     const locationsForDisease = ridgeLines.value
-      .filter(l => l.metadata?.[Axes.ROW] === disease)
+      .filter(l => l.metadata?.[Axis.ROW] === disease)
       .map(({ metadata }) => metadata?.withinBand);
     return locationsForDisease.includes(appStore.focus);
   });
@@ -115,7 +115,7 @@ const updateChart = debounce(() => {
   });
 
   const { tickConfig, axisConfig, chartAppendConfig } = plotConfiguration(
-    appStore.dimensions[Axes.ROW],
+    appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
     linesToDisplay.value,
   );
@@ -127,7 +127,7 @@ const updateChart = debounce(() => {
     .addGridLines(
       {
         // TODO: vimc-9195: extend gridlines feature to work for categorical axes.
-        x: !appStore.dimensions[Axes.COLUMN],
+        x: !appStore.dimensions[Axis.COLUMN],
         y: false,
       },
     )

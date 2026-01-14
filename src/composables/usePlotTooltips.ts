@@ -1,6 +1,6 @@
 import { useAppStore } from "@/stores/appStore";
 import { useColorStore } from "@/stores/colorStore";
-import { Axes, type PointWithMetadata } from "@/types";
+import { Axis, type PointWithMetadata } from "@/types";
 import { dimensionOptionLabel } from "@/utils/options";
 import sentenceCase from "@/utils/sentenceCase";
 
@@ -17,7 +17,7 @@ export default () => {
     const { dimensions } = appStore;
 
     const rowOptionLabel = dimensionOptionLabel(colorDimension, point.metadata[colorStore.colorAxis]);
-    const columnOptionLabel = dimensionOptionLabel(dimensions.column, point.metadata[Axes.COLUMN]);
+    const columnOptionLabel = dimensionOptionLabel(dimensions.column, point.metadata[Axis.COLUMN]);
 
     return `<div class="tooltip text-xs flex flex-col gap-1 w-75">
       <div class="flex gap-1 items-center">

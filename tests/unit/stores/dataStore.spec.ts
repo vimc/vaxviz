@@ -11,7 +11,7 @@ import histCountsDalysDiseaseCountryLog from "@/../public/data/json/hist_counts_
 import histCountsDalysDiseaseLog from "@/../public/data/json/hist_counts_dalys_disease_log.json";
 import histCountsDeathsDiseaseSubregionActivityType from "@/../public/data/json/hist_counts_deaths_disease_subregion_activity_type.json";
 import histCountsDeathsDiseaseActivityType from "@/../public/data/json/hist_counts_deaths_disease_activity_type.json";
-import { BurdenMetrics } from '@/types';
+import { BurdenMetric } from '@/types';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { http, HttpResponse } from 'msw';
@@ -54,7 +54,7 @@ describe('data store', () => {
     expect(appStore.focus).toEqual("global");
     appStore.focus = "Middle Africa";
     expectedFetches += 2;
-    appStore.burdenMetric = BurdenMetrics.DALYS;
+    appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
     await vi.waitFor(() => {
@@ -76,7 +76,7 @@ describe('data store', () => {
     });
     appStore.focus = "Measles";
     expectedFetches += 2;
-    appStore.burdenMetric = BurdenMetrics.DEATHS;
+    appStore.burdenMetric = BurdenMetric.DEATHS;
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
     await vi.waitFor(() => {
@@ -98,7 +98,7 @@ describe('data store', () => {
     });
     appStore.focus = "AFG";
     expectedFetches += 3;
-    appStore.burdenMetric = BurdenMetrics.DALYS;
+    appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = true;
     appStore.splitByActivityType = false;
     await vi.waitFor(() => {

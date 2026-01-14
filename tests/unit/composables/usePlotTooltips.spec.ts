@@ -6,7 +6,7 @@ import { nextTick } from "vue";
 import usePlotTooltips from '@/composables/usePlotTooltips';
 import { useAppStore } from '@/stores/appStore';
 import { useColorStore } from '@/stores/colorStore';
-import { Axes, Dimensions, type PointWithMetadata } from '@/types';
+import { Axis, Dimension, type PointWithMetadata } from '@/types';
 
 describe('usePlotTooltips', () => {
   beforeEach(() => {
@@ -22,18 +22,18 @@ describe('usePlotTooltips', () => {
     });
 
     it('generates tooltip HTML for location dimension', () => {
-      const afgPointMetadata = { metadata: { [Axes.WITHIN_BAND]: 'AFG', [Axes.ROW]: 'Cholera', [Axes.COLUMN]: '' } };
-      const globalPointMetadata = { metadata: { [Axes.WITHIN_BAND]: 'global', [Axes.ROW]: 'Cholera', [Axes.COLUMN]: '' } };
+      const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
+      const globalPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'global', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
 
       const appStore = useAppStore();
       const colorStore = useColorStore();
 
       // Set up store state for location-based coloring
       appStore.filters = {
-        [Dimensions.LOCATION]: ['AFG', 'global'],
-        [Dimensions.DISEASE]: ['Cholera'],
+        [Dimension.LOCATION]: ['AFG', 'global'],
+        [Dimension.DISEASE]: ['Cholera'],
       };
-      expect(colorStore.colorDimension).toBe(Dimensions.LOCATION);
+      expect(colorStore.colorDimension).toBe(Dimension.LOCATION);
 
       // Set colors so colorStore has the mapping
       colorStore.setColors([afgPointMetadata, globalPointMetadata]);
@@ -56,18 +56,18 @@ describe('usePlotTooltips', () => {
     });
 
     it('generates tooltip HTML for disease dimension', () => {
-      const choleraPointMetadata = { metadata: { [Axes.WITHIN_BAND]: 'AFG', [Axes.ROW]: 'Cholera', [Axes.COLUMN]: '' } };
-      const measlesPointMetadata = { metadata: { [Axes.WITHIN_BAND]: 'AFG', [Axes.ROW]: 'Measles', [Axes.COLUMN]: '' } };
+      const choleraPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
+      const measlesPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Measles', [Axis.COLUMN]: '' } };
 
       const appStore = useAppStore();
       const colorStore = useColorStore();
 
       // Set up store state for disease-based coloring
       appStore.filters = {
-        [Dimensions.LOCATION]: ['AFG'],
-        [Dimensions.DISEASE]: ['Cholera', 'Measles'],
+        [Dimension.LOCATION]: ['AFG'],
+        [Dimension.DISEASE]: ['Cholera', 'Measles'],
       };
-      expect(colorStore.colorDimension).toBe(Dimensions.DISEASE);
+      expect(colorStore.colorDimension).toBe(Dimension.DISEASE);
 
       colorStore.setColors([choleraPointMetadata, measlesPointMetadata]);
 
@@ -89,23 +89,23 @@ describe('usePlotTooltips', () => {
     });
 
     it('handles activity type dimension', async () => {
-      const routinePointMetadata = { metadata: { [Axes.WITHIN_BAND]: 'AFG', [Axes.ROW]: 'Cholera', [Axes.COLUMN]: 'routine' } };
-      const campaignPointMetadata = { metadata: { [Axes.WITHIN_BAND]: 'AFG', [Axes.ROW]: 'Cholera', [Axes.COLUMN]: 'campaign' } };
+      const routinePointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: 'routine' } };
+      const campaignPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: 'campaign' } };
 
       const appStore = useAppStore();
       const colorStore = useColorStore();
 
       appStore.splitByActivityType = true;
       await nextTick();
-      expect(appStore.dimensions.column).toBe(Dimensions.ACTIVITY_TYPE);
+      expect(appStore.dimensions.column).toBe(Dimension.ACTIVITY_TYPE);
 
       // Set up store state for disease-based coloring (single location)
       appStore.filters = {
-        [Dimensions.LOCATION]: ['AFG'],
-        [Dimensions.DISEASE]: ['Cholera'],
-        [Dimensions.ACTIVITY_TYPE]: ['routine', 'campaign'],
+        [Dimension.LOCATION]: ['AFG'],
+        [Dimension.DISEASE]: ['Cholera'],
+        [Dimension.ACTIVITY_TYPE]: ['routine', 'campaign'],
       };
-      expect(colorStore.colorDimension).toBe(Dimensions.DISEASE);
+      expect(colorStore.colorDimension).toBe(Dimension.DISEASE);
 
       colorStore.setColors([routinePointMetadata, campaignPointMetadata]);
 

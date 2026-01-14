@@ -2,7 +2,7 @@ import { debounce } from "perfect-debounce";
 import { computed, ref, shallowRef, watch } from "vue";
 import { defineStore } from "pinia";
 import { useAppStore } from "@/stores/appStore";
-import { type HistDataRow, Dimensions, LocResolutions } from "@/types";
+import { type HistDataRow, Dimension, LocResolution } from "@/types";
 
 export const dataDir = `/data/json`
 
@@ -18,14 +18,14 @@ export const useDataStore = defineStore("data", () => {
     return appStore.geographicalResolutions.map((geog) => {
       const fileNameParts = ["hist_counts", appStore.burdenMetric, "disease"];
       // NB files containing 'global' data simply omit location from the file name (as they have no location stratification).
-      if (geog === LocResolutions.SUBREGION) {
-        fileNameParts.push(LocResolutions.SUBREGION);
+      if (geog === LocResolution.SUBREGION) {
+        fileNameParts.push(LocResolution.SUBREGION);
       }
-      if (Object.values(appStore.dimensions).includes(Dimensions.ACTIVITY_TYPE)) {
-        fileNameParts.push(Dimensions.ACTIVITY_TYPE);
+      if (Object.values(appStore.dimensions).includes(Dimension.ACTIVITY_TYPE)) {
+        fileNameParts.push(Dimension.ACTIVITY_TYPE);
       }
-      if (geog === LocResolutions.COUNTRY) {
-        fileNameParts.push(LocResolutions.COUNTRY);
+      if (geog === LocResolution.COUNTRY) {
+        fileNameParts.push(LocResolution.COUNTRY);
       }
       if (appStore.logScaleEnabled) {
         fileNameParts.push("log");
@@ -55,12 +55,12 @@ export const useDataStore = defineStore("data", () => {
 
     histogramData.value = paths.flatMap((path) => histogramDataCache[path] || []).map((row) => {
       // Collapse all geographic columns into one 'location' column
-      if (row[LocResolutions.COUNTRY]) {
-        row[Dimensions.LOCATION] = row[LocResolutions.COUNTRY];
-        delete row[LocResolutions.COUNTRY];
-      } else if (row[LocResolutions.SUBREGION]) {
-        row[Dimensions.LOCATION] = row[LocResolutions.SUBREGION];
-        delete row[LocResolutions.SUBREGION];
+      if (row[LocResolution.COUNTRY]) {
+        row[Dimension.LOCATION] = row[LocResolution.COUNTRY];
+        delete row[LocResolution.COUNTRY];
+      } else if (row[LocResolution.SUBREGION]) {
+        row[Dimension.LOCATION] = row[LocResolution.SUBREGION];
+        delete row[LocResolution.SUBREGION];
       }
       return row;
     });

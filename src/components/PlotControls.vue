@@ -70,7 +70,7 @@ import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
 import VueSelect, { type Option } from "vue3-select-component";
 import { computed } from 'vue';
 import { useAppStore } from '../stores/appStore';
-import { Dimensions } from '@/types';
+import { Dimension } from '@/types';
 import countryOptions from '@/data/options/countryOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
@@ -79,7 +79,7 @@ import { globalOption, metricOptions } from '@/utils/options';
 const appStore = useAppStore();
 
 const selectOptions = computed(() => {
-  if (appStore.exploreBy === Dimensions.LOCATION) {
+  if (appStore.exploreBy === Dimension.LOCATION) {
     return [{
       label: "Global",
       options: [globalOption]
@@ -93,7 +93,7 @@ const selectOptions = computed(() => {
       const optgroup = { label: group.label, value: "optgroup", disabled: true };
       return [optgroup, ...group.options];
     }).flat();
-  } else if (appStore.exploreBy === Dimensions.DISEASE) {
+  } else if (appStore.exploreBy === Dimension.DISEASE) {
     return diseaseOptions;
   }
   return [];

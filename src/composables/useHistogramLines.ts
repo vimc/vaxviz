@@ -1,4 +1,4 @@
-import { Axes, Dimensions, HistCols, type Coords, type HistDataRow, type LineMetadata } from '@/types';
+import { Axis, Dimension, HistColumn, type Coords, type HistDataRow, type LineMetadata } from '@/types';
 import type { LineConfig, Lines } from 'types';
 import { computed, toValue, type MaybeRefOrGetter } from 'vue';
 
@@ -6,26 +6,26 @@ import { computed, toValue, type MaybeRefOrGetter } from 'vue';
 // outline of the histogram.  
 export default (
   data: MaybeRefOrGetter<HistDataRow[]>,
-  axisDimensions: () => {
-    [Axes.COLUMN]: Dimensions | null;
-    [Axes.ROW]: Dimensions;
-    [Axes.WITHIN_BAND]: Dimensions;
+  axisDimension: () => {
+    [Axis.COLUMN]: Dimension | null;
+    [Axis.ROW]: Dimension;
+    [Axis.WITHIN_BAND]: Dimension;
   },
-  getCategory: (dim: Dimensions | null, dataRow: HistDataRow) => string,
-  getLabel: (dim: Dimensions | null, value: string) => string | undefined,
+  getCategory: (dim: Dimension | null, dataRow: HistDataRow) => string,
+  getLabel: (dim: Dimension | null, value: string) => string | undefined,
 ) => {
-  const dimensions = computed(() => toValue(axisDimensions));
+  const dimensions = computed(() => toValue(axisDimension));
 
   // Return corner coordinates of the histogram bar representing a row from a data file.
   const createBarCoords = (dataRow: HistDataRow): Coords[] => {
-    const topLeftPoint = { x: dataRow[HistCols.LOWER_BOUND], y: dataRow[HistCols.COUNTS] };
-    const topRightPoint = { x: dataRow[HistCols.UPPER_BOUND], y: dataRow[HistCols.COUNTS] };
+    const topLeftPoint = { x: dataRow[HistColumn.LOWER_BOUND], y: dataRow[HistColumn.COUNTS] };
+    const topRightPoint = { x: dataRow[HistColumn.UPPER_BOUND], y: dataRow[HistColumn.COUNTS] };
     // closingOffPoint is a point at y=0 to close off the histogram bar, which will be needed if either:
     // 1) this ends up being the last bar in the line, or
     // 2) there is a data gap until the next bar in this line.
     // Since we don't know if (1) or (2) hold at this point (we haven't processed the next bar yet),
     // we always add the closingOffPoint, and remove it later if unneeded.
-    const closingOffPoint = { x: dataRow[HistCols.UPPER_BOUND], y: 0 };
+    const closingOffPoint = { x: dataRow[HistColumn.UPPER_BOUND], y: 0 };
     return [topLeftPoint, topRightPoint, closingOffPoint];
   }
 
@@ -37,8 +37,8 @@ export default (
     return {
       points: barCoords,
       bands: {
-        x: getLabel(dimensions.value[Axes.COLUMN], categoryValues[Axes.COLUMN]),
-        y: getLabel(dimensions.value[Axes.ROW], categoryValues[Axes.ROW]),
+        x: getLabel(dimensions.value[Axis.COLUMN], categoryValues[Axis.COLUMN]),
+        y: getLabel(dimensions.value[Axis.ROW], categoryValues[Axis.ROW]),
       },
       style: {},
       metadata: categoryValues,
@@ -56,12 +56,12 @@ export default (
 
     toValue(data).forEach(dataRow => {
       // Each line needs to know its category for each categorical axis in use.
-      const columnCat = getCategory(dimensions.value[Axes.COLUMN], dataRow);
-      const rowCat = getCategory(dimensions.value[Axes.ROW], dataRow);
-      const withinBandCat = getCategory(dimensions.value[Axes.WITHIN_BAND], dataRow);
-      const categoryValues = { [Axes.COLUMN]: columnCat, [Axes.ROW]: rowCat, [Axes.WITHIN_BAND]: withinBandCat };
+      const columnCat = getCategory(dimensions.value[Axis.COLUMN], dataRow);
+      const rowCat = getCategory(dimensions.value[Axis.ROW], dataRow);
+      const withinBandCat = getCategory(dimensions.value[Axis.WITHIN_BAND], dataRow);
+      const categoryValues = { [Axis.COLUMN]: columnCat, [Axis.ROW]: rowCat, [Axis.WITHIN_BAND]: withinBandCat };
 
-      const lowerBound = dataRow[HistCols.LOWER_BOUND];
+      const lowerBound = dataRow[HistColumn.LOWER_BOUND];
       const barCoords = createBarCoords(dataRow);
 
       // We need to plot at most one line for each of the combinations of dimensions in use.
