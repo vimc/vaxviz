@@ -31,24 +31,24 @@ import { type HEX } from "color-convert";
 import { useColorStore } from '@/stores/colorStore';
 import { dimensionOptionLabel } from '@/utils/options';
 import { useAppStore } from '@/stores/appStore';
-import { Axes, Dimensions, LocResolutions } from '@/types';
+import { Axis, Dimension, LocResolution } from '@/types';
 
 const appStore = useAppStore();
 const colorStore = useColorStore();
 
 const colors = computed(() => {
   const { colorDimension } = colorStore;
-  if (colorDimension === appStore.dimensions[Axes.WITHIN_BAND] && colorDimension === Dimensions.LOCATION) {
+  if (colorDimension === appStore.dimensions[Axis.WITHIN_BAND] && colorDimension === Dimension.LOCATION) {
 
-    // Sort by the geographical resolution (LocResolutions) of the values.
+    // Sort by the geographical resolution (LocResolution) of the values.
     return Array.from(colorStore.colorMapping).sort(([aVal], [bVal]) => {
       const [aLocRes, bLocRes] = [
         appStore.geographicalResolutionForLocation(aVal),
         appStore.geographicalResolutionForLocation(bVal)
       ];
       const [aRank, bRank] = [
-        aLocRes ? Object.values(LocResolutions).indexOf(aLocRes) : -1,
-        bLocRes ? Object.values(LocResolutions).indexOf(bLocRes) : -1,
+        aLocRes ? Object.values(LocResolution).indexOf(aLocRes) : -1,
+        bLocRes ? Object.values(LocResolution).indexOf(bLocRes) : -1,
       ];
       return bRank - aRank;
     });
