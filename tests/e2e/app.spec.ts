@@ -37,6 +37,7 @@ test('visits the app root url, selects options, and loads correct data', async (
   const dalysRadio = page.getByRole("radio", { name: "DALYs averted" });
   const deathsRadio = page.getByRole("radio", { name: "Deaths averted" });
   const chartWrapper = page.locator("#chartWrapper");
+  const plotLegend = page.locator("#colorLegend");
 
   // Initial selections
   await expect(diseaseRadio).not.toBeChecked();
@@ -55,6 +56,7 @@ test('visits the app root url, selects options, and loads correct data', async (
       withinBand: "location",
     })
   );
+  await expect(plotLegend.locator(".legend-label")).toHaveCount(14); // Colors per disease.
 
   // Change options: round 1
   await selectFocus(page, "location", "Middle Africa");
@@ -79,6 +81,7 @@ test('visits the app root url, selects options, and loads correct data', async (
       withinBand: "location",
     })
   );
+  await expect(plotLegend.locator(".legend-label")).toHaveCount(2); // Colors for Middle Africa, and global.
 
   // Change options: round 2
   await diseaseRadio.click();
@@ -103,6 +106,7 @@ test('visits the app root url, selects options, and loads correct data', async (
       withinBand: "disease",
     })
   );
+  await expect(plotLegend.locator(".legend-label")).toHaveCount(11); // Colors per location: the 10 subregions, and global.
 
   // Change options: round 3
   await geographyRadio.click();
@@ -131,4 +135,5 @@ test('visits the app root url, selects options, and loads correct data', async (
       withinBand: "location",
     })
   );
+  await expect(plotLegend.locator(".legend-label")).toHaveCount(3); // Colors per location
 });

@@ -43,21 +43,34 @@ export const useAppStore = defineStore("app", () => {
     [Axis.WITHIN_BAND]: withinBandDimension.value
   }));
 
+  const geographicalResolutionForLocation = (location: string): LocResolution | undefined => {
+    if (location === LocResolution.GLOBAL) {
+      return LocResolution.GLOBAL;
+    } else if (subregionOptions.find(o => o.value === location)) {
+      return LocResolution.SUBREGION;
+    } else if (countryOptions.find(o => o.value === location)) {
+      return LocResolution.COUNTRY;
+    }
+  };
+
   // The geographical resolutions to use based on current exploreBy and focus selections.
   const geographicalResolutions = computed(() => {
     if (exploreBy.value === Dimension.DISEASE) {
       return [LocResolution.SUBREGION, LocResolution.GLOBAL];
     } else {
-      if (focus.value === LocResolution.GLOBAL) {
-        return [LocResolution.GLOBAL];
-      } else if (subregionOptions.find(o => o.value === focus.value)) {
-        return [LocResolution.SUBREGION, LocResolution.GLOBAL];
-      } else if (countryOptions.find(o => o.value === focus.value)) {
-        return [LocResolution.COUNTRY, LocResolution.SUBREGION, LocResolution.GLOBAL];
+      const locRes = geographicalResolutionForLocation(focus.value);
+      switch (locRes) {
+        case LocResolution.GLOBAL:
+          return [LocResolution.GLOBAL];
+        case LocResolution.SUBREGION:
+          return [LocResolution.SUBREGION, LocResolution.GLOBAL];
+        case LocResolution.COUNTRY:
+          return [LocResolution.COUNTRY, LocResolution.SUBREGION, LocResolution.GLOBAL];
+        default:
+          // The following line should never be able to be evaluated, because exploreBy is always either
+          // 'disease' or 'location', and the three possible types of location are covered by the branches.
+          throw new Error(`Invalid focus selection '${focus.value}' for exploreBy '${exploreBy.value}'`);
       }
-      // The following line should never be able to be evaluated, because exploreBy is always either
-      // 'disease' or 'location', and the three possible types of location are covered by the branches.
-      throw new Error(`Invalid focus selection '${focus.value}' for exploreBy '${exploreBy.value}'`);
     }
   });
 
@@ -122,6 +135,7 @@ export const useAppStore = defineStore("app", () => {
     focus,
     geographicalResolutions,
     getAxisForDimension,
+    geographicalResolutionForLocation,
     logScaleEnabled,
     splitByActivityType,
   };

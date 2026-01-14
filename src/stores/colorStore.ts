@@ -1,9 +1,10 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+import type { Lines } from "@reside-ic/skadi-chart";
+import convert, { type HEX } from "color-convert";
 import { Axis, type LineColors, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
 import { globalOption } from "@/utils/options";
-import type { Lines } from "@reside-ic/skadi-chart";
 
 // The IBM categorical palettes, which aim to maximise accessibility:
 // https://carbondesignsystem.com/data-visualization/color-palettes/#categorical-palettes
@@ -48,6 +49,11 @@ const palettesByCategoryCount: Record<number, string[]> = Object.freeze(
     return acc;
   }, {} as Record<number, string[]>)
 );
+
+// Keep fill rgba alpha channel value low since mixing translucent colours creates
+// a third color, and hence the illusion of an extra ridgeline.
+const fillRgbaAlphaChannel = 0.2;
+const strokeOpacity = 1;
 
 export const useColorStore = defineStore("color", () => {
   const appStore = useAppStore();
@@ -94,17 +100,24 @@ export const useColorStore = defineStore("color", () => {
     });
   }
 
+  const hexToRgba = (hex: HEX = "#000000", alpha: number = 1) =>
+    `rgba(${convert.hex.rgb(hex).concat(alpha).join(", ")})`;
+
+  const colorProperties = (color?: string) => ({
+    fillColor: hexToRgba(color, fillRgbaAlphaChannel),
+    fillOpacity: 1, // Opacity is handled in the rgba value.
+    strokeColor: color === extraColors.white ? extraColors.black : color,
+    strokeOpacity,
+  });
+
   // Given a line's category values, fetch the color from the mapping.
   const getColorsForLine = (categoryValues: LineMetadata): LineColors => {
     // `value` is the specific value, i.e. a specific location or disease,
     // whose color we need to look up or assign.
     const value = categoryValues[colorAxis.value];
-    const fillColor = colorMapping.value.get(value);
-    return {
-      fillColor: fillColor,
-      strokeColor: fillColor === extraColors.white ? extraColors.black : fillColor,
-    };
+    const color = colorMapping.value.get(value);
+    return colorProperties(color);
   };
 
-  return { colorAxis, colorDimension, colorMapping, getColorsForLine, setColors };
+  return { colorAxis, colorDimension, colorMapping, colorProperties, getColorsForLine, setColors };
 });

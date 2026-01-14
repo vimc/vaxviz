@@ -1,5 +1,5 @@
 <template>
-  <form class="m-5 flex gap-y-20 flex-wrap flex-col w-fit">
+  <form class="m-5 flex gap-y-15 flex-wrap flex-col w-fit">
     <div>
       <fieldset class="gap-5 mb-3" aria-required="true">
         <legend class="block mb-5 font-medium text-heading">Focus on:</legend>
@@ -38,16 +38,6 @@
         </VueSelect>
       </div>
     </div>
-    <FwbCheckbox
-      v-model="appStore.splitByActivityType"
-      label="Split by activity type"
-      :wrapper-class="'w-fit'"
-    />
-    <FwbCheckbox
-      v-model="appStore.logScaleEnabled"
-      label="Log scale"
-      :wrapper-class="'w-fit'"
-    />
     <fieldset class="gap-5" aria-required="true">
       <legend class="block mb-5 font-medium text-heading">Burden metric:</legend>
       <div>
@@ -62,6 +52,19 @@
         />
       </div>
     </fieldset>
+    <!-- TODO?: Disable this checkbox if the currently selected disease does not have multiple activity types? -->
+    <div class="flex gap-y-5 flex-wrap flex-col">
+      <FwbCheckbox
+        v-model="appStore.splitByActivityType"
+        label="Split by activity type"
+        :wrapper-class="'w-fit'"
+      />
+      <FwbCheckbox
+        v-model="appStore.logScaleEnabled"
+        label="Log scale"
+        :wrapper-class="'w-fit'"
+      />
+    </div>
   </form>
 </template>
 
