@@ -1,8 +1,8 @@
 import { Dimensions, type LineMetadata } from "@/types";
 import { globalOption } from "./options";
-// "Chart" and "types" are modules declared by @reside-ic/skadi-chart
-import type { CategoricalScales, PartialChartOptions } from "Chart";
 import type { Lines, Scales } from "@reside-ic/skadi-chart";
+// "Chart" and "types" are modules declared by @reside-ic/skadi-chart
+import type { PartialChartOptions } from "Chart";
 import type { Bounds, XY } from "types";
 import sentenceCase from "./sentenceCase";
 
@@ -37,7 +37,6 @@ const superscripts = [
   ['8', '⁸'],
   ['9', '⁹'],
   ['-', '⁻'],
-  ['+', '⁺']
 ] as const;
 
 const applySubstitutions = (str: string, substitutions: readonly (readonly [string, string])[]): string => {
@@ -47,9 +46,29 @@ const applySubstitutions = (str: string, substitutions: readonly (readonly [stri
   );
 };
 
-// Determine which axes need extra space (e.g., for log scale labels or categorical axis labels).
-const xAxisNeedsExtraSpace = (logScaleEnabled: boolean): boolean => logScaleEnabled;
+// Determine if y-axis need extra space (for categorical axis labels).
 const yAxisNeedsExtraSpace = (rowDimension: Dimensions): boolean => rowDimension === Dimensions.LOCATION;
+
+// Returns a callback for formatting numerical tick labels for log scales.
+const logScaleNumTickFormatter = () => (exponentForTen: number): string => {
+  // NB the number passed in (derived from data files) is not the raw impact burden itself,
+  // but the exponent for 10. For example, if the impact burden ratio is 1000 (10^3), the number passed
+  // down to us is 3, i.e., log10 of 1000.
+  if (!Number.isInteger(exponentForTen)) {
+    // Reject tick labels that would contain decimal points in the exponent
+    // since the decimal point is very tricky to render nicely using unicode superscript.
+    // In the future, we'll specify the exact tick values we want, so that we don't get unused gridlines;
+    // that depends on:
+    // TODO: vimc-9194: expose d3-axis tickValues function via skadi-chart.
+    return "";
+  }
+  const superscriptExponent = exponentForTen
+    ?.toString()
+    .split("")
+    .map(char => applySubstitutions(char, superscripts))
+    .join("");
+  return `10${superscriptExponent}`;
+};
 
 // Returns a callback for formatting categorical tick labels for locations.
 // Many locations have an unwieldy length.
@@ -63,50 +82,22 @@ const locationTickFormatter = () =>
       : substitutionsApplied;
   }
 
-// Returns a callback for formatting numerical tick labels for log scales.
-// Returns scientific notation, e.g. "1.2×10^-2" instead of "0.012".
-const logScaleNumTickFormatter = () => (num: number): string => {
-  const [mantissa, exponent] = num.toExponential().split("e");
-  const exponentMaybeWithNegativeSign = exponent?.replace("+", "");
-  const superscriptExponent = exponentMaybeWithNegativeSign
-    ?.split("")
-    .map(char => applySubstitutions(char, superscripts))
-    .join("");
-  return `${mantissa === "1" ? `` : `${mantissa}×`}10${superscriptExponent}` +
-    (num === 0 ? " (0)" : "");
-};
-
-const tickConfiguration = (
-  logScaleEnabled: boolean,
-  rowDimension: Dimensions,
-) => {
-  const xNumTickFormatter = logScaleEnabled ? logScaleNumTickFormatter() : undefined;
-  const yCategoricalTickFormatter = rowDimension === Dimensions.LOCATION
-    ? locationTickFormatter()
-    : undefined;
-  const xAxisNeedsSpace = xAxisNeedsExtraSpace(logScaleEnabled);
-  const yAxisNeedsSpace = yAxisNeedsExtraSpace(rowDimension);
-
-  return {
-    numerical: {
-      x: {
-        padding: xAxisNeedsSpace ? 30 : 10,
-        rotate: xAxisNeedsSpace ? -45 : 0,
-        formatter: xNumTickFormatter,
-        count: 5, // This prop only guarantees the number of ticks is 'approximately' count.
-      },
+const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimensions) => ({
+  numerical: {
+    x: {
+      padding: 10,
+      formatter: logScaleEnabled ? logScaleNumTickFormatter() : undefined,
     },
-    categorical: {
-      x: {
-        padding: xAxisNeedsSpace ? 65 : 30,
-      },
-      y: {
-        padding: yAxisNeedsSpace ? 10 : 30,
-        formatter: yCategoricalTickFormatter,
-      },
+    y: { count: 0 },
+  },
+  categorical: {
+    x: { padding: 30 },
+    y: {
+      padding: yAxisNeedsExtraSpace(rowDimension) ? 10 : 30,
+      formatter: rowDimension === Dimensions.LOCATION ? locationTickFormatter() : undefined,
     },
-  };
-}
+  },
+});
 
 const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): Scales => {
   const maxX = Math.max(...lines.flatMap(l => {
@@ -125,7 +116,7 @@ const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): 
   };
 };
 
-const categoricalScales = (lines: Lines<LineMetadata>): CategoricalScales => {
+const categoricalScales = (lines: Lines<LineMetadata>): XY<string[]> => {
   const xCategoricalScale = [...new Set(lines.map(l => l.bands?.x).filter(c => !!c))] as string[];
   const yCategoricalScale = [...new Set(lines.map(l => l.bands?.y).filter(c => !!c))] as string[];
 
@@ -138,7 +129,6 @@ const categoricalScales = (lines: Lines<LineMetadata>): CategoricalScales => {
 type AxisConfig = [Partial<XY<string>>, Partial<XY<number | undefined>>];
 
 const axisConfiguration = (
-  logScaleEnabled: boolean,
   rowDimension: Dimensions,
 ): AxisConfig => [
     {
@@ -146,7 +136,6 @@ const axisConfiguration = (
       y: sentenceCase(rowDimension),
     },
     {
-      x: xAxisNeedsExtraSpace(logScaleEnabled) ? 0 : undefined,
       y: 0 // Position y-axis label as far left as possible
     }
   ];
@@ -158,13 +147,13 @@ export const plotConfiguration = (
 ): {
   tickConfig: PartialChartOptions["tickConfig"]
   axisConfig: AxisConfig
-  chartAppendConfig: [Partial<Scales>, Partial<Scales>, Partial<CategoricalScales>, Partial<Bounds["margin"]>]
+  chartAppendConfig: [Partial<Scales>, Partial<Scales>, Partial<XY<string[]>>, Partial<Bounds["margin"]>]
 } => {
   const numScales = numericalScales(logScaleEnabled, lines);
   const catScales = categoricalScales(lines);
   const margins = { left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 100 }; // Leave space for long y-axis labels.
   const tickConfig = tickConfiguration(logScaleEnabled, rowDimension);
-  const axisConfig = axisConfiguration(logScaleEnabled, rowDimension);
+  const axisConfig = axisConfiguration(rowDimension);
 
   return {
     tickConfig,

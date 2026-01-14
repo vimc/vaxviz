@@ -64,14 +64,12 @@ const { tooltipCallback } = usePlotTooltips();
 
 const chartWrapper = ref<HTMLDivElement | null>(null);
 
-const data = computed(() => {
-  return dataStore.histogramData.filter(dataRow =>
-    [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
-      const dimensionVal = getDimensionCategoryValue(dim, dataRow);
-      return appStore.filters[dim]?.includes(dimensionVal);
-    })
-  )
-});
+const data = computed(() => dataStore.histogramData.filter(dataRow =>
+  [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
+    const dimensionVal = getDimensionCategoryValue(dim, dataRow);
+    return appStore.filters[dim]?.includes(dimensionVal);
+  })),
+);
 
 const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
 
@@ -127,7 +125,11 @@ const updateChart = debounce(() => {
     .addTraces(linesToDisplay.value)
     .addArea()
     .addGridLines(
-      { x: !appStore.dimensions[Axes.COLUMN], y: false },
+      {
+        // TODO: vimc-9195: extend gridlines feature to work for categorical axes.
+        x: !appStore.dimensions[Axes.COLUMN],
+        y: false,
+      },
     )
     .addTooltips(tooltipCallback, TOOLTIP_RADIUS_PX)
     .makeResponsive()
@@ -152,5 +154,11 @@ watch([linesToDisplay, () => appStore.focus, chartWrapper], updateChart, { immed
   height: 100%;
   flex: 1 1 auto;
   margin: var(--chart-margin);
+
+  // Use Google Sans Flex for chart text because, in this font, there is tolerable height-alignment and size-matching
+  // among Unicode superscript numerals and negative signs.
+  * {
+    font-family: 'Google Sans Flex', sans-serif;
+  }
 }
 </style>
