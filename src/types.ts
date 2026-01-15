@@ -24,21 +24,22 @@ export enum HistColumn {
   COUNTS = "Counts",
 }
 
-type DataRow = Record<string, string | number>;
-export type SummaryTableDataRow = DataRow & {
+export enum SummaryTableColumn {
+  MEAN = "mean_value",
+  MEDIAN = "median_value",
+  CI_LOWER = "lower_95",
+  CI_UPPER = "upper_95",
+}
+
+type DataRow = Record<string, string | number> & {
   [Dimension.DISEASE]: string;
-  [LocResolution.COUNTRY]?: string;
-  [LocResolution.SUBREGION]?: string;
-};
-export type HistDataRow = DataRow & {
-  [Dimension.DISEASE]: string;
+  [Dimension.ACTIVITY_TYPE]?: string;
   [LocResolution.COUNTRY]?: string;
   [LocResolution.SUBREGION]?: string;
   [Dimension.LOCATION]?: string;
-  [HistColumn.LOWER_BOUND]: number;
-  [HistColumn.UPPER_BOUND]: number;
-  [HistColumn.COUNTS]: number;
 };
+export type HistDataRow = DataRow & Record<HistColumn, number>;
+export type SummaryTableDataRow = DataRow & Record<SummaryTableColumn, number>;
 
 export type Option = { label: string; value: string };
 
