@@ -48,7 +48,7 @@ export const useDataStore = defineStore("data", () => {
   const summaryTableFilenames = computed(() => constructFilenames({ dataType: "summary_table", extension: "csv", includeScale: false }));
 
   // Fetch and parse multiple JSONs, and merge together all data.
-  const loadDataFromPaths = async (paths: string[]) => {
+  const loadHistogramData = async (paths: string[]) => {
     fetchErrors.value = [];
     await Promise.all(paths.map(async (path) => {
       if (!histogramDataCache[path]) {
@@ -79,16 +79,16 @@ export const useDataStore = defineStore("data", () => {
     });
   };
 
-  const doLoadData = debounce(async () => {
-    await loadDataFromPaths(histogramDataFilenames.value);
+  const debouncedLoadHistogramData = debounce(async () => {
+    await loadHistogramData(histogramDataFilenames.value);
   }, 25)
 
   watch(histogramDataFilenames, async (_oldPaths, newPaths) => {
     if (newPaths) {
-      doLoadData();
+      debouncedLoadHistogramData();
     } else {
       // This is the first time histDataPaths is calculated, so don't debounce.
-      await loadDataFromPaths(histogramDataFilenames.value);
+      await loadHistogramData(histogramDataFilenames.value);
     }
   }, { immediate: true });
 
