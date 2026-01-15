@@ -4,7 +4,7 @@
     class="m-5 h-fit border-t-4 rounded-none w-full"
   >
     <template #icon>
-      <img class="w-4 h-4 mr-2" src="@/assets/images/icons/dangerInfoIcon.svg"/>
+      <img class="w-4 h-4 mr-2" src="@/assets/images/icons/dangerInfoIcon.svg" alt=""/>
       <span class="sr-only">Error</span>
     </template>
     <template #title>
