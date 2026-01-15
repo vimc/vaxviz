@@ -13,10 +13,17 @@ export const useDataStore = defineStore("data", () => {
   const histogramData = shallowRef<HistDataRow[]>([]);
   const histogramDataCache: Record<string, HistDataRow[]> = {};
 
-  const histogramDataPaths = computed(() => {
-    // When we are using multiple geographical resolutions, we need to load multiple data files, to be merged together later.
+  const constructFilenames = (options: {
+    dataType: "hist_counts",
+    extension: "json",
+    includeScale: true,
+  } | {
+    dataType: "summary_table",
+    extension: "csv",
+    includeScale: false, // Log scale is not applicable for summary tables, so does not appear in the filenames.
+  }): string[] => {
     return appStore.geographicalResolutions.map((geog) => {
-      const fileNameParts = ["hist_counts", appStore.burdenMetric, "disease"];
+      const fileNameParts = [options.dataType, appStore.burdenMetric, "disease"];
       // NB files containing 'global' data simply omit location from the file name (as they have no location stratification).
       if (geog === LocResolution.SUBREGION) {
         fileNameParts.push(LocResolution.SUBREGION);
@@ -27,29 +34,18 @@ export const useDataStore = defineStore("data", () => {
       if (geog === LocResolution.COUNTRY) {
         fileNameParts.push(LocResolution.COUNTRY);
       }
-      if (appStore.logScaleEnabled) {
+      if (options.includeScale && appStore.logScaleEnabled) {
         fileNameParts.push("log");
       }
-      return `${fileNameParts.join("_")}.json`
+      return `${fileNameParts.join("_")}.${options.extension}`
     });
-  });
+  }
 
-  const summaryTablePaths = computed(() => {
-    // Generate paths for summary table CSVs based on current plot control selections.
-    return appStore.geographicalResolutions.map((geog) => {
-      const fileNameParts = ["summary_table", appStore.burdenMetric, "disease"];
-      if (geog === LocResolution.SUBREGION) {
-        fileNameParts.push(LocResolution.SUBREGION);
-      }
-      if (Object.values(appStore.dimensions).includes(Dimension.ACTIVITY_TYPE)) {
-        fileNameParts.push(Dimension.ACTIVITY_TYPE);
-      }
-      if (geog === LocResolution.COUNTRY) {
-        fileNameParts.push(LocResolution.COUNTRY);
-      }
-      return `${fileNameParts.join("_")}.csv`;
-    });
-  });
+  // When we are using multiple geographical resolutions, we need to load multiple data files, to be merged together later.
+  const histogramDataFilenames = computed(() => constructFilenames({ dataType: "hist_counts", extension: "json", includeScale: true }));
+
+  // Generate paths for summary table CSVs based on current plot control selections.
+  const summaryTableFilenames = computed(() => constructFilenames({ dataType: "summary_table", extension: "csv", includeScale: false }));
 
   // Fetch and parse multiple JSONs, and merge together all data.
   const loadDataFromPaths = async (paths: string[]) => {
@@ -84,17 +80,17 @@ export const useDataStore = defineStore("data", () => {
   };
 
   const doLoadData = debounce(async () => {
-    await loadDataFromPaths(histogramDataPaths.value);
+    await loadDataFromPaths(histogramDataFilenames.value);
   }, 25)
 
-  watch(histogramDataPaths, async (_oldPaths, newPaths) => {
+  watch(histogramDataFilenames, async (_oldPaths, newPaths) => {
     if (newPaths) {
       doLoadData();
     } else {
       // This is the first time histDataPaths is calculated, so don't debounce.
-      await loadDataFromPaths(histogramDataPaths.value);
+      await loadDataFromPaths(histogramDataFilenames.value);
     }
   }, { immediate: true });
 
-  return { histogramData, fetchErrors, summaryTablePaths };
+  return { histogramData, fetchErrors, summaryTableFilenames };
 });
