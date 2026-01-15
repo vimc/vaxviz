@@ -124,11 +124,5 @@ watch([linesToDisplay, () => appStore.focus, chartWrapper], updateChart, { immed
   height: 100%;
   flex: 1 1 auto;
   margin: var(--chart-margin);
-
-  // Use Google Sans Flex for chart text because, in this font, there is tolerable height-alignment and size-matching
-  // among Unicode superscript numerals and negative signs.
-  * {
-    font-family: 'Google Sans Flex', sans-serif;
-  }
 }
 </style>

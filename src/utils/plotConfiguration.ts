@@ -23,22 +23,6 @@ const locationSubstitutions = [
   ["Central", "C."],
 ] as const;
 
-// Since the tick labels are rendered as part of a SVG, we can't use the HTML <sup> tag,
-// so we use Unicode superscript characters instead.
-const superscripts = [
-  ['0', '⁰'],
-  ['1', '¹'],
-  ['2', '²'],
-  ['3', '³'],
-  ['4', '⁴'],
-  ['5', '⁵'],
-  ['6', '⁶'],
-  ['7', '⁷'],
-  ['8', '⁸'],
-  ['9', '⁹'],
-  ['-', '⁻'],
-] as const;
-
 const applySubstitutions = (str: string, substitutions: readonly (readonly [string, string])[]): string => {
   return substitutions.reduce(
     (acc, [original, replacement]) => acc.replaceAll(original, replacement),
@@ -46,26 +30,17 @@ const applySubstitutions = (str: string, substitutions: readonly (readonly [stri
   );
 };
 
-// Returns a callback for formatting numerical tick labels for log scales.
+// Returns a callback for formatting numerical tick labels for log scales, using LaTeX for MathJax.
 const logScaleNumTickFormatter = () => (exponentForTen: number): string => {
   // NB the number passed in (derived from data files) is not the raw impact burden itself,
   // but the exponent for 10. For example, if the impact burden ratio is 1000 (10^3), the number passed
   // down to us is 3, i.e., log10 of 1000.
-  if (!Number.isInteger(exponentForTen)) {
-    // Reject tick labels that would contain decimal points in the exponent
-    // since the decimal point is very tricky to render nicely using unicode superscript.
-    // In the future, we'll specify the exact tick values we want, so that we don't get unused gridlines;
-    // that depends on:
-    // TODO: vimc-9194: expose d3-axis tickValues function via skadi-chart.
-    return "";
-  }
-  const superscriptExponent = exponentForTen
-    ?.toString()
-    .split("")
-    .map(char => applySubstitutions(char, superscripts))
-    .join("");
-  return `10${superscriptExponent}`;
+
+  return `$10^{${exponentForTen}}$`
 };
+
+// Returns a callback for formatting numerical tick labels for linear scales, using LaTeX for font consistency with log sacles.
+const linearScaleNumTickFormatter = () => (num: number): string => `$${num}$`;
 
 // Determine if y-axis need extra space (for long categorical axis labels).
 const yAxisNeedsExtraSpace = (rowDimension: Dimensions): boolean => rowDimension === Dimensions.LOCATION;
@@ -86,12 +61,13 @@ const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimensions) =
   numerical: {
     x: {
       padding: 10,
-      formatter: logScaleEnabled ? logScaleNumTickFormatter() : undefined,
+      formatter: logScaleEnabled ? logScaleNumTickFormatter() : linearScaleNumTickFormatter(),
+      enableMathJax: true,
     },
     y: { count: 0 },
   },
   categorical: {
-    x: { padding: 30 },
+    x: { padding: 40 },
     y: {
       padding: yAxisNeedsExtraSpace(rowDimension) ? 10 : 30,
       formatter: rowDimension === Dimensions.LOCATION ? locationTickFormatter() : undefined,
