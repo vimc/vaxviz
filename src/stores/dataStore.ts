@@ -1,5 +1,5 @@
 import { debounce } from "perfect-debounce";
-import { computed, ref, shallowRef, watch } from "vue";
+import { computed, ref, shallowRef, watch, type ShallowRef } from "vue";
 import { defineStore } from "pinia";
 import { useAppStore } from "@/stores/appStore";
 import { type HistDataRow, type SummaryTableDataRow, Dimension, LocResolution } from "@/types";
@@ -12,19 +12,13 @@ export const useDataStore = defineStore("data", () => {
 
   const fetchErrors = ref<{ e: Error, message: string }[]>([]);
   const histogramData = shallowRef<HistDataRow[]>([]);
-  const histogramDataCache: Record<string, HistDataRow[]> = {};
+  const histogramCache: Record<string, HistDataRow[]> = {};
   const summaryTableData = shallowRef<SummaryTableDataRow[]>([]);
   const summaryTableDataCache: Record<string, SummaryTableDataRow[]> = {};
 
-  const constructFilenames = (options: {
-    dataType: "hist_counts",
-    includeScale: true,
-  } | {
-    dataType: "summary_table",
-    includeScale: false, // Log scale is not applicable for summary tables, so does not appear in the filenames.
-  }): string[] => {
+  const constructFilenames = (dataType: "hist_counts" | "summary_table"): string[] => {
     return appStore.geographicalResolutions.map((geog) => {
-      const fileNameParts = [options.dataType, appStore.burdenMetric, "disease"];
+      const fileNameParts = [dataType, appStore.burdenMetric, "disease"];
       // NB files containing 'global' data simply omit location from the file name (as they have no location stratification).
       if (geog === LocResolution.SUBREGION) {
         fileNameParts.push(LocResolution.SUBREGION);
@@ -35,29 +29,25 @@ export const useDataStore = defineStore("data", () => {
       if (geog === LocResolution.COUNTRY) {
         fileNameParts.push(LocResolution.COUNTRY);
       }
-      if (options.includeScale && appStore.logScaleEnabled) {
+      if (dataType === "hist_counts" && appStore.logScaleEnabled) {
+        // Log scale is not applicable for summary tables, so does not appear in the filenames.
         fileNameParts.push("log");
       }
       return `${fileNameParts.join("_")}.json`;
     });
   }
 
-  const histogramDataFilenames = computed(() => constructFilenames({
-    dataType: "hist_counts",
-    includeScale: true,
-  }));
+  const histFilenames = computed(() => constructFilenames("hist_counts"));
+  const summaryTableFilenames = computed(() => constructFilenames("summary_table"));
 
-  const summaryTableFilenames = computed(() => constructFilenames({
-    dataType: "summary_table",
-    includeScale: false,
-  }));
-
-  // Fetch and parse multiple JSONs, and merge together all data.
-  const loadHistogramData = async (filenames: string[]) => {
-    fetchErrors.value = [];
+  const loadData = async <T extends HistDataRow | SummaryTableDataRow>(
+    filenames: string[],
+    cache: Record<string, T[]>,
+    ref: ShallowRef<T[]>,
+  ) => {
     // When we are using multiple geographical resolutions, we load multiple data files, to be merged together later.
     await Promise.all(filenames.map(async (filename) => {
-      if (!histogramDataCache[filename]) {
+      if (!cache[filename]) {
         const path = `${dataDir}/${filename}`;
         try {
           const response = await fetch(path);
@@ -65,7 +55,7 @@ export const useDataStore = defineStore("data", () => {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
           }
           const rows = await response.json();
-          histogramDataCache[filename] = rows;
+          cache[filename] = rows;
           return rows;
         } catch (error) {
           fetchErrors.value.push({ e: error as Error, message: `Error loading data from path: ${path}. ${error}` });
@@ -74,7 +64,9 @@ export const useDataStore = defineStore("data", () => {
     }));
 
     // Merge data fetched from multiple files into one array.
-    histogramData.value = filenames.flatMap((filename) => histogramDataCache[filename] || []).map((row) => {
+    ref.value = filenames.flatMap((filename) => {
+      return (cache[filename] || []) as T[];
+    }).map((row) => {
       // Collapse all geographic columns into one 'location' column
       const [country, subregion] = [row[LocResolution.COUNTRY], row[LocResolution.SUBREGION]];
       if (country) {
@@ -90,67 +82,24 @@ export const useDataStore = defineStore("data", () => {
     });
   };
 
-  // Fetch and parse multiple JSONs, and merge together all data.
-  const loadSummaryTableData = async (filenames: string[]) => {
+  const loadAllData = async () => {
     fetchErrors.value = [];
-    // When we are using multiple geographical resolutions, we load multiple data files, to be merged together later.
-    await Promise.all(filenames.map(async (filename) => {
-      if (!summaryTableDataCache[filename]) {
-        const path = `${dataDir}/${filename}`;
-        try {
-          const response = await fetch(`${dataDir}/${filename}`);
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-          const rows = await response.json();
-          summaryTableDataCache[filename] = rows;
-          return rows;
-        } catch (error) {
-          fetchErrors.value.push({ e: error as Error, message: `Error loading data from path: ${path}. ${error}` });
-        }
-      }
-    }));
-
-    // Merge data fetched from multiple files into one array.
-    summaryTableData.value = filenames.flatMap((filename) => summaryTableDataCache[filename] || []).map((row) => {
-      // Collapse all geographic columns into one 'location' column
-      const [country, subregion] = [row[LocResolution.COUNTRY], row[LocResolution.SUBREGION]];
-      if (country) {
-        row[Dimension.LOCATION] = country;
-        delete row[LocResolution.COUNTRY];
-      } else if (subregion) {
-        row[Dimension.LOCATION] = subregion;
-        delete row[LocResolution.SUBREGION];
-      } else {
-        row[Dimension.LOCATION] = globalOption.value;
-      }
-      return row;
-    });
+    await Promise.all([
+      loadData<HistDataRow>(histFilenames.value, histogramCache, histogramData),
+      loadData<SummaryTableDataRow>(summaryTableFilenames.value, summaryTableDataCache, summaryTableData),
+    ]);
   };
 
-  const debouncedLoadHistogramData = debounce(async () => {
-    await loadHistogramData(histogramDataFilenames.value);
+  const debouncedLoadAllData = debounce(async () => {
+    await loadAllData();
   }, 25)
 
-  const debouncedLoadSummaryTableData = debounce(async () => {
-    await loadSummaryTableData(summaryTableFilenames.value);
-  }, 25)
-
-  watch(summaryTableFilenames, async (_oldPaths, newPaths) => {
+  watch([histFilenames, summaryTableFilenames], async (_oldPaths, newPaths) => {
     if (newPaths) {
-      debouncedLoadSummaryTableData();
+      debouncedLoadAllData();
     } else {
-      // This is the first time summaryTablePaths is calculated, so don't debounce.
-      await loadSummaryTableData(summaryTableFilenames.value);
-    }
-  }, { immediate: true });
-
-  watch(histogramDataFilenames, async (_oldPaths, newPaths) => {
-    if (newPaths) {
-      debouncedLoadHistogramData();
-    } else {
-      // This is the first time histDataPaths is calculated, so don't debounce.
-      await loadHistogramData(histogramDataFilenames.value);
+      // This is the first time the filenames are computed, so don't debounce.
+      await loadAllData();
     }
   }, { immediate: true });
 
