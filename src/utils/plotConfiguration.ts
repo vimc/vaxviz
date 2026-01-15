@@ -86,8 +86,9 @@ const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): 
     return firstPoint.x;
   }));
 
+  // x values may be slightly negative for some cases eg Typhoid
   return {
-    x: { start: logScaleEnabled ? minX : 0, end: maxX },
+    x: { start: logScaleEnabled ? minX : Math.min(minX, 0), end: maxX },
     y: { start: 0, end: maxY },
   };
 };
