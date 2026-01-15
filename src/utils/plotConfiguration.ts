@@ -93,13 +93,13 @@ const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): 
   };
 };
 
-const categoricalScales = (lines: Lines<LineMetadata>): XY<string[]> => {
+const categoricalScales = (lines: Lines<LineMetadata>): Partial<XY<string[]>> => {
   const xCategoricalScale = [...new Set(lines.map(l => l.bands?.x).filter(c => !!c))] as string[];
   const yCategoricalScale = [...new Set(lines.map(l => l.bands?.y).filter(c => !!c))] as string[];
 
   return {
-    x: xCategoricalScale,
-    y: yCategoricalScale,
+    ...(xCategoricalScale.length > 1 && { x: xCategoricalScale }),
+    ...(yCategoricalScale.length > 1 && { y: yCategoricalScale }),
   };
 };
 
@@ -113,6 +113,7 @@ const axisConfiguration = (
       y: sentenceCase(rowDimension),
     },
     {
+      x: 0,
       y: 0 // Position y-axis label as far left as possible
     }
   ];

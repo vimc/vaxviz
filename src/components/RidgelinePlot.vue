@@ -91,14 +91,16 @@ const updateChart = debounce(() => {
     linesToDisplay.value,
   );
 
-  new Chart({ tickConfig })
-    .addAxes(...axisConfig)
+  const catScales = chartAppendConfig[2];
+
+  new Chart({ tickConfig, categoricalScalePaddingInner: { x: catScales.x ? 0.02 : 0 } })
+    .addAxes(...axisConfig) // TODO: for diseases (eg HebB, Hib) which only have one activity_type value, display the label in some way (I'm trying to avoid giving such cases a categorical scale)
     .addTraces(linesToDisplay.value)
     .addArea()
     .addGridLines(
       {
         // TODO: vimc-9195: extend gridlines feature to work for categorical axes.
-        x: !appStore.dimensions[Axes.COLUMN],
+        x: !catScales.x,
         y: false,
       },
     )
