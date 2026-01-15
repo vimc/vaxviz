@@ -11,10 +11,11 @@ import histCountsDalysDiseaseCountryLog from "@/../public/data/json/hist_counts_
 import histCountsDalysDiseaseLog from "@/../public/data/json/hist_counts_dalys_disease_log.json";
 import histCountsDeathsDiseaseSubregionActivityType from "@/../public/data/json/hist_counts_deaths_disease_subregion_activity_type.json";
 import histCountsDeathsDiseaseActivityType from "@/../public/data/json/hist_counts_deaths_disease_activity_type.json";
-import { BurdenMetric } from '@/types';
+import { BurdenMetric, Dimension } from '@/types';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { http, HttpResponse } from 'msw';
+import { nextTick } from 'vue';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const expectLastNCallsToEqual = (spy: Mock, args: any[]) => {
@@ -154,5 +155,52 @@ describe('data store', () => {
     });
 
     expect(dataStore.histogramData).toEqual([]);
+  });
+
+  describe("summaryTablePaths", () => {
+    it("should return correct path for global view with default settings", () => {
+      const [appStore, dataStore] = [useAppStore(), useDataStore()];
+      expect(appStore.focus).toBe("global");
+      expect(appStore.burdenMetric).toBe(BurdenMetric.DEATHS);
+
+      expect(dataStore.summaryTablePaths).toHaveLength(1);
+      expect(dataStore.summaryTablePaths[0]).toBe("summary_table_deaths_disease.csv");
+    });
+
+    it("should return correct path when burdenMetric is DALYs", () => {
+      const [appStore, dataStore] = [useAppStore(), useDataStore()];
+      appStore.burdenMetric = BurdenMetric.DALYS;
+
+      expect(dataStore.summaryTablePaths).toHaveLength(1);
+      expect(dataStore.summaryTablePaths[0]).toBe("summary_table_dalys_disease.csv");
+    });
+
+    it("should return correct path when splitByActivityType is enabled", async () => {
+      const [appStore, dataStore] = [useAppStore(), useDataStore()];
+      appStore.splitByActivityType = true;
+      await nextTick();
+
+      expect(dataStore.summaryTablePaths).toHaveLength(1);
+      expect(dataStore.summaryTablePaths[0]).toBe("summary_table_deaths_disease_activity_type.csv");
+    });
+
+    it("should return correct paths for subregion focus (i.e. one path for subregion data and one for global data)", () => {
+      const [appStore, dataStore] = [useAppStore(), useDataStore()];
+      appStore.focus = "Middle Africa";
+
+      expect(dataStore.summaryTablePaths).toHaveLength(2);
+      expect(dataStore.summaryTablePaths[0]).toBe("summary_table_deaths_disease_subregion.csv");
+      expect(dataStore.summaryTablePaths[1]).toBe("summary_table_deaths_disease.csv");
+    });
+
+    it("should return correct paths for country focus (i.e. for each of country, subregion, and global data)", () => {
+      const [appStore, dataStore] = [useAppStore(), useDataStore()];
+      appStore.focus = "AFG";
+
+      expect(dataStore.summaryTablePaths).toHaveLength(3);
+      expect(dataStore.summaryTablePaths[0]).toBe("summary_table_deaths_disease_country.csv");
+      expect(dataStore.summaryTablePaths[1]).toBe("summary_table_deaths_disease_subregion.csv");
+      expect(dataStore.summaryTablePaths[2]).toBe("summary_table_deaths_disease.csv");
+    });
   });
 });

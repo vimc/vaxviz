@@ -34,6 +34,23 @@ export const useDataStore = defineStore("data", () => {
     });
   });
 
+  const summaryTablePaths = computed(() => {
+    // Generate paths for summary table CSVs based on current plot control selections.
+    return appStore.geographicalResolutions.map((geog) => {
+      const fileNameParts = ["summary_table", appStore.burdenMetric, "disease"];
+      if (geog === LocResolution.SUBREGION) {
+        fileNameParts.push(LocResolution.SUBREGION);
+      }
+      if (Object.values(appStore.dimensions).includes(Dimension.ACTIVITY_TYPE)) {
+        fileNameParts.push(Dimension.ACTIVITY_TYPE);
+      }
+      if (geog === LocResolution.COUNTRY) {
+        fileNameParts.push(LocResolution.COUNTRY);
+      }
+      return `${fileNameParts.join("_")}.csv`;
+    });
+  });
+
   // Fetch and parse multiple JSONs, and merge together all data.
   const loadDataFromPaths = async (paths: string[]) => {
     fetchErrors.value = [];
@@ -79,5 +96,5 @@ export const useDataStore = defineStore("data", () => {
     }
   }, { immediate: true });
 
-  return { histogramData, fetchErrors };
+  return { histogramData, fetchErrors, summaryTablePaths };
 });
