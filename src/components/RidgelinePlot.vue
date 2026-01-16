@@ -1,6 +1,7 @@
 <template>
   <div class="chart-container">
-    <p v-if="linesToDisplay.length === 0" class="m-auto">
+    <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
+    <p v-else-if="noDataToDisplay" class="m-auto">
       <!-- E.g. Focus disease MenA, without splitting by activity type. -->
       No data available for the selected options.
     </p>
@@ -17,35 +18,13 @@
     <p v-if="dataStore.fetchErrors.length" class="mt-auto">
       {{ dataStore.fetchErrors.map(error => error.message).join(', ') }}
     </p>
-    <!-- Legend for manual testing only -->
-    <!-- <div v-if="colorStore.colorMapping && colorStore.colorMapping.size >= 2">
-      <h3>Legend, for manual testing only</h3>
-      <ul>
-        <li
-          v-for="([value, color]) in colorStore.colorMapping"
-          :key="value"
-        >
-          <span
-            class="legend-color-box"
-            :style="{
-              backgroundColor: color,
-              width: '1em',
-              height: '1em',
-              display: 'inline-block',
-            }"
-          ></span>
-          <span>
-            {{ dimensionOptionLabel(colorStore.colorDimension, value) }}
-          </span>
-        </li>
-      </ul>
-    </div> -->
-</div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { debounce } from 'perfect-debounce';
+import { FwbSpinner } from 'flowbite-vue';
 import { Chart } from '@reside-ic/skadi-chart';
 import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
@@ -61,6 +40,9 @@ const dataStore = useDataStore();
 const colorStore = useColorStore();
 
 const chartWrapper = ref<HTMLDivElement | null>(null);
+// noDataToDisplay is a ref rather than computed so that we can debounce updates to it, preventing flickering
+// if appStore changes at a different moment from linesToDisplay.
+const noDataToDisplay = ref<boolean>(false);
 
 const data = () => {
   return dataStore.histogramData.filter(dataRow =>
@@ -73,6 +55,7 @@ const data = () => {
 
 const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
 
+// TODO: (vimc-9191) order the plot rows by the mean of means.
 const linesToDisplay = computed(() => {
   // Only filter plot rows if each row represents a disease.
   if (appStore.dimensions[Axes.ROW] !== Dimensions.DISEASE || appStore.dimensions[Axes.WITHIN_BAND] !== Dimensions.LOCATION) {
@@ -93,7 +76,9 @@ const linesToDisplay = computed(() => {
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  if (linesToDisplay.value.length === 0 || !chartWrapper.value) {
+  noDataToDisplay.value = linesToDisplay.value.length === 0;
+
+  if (noDataToDisplay.value || !chartWrapper.value) {
     return;
   }
 
@@ -102,16 +87,9 @@ const updateChart = debounce(() => {
   linesToDisplay.value.forEach(line => {
     // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
     // the color assignment, since the palettes maximize contrast between _neighboring_ colors.
-    const { fillColor, strokeColor } = colorStore.getColorsForLine(line.metadata!);
-    // Keep `fillOpacity` value low since mixing translucent colours creates
-    // a third color, and hence the illusion of an extra ridgeline.
-    line.style = {
-      strokeWidth: 1,
-      opacity: 1,
-      fillOpacity: 0.2,
-      strokeColor,
-      fillColor,
-    };
+    const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
+
+    line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
   });
 
   const minX = Math.min(...linesToDisplay.value.flatMap(l => l.points![0]?.x ?? 0));
