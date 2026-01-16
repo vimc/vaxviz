@@ -12,6 +12,7 @@ export const useDataStore = defineStore("data", () => {
   const fetchErrors = ref<{ e: Error, message: string }[]>([]);
   const histogramData = shallowRef<HistDataRow[]>([]);
   const histogramDataCache: Record<string, HistDataRow[]> = {};
+  const isLoading = ref(true);
 
   const histogramDataPaths = computed(() => {
     // When we are using multiple geographical resolutions, we need to load multiple data files, to be merged together later.
@@ -36,6 +37,7 @@ export const useDataStore = defineStore("data", () => {
 
   // Fetch and parse multiple JSONs, and merge together all data.
   const loadDataFromPaths = async (paths: string[]) => {
+    isLoading.value = true;
     fetchErrors.value = [];
     await Promise.all(paths.map(async (path) => {
       if (!histogramDataCache[path]) {
@@ -64,6 +66,7 @@ export const useDataStore = defineStore("data", () => {
       }
       return row;
     });
+    isLoading.value = false;
   };
 
   const doLoadData = debounce(async () => {
@@ -79,5 +82,5 @@ export const useDataStore = defineStore("data", () => {
     }
   }, { immediate: true });
 
-  return { histogramData, fetchErrors };
+  return { histogramData, fetchErrors, isLoading };
 });
