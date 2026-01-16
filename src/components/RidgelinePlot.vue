@@ -1,6 +1,7 @@
 <template>
   <div class="chart-container">
-    <p v-if="linesToDisplay.length === 0" class="m-auto">
+    <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
+    <p v-else-if="noDataToDisplay" class="m-auto">
       <!-- E.g. Focus disease MenA, without splitting by activity type. -->
       No data available for the selected options.
     </p>
@@ -23,6 +24,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { debounce } from 'perfect-debounce';
+import { FwbSpinner } from 'flowbite-vue';
 import { Chart } from '@reside-ic/skadi-chart';
 import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
@@ -40,6 +42,9 @@ const colorStore = useColorStore();
 const { tooltipCallback } = usePlotTooltips();
 
 const chartWrapper = ref<HTMLDivElement | null>(null);
+// noDataToDisplay is a ref rather than computed so that we can debounce updates to it, preventing flickering
+// if appStore changes at a different moment from linesToDisplay.
+const noDataToDisplay = ref<boolean>(false);
 
 const data = computed(() => dataStore.histogramData.filter(dataRow =>
   [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
@@ -71,7 +76,9 @@ const linesToDisplay = computed(() => {
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  if (linesToDisplay.value.length === 0 || !chartWrapper.value) {
+  noDataToDisplay.value = linesToDisplay.value.length === 0;
+
+  if (noDataToDisplay.value || !chartWrapper.value) {
     return;
   }
 
