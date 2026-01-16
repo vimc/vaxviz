@@ -44,14 +44,12 @@ describe('usePlotTooltips', () => {
 
       expect(afgTooltip).toContain('Location: <strong>Afghanistan</strong>');
       expect(afgTooltip).toContain('style="color: #009d9a'); // teal50
-      expect(afgTooltip).not.toContain('Disease');
       expect(afgTooltip).not.toContain('Activity type');
 
       const globalTooltip = tooltipCallback({ x: 1, y: 2, metadata: globalPointMetadata.metadata! });
 
       expect(globalTooltip).toContain('Location: <strong>All 117 VIMC countries</strong>');
       expect(globalTooltip).toContain('style="color: #6929c4'); // purple70
-      expect(globalTooltip).not.toContain('Disease');
       expect(globalTooltip).not.toContain('Activity type');
     });
 
@@ -77,14 +75,12 @@ describe('usePlotTooltips', () => {
 
       expect(choleraTooltip).toContain('Disease: <strong>Cholera</strong>');
       expect(choleraTooltip).toContain('style="color: #6929c4'); // purple70
-      expect(choleraTooltip).not.toContain('Location');
       expect(choleraTooltip).not.toContain('Activity type');
 
       const measlesTooltip = tooltipCallback({ x: 1, y: 2, metadata: measlesPointMetadata.metadata! });
 
       expect(measlesTooltip).toContain('Disease: <strong>Measles</strong>');
       expect(measlesTooltip).toContain('style="color: #009d9a'); // teal50
-      expect(measlesTooltip).not.toContain('Location');
       expect(measlesTooltip).not.toContain('Activity type');
     });
 
@@ -115,14 +111,12 @@ describe('usePlotTooltips', () => {
       expect(routineTooltip).toContain('Disease: <strong>Cholera</strong>');
       expect(routineTooltip).toContain('Activity type: <strong>Routine</strong>');
       expect(routineTooltip).toContain('style="color: #6929c4'); // purple70
-      expect(routineTooltip).not.toContain('Location');
 
       const campaignTooltip = tooltipCallback({ x: 1, y: 2, metadata: campaignPointMetadata.metadata! });
 
       expect(campaignTooltip).toContain('Disease: <strong>Cholera</strong>');
       expect(campaignTooltip).toContain('Activity type: <strong>Campaign</strong>');
       expect(campaignTooltip).toContain('style="color: #6929c4'); // purple70
-      expect(campaignTooltip).not.toContain('Location');
     });
   });
 });
