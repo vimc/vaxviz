@@ -92,20 +92,22 @@ const updateChart = debounce(() => {
     line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
   });
 
-  const { tickConfig, axisConfig, chartAppendConfig } = plotConfiguration(
+  const { constructorOptions, axisConfig, chartAppendConfig } = plotConfiguration(
     appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
     linesToDisplay.value,
   );
 
-  new Chart({ tickConfig })
+  const catScales = chartAppendConfig[2];
+
+  new Chart(constructorOptions)
     .addAxes(...axisConfig)
     .addTraces(linesToDisplay.value)
     .addArea()
     .addGridLines(
       {
         // TODO: vimc-9195: extend gridlines feature to work for categorical axes.
-        x: !appStore.dimensions[Axis.COLUMN],
+        x: !catScales.x?.length,
         y: false,
       },
     )
@@ -131,11 +133,5 @@ watch([linesToDisplay, () => appStore.focus, chartWrapper], updateChart, { immed
   height: 100%;
   flex: 1 1 auto;
   margin: var(--chart-margin);
-
-  // Use Google Sans Flex for chart text because, in this font, there is tolerable height-alignment and size-matching
-  // among Unicode superscript numerals and negative signs.
-  * {
-    font-family: 'Google Sans Flex', sans-serif;
-  }
 }
 </style>
