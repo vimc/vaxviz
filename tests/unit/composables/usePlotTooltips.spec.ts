@@ -6,7 +6,8 @@ import { nextTick } from "vue";
 import usePlotTooltips from '@/composables/usePlotTooltips';
 import { useAppStore } from '@/stores/appStore';
 import { useColorStore } from '@/stores/colorStore';
-import { Axis, Dimension, type PointWithMetadata } from '@/types';
+import { useDataStore } from '@/stores/dataStore';
+import { Axis, Dimension, SummaryTableColumn, type PointWithMetadata, type SummaryTableDataRow } from '@/types';
 
 describe('usePlotTooltips', () => {
   beforeEach(() => {
@@ -117,6 +118,115 @@ describe('usePlotTooltips', () => {
       expect(campaignTooltip).toContain('Disease: <strong>Cholera</strong>');
       expect(campaignTooltip).toContain('Activity type: <strong>Campaign</strong>');
       expect(campaignTooltip).toContain('style="color: #6929c4'); // purple70
+    });
+
+    it('displays summary data (median, mean, and 95% confidence interval) in tooltip', () => {
+      const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
+
+      const appStore = useAppStore();
+      const colorStore = useColorStore();
+      const dataStore = useDataStore();
+
+      // Set up store state for location-based coloring
+      appStore.filters = {
+        [Dimension.LOCATION]: ['AFG'],
+        [Dimension.DISEASE]: ['Cholera'],
+      };
+
+      colorStore.setColors([afgPointMetadata]);
+
+      // Set up summary table data with test values
+      dataStore.summaryTableData = [
+        {
+          [Dimension.LOCATION]: 'AFG',
+          [Dimension.DISEASE]: 'Cholera',
+          [SummaryTableColumn.MEDIAN]: 1234.56,
+          [SummaryTableColumn.MEAN]: 1456.78,
+          [SummaryTableColumn.CI_LOWER]: 789.12,
+          [SummaryTableColumn.CI_UPPER]: 2345.67,
+        } as SummaryTableDataRow,
+      ];
+
+      const { tooltipCallback } = usePlotTooltips();
+
+      const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
+
+      // Check that median and mean are displayed with proper formatting
+      expect(tooltip).toContain('Median: <strong>1234.56</strong>');
+      expect(tooltip).toContain('Mean: <strong>1456.78</strong>');
+      // Check 95% confidence interval is displayed
+      expect(tooltip).toContain('95% confidence interval:');
+      expect(tooltip).toContain('<strong>789.12</strong>');
+      expect(tooltip).toContain('<strong>2345.67</strong>');
+    });
+
+    it('handles negative confidence interval values with appropriate sign', () => {
+      const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
+
+      const appStore = useAppStore();
+      const colorStore = useColorStore();
+      const dataStore = useDataStore();
+
+      // Set up store state for location-based coloring
+      appStore.filters = {
+        [Dimension.LOCATION]: ['AFG'],
+        [Dimension.DISEASE]: ['Cholera'],
+      };
+
+      colorStore.setColors([afgPointMetadata]);
+
+      // Set up summary table data with negative lower bound (crossing zero)
+      dataStore.summaryTableData = [
+        {
+          [Dimension.LOCATION]: 'AFG',
+          [Dimension.DISEASE]: 'Cholera',
+          [SummaryTableColumn.MEDIAN]: 50.00,
+          [SummaryTableColumn.MEAN]: 55.00,
+          [SummaryTableColumn.CI_LOWER]: -100.50,
+          [SummaryTableColumn.CI_UPPER]: 200.75,
+        } as SummaryTableDataRow,
+      ];
+
+      const { tooltipCallback } = usePlotTooltips();
+
+      const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
+
+      // Check that the values are displayed correctly
+      expect(tooltip).toContain('Median: <strong>50.00</strong>');
+      expect(tooltip).toContain('Mean: <strong>55.00</strong>');
+      // Check negative lower bound and positive upper bound with + sign when interval crosses zero
+      expect(tooltip).toContain('<strong>-100.50</strong>');
+      expect(tooltip).toContain('<strong>+200.75</strong>');
+    });
+
+    it('handles undefined summary data gracefully', () => {
+      const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
+
+      const appStore = useAppStore();
+      const colorStore = useColorStore();
+      const dataStore = useDataStore();
+
+      // Set up store state
+      appStore.filters = {
+        [Dimension.LOCATION]: ['AFG'],
+        [Dimension.DISEASE]: ['Cholera'],
+      };
+
+      colorStore.setColors([afgPointMetadata]);
+
+      // Empty summary table data - no matching row will be found
+      dataStore.summaryTableData = [];
+
+      const { tooltipCallback } = usePlotTooltips();
+
+      const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
+
+      // The tooltip should still render, but values will be undefined
+      expect(tooltip).toContain('Median:');
+      expect(tooltip).toContain('Mean:');
+      expect(tooltip).toContain('95% confidence interval:');
+      // Should contain undefined formatted values
+      expect(tooltip).toContain('<strong>undefined</strong>');
     });
   });
 });
