@@ -150,9 +150,9 @@ describe('plotConfiguration', () => {
       expect(result.chartAppendConfig[3].left).toBe(170);
     });
 
-    it('sets left margin to 100 when rowDimension is not location', () => {
+    it('sets left margin to 110 when rowDimension is not location', () => {
       const result = plotConfiguration(Dimensions.DISEASE, false, lines);
-      expect(result.chartAppendConfig[3].left).toBe(100);
+      expect(result.chartAppendConfig[3].left).toBe(110);
     });
   });
 });
