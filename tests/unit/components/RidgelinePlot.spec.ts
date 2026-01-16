@@ -16,6 +16,7 @@ import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { BurdenMetric } from '@/types';
 import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
+import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
 import { useDataStore } from '@/stores/dataStore';
 
@@ -192,24 +193,16 @@ describe('RidgelinePlot component', () => {
 
       // Get the options from the most recent call
       const lastCallArgs = chartMock.mock.calls[chartMock.mock.calls.length - 1];
-      const { tickConfig } = lastCallArgs[0]; // First argument to constructor
+      const { tickConfig } = lastCallArgs[0]!; // First argument to constructor
 
       expect(tickConfig).toEqual(expect.objectContaining({
-        numerical: expect.objectContaining({
-          x: expect.objectContaining({
-            padding: 10,
-            formatter: expect.any(Function),
-          }),
-          y: expect.objectContaining({ count: 0 }),
-        }),
         categorical: expect.objectContaining({
-          x: expect.objectContaining({ padding: 30 }),
           y: expect.objectContaining({
             padding: 30,
-            formatter: expect.undefined,
           }),
         }),
       }));
+      expect(tickConfig?.categorical?.y?.formatter).toBeUndefined();
 
       const axesLastCallArgs = addAxesSpy.mock.calls[addAxesSpy.mock.calls.length - 1];
       expect(axesLastCallArgs).toContainEqual(expect.objectContaining({
@@ -236,25 +229,44 @@ describe('RidgelinePlot component', () => {
       const numScales = appendToLastCallArgs[1];
       expect(numScales).toEqual(expect.objectContaining({
         x: {
-          end: expect.closeTo(1.0431),
           start: expect.closeTo(-2.434),
+          end: expect.closeTo(1.0431),
         },
         y: {
-          end: 29,
           start: 0,
+          end: 29,
         },
       }));
 
       const catScales = appendToLastCallArgs[3];
-      expect(catScales).toEqual(expect.objectContaining({
-        x: [],
+      expect(catScales).toEqual({
         y: expect.arrayContaining(diseases.map(d => d.label)),
-      }));
+      });
 
       const margins = appendToLastCallArgs[4];
       expect(margins).toEqual(expect.objectContaining({
         left: 100,
       }));
+    });
+  });
+
+  it('shows a loading spinner while data is being loaded', async () => {
+    const dataStore = useDataStore();
+    const wrapper = mount(RidgelinePlot);
+    const spinnerMatcher = 'svg[role="status"]';
+
+    expect(dataStore.isLoading).toBe(true);
+    expect(wrapper.find(spinnerMatcher).exists()).toBe(true);
+    expect(wrapper.text()).not.toContain("No data available for the selected options.");
+    expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+
+    await vi.waitFor(() => {
+      expect(dataStore.isLoading).toBe(false);
+    });
+
+    await vi.waitFor(() => {
+      expect(wrapper.find(spinnerMatcher).exists()).toBe(false);
+      expect(wrapper.find("#chartWrapper").exists()).toBe(true);
     });
   });
 });

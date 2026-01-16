@@ -10,6 +10,35 @@ const ELLIPSIS = "...";
 const Y_TICK_LABEL_MAX_LENGTH = globalOption.label.length;
 export const TOOLTIP_RADIUS_PX = 100; // Maximum distance in px from point for triggering tooltips to be displayed
 
+const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): Scales => {
+  const maxX = Math.max(...lines.flatMap(l => {
+    const lastPoint = l.points[l.points.length - 1]!;
+    return lastPoint.x;
+  }));
+  const maxY = Math.max(...lines.flatMap(l => Math.max(...l.points.map(p => p.y))));
+  const minX = Math.min(...lines.flatMap(l => {
+    // Take the first point: assume points are sorted by x value.
+    const firstPoint = l.points[0]!;
+    return firstPoint.x;
+  }));
+
+  // x values may be slightly negative for some cases eg Typhoid
+  return {
+    x: { start: logScaleEnabled ? minX : Math.min(minX, 0), end: maxX },
+    y: { start: 0, end: maxY },
+  };
+};
+
+const categoricalScales = (lines: Lines<LineMetadata>): Partial<XY<string[]>> => {
+  const xCategoricalScale = [...new Set(lines.map(l => l.bands?.x).filter(c => !!c))] as string[];
+  const yCategoricalScale = [...new Set(lines.map(l => l.bands?.y).filter(c => !!c))] as string[];
+
+  return {
+    x: xCategoricalScale.length ? xCategoricalScale : undefined,
+    y: yCategoricalScale.length ? yCategoricalScale : undefined,
+  };
+};
+
 const locationSubstitutions = [
   [" and ", " & "],
   ["South-Eastern", "S.E."],
@@ -23,22 +52,6 @@ const locationSubstitutions = [
   ["Central", "C."],
 ] as const;
 
-// Since the tick labels are rendered as part of a SVG, we can't use the HTML <sup> tag,
-// so we use Unicode superscript characters instead.
-const superscripts = [
-  ['0', '⁰'],
-  ['1', '¹'],
-  ['2', '²'],
-  ['3', '³'],
-  ['4', '⁴'],
-  ['5', '⁵'],
-  ['6', '⁶'],
-  ['7', '⁷'],
-  ['8', '⁸'],
-  ['9', '⁹'],
-  ['-', '⁻'],
-] as const;
-
 const applySubstitutions = (str: string, substitutions: readonly (readonly [string, string])[]): string => {
   return substitutions.reduce(
     (acc, [original, replacement]) => acc.replaceAll(original, replacement),
@@ -46,26 +59,17 @@ const applySubstitutions = (str: string, substitutions: readonly (readonly [stri
   );
 };
 
-// Returns a callback for formatting numerical tick labels for log scales.
+// Returns a callback for formatting numerical tick labels for log scales, using LaTeX for MathJax.
 const logScaleNumTickFormatter = () => (exponentForTen: number): string => {
   // NB the number passed in (derived from data files) is not the raw impact burden itself,
   // but the exponent for 10. For example, if the impact burden ratio is 1000 (10^3), the number passed
   // down to us is 3, i.e., log10 of 1000.
-  if (!Number.isInteger(exponentForTen)) {
-    // Reject tick labels that would contain decimal points in the exponent
-    // since the decimal point is very tricky to render nicely using unicode superscript.
-    // In the future, we'll specify the exact tick values we want, so that we don't get unused gridlines;
-    // that depends on:
-    // TODO: vimc-9194: expose d3-axis tickValues function via skadi-chart.
-    return "";
-  }
-  const superscriptExponent = exponentForTen
-    ?.toString()
-    .split("")
-    .map(char => applySubstitutions(char, superscripts))
-    .join("");
-  return `10${superscriptExponent}`;
+
+  return `$10^{${exponentForTen}}$`
 };
+
+// Returns a callback for formatting numerical tick labels for linear scales, using LaTeX for font consistency with log sacles.
+const linearScaleNumTickFormatter = () => (num: number): string => `$${num}$`;
 
 // Determine if y-axis need extra space (for long categorical axis labels).
 const yAxisNeedsExtraSpace = (rowDimension: Dimension): boolean => rowDimension === Dimension.LOCATION;
@@ -86,45 +90,19 @@ const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimension) =>
   numerical: {
     x: {
       padding: 10,
-      formatter: logScaleEnabled ? logScaleNumTickFormatter() : undefined,
+      formatter: logScaleEnabled ? logScaleNumTickFormatter() : linearScaleNumTickFormatter(),
+      enableMathJax: true,
     },
     y: { count: 0 },
   },
   categorical: {
-    x: { padding: 30 },
+    x: { padding: 40 },
     y: {
       padding: yAxisNeedsExtraSpace(rowDimension) ? 10 : 30,
       formatter: rowDimension === Dimension.LOCATION ? locationTickFormatter() : undefined,
     },
   },
 });
-
-const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): Scales => {
-  const maxX = Math.max(...lines.flatMap(l => {
-    const lastPoint = l.points[l.points.length - 1]!;
-    return lastPoint.x;
-  }));
-  const maxY = Math.max(...lines.flatMap(l => Math.max(...l.points.map(p => p.y))));
-  const minX = Math.min(...lines.flatMap(l => {
-    const firstPoint = l.points[0]!;
-    return firstPoint.x;
-  }));
-
-  return {
-    x: { start: logScaleEnabled ? minX : 0, end: maxX },
-    y: { start: 0, end: maxY },
-  };
-};
-
-const categoricalScales = (lines: Lines<LineMetadata>): XY<string[]> => {
-  const xCategoricalScale = [...new Set(lines.map(l => l.bands?.x).filter(c => !!c))] as string[];
-  const yCategoricalScale = [...new Set(lines.map(l => l.bands?.y).filter(c => !!c))] as string[];
-
-  return {
-    x: xCategoricalScale,
-    y: yCategoricalScale,
-  };
-};
 
 type AxisConfig = [Partial<XY<string>>, Partial<XY<number | undefined>>];
 
@@ -136,6 +114,7 @@ const axisConfiguration = (
       y: sentenceCase(rowDimension),
     },
     {
+      x: 0,
       y: 0 // Position y-axis label as far left as possible
     }
   ];
@@ -145,7 +124,7 @@ export const plotConfiguration = (
   logScaleEnabled: boolean,
   lines: Lines<LineMetadata>,
 ): {
-  tickConfig: PartialChartOptions["tickConfig"]
+  constructorOptions: PartialChartOptions
   axisConfig: AxisConfig
   chartAppendConfig: [Partial<Scales>, Partial<Scales>, Partial<XY<string[]>>, Partial<Bounds["margin"]>]
 } => {
@@ -153,11 +132,17 @@ export const plotConfiguration = (
   const catScales = categoricalScales(lines);
   const margins = { left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 100 };
   const tickConfig = tickConfiguration(logScaleEnabled, rowDimension);
+  const constructorOptions = {
+    tickConfig,
+    categoricalScalePaddingInner: {
+      x: catScales.x && catScales.x.length > 1 ? 0.02 : 0
+    },
+  };
   const axisConfig = axisConfiguration(rowDimension);
 
   return {
-    tickConfig,
+    constructorOptions,
     axisConfig,
     chartAppendConfig: [numScales, {}, catScales, margins],
   };
-}
+};
