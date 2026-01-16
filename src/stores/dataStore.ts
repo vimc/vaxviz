@@ -70,16 +70,17 @@ export const useDataStore = defineStore("data", () => {
     }).map((row) => {
       // Collapse all geographic columns into one 'location' column
       const [country, subregion] = [row[LocResolution.COUNTRY], row[LocResolution.SUBREGION]];
+      const newRow = { ...row };
       if (country) {
-        row[Dimension.LOCATION] = country;
-        delete row[LocResolution.COUNTRY];
+        newRow[Dimension.LOCATION] = country;
+        delete newRow[LocResolution.COUNTRY];
       } else if (subregion) {
-        row[Dimension.LOCATION] = subregion;
-        delete row[LocResolution.SUBREGION];
+        newRow[Dimension.LOCATION] = subregion;
+        delete newRow[LocResolution.SUBREGION];
       } else {
-        row[Dimension.LOCATION] = globalOption.value;
+        newRow[Dimension.LOCATION] = globalOption.value;
       }
-      return row;
+      return newRow;
     });
     isLoading.value = false;
   };
