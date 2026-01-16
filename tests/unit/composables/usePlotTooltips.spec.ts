@@ -45,12 +45,16 @@ describe('usePlotTooltips', () => {
 
       expect(afgTooltip).toContain('Location: <strong>Afghanistan</strong>');
       expect(afgTooltip).toContain('style="color: #009d9a'); // teal50
+      // Row dimension (disease) is shown because it's different from color dimension (location)
+      expect(afgTooltip).toContain('Disease: <strong>Cholera</strong>');
       expect(afgTooltip).not.toContain('Activity type');
 
       const globalTooltip = tooltipCallback({ x: 1, y: 2, metadata: globalPointMetadata.metadata! });
 
       expect(globalTooltip).toContain('Location: <strong>All 117 VIMC countries</strong>');
       expect(globalTooltip).toContain('style="color: #6929c4'); // purple70
+      // Row dimension (disease) is shown because it's different from color dimension (location)
+      expect(globalTooltip).toContain('Disease: <strong>Cholera</strong>');
       expect(globalTooltip).not.toContain('Activity type');
     });
 
