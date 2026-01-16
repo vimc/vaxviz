@@ -170,16 +170,16 @@ describe('RidgelinePlot component', () => {
 
       // Get the options from the most recent call
       const lastCallArgs = chartMock.mock.calls[chartMock.mock.calls.length - 1];
-      const constructorOptions = lastCallArgs[0]; // First argument to constructor
+      const { tickConfig } = lastCallArgs[0]!; // First argument to constructor
 
-      expect(constructorOptions.tickConfig).toEqual(expect.objectContaining({
+      expect(tickConfig).toEqual(expect.objectContaining({
         categorical: expect.objectContaining({
           y: expect.objectContaining({
             padding: 30,
-            formatter: expect.undefined,
           }),
         }),
       }));
+      expect(tickConfig?.categorical?.y?.formatter).toBeUndefined();
 
       const axesLastCallArgs = addAxesSpy.mock.calls[addAxesSpy.mock.calls.length - 1];
       expect(axesLastCallArgs).toContainEqual(expect.objectContaining({

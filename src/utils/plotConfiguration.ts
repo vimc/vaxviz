@@ -34,8 +34,8 @@ const categoricalScales = (lines: Lines<LineMetadata>): Partial<XY<string[]>> =>
   const yCategoricalScale = [...new Set(lines.map(l => l.bands?.y).filter(c => !!c))] as string[];
 
   return {
-    x: xCategoricalScale,
-    y: yCategoricalScale,
+    x: xCategoricalScale.length ? xCategoricalScale : undefined,
+    y: yCategoricalScale.length ? yCategoricalScale : undefined,
   };
 };
 
