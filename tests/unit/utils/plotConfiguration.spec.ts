@@ -72,14 +72,6 @@ describe('plotConfiguration', () => {
       expect(catScales.x).toEqual(['campaign', 'routine']);
       expect(catScales.y).toEqual(['Cholera', 'Measles']);
     });
-
-    it('when only one category has any lines, do not create categorical scale for that dimension', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, false, [lines[0]]);
-      const catScales = result.chartAppendConfig[2];
-
-      expect(catScales.x).toBeUndefined();
-      expect(catScales.y).toBeUndefined();
-    });
   });
 
   describe('tick configuration including formatters', () => {

@@ -10,6 +10,35 @@ const ELLIPSIS = "...";
 const Y_TICK_LABEL_MAX_LENGTH = globalOption.label.length;
 export const TOOLTIP_RADIUS_PX = 100; // Maximum distance in px from point for triggering tooltips to be displayed
 
+const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): Scales => {
+  const maxX = Math.max(...lines.flatMap(l => {
+    const lastPoint = l.points[l.points.length - 1]!;
+    return lastPoint.x;
+  }));
+  const maxY = Math.max(...lines.flatMap(l => Math.max(...l.points.map(p => p.y))));
+  const minX = Math.min(...lines.flatMap(l => {
+    // Take the first point: assume points are sorted by x value.
+    const firstPoint = l.points[0]!;
+    return firstPoint.x;
+  }));
+
+  // x values may be slightly negative for some cases eg Typhoid
+  return {
+    x: { start: logScaleEnabled ? minX : Math.min(minX, 0), end: maxX },
+    y: { start: 0, end: maxY },
+  };
+};
+
+const categoricalScales = (lines: Lines<LineMetadata>): Partial<XY<string[]>> => {
+  const xCategoricalScale = [...new Set(lines.map(l => l.bands?.x).filter(c => !!c))] as string[];
+  const yCategoricalScale = [...new Set(lines.map(l => l.bands?.y).filter(c => !!c))] as string[];
+
+  return {
+    x: xCategoricalScale,
+    y: yCategoricalScale,
+  };
+};
+
 const locationSubstitutions = [
   [" and ", " & "],
   ["South-Eastern", "S.E."],
@@ -75,35 +104,6 @@ const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimensions) =
   },
 });
 
-const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): Scales => {
-  const maxX = Math.max(...lines.flatMap(l => {
-    const lastPoint = l.points[l.points.length - 1]!;
-    return lastPoint.x;
-  }));
-  const maxY = Math.max(...lines.flatMap(l => Math.max(...l.points.map(p => p.y))));
-  const minX = Math.min(...lines.flatMap(l => {
-    // Take the first point: assume points are sorted by x value.
-    const firstPoint = l.points[0]!;
-    return firstPoint.x;
-  }));
-
-  // x values may be slightly negative for some cases eg Typhoid
-  return {
-    x: { start: logScaleEnabled ? minX : Math.min(minX, 0), end: maxX },
-    y: { start: 0, end: maxY },
-  };
-};
-
-const categoricalScales = (lines: Lines<LineMetadata>): Partial<XY<string[]>> => {
-  const xCategoricalScale = [...new Set(lines.map(l => l.bands?.x).filter(c => !!c))] as string[];
-  const yCategoricalScale = [...new Set(lines.map(l => l.bands?.y).filter(c => !!c))] as string[];
-
-  return {
-    ...(xCategoricalScale.length > 1 && { x: xCategoricalScale }),
-    ...(yCategoricalScale.length > 1 && { y: yCategoricalScale }),
-  };
-};
-
 type AxisConfig = [Partial<XY<string>>, Partial<XY<number | undefined>>];
 
 const axisConfiguration = (
@@ -134,7 +134,9 @@ export const plotConfiguration = (
   const tickConfig = tickConfiguration(logScaleEnabled, rowDimension);
   const constructorOptions = {
     tickConfig,
-    categoricalScalePaddingInner: { x: 0.02 },
+    categoricalScalePaddingInner: {
+      x: catScales.x && catScales.x.length > 1 ? 0.02 : 0
+    },
   };
   const axisConfig = axisConfiguration(rowDimension);
 
