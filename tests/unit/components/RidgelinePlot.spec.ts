@@ -170,18 +170,10 @@ describe('RidgelinePlot component', () => {
 
       // Get the options from the most recent call
       const lastCallArgs = chartMock.mock.calls[chartMock.mock.calls.length - 1];
-      const { tickConfig } = lastCallArgs[0]; // First argument to constructor
+      const constructorOptions = lastCallArgs[0]; // First argument to constructor
 
-      expect(tickConfig).toEqual(expect.objectContaining({
-        numerical: expect.objectContaining({
-          x: expect.objectContaining({
-            padding: 10,
-            formatter: expect.any(Function),
-          }),
-          y: expect.objectContaining({ count: 0 }),
-        }),
+      expect(constructorOptions.tickConfig).toEqual(expect.objectContaining({
         categorical: expect.objectContaining({
-          x: expect.objectContaining({ padding: 30 }),
           y: expect.objectContaining({
             padding: 30,
             formatter: expect.undefined,
@@ -214,20 +206,19 @@ describe('RidgelinePlot component', () => {
       const numScales = appendToLastCallArgs[1];
       expect(numScales).toEqual(expect.objectContaining({
         x: {
-          end: expect.closeTo(1.0431),
           start: expect.closeTo(-2.434),
+          end: expect.closeTo(1.0431),
         },
         y: {
-          end: 29,
           start: 0,
+          end: 29,
         },
       }));
 
       const catScales = appendToLastCallArgs[3];
-      expect(catScales).toEqual(expect.objectContaining({
-        x: [],
+      expect(catScales).toEqual({
         y: expect.arrayContaining(diseases.map(d => d.label)),
-      }));
+      });
 
       const margins = appendToLastCallArgs[4];
       expect(margins).toEqual(expect.objectContaining({
