@@ -48,6 +48,7 @@ describe('data store', () => {
     // Initial data
     let expectedFetches = 2;
     await vi.waitFor(() => {
+      expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(histCountsDeathsDiseaseLog.length);
       expect(dataStore.histogramData[0]).toEqual(expect.objectContaining({ disease: "Cholera" }));
       expect(dataStore.summaryTableData).toHaveLength(summaryDeathsDisease.length);
@@ -67,7 +68,9 @@ describe('data store', () => {
     appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
+
     await vi.waitFor(() => {
+      expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(
         histCountsDalysDiseaseSubregionActivityType.length + histCountsDalysDiseaseActivityType.length
       );
@@ -98,7 +101,9 @@ describe('data store', () => {
     appStore.burdenMetric = BurdenMetric.DEATHS;
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
+
     await vi.waitFor(() => {
+      expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(
         histCountsDeathsDiseaseSubregionActivityType.length + histCountsDeathsDiseaseActivityType.length
       );
@@ -125,7 +130,9 @@ describe('data store', () => {
     appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = true;
     appStore.splitByActivityType = false;
+
     await vi.waitFor(() => {
+      expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(
         histCountsDalysDiseaseSubregionLog.length + histCountsDalysDiseaseCountryLog.length + histCountsDalysDiseaseLog.length
       );

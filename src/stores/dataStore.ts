@@ -14,7 +14,8 @@ export const useDataStore = defineStore("data", () => {
   const histogramData = shallowRef<HistDataRow[]>([]);
   const histogramCache: Record<string, HistDataRow[]> = {};
   const summaryTableData = shallowRef<SummaryTableDataRow[]>([]);
-  const summaryTableDataCache: Record<string, SummaryTableDataRow[]> = {};
+  const summaryTableCache: Record<string, SummaryTableDataRow[]> = {};
+  const isLoading = ref(true);
 
   const constructFilenames = (dataType: "hist_counts" | "summary_table"): string[] => {
     return appStore.geographicalResolutions.map((geog) => {
@@ -80,14 +81,17 @@ export const useDataStore = defineStore("data", () => {
       }
       return row;
     });
+    isLoading.value = false;
   };
 
   const loadAllData = async () => {
+    isLoading.value = true;
     fetchErrors.value = [];
     await Promise.all([
       loadData<HistDataRow>(histFilenames.value, histogramCache, histogramData),
-      loadData<SummaryTableDataRow>(summaryTableFilenames.value, summaryTableDataCache, summaryTableData),
+      loadData<SummaryTableDataRow>(summaryTableFilenames.value, summaryTableCache, summaryTableData),
     ]);
+    isLoading.value = false;
   };
 
   const debouncedLoadAllData = debounce(async () => {
@@ -103,5 +107,5 @@ export const useDataStore = defineStore("data", () => {
     }
   }, { immediate: true });
 
-  return { fetchErrors, histogramData, summaryTableData };
+  return { fetchErrors, isLoading, histogramData, summaryTableData };
 });
