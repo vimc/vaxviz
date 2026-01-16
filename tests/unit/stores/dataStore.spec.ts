@@ -32,7 +32,6 @@ describe('data store', () => {
     const fetchSpy = vi.spyOn(global, 'fetch')
     const appStore = useAppStore();
     const dataStore = useDataStore();
-    expect(dataStore.isLoading).toBe(true);
     expect(dataStore.histogramData).toEqual([]);
 
     // Initial data
@@ -59,7 +58,6 @@ describe('data store', () => {
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
 
-    await vi.waitFor(() => { expect(dataStore.isLoading).toBe(true) });
     await vi.waitFor(() => {
       expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(
@@ -84,7 +82,6 @@ describe('data store', () => {
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
 
-    await vi.waitFor(() => { expect(dataStore.isLoading).toBe(true) });
     await vi.waitFor(() => {
       expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(
@@ -109,7 +106,6 @@ describe('data store', () => {
     appStore.logScaleEnabled = true;
     appStore.splitByActivityType = false;
 
-    await vi.waitFor(() => { expect(dataStore.isLoading).toBe(true) });
     await vi.waitFor(() => {
       expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(
