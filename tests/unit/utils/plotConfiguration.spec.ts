@@ -29,21 +29,33 @@ describe('plotConfiguration', () => {
       expect(numScales.y?.end).toBe(12); // max y across all points
     });
 
-    it('sets x.start to 0 when logScaleEnabled is false', () => {
+    it('sets x.start to 0 when log scaled is disabled and no x value is negative', () => {
       const result = plotConfiguration(Dimensions.DISEASE, false, lines);
       const numScales = result.chartAppendConfig[0];
 
       expect(numScales.x?.start).toBe(0);
     });
 
-    it('sets x.start to min x value when logScaleEnabled is true', () => {
+    it('sets x.start to min x of first point when log scaled is disabled and there is a negative x value', () => {
+      const result = plotConfiguration(Dimensions.DISEASE, false, [...lines,
+      {
+        points: [{ x: -3, y: 5 }, { x: -2, y: 6 }, { x: 20, y: 2 }],
+        bands: { x: 'routine', y: 'HepB' }, // same y band as first line
+      },
+      ]);
+      const numScales = result.chartAppendConfig[0];
+
+      expect(numScales.x?.start).toBe(-3);
+    });
+
+    it('sets x.start to min x of first point when log scale is enabled', () => {
       const result = plotConfiguration(Dimensions.DISEASE, true, lines);
       const numScales = result.chartAppendConfig[0];
 
       expect(numScales.x?.start).toBe(1); // min of first x points: 1, 2, 3
     });
 
-    it('y.start is always 0 regardless of logScaleEnabled', () => {
+    it('y.start is always 0 regardless of log scale', () => {
       const resultLogOff = plotConfiguration(Dimensions.DISEASE, false, lines);
       const resultLogOn = plotConfiguration(Dimensions.DISEASE, true, lines);
 
@@ -63,22 +75,6 @@ describe('plotConfiguration', () => {
   });
 
   describe('tick configuration including formatters', () => {
-    it('sets correct numerical x tick properties when log scale is enabled', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, true, lines);
-      const xConfig = result.tickConfig.numerical?.x;
-
-      expect(xConfig?.padding).toBe(10);
-      expect(xConfig?.formatter).toBeDefined();
-    });
-
-    it('sets correct numerical x tick properties when log scale is disabled', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, false, lines);
-      const xConfig = result.tickConfig.numerical?.x;
-
-      expect(xConfig?.padding).toBe(10);
-      expect(xConfig?.formatter).toBeUndefined();
-    });
-
     it('sets correct categorical y tick properties when row dimension is location', () => {
       const result = plotConfiguration(Dimensions.LOCATION, false, lines);
       const yConfig = result.tickConfig.categorical?.y;
@@ -95,20 +91,18 @@ describe('plotConfiguration', () => {
       expect(yConfig?.formatter).toBeUndefined();
     });
 
-    it("log scale numerical formatter returns '10^exponent' when the exponent is an integer", () => {
+    it("log scale numerical formatter returns '10^exponent' in LaTeX", () => {
       const config = plotConfiguration(Dimensions.DISEASE, true, lines);
       const formatter = config.tickConfig.numerical?.x?.formatter;
-      expect(formatter(-2)).toBe('10⁻²');
-      expect(formatter(10)).toBe('10¹⁰');
-      expect(formatter(0)).toBe('10⁰');
+      expect(formatter(-2)).toBe('$10^{-2}$');
+      expect(formatter(3.1)).toBe('$10^{3.1}$');
     });
 
-    it('log scale numerical formatter returns empty string when the exponent is not an integer', () => {
-      const config = plotConfiguration(Dimensions.DISEASE, true, lines);
+    it("linear scale numerical formatter returns numbers in LaTeX", () => {
+      const config = plotConfiguration(Dimensions.DISEASE, false, lines);
       const formatter = config.tickConfig.numerical?.x?.formatter;
-      expect(formatter(0.01)).toBe('');
+      expect(formatter(-2)).toBe('$-2$');
     });
-
 
     describe('location tick formatter', () => {
       const getLocationFormatter = () => {

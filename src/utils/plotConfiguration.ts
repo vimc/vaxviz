@@ -82,6 +82,7 @@ const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): 
   }));
   const maxY = Math.max(...lines.flatMap(l => Math.max(...l.points.map(p => p.y))));
   const minX = Math.min(...lines.flatMap(l => {
+    // Take the first point: assume points are sorted by x value.
     const firstPoint = l.points[0]!;
     return firstPoint.x;
   }));
