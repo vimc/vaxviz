@@ -124,7 +124,7 @@ export const plotConfiguration = (
   logScaleEnabled: boolean,
   lines: Lines<LineMetadata>,
 ): {
-  tickConfig: PartialChartOptions["tickConfig"]
+  constructorOptions: PartialChartOptions
   axisConfig: AxisConfig
   chartAppendConfig: [Partial<Scales>, Partial<Scales>, Partial<XY<string[]>>, Partial<Bounds["margin"]>]
 } => {
@@ -132,11 +132,15 @@ export const plotConfiguration = (
   const catScales = categoricalScales(lines);
   const margins = { left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 100 };
   const tickConfig = tickConfiguration(logScaleEnabled, rowDimension);
+  const constructorOptions = {
+    tickConfig,
+    categoricalScalePaddingInner: { x: 0.02 },
+  };
   const axisConfig = axisConfiguration(rowDimension);
 
   return {
-    tickConfig,
+    constructorOptions,
     axisConfig,
     chartAppendConfig: [numScales, {}, catScales, margins],
   };
-}
+};

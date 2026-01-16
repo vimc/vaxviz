@@ -72,12 +72,20 @@ describe('plotConfiguration', () => {
       expect(catScales.x).toEqual(['campaign', 'routine']);
       expect(catScales.y).toEqual(['Cholera', 'Measles']);
     });
+
+    it('when only one category has any lines, do not create categorical scale for that dimension', () => {
+      const result = plotConfiguration(Dimensions.DISEASE, false, [lines[0]]);
+      const catScales = result.chartAppendConfig[2];
+
+      expect(catScales.x).toBeUndefined();
+      expect(catScales.y).toBeUndefined();
+    });
   });
 
   describe('tick configuration including formatters', () => {
     it('sets correct categorical y tick properties when row dimension is location', () => {
       const result = plotConfiguration(Dimensions.LOCATION, false, lines);
-      const yConfig = result.tickConfig.categorical?.y;
+      const yConfig = result.constructorOptions.tickConfig.categorical?.y;
 
       expect(yConfig?.padding).toBe(10);
       expect(yConfig?.formatter).toBeDefined();
@@ -85,29 +93,29 @@ describe('plotConfiguration', () => {
 
     it('sets correct categorical y tick properties when row dimension is disease', () => {
       const result = plotConfiguration(Dimensions.DISEASE, false, lines);
-      const yConfig = result.tickConfig.categorical?.y;
+      const yConfig = result.constructorOptions.tickConfig.categorical?.y;
 
       expect(yConfig?.padding).toBe(30);
       expect(yConfig?.formatter).toBeUndefined();
     });
 
     it("log scale numerical formatter returns '10^exponent' in LaTeX", () => {
-      const config = plotConfiguration(Dimensions.DISEASE, true, lines);
-      const formatter = config.tickConfig.numerical?.x?.formatter;
+      const result = plotConfiguration(Dimensions.DISEASE, true, lines);
+      const formatter = result.constructorOptions.tickConfig.numerical?.x?.formatter;
       expect(formatter(-2)).toBe('$10^{-2}$');
       expect(formatter(3.1)).toBe('$10^{3.1}$');
     });
 
     it("linear scale numerical formatter returns numbers in LaTeX", () => {
-      const config = plotConfiguration(Dimensions.DISEASE, false, lines);
-      const formatter = config.tickConfig.numerical?.x?.formatter;
+      const result = plotConfiguration(Dimensions.DISEASE, false, lines);
+      const formatter = result.constructorOptions.tickConfig.numerical?.x?.formatter;
       expect(formatter(-2)).toBe('$-2$');
     });
 
     describe('location tick formatter', () => {
       const getLocationFormatter = () => {
         const result = plotConfiguration(Dimensions.LOCATION, false, lines);
-        return result.tickConfig.categorical?.y?.formatter;
+        return result.constructorOptions.tickConfig.categorical?.y?.formatter;
       };
 
       it('applies " and " → " & " substitution', () => {

@@ -85,7 +85,7 @@ const updateChart = debounce(() => {
     line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
   });
 
-  const { tickConfig, axisConfig, chartAppendConfig } = plotConfiguration(
+  const { constructorOptions, axisConfig, chartAppendConfig } = plotConfiguration(
     appStore.dimensions[Axes.ROW],
     appStore.logScaleEnabled,
     linesToDisplay.value,
@@ -93,7 +93,7 @@ const updateChart = debounce(() => {
 
   const catScales = chartAppendConfig[2];
 
-  new Chart({ tickConfig, categoricalScalePaddingInner: { x: catScales.x ? 0.02 : 0 } })
+  new Chart(constructorOptions)
     .addAxes(...axisConfig) // TODO: for diseases (eg HebB, Hib) which only have one activity_type value, display the label in some way (I'm trying to avoid giving such cases a categorical scale)
     .addTraces(linesToDisplay.value)
     .addArea()
