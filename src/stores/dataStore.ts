@@ -100,7 +100,7 @@ export const useDataStore = defineStore("data", () => {
   }, 25)
 
   watch([histFilenames, summaryTableFilenames], async (_oldPaths, newPaths) => {
-    if (newPaths) {
+    if (newPaths.length) {
       debouncedLoadAllData();
     } else {
       // This is the first time the filenames are computed, so don't debounce.
