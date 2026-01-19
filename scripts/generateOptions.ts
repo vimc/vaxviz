@@ -57,7 +57,7 @@ let activityTypeOpts: Option[] = [];
     if (activityTypeValue && !activityTypeOpts.find(o => o.value === activityTypeValue)) {
       activityTypeOpts.push({
         value: activityTypeValue,
-        label: titleCase(activityTypeValue)
+        label: titleCase(activityTypeValue)!
       });
     }
   }

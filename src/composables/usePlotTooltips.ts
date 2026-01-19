@@ -11,6 +11,7 @@ export default () => {
   const dataStore = useDataStore();
 
   // Generate HTML for tooltips on ridgeline plot points.
+  // This callback is passed to skadi-chart, and is invoked when hovering over the chart.
   const tooltipCallback = (point: PointWithMetadata) => {
     if (!point.metadata) return "";
 
