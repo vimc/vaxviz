@@ -31,27 +31,27 @@ import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
 import { Axes, Dimensions } from '@/types';
-import titleCase from '@/utils/titleCase';
 import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel } from '@/utils/options';
+import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
+import usePlotTooltips from '@/composables/usePlotTooltips';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();
 const colorStore = useColorStore();
+const { tooltipCallback } = usePlotTooltips();
 
 const chartWrapper = ref<HTMLDivElement | null>(null);
 // noDataToDisplay is a ref rather than computed so that we can debounce updates to it, preventing flickering
 // if appStore changes at a different moment from linesToDisplay.
 const noDataToDisplay = ref<boolean>(false);
 
-const data = () => {
-  return dataStore.histogramData.filter(dataRow =>
-    [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
-      const dimensionVal = getDimensionCategoryValue(dim, dataRow);
-      return appStore.filters[dim]?.includes(dimensionVal);
-    })
-  )
-};
+const data = computed(() => dataStore.histogramData.filter(dataRow =>
+  [Dimensions.LOCATION, Dimensions.DISEASE].every(dim => {
+    const dimensionVal = getDimensionCategoryValue(dim, dataRow);
+    return appStore.filters[dim]?.includes(dimensionVal);
+  })),
+);
 
 const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
 
@@ -92,40 +92,28 @@ const updateChart = debounce(() => {
     line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
   });
 
-  const minX = Math.min(...linesToDisplay.value.flatMap(l => l.points![0]?.x ?? 0));
-  const maxX = Math.max(...linesToDisplay.value.flatMap(l => l.points[l.points.length - 1]!.x));
-  const maxY = Math.max(...linesToDisplay.value.flatMap(l => Math.max(...l.points.map(p => p.y))));
+  const { constructorOptions, axisConfig, chartAppendConfig } = plotConfiguration(
+    appStore.dimensions[Axes.ROW],
+    appStore.logScaleEnabled,
+    linesToDisplay.value,
+  );
 
-  const numericalScales = {
-    x: { start: appStore.logScaleEnabled ? minX : 0, end: maxX },
-    y: { start: 0, end: maxY },
-  };
+  const catScales = chartAppendConfig[2];
 
-  const xCategoricalScale = linesToDisplay.value.map(l => l.bands?.x).filter(c => !!c) as string[];
-  // TODO: Implement an ordering for the row categories, depending on the mean of means.
-  const yCategoricalScale = linesToDisplay.value.map(l => l.bands?.y).filter(c => !!c) as string[];
-  const categoricalScales = {
-    ...(xCategoricalScale.length ? { x: xCategoricalScale } : {}),
-    ...(yCategoricalScale.length ? { y: yCategoricalScale } : {}),
-  };
-
-  const chart = new Chart()
-    .addAxes({
-      // TODO: Put the 10^n into the tick labels, pending release of https://github.com/mrc-ide/skadi-chart/pull/65
-      x: appStore.logScaleEnabled ? "Impact ratio (10^n)" : "Impact ratio",
-      y: titleCase(appStore.dimensions[Axes.ROW]),
-    })
+  new Chart(constructorOptions)
+    .addAxes(...axisConfig)
     .addTraces(linesToDisplay.value)
     .addArea()
-    .addGridLines({ x: !appStore.dimensions[Axes.COLUMN], y: false })
-    // .addTooltips() // TODO: Enable tooltips once behaviour is satisfactory for area charts (vimc-8117)
+    .addGridLines(
+      {
+        // TODO: vimc-9195: extend gridlines feature to work for categorical axes.
+        x: !catScales.x?.length,
+        y: false,
+      },
+    )
+    .addTooltips(tooltipCallback, TOOLTIP_RADIUS_PX)
     .makeResponsive()
-
-  if (Object.values(categoricalScales).length !== 2) {
-    chart.addZoom();
-  }
-
-  chart.appendTo(chartWrapper.value, numericalScales, {}, categoricalScales);
+    .appendTo(chartWrapper.value, ...chartAppendConfig);
 }, 100);
 
 watch([linesToDisplay, () => appStore.focus, chartWrapper], updateChart, { immediate: true });

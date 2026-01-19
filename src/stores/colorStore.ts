@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import type { Lines } from "@reside-ic/skadi-chart";
 import convert, { type HEX } from "color-convert";
-import { Axes, type LineMetadata } from "@/types";
+import { Axes, type LineColors, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
 import { globalOption } from "@/utils/options";
 
@@ -111,7 +111,7 @@ export const useColorStore = defineStore("color", () => {
   });
 
   // Given a line's category values, fetch the color from the mapping.
-  const getColorsForLine = (categoryValues: LineMetadata) => {
+  const getColorsForLine = (categoryValues: LineMetadata): LineColors => {
     // `value` is the specific value, i.e. a specific location or disease,
     // whose color we need to look up or assign.
     const value = categoryValues[colorAxis.value];
@@ -119,5 +119,5 @@ export const useColorStore = defineStore("color", () => {
     return colorProperties(color);
   };
 
-  return { colorDimension, colorMapping, colorProperties, getColorsForLine, setColors };
+  return { colorAxis, colorDimension, colorMapping, colorProperties, getColorsForLine, setColors };
 });

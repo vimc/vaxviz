@@ -1,11 +1,11 @@
 import { Axes, Dimensions, HistCols, type Coords, type HistDataRow, type LineMetadata } from '@/types';
 import type { LineConfig, Lines } from 'types';
-import { computed, toValue } from 'vue';
+import { computed, toValue, type MaybeRefOrGetter } from 'vue';
 
 // Construct histogram/ridge-shaped lines by building area lines whose points trace the
 // outline of the histogram.  
 export default (
-  data: () => HistDataRow[],
+  data: MaybeRefOrGetter<HistDataRow[]>,
   axisDimensions: () => {
     [Axes.COLUMN]: Dimensions | null;
     [Axes.ROW]: Dimensions;

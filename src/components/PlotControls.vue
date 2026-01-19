@@ -52,7 +52,7 @@
         />
       </div>
     </fieldset>
-    <!-- TODO?: Disable this checkbox if the currently selected disease does not have multiple activity types? -->
+    <!-- TODO?: Disable this checkbox, or warn user, if the currently selected disease does not have multiple activity types? -->
     <div class="flex gap-y-5 flex-wrap flex-col">
       <FwbCheckbox
         v-model="appStore.splitByActivityType"

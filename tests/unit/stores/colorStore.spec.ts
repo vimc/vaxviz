@@ -1,5 +1,6 @@
-import { createPinia, setActivePinia } from 'pinia';
-import { it, expect, describe, beforeEach } from 'vitest';
+import { setActivePinia } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
+import { it, expect, describe, beforeEach, vi } from 'vitest';
 
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { globalOption } from '@/utils/options';
@@ -27,7 +28,7 @@ const colors = {
 
 describe('color store', () => {
   beforeEach(() => {
-    setActivePinia(createPinia());
+    setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
   });
 
   describe('colorDimension', () => {

@@ -8,5 +8,7 @@ describe('titleCase util', () => {
     expect(titleCase('mIxEd CaSe StRiNg')).toBe('Mixed Case String');
     expect(titleCase('single')).toBe('Single');
     expect(titleCase('')).toBe('');
+    expect(titleCase(undefined)).toBeUndefined();
+    expect(titleCase('with_underscores')).toBe('With Underscores');
   });
 });

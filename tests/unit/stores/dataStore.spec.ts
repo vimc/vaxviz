@@ -1,4 +1,5 @@
-import { createPinia, setActivePinia } from 'pinia';
+import { setActivePinia } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 import { it, expect, describe, beforeEach, vi, Mock } from 'vitest';
 
 import { server } from '../mocks/server';
@@ -25,7 +26,7 @@ const expectLastNCallsToEqual = (spy: Mock, args: any[]) => {
 
 describe('data store', () => {
   beforeEach(() => {
-    setActivePinia(createPinia());
+    setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
   });
 
   it('should initialize with correct data, and request correct data as store selections change', async () => {
