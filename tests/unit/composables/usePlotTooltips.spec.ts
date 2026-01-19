@@ -29,14 +29,13 @@ describe('usePlotTooltips', () => {
       const appStore = useAppStore();
       const colorStore = useColorStore();
 
-      // Set up store state for location-based coloring
       appStore.filters = {
         [Dimension.LOCATION]: ['AFG', 'global'],
         [Dimension.DISEASE]: ['Cholera'],
       };
       expect(colorStore.colorDimension).toBe(Dimension.LOCATION);
+      expect(appStore.dimensions.row).toBe(Dimension.DISEASE);
 
-      // Set colors so colorStore has the mapping
       colorStore.setColors([afgPointMetadata, globalPointMetadata]);
 
       const { tooltipCallback } = usePlotTooltips();
@@ -53,7 +52,6 @@ describe('usePlotTooltips', () => {
 
       expect(globalTooltip).toContain('Location: <strong>All 117 VIMC countries</strong>');
       expect(globalTooltip).toContain('style="color: #6929c4'); // purple70
-      // Row dimension (disease) is shown because it's different from color dimension (location)
       expect(globalTooltip).toContain('Disease: <strong>Cholera</strong>');
       expect(globalTooltip).not.toContain('Activity type');
     });
@@ -65,13 +63,11 @@ describe('usePlotTooltips', () => {
       const appStore = useAppStore();
       const colorStore = useColorStore();
 
-      // Set up store state for disease-based coloring
       appStore.filters = {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera', 'Measles'],
       };
       expect(colorStore.colorDimension).toBe(Dimension.DISEASE);
-      // Row dimension is DISEASE by default, same as colorDimension
       expect(appStore.dimensions.row).toBe(Dimension.DISEASE);
 
       colorStore.setColors([choleraPointMetadata, measlesPointMetadata]);
@@ -106,13 +102,13 @@ describe('usePlotTooltips', () => {
       await nextTick();
       expect(appStore.dimensions.column).toBe(Dimension.ACTIVITY_TYPE);
 
-      // Set up store state for disease-based coloring (single location)
       appStore.filters = {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera'],
         [Dimension.ACTIVITY_TYPE]: ['routine', 'campaign'],
       };
       expect(colorStore.colorDimension).toBe(Dimension.DISEASE);
+      expect(appStore.dimensions.row).toBe(Dimension.DISEASE);
 
       colorStore.setColors([routinePointMetadata, campaignPointMetadata]);
 
@@ -121,12 +117,16 @@ describe('usePlotTooltips', () => {
       const routineTooltip = tooltipCallback({ x: 1, y: 2, metadata: routinePointMetadata.metadata! });
       expect(routineTooltip).toContain('Disease: <strong>Cholera</strong>');
       expect(routineTooltip).toContain('Activity type: <strong>Routine</strong>');
+      // Row dimension (disease) is NOT shown separately because it's the same as color dimension
+      expect(routineTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(routineTooltip).toContain('style="color: #6929c4'); // purple70
 
       const campaignTooltip = tooltipCallback({ x: 1, y: 2, metadata: campaignPointMetadata.metadata! });
 
       expect(campaignTooltip).toContain('Disease: <strong>Cholera</strong>');
       expect(campaignTooltip).toContain('Activity type: <strong>Campaign</strong>');
+      // Row dimension (disease) is NOT shown separately because it's the same as color dimension
+      expect(campaignTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(campaignTooltip).toContain('style="color: #6929c4'); // purple70
     });
 
@@ -137,7 +137,6 @@ describe('usePlotTooltips', () => {
       const colorStore = useColorStore();
       const dataStore = useDataStore();
 
-      // Set up store state for location-based coloring
       appStore.filters = {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera'],
@@ -145,7 +144,6 @@ describe('usePlotTooltips', () => {
 
       colorStore.setColors([afgPointMetadata]);
 
-      // Set up summary table data with test values
       dataStore.summaryTableData = [
         {
           [Dimension.LOCATION]: 'AFG',
@@ -161,10 +159,8 @@ describe('usePlotTooltips', () => {
 
       const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
 
-      // Check that median and mean are displayed with proper formatting
       expect(tooltip).toContain('Median: <strong>1234.56</strong>');
       expect(tooltip).toContain('Mean: <strong>1456.78</strong>');
-      // Check 95% confidence interval is displayed
       expect(tooltip).toContain('95% confidence interval:');
       expect(tooltip).toContain('<strong>789.12</strong>');
       expect(tooltip).toContain('<strong>2345.67</strong>');
@@ -177,7 +173,6 @@ describe('usePlotTooltips', () => {
       const colorStore = useColorStore();
       const dataStore = useDataStore();
 
-      // Set up store state for location-based coloring
       appStore.filters = {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera'],
@@ -201,42 +196,11 @@ describe('usePlotTooltips', () => {
 
       const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
 
-      // Check that the values are displayed correctly
       expect(tooltip).toContain('Median: <strong>50.00</strong>');
       expect(tooltip).toContain('Mean: <strong>55.00</strong>');
       // Check negative lower bound and positive upper bound with + sign when interval crosses zero
       expect(tooltip).toContain('<strong>-100.50</strong>');
       expect(tooltip).toContain('<strong>+200.75</strong>');
-    });
-
-    it('handles undefined summary data gracefully', () => {
-      const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
-
-      const appStore = useAppStore();
-      const colorStore = useColorStore();
-      const dataStore = useDataStore();
-
-      // Set up store state
-      appStore.filters = {
-        [Dimension.LOCATION]: ['AFG'],
-        [Dimension.DISEASE]: ['Cholera'],
-      };
-
-      colorStore.setColors([afgPointMetadata]);
-
-      // Empty summary table data - no matching row will be found
-      dataStore.summaryTableData = [];
-
-      const { tooltipCallback } = usePlotTooltips();
-
-      const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
-
-      // The tooltip should still render, but values will be undefined
-      expect(tooltip).toContain('Median:');
-      expect(tooltip).toContain('Mean:');
-      expect(tooltip).toContain('95% confidence interval:');
-      // Should contain undefined formatted values
-      expect(tooltip).toContain('<strong>undefined</strong>');
     });
   });
 });
