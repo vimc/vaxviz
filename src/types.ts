@@ -31,7 +31,7 @@ export enum SummaryTableColumn {
   CI_UPPER = "upper_95",
 }
 
-type DataRow = Record<string, string | number> & {
+export type DataRow = Record<string, string | number> & {
   [Dimension.DISEASE]: string;
   [Dimension.ACTIVITY_TYPE]?: string;
   [LocResolution.COUNTRY]?: string;

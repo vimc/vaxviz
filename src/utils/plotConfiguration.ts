@@ -10,7 +10,7 @@ const ELLIPSIS = "...";
 const Y_TICK_LABEL_MAX_LENGTH = globalOption.label.length;
 export const TOOLTIP_RADIUS_PX = 100; // Maximum distance in px from point for triggering tooltips to be displayed
 
-const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): Scales => {
+export const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): Scales => {
   const maxX = Math.max(...lines.flatMap(l => {
     const lastPoint = l.points[l.points.length - 1]!;
     return lastPoint.x;
