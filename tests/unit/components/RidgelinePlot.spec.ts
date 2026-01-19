@@ -223,7 +223,7 @@ describe('RidgelinePlot component', () => {
 
       const margins = appendToLastCallArgs[4];
       expect(margins).toEqual(expect.objectContaining({
-        left: 100,
+        left: 110,
       }));
     });
   });
