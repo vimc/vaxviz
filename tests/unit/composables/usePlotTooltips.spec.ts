@@ -71,6 +71,8 @@ describe('usePlotTooltips', () => {
         [Dimension.DISEASE]: ['Cholera', 'Measles'],
       };
       expect(colorStore.colorDimension).toBe(Dimension.DISEASE);
+      // Row dimension is DISEASE by default, same as colorDimension
+      expect(appStore.dimensions.row).toBe(Dimension.DISEASE);
 
       colorStore.setColors([choleraPointMetadata, measlesPointMetadata]);
 
@@ -80,12 +82,16 @@ describe('usePlotTooltips', () => {
 
       expect(choleraTooltip).toContain('Disease: <strong>Cholera</strong>');
       expect(choleraTooltip).toContain('style="color: #6929c4'); // purple70
+      // Row dimension (disease) is NOT shown separately because it's the same as color dimension
+      expect(choleraTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(choleraTooltip).not.toContain('Activity type');
 
       const measlesTooltip = tooltipCallback({ x: 1, y: 2, metadata: measlesPointMetadata.metadata! });
 
       expect(measlesTooltip).toContain('Disease: <strong>Measles</strong>');
       expect(measlesTooltip).toContain('style="color: #009d9a'); // teal50
+      // Row dimension (disease) is NOT shown separately because it's the same as color dimension
+      expect(measlesTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(measlesTooltip).not.toContain('Activity type');
     });
 
