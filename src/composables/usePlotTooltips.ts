@@ -37,7 +37,7 @@ export default () => {
 
     const { summaryTableData } = dataStore;
 
-    // Find the summary table row whose values for the current plot row and band 
+    // Find the summary table row whose values for the plot row and band
     // dimensions (and column, if set) match the values of the tooltip point 
     const summaryDataRow = summaryTableData.find(d => {
       return Object.entries(dimensions).every(([axis, dim]) => {
