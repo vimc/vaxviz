@@ -27,42 +27,42 @@ export default () => {
 
     const { summaryTableData } = dataStore;
 
+    // Find the summary table row whose values for the current plot row and band 
+    // dimensions (and column, if set) match the values of the tooltip point 
     const summaryDataRow = summaryTableData.find(d => {
       return Object.entries(dimensions).every(([axis, dim]) => {
         return !dim || d[dim] === point.metadata?.[axis as Axis];
       });
     });
 
-    // NB regardless of whether log scale is enabled, the summary table data are expressed in non-log scale.
-    const [median, mean, ciLower, ciUpper] = [
-      SummaryTableColumn.MEDIAN,
+    // NB regardless of whether log scale is enabled, the summary table data are provided in non-log scale.
+    const [mean, ciLower, ciUpper] = [
       SummaryTableColumn.MEAN,
       SummaryTableColumn.CI_LOWER,
       SummaryTableColumn.CI_UPPER,
     ].map(col => summaryDataRow?.[col]);
 
-    const includePositiveSign = ciLower && ciLower < 0;
-    const ciLowerMaybeWithSign = ciLower?.toFixed(2);
-    const ciUpperMaybeWithSign = `${includePositiveSign ? `${ciUpper && ciUpper > 0 ? '+' : ''}` : ''}${ciUpper?.toFixed(2)}`;
+    const includePositiveSign = ciLower! < 0;
+    const ciUpperSign = (includePositiveSign && ciUpper! > 0) ? '+' : '';
 
     return `<div class="tooltip text-xs flex flex-col gap-1 w-75">
       <div class="flex gap-1 h-6 items-center">
         <span style="color: ${strokeColor}; font-size: 1.5rem;">●</span>
         <span class="mt-1">
-          ${sentenceCase(colorDimension)}: <strong>${colorDimensionLabel}</strong>
+          ${sentenceCase(colorDimension)}: <b>${colorDimensionLabel}</b>
         </span>
       </div>
       ${dimensions.row !== colorDimension ? `<span>
-        ${sentenceCase(dimensions.row)}: <strong>${rowOptionLabel}</strong>
+        ${sentenceCase(dimensions.row)}: <b>${rowOptionLabel}</b>
       </span>` : ''}
       ${dimensions.column && dimensions.column !== colorDimension ? `<span>
-        ${sentenceCase(dimensions.column)}: <strong>${columnOptionLabel}</strong>
+        ${sentenceCase(dimensions.column)}: <b>${columnOptionLabel}</b>
       </span>` : ''}
       <p class="mt-1">
-        Median: <strong>${median?.toFixed(2)}</strong>, Mean: <strong>${mean?.toFixed(2)}</strong><br/>
+        Mean: <b>${mean?.toFixed(2)}</b><br/>
       </p>
       <p>
-        95% confidence interval: <strong>${ciLowerMaybeWithSign}</strong> — <strong>${ciUpperMaybeWithSign}</strong>
+        95% confidence interval: <b>${ciLower?.toFixed(2)}</b> — <b>${ciUpperSign}${ciUpper?.toFixed(2)}</b>
       </p>
     </div>`
   }

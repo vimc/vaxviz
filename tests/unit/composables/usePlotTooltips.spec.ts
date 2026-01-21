@@ -42,17 +42,17 @@ describe('usePlotTooltips', () => {
 
       const afgTooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
 
-      expect(afgTooltip).toContain('Location: <strong>Afghanistan</strong>');
+      expect(afgTooltip).toContain('Location: <b>Afghanistan</b>');
       expect(afgTooltip).toContain('style="color: #009d9a'); // teal50
       // Row dimension (disease) is shown because it's different from color dimension (location)
-      expect(afgTooltip).toContain('Disease: <strong>Cholera</strong>');
+      expect(afgTooltip).toContain('Disease: <b>Cholera</b>');
       expect(afgTooltip).not.toContain('Activity type');
 
       const globalTooltip = tooltipCallback({ x: 1, y: 2, metadata: globalPointMetadata.metadata! });
 
-      expect(globalTooltip).toContain('Location: <strong>All 117 VIMC countries</strong>');
+      expect(globalTooltip).toContain('Location: <b>All 117 VIMC countries</b>');
       expect(globalTooltip).toContain('style="color: #6929c4'); // purple70
-      expect(globalTooltip).toContain('Disease: <strong>Cholera</strong>');
+      expect(globalTooltip).toContain('Disease: <b>Cholera</b>');
       expect(globalTooltip).not.toContain('Activity type');
     });
 
@@ -76,7 +76,7 @@ describe('usePlotTooltips', () => {
 
       const choleraTooltip = tooltipCallback({ x: 1, y: 2, metadata: choleraPointMetadata.metadata! });
 
-      expect(choleraTooltip).toContain('Disease: <strong>Cholera</strong>');
+      expect(choleraTooltip).toContain('Disease: <b>Cholera</b>');
       expect(choleraTooltip).toContain('style="color: #6929c4'); // purple70
       // Row dimension (disease) is NOT shown separately because it's the same as color dimension
       expect(choleraTooltip.match(/Disease:/g)?.length).toBe(1);
@@ -84,7 +84,7 @@ describe('usePlotTooltips', () => {
 
       const measlesTooltip = tooltipCallback({ x: 1, y: 2, metadata: measlesPointMetadata.metadata! });
 
-      expect(measlesTooltip).toContain('Disease: <strong>Measles</strong>');
+      expect(measlesTooltip).toContain('Disease: <b>Measles</b>');
       expect(measlesTooltip).toContain('style="color: #009d9a'); // teal50
       // Row dimension (disease) is NOT shown separately because it's the same as color dimension
       expect(measlesTooltip.match(/Disease:/g)?.length).toBe(1);
@@ -115,22 +115,22 @@ describe('usePlotTooltips', () => {
       const { tooltipCallback } = usePlotTooltips();
 
       const routineTooltip = tooltipCallback({ x: 1, y: 2, metadata: routinePointMetadata.metadata! });
-      expect(routineTooltip).toContain('Disease: <strong>Cholera</strong>');
-      expect(routineTooltip).toContain('Activity type: <strong>Routine</strong>');
+      expect(routineTooltip).toContain('Disease: <b>Cholera</b>');
+      expect(routineTooltip).toContain('Activity type: <b>Routine</b>');
       // Row dimension (disease) is NOT shown separately because it's the same as color dimension
       expect(routineTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(routineTooltip).toContain('style="color: #6929c4'); // purple70
 
       const campaignTooltip = tooltipCallback({ x: 1, y: 2, metadata: campaignPointMetadata.metadata! });
 
-      expect(campaignTooltip).toContain('Disease: <strong>Cholera</strong>');
-      expect(campaignTooltip).toContain('Activity type: <strong>Campaign</strong>');
+      expect(campaignTooltip).toContain('Disease: <b>Cholera</b>');
+      expect(campaignTooltip).toContain('Activity type: <b>Campaign</b>');
       // Row dimension (disease) is NOT shown separately because it's the same as color dimension
       expect(campaignTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(campaignTooltip).toContain('style="color: #6929c4'); // purple70
     });
 
-    it('displays summary data (median, mean, and 95% confidence interval) in tooltip', () => {
+    it('displays summary data (mean, and 95% confidence interval) in tooltip', () => {
       const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
 
       const appStore = useAppStore();
@@ -148,7 +148,6 @@ describe('usePlotTooltips', () => {
         {
           [Dimension.LOCATION]: 'AFG',
           [Dimension.DISEASE]: 'Cholera',
-          [SummaryTableColumn.MEDIAN]: 1234.56,
           [SummaryTableColumn.MEAN]: 1456.78,
           [SummaryTableColumn.CI_LOWER]: 789.12,
           [SummaryTableColumn.CI_UPPER]: 2345.67,
@@ -159,11 +158,10 @@ describe('usePlotTooltips', () => {
 
       const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
 
-      expect(tooltip).toContain('Median: <strong>1234.56</strong>');
-      expect(tooltip).toContain('Mean: <strong>1456.78</strong>');
+      expect(tooltip).toContain('Mean: <b>1456.78</b>');
       expect(tooltip).toContain('95% confidence interval:');
-      expect(tooltip).toContain('<strong>789.12</strong>');
-      expect(tooltip).toContain('<strong>2345.67</strong>');
+      expect(tooltip).toContain('<b>789.12</b>');
+      expect(tooltip).toContain('<b>2345.67</b>');
     });
 
     it('handles negative confidence interval values with appropriate sign', () => {
@@ -185,7 +183,6 @@ describe('usePlotTooltips', () => {
         {
           [Dimension.LOCATION]: 'AFG',
           [Dimension.DISEASE]: 'Cholera',
-          [SummaryTableColumn.MEDIAN]: 50.00,
           [SummaryTableColumn.MEAN]: 55.00,
           [SummaryTableColumn.CI_LOWER]: -100.50,
           [SummaryTableColumn.CI_UPPER]: 200.75,
@@ -196,11 +193,10 @@ describe('usePlotTooltips', () => {
 
       const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
 
-      expect(tooltip).toContain('Median: <strong>50.00</strong>');
-      expect(tooltip).toContain('Mean: <strong>55.00</strong>');
+      expect(tooltip).toContain('Mean: <b>55.00</b>');
       // Check negative lower bound and positive upper bound with + sign when interval crosses zero
-      expect(tooltip).toContain('<strong>-100.50</strong>');
-      expect(tooltip).toContain('<strong>+200.75</strong>');
+      expect(tooltip).toContain('<b>-100.50</b>');
+      expect(tooltip).toContain('<b>+200.75</b>');
     });
   });
 });

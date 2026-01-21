@@ -31,15 +31,27 @@ export enum SummaryTableColumn {
   CI_UPPER = "upper_95",
 }
 
-type DataRow = Record<string, string | number> & {
+export type HistDataRow = {
   [Dimension.DISEASE]: string;
   [Dimension.ACTIVITY_TYPE]?: string;
   [LocResolution.COUNTRY]?: string;
   [LocResolution.SUBREGION]?: string;
   [Dimension.LOCATION]?: string;
+  [HistColumn.LOWER_BOUND]: number;
+  [HistColumn.UPPER_BOUND]: number;
+  [HistColumn.COUNTS]: number;
 };
-export type HistDataRow = DataRow & Record<HistColumn, number>;
-export type SummaryTableDataRow = DataRow & Record<SummaryTableColumn, number>;
+export type SummaryTableDataRow = {
+  [Dimension.DISEASE]: string;
+  [Dimension.ACTIVITY_TYPE]?: string;
+  [LocResolution.COUNTRY]?: string;
+  [LocResolution.SUBREGION]?: string;
+  [Dimension.LOCATION]?: string;
+  [SummaryTableColumn.MEAN]: number;
+  [SummaryTableColumn.MEDIAN]: number;
+  [SummaryTableColumn.CI_LOWER]: number;
+  [SummaryTableColumn.CI_UPPER]: number;
+}
 
 export type Option = { label: string; value: string };
 

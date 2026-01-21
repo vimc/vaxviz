@@ -19,11 +19,10 @@ import summaryDeathsDiseaseActivityType from "@/../public/data/json/summary_tabl
 import summaryDalysDiseaseSubregion from "@/../public/data/json/summary_table_dalys_disease_subregion.json";
 import summaryDalysDiseaseCountry from "@/../public/data/json/summary_table_dalys_disease_country.json";
 import summaryDalysDisease from "@/../public/data/json/summary_table_dalys_disease.json";
-import { BurdenMetric, Dimension } from '@/types';
+import { BurdenMetric } from '@/types';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { http, HttpResponse } from 'msw';
-import { nextTick } from 'vue';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const expectLastNCallsToContain = (spy: Mock, args: any[]) => {
@@ -50,9 +49,21 @@ describe('data store', () => {
     await vi.waitFor(() => {
       expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(histCountsDeathsDiseaseLog.length);
-      expect(dataStore.histogramData[0]).toEqual(expect.objectContaining({ disease: "Cholera" }));
+      expect(dataStore.histogramData[0]).toEqual(expect.objectContaining({
+        disease: "Cholera",
+        location: "global",
+        Counts: 1,
+        lower_bound: expect.closeTo(-2.43),
+        upper_bound: expect.closeTo(-2.42),
+      }));
       expect(dataStore.summaryTableData).toHaveLength(summaryDeathsDisease.length);
-      expect(dataStore.summaryTableData[0]).toEqual(expect.objectContaining({ disease: "COVID-19" }));
+      expect(dataStore.summaryTableData[0]).toEqual(expect.objectContaining({
+        disease: "COVID-19",
+        lower_95: expect.closeTo(0.08),
+        upper_95: expect.closeTo(0.19),
+        mean_value: expect.closeTo(0.12),
+        median_value: expect.closeTo(0.12),
+      }));
       expect(fetchSpy).toBeCalledTimes(expectedFetches);
       expectLastNCallsToContain(fetchSpy, [
         "./data/json/hist_counts_deaths_disease_log.json",
