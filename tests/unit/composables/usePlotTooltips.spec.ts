@@ -130,7 +130,7 @@ describe('usePlotTooltips', () => {
       expect(campaignTooltip).toContain('style="color: #6929c4'); // purple70
     });
 
-    it('displays summary data (mean, and 95% confidence interval) in tooltip', () => {
+    it('displays summary data (mean, and 95% confidence interval) in tooltip (linear scale)', () => {
       const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
 
       const appStore = useAppStore();
@@ -141,9 +141,8 @@ describe('usePlotTooltips', () => {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera'],
       };
-
+      appStore.logScaleEnabled = false;
       colorStore.setColors([afgPointMetadata]);
-
       dataStore.summaryTableData = [
         {
           [Dimension.LOCATION]: 'AFG',
@@ -164,7 +163,7 @@ describe('usePlotTooltips', () => {
       expect(tooltip).toContain('<b>2345.67</b>');
     });
 
-    it('handles negative confidence interval values with appropriate sign', () => {
+    it('handles negative confidence interval values with appropriate sign (linear scale)', () => {
       const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
 
       const appStore = useAppStore();
@@ -175,9 +174,8 @@ describe('usePlotTooltips', () => {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera'],
       };
-
+      appStore.logScaleEnabled = false;
       colorStore.setColors([afgPointMetadata]);
-
       // Set up summary table data with negative lower bound (crossing zero)
       dataStore.summaryTableData = [
         {
@@ -198,5 +196,38 @@ describe('usePlotTooltips', () => {
       expect(tooltip).toContain('<b>-100.50</b>');
       expect(tooltip).toContain('<b>+200.75</b>');
     });
+  });
+
+  it('displays summary data (mean, and 95% confidence interval) in tooltip (log scale: scientific notation)', () => {
+    const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
+
+    const appStore = useAppStore();
+    const colorStore = useColorStore();
+    const dataStore = useDataStore();
+
+    appStore.filters = {
+      [Dimension.LOCATION]: ['AFG'],
+      [Dimension.DISEASE]: ['Cholera'],
+    };
+    appStore.logScaleEnabled = true;
+    colorStore.setColors([afgPointMetadata]);
+    dataStore.summaryTableData = [
+      {
+        [Dimension.LOCATION]: 'AFG',
+        [Dimension.DISEASE]: 'Cholera',
+        [SummaryTableColumn.MEAN]: 1456.78,
+        [SummaryTableColumn.CI_LOWER]: 789.12,
+        [SummaryTableColumn.CI_UPPER]: 2345.67,
+      } as SummaryTableDataRow,
+    ];
+
+    const { tooltipCallback } = usePlotTooltips();
+
+    const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
+
+    expect(tooltip).toContain('Mean: <b>1.46 × 10<sup>3</sup></b>');
+    expect(tooltip).toContain('95% confidence interval:');
+    expect(tooltip).toContain('<b>7.89 × 10<sup>2</sup></b>');
+    expect(tooltip).toContain('<b>2.35 × 10<sup>3</sup></b>');
   });
 });

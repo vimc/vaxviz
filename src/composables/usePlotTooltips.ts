@@ -10,6 +10,16 @@ export default () => {
   const appStore = useAppStore();
   const dataStore = useDataStore();
 
+  const convertToScientificNotation = (num: number): string => {
+    if (!appStore.logScaleEnabled) {
+      return num.toFixed(2);
+    }
+    if (num === 0) return "0";
+    const exponent = Math.floor(Math.log10(Math.abs(num)));
+    const coefficient = (num / Math.pow(10, exponent)).toFixed(2);
+    return `${coefficient} × 10<sup>${exponent}</sup>`;
+  };
+
   // Generate HTML for tooltips on ridgeline plot points.
   // This callback is passed to skadi-chart, and is invoked when hovering over the chart.
   const tooltipCallback = (point: PointWithMetadata) => {
@@ -42,8 +52,19 @@ export default () => {
       SummaryTableColumn.CI_UPPER,
     ].map(col => summaryDataRow?.[col]);
 
-    const includePositiveSign = ciLower! < 0;
-    const ciUpperSign = (includePositiveSign && ciUpper! > 0) ? '+' : '';
+    let ciLowerStr;
+    let ciUpperStr;
+    if (appStore.logScaleEnabled) {
+      ciUpperStr = convertToScientificNotation(ciUpper!);
+      ciLowerStr = convertToScientificNotation(ciLower!);
+    } else {
+      const includePositiveSign = ciLower! < 0;
+      const ciUpperSign = (includePositiveSign && ciUpper! > 0) ? '+' : '';
+      ciUpperStr = `${ciUpperSign}${ciUpper?.toFixed(2)}`;
+      ciLowerStr = ciLower?.toFixed(2);
+    }
+
+    const meanStr = appStore.logScaleEnabled ? convertToScientificNotation(mean!) : mean?.toFixed(2)
 
     return `<div class="tooltip text-xs flex flex-col gap-1 w-75">
       <div class="flex gap-1 h-6 items-center">
@@ -59,10 +80,10 @@ export default () => {
         ${sentenceCase(dimensions.column)}: <b>${columnOptionLabel}</b>
       </span>` : ''}
       <p class="mt-1">
-        Mean: <b>${mean?.toFixed(2)}</b><br/>
+        Mean: <b>${meanStr}</b><br/>
       </p>
       <p>
-        95% confidence interval: <b>${ciLower?.toFixed(2)}</b> — <b>${ciUpperSign}${ciUpper?.toFixed(2)}</b>
+        95% confidence interval: <b>${ciLowerStr}</b> — <b>${ciUpperStr}</b>
       </p>
     </div>`
   }
