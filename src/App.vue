@@ -24,7 +24,7 @@ header {
   padding: $header-padding;
   margin-bottom: $header-padding;
 
-  img {
+  img#logo {
     height: $logo-height;
   }
 }
