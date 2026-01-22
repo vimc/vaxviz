@@ -1,17 +1,17 @@
 <template>
   <div
     v-if="colors && colors.length >= 2"
-    class="max-w-full h-full"
+    class="h-20 flex mb-5 w-fit m-auto"
     id="colorLegend"
   >
-    <h3 class="fs-3 font-medium mb-5 text-heading mb-2">
+    <h3 class="fs-3 font-medium text-heading mr-10 self-center">
       Legend
     </h3>
-    <ul class="flex flex-col gap-y-1 max-h-full max-w-full">
+    <ul class="flex flex-col gap-y-1 flex-wrap max-h-full min-h-0">
       <li
         v-for="([value, color]) in colors"
         :key="value"
-        class="flex gap-x-2 text-sm"
+        class="flex gap-x-2 text-sm mr-20"
       >
         <span
           class="legend-color-box"
