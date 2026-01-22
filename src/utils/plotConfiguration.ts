@@ -1,4 +1,4 @@
-import { Dimensions, type LineMetadata } from "@/types";
+import { Dimension, type LineMetadata } from "@/types";
 import { globalOption } from "./options";
 import type { Lines, Scales } from "@reside-ic/skadi-chart";
 // "Chart" and "types" are modules declared by @reside-ic/skadi-chart
@@ -72,7 +72,7 @@ const logScaleNumTickFormatter = () => (exponentForTen: number): string => {
 const linearScaleNumTickFormatter = () => (num: number): string => `$${num}$`;
 
 // Determine if y-axis need extra space (for long categorical axis labels).
-const yAxisNeedsExtraSpace = (rowDimension: Dimensions): boolean => rowDimension === Dimensions.LOCATION;
+const yAxisNeedsExtraSpace = (rowDimension: Dimension): boolean => rowDimension === Dimension.LOCATION;
 
 // Returns a callback for formatting categorical tick labels for locations.
 // Many locations have an unwieldy length.
@@ -86,7 +86,7 @@ const locationTickFormatter = () =>
       : substitutionsApplied;
   }
 
-const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimensions) => ({
+const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimension) => ({
   numerical: {
     x: {
       padding: 10,
@@ -99,7 +99,7 @@ const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimensions) =
     x: { padding: 40 },
     y: {
       padding: yAxisNeedsExtraSpace(rowDimension) ? 10 : 30,
-      formatter: rowDimension === Dimensions.LOCATION ? locationTickFormatter() : undefined,
+      formatter: rowDimension === Dimension.LOCATION ? locationTickFormatter() : undefined,
     },
   },
 });
@@ -107,7 +107,7 @@ const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimensions) =
 type AxisConfig = [Partial<XY<string>>, Partial<XY<number | undefined>>];
 
 const axisConfiguration = (
-  rowDimension: Dimensions,
+  rowDimension: Dimension,
 ): AxisConfig => [
     {
       x: "Impact ratio",
@@ -120,7 +120,7 @@ const axisConfiguration = (
   ];
 
 export const plotConfiguration = (
-  rowDimension: Dimensions,
+  rowDimension: Dimension,
   logScaleEnabled: boolean,
   lines: Lines<LineMetadata>,
 ): {
