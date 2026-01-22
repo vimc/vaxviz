@@ -18,7 +18,7 @@ export default (
   });
 
   // Return corner coordinates of the rectangle representing the confidence interval.
-  const pointCoords = (dataRow: SummaryTableDataRow): Coords[] => {
+  const ciPointCoords = (dataRow: SummaryTableDataRow): Coords[] => {
     const ciLower = dataRow[SummaryTableColumn.CI_LOWER];
     const ciUpper = dataRow[SummaryTableColumn.CI_UPPER];
     const maxY = toValue(numericalScaleY).end;
@@ -30,8 +30,8 @@ export default (
     return [bottomLeftPoint, topLeftPoint, topRightPoint, bottomRightPoint];
   }
 
-  // Initialize a skadi-chart LineConfig object to be used to draw a 'ridgeline' (the outline of a histogram).
-  const initializeLine = (
+  // Initialize a skadi-chart LineConfig object to be used to draw the confidence interval area.
+  const initializeCILine = (
     points: Coords[],
     categoryValues: LineMetadata,
   ): Lines<LineMetadata>[0] => {
@@ -58,9 +58,9 @@ export default (
       const withinBandCat = getCategory(appStore.dimensions[Axis.WITHIN_BAND], dataRow);
       const categoryValues = { [Axis.COLUMN]: columnCat, [Axis.ROW]: rowCat, [Axis.WITHIN_BAND]: withinBandCat };
 
-      const points = pointCoords(dataRow);
+      const points = ciPointCoords(dataRow);
 
-      return initializeLine(points, categoryValues);
+      return initializeCILine(points, categoryValues);
     });
   });
 
