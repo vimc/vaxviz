@@ -21,7 +21,6 @@
   <FwbModal
     v-if="aboutModalVisible"
     @close="aboutModalVisible = false"
-    focus-trap
   >
     <template #header>
       <div class="text-lg">
