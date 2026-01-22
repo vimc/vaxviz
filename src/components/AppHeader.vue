@@ -14,7 +14,7 @@
     </div>
   </header>
   <FwbModal
-    v-show="aboutModalVisible"
+    v-if="aboutModalVisible"
     @close="aboutModalVisible = false"
     focus-trap
   >
