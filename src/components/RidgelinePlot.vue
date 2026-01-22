@@ -70,13 +70,17 @@ const summaryTableData = computed(() => {
     // log10 of 0 or a negative number is -Infinity or NaN.
     const log10CiLower = row[SummaryTableColumn.CI_LOWER] > 0 ? Math.log10(row[SummaryTableColumn.CI_LOWER]) : -10;
     const log10CiUpper = row[SummaryTableColumn.CI_UPPER] > 0 ? Math.log10(row[SummaryTableColumn.CI_UPPER]) : -10;
-    if (isNaN(log10CiLower) || !isFinite(log10CiLower) || isNaN(log10CiUpper) || !isFinite(log10CiUpper)) {
+    const log10Median = row[SummaryTableColumn.MEDIAN] > 0 ? Math.log10(row[SummaryTableColumn.MEDIAN]) : -10;
+    const log10Mean = row[SummaryTableColumn.MEAN] > 0 ? Math.log10(row[SummaryTableColumn.MEAN]) : -10;
+    if (isNaN(log10CiLower) || !isFinite(log10CiLower) || isNaN(log10CiUpper) || !isFinite(log10CiUpper) || isNaN(log10Median) || !isFinite(log10Median) || isNaN(log10Mean) || !isFinite(log10Mean)) {
       return undefined;
     }
     return {
       ...row,
       [SummaryTableColumn.CI_LOWER]: log10CiLower,
       [SummaryTableColumn.CI_UPPER]: log10CiUpper,
+      [SummaryTableColumn.MEDIAN]: log10Median,
+      [SummaryTableColumn.MEAN]: log10Mean,
     };
   }).filter(row => row !== undefined);
 });
@@ -143,7 +147,7 @@ const updateChart = debounce(() => {
   ciLinesToDisplay.value.forEach(line => {
     const { fillColor } = colorStore.getColorsForLine(line.metadata!);
 
-    line.style = { strokeWidth: 0, strokeColor: fillColor, fillColor: fillColor, fillOpacity: 0.5 };
+    line.style = { strokeWidth: 0, strokeColor: fillColor, fillColor: fillColor, fillOpacity: 0.7 };
   });
 
   const { constructorOptions, axisConfig, chartAppendConfig } = plotConfiguration(

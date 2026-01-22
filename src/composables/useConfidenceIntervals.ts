@@ -28,7 +28,28 @@ export default (
     const topRightPoint = { x: ciUpper, y: maxY };
     const bottomRightPoint = { x: ciUpper, y: 0 };
     return [bottomLeftPoint, topLeftPoint, topRightPoint, bottomRightPoint];
-  }
+  };
+
+  // Return corner coordinates of a rectangle covering the space between the median and mean.
+  const medianToMeanCoords = (dataRow: SummaryTableDataRow): Coords[] => {
+    const median = dataRow[SummaryTableColumn.MEDIAN];
+    const mean = dataRow[SummaryTableColumn.MEAN];
+    const maxY = toValue(numericalScaleY).end;
+
+    if (median === mean) {
+      const bottomLeftPoint = { x: mean, y: 0 }
+      const topLeftPoint = { x: mean, y: maxY };
+      const topRightPoint = { x: mean + Number.EPSILON, y: maxY };
+      const bottomRightPoint = { x: mean + Number.EPSILON, y: 0 };
+      return [bottomLeftPoint, topLeftPoint, topRightPoint, bottomRightPoint];
+    }
+
+    const bottomLeftPoint = { x: Math.min(median, mean), y: 0 }
+    const topLeftPoint = { x: Math.min(median, mean), y: maxY };
+    const topRightPoint = { x: Math.max(median, mean), y: maxY };
+    const bottomRightPoint = { x: Math.max(median, mean), y: 0 };
+    return [bottomLeftPoint, topLeftPoint, topRightPoint, bottomRightPoint];
+  };
 
   // Initialize a skadi-chart LineConfig object to be used to draw the confidence interval area.
   const initializeCILine = (
@@ -51,7 +72,7 @@ export default (
     // A 3-dimensional dictionary of lines.
     // We use x-value as the key at the first level, then y-value on the second, then withinBandValue.
     // If the x-value (or anything else) is undefined, then the key should be an empty string.
-    return toValue(summaryTableData).map(dataRow => {
+    return toValue(summaryTableData).flatMap(dataRow => {
       // Each line needs to know its category for each categorical axis in use.
       const columnCat = getCategory(appStore.dimensions[Axis.COLUMN], dataRow);
       const rowCat = getCategory(appStore.dimensions[Axis.ROW], dataRow);
@@ -60,7 +81,7 @@ export default (
 
       const points = ciPointCoords(dataRow);
 
-      return initializeCILine(points, categoryValues);
+      return [initializeCILine(points, categoryValues), initializeCILine(medianToMeanCoords(dataRow), categoryValues)];
     });
   });
 
