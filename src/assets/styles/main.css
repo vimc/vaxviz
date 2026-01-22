@@ -31,13 +31,22 @@
   --vs-menu-height: 50dvh;
 }
 
+.skadi-charts-tooltip {
+  /* Move smoothly from one position to another */
+  --position-transition-duration: 0.1s;
+  /* Setting opacity to delay its change prevents the tooltip from simultaneously appearing and moving great distances */
+  --opacity-transition-delay: var(--position-transition-duration);
+  transition: left var(--position-transition-duration) ease-in-out, top var(--position-transition-duration) ease-in-out, opacity 0s ease-in-out var(--opacity-transition-delay);
+}
+
 .tooltip {
   background-color: white;
   border: 1px solid black;
   border-radius: 0.25em;
   padding: 0.5em;
-  opacity: 0.8;
+  opacity: 0.9;
   position: relative;
   top: 40px;
   right: 100px;
+  width: max-content;
 }

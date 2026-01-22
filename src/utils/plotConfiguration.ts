@@ -130,7 +130,7 @@ export const plotConfiguration = (
 } => {
   const numScales = numericalScales(logScaleEnabled, lines);
   const catScales = categoricalScales(lines);
-  const margins = { left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 100 };
+  const margins = { left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 110 };
   const tickConfig = tickConfiguration(logScaleEnabled, rowDimension);
   const constructorOptions = {
     tickConfig,

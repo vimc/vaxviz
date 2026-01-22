@@ -229,12 +229,12 @@ describe('RidgelinePlot component', () => {
       const numScales = appendToLastCallArgs[1];
       expect(numScales).toEqual(expect.objectContaining({
         x: {
-          start: expect.closeTo(-2.434),
-          end: expect.closeTo(1.0431),
+          start: expect.closeTo(-2.31),
+          end: expect.closeTo(1.04),
         },
         y: {
           start: 0,
-          end: 29,
+          end: 26,
         },
       }));
 
@@ -245,7 +245,7 @@ describe('RidgelinePlot component', () => {
 
       const margins = appendToLastCallArgs[4];
       expect(margins).toEqual(expect.objectContaining({
-        left: 100,
+        left: 110,
       }));
     });
   });
