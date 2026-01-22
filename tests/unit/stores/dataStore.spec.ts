@@ -53,6 +53,12 @@ describe('data store', () => {
       expect(dataStore.histogramData[0]).toEqual(expect.objectContaining({ disease: "Cholera" }));
       expect(dataStore.summaryTableData).toHaveLength(summaryDeathsDisease.length);
       expect(dataStore.summaryTableData[0]).toEqual(expect.objectContaining({ disease: "COVID-19" }));
+      expect(dataStore.histogramData[0]).toEqual({
+        disease: "Cholera",
+        Counts: 1,
+        lower_bound: expect.closeTo(-2, 0),
+        upper_bound: expect.closeTo(-2, 0),
+      });
       expect(fetchSpy).toBeCalledTimes(expectedFetches);
       expectLastNCallsToContain(fetchSpy, [
         "./data/json/hist_counts_deaths_disease_log.json",
