@@ -50,3 +50,12 @@
   right: 100px;
   width: max-content;
 }
+
+a {
+  color: var(--color-fg-brand);
+  text-decoration: underline;
+}
+
+button {
+  cursor: pointer;
+}

@@ -1,5 +1,5 @@
 <template>
-  <div class="chart-container">
+  <div class="chart-container min-h-0 flex-1 flex">
     <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
     <p v-else-if="noDataToDisplay" class="m-auto">
       <!-- E.g. Focus disease MenA, without splitting by activity type. -->
@@ -14,6 +14,7 @@
         lineCount: linesToDisplay.length,
         ...appStore.dimensions,
       })"
+      class="flex-1 m-10"
     />
     <p v-if="dataStore.fetchErrors.length" class="mt-auto">
       {{ dataStore.fetchErrors.map(error => error.message).join(', ') }}
@@ -119,19 +120,3 @@ const updateChart = debounce(() => {
 watch([linesToDisplay, () => appStore.focus, chartWrapper], updateChart, { immediate: true });
 </script>
 
-<style lang="scss" scoped>
-.chart-container {
-  --chart-margin: 80px;
-  width: 100%;
-  height: calc(100dvh - 2 * var(--chart-margin));
-  display: flex;
-  flex-wrap: wrap;
-}
-
-#chartWrapper {
-  width: 100%;
-  height: 100%;
-  flex: 1 1 auto;
-  margin: var(--chart-margin);
-}
-</style>
