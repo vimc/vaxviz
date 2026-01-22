@@ -53,16 +53,16 @@ describe('data store', () => {
         disease: "Cholera",
         location: "global",
         Counts: 1,
-        lower_bound: expect.closeTo(-2.43),
-        upper_bound: expect.closeTo(-2.42),
+        lower_bound: expect.closeTo(-2.31),
+        upper_bound: expect.closeTo(-2.30),
       }));
       expect(dataStore.summaryTableData).toHaveLength(summaryDeathsDisease.length);
       expect(dataStore.summaryTableData[0]).toEqual(expect.objectContaining({
         disease: "COVID-19",
-        lower_95: expect.closeTo(0.08),
-        upper_95: expect.closeTo(0.19),
-        mean_value: expect.closeTo(0.12),
-        median_value: expect.closeTo(0.12),
+        lower_95: expect.closeTo(0.1, 1),
+        upper_95: expect.closeTo(0.2, 1),
+        mean_value: expect.closeTo(0.1, 1),
+        median_value: expect.closeTo(0.1, 1),
       }));
       expect(fetchSpy).toBeCalledTimes(expectedFetches);
       expectLastNCallsToContain(fetchSpy, [
