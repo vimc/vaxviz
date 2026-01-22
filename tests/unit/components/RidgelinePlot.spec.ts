@@ -13,7 +13,7 @@ import histCountsDalysDiseaseSubregionLog from "@/../public/data/json/hist_count
 import histCountsDalysDiseaseCountryLog from "@/../public/data/json/hist_counts_dalys_disease_country_log.json";
 import histCountsDalysDiseaseLog from "@/../public/data/json/hist_counts_dalys_disease_log.json";
 import diseaseOptions from '@/data/options/diseaseOptions.json';
-import { BurdenMetrics } from '@/types';
+import { BurdenMetric } from '@/types';
 import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
 import { useDataStore } from '@/stores/dataStore';
@@ -68,7 +68,7 @@ describe('RidgelinePlot component', () => {
     expect(appStore.exploreBy).toEqual("location");
     expect(appStore.focus).toEqual("global");
     appStore.focus = "Middle Africa";
-    appStore.burdenMetric = BurdenMetrics.DALYS;
+    appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
     await vi.waitFor(() => {
@@ -93,7 +93,7 @@ describe('RidgelinePlot component', () => {
       expect(appStore.focus).toEqual("Cholera")
     });
     appStore.focus = "Measles";
-    appStore.burdenMetric = BurdenMetrics.DEATHS;
+    appStore.burdenMetric = BurdenMetric.DEATHS;
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
     await vi.waitFor(() => {
@@ -117,7 +117,7 @@ describe('RidgelinePlot component', () => {
       expect(appStore.focus).toEqual("global")
     });
     appStore.focus = "AFG";
-    appStore.burdenMetric = BurdenMetrics.DALYS;
+    appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = true;
     appStore.splitByActivityType = false;
     await vi.waitFor(() => {

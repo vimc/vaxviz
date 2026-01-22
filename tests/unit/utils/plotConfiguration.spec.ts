@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { plotConfiguration } from '@/utils/plotConfiguration';
-import { Dimensions } from '@/types';
+import { Dimension } from '@/types';
 
 // Some lines share the same bands to test that categoricalScales extracts them correctly.
 // No coordinates are 0 since we need to test that we sometimes override coordinates to become 0.
@@ -22,7 +22,7 @@ const lines = [
 describe('plotConfiguration', () => {
   describe('numerical scales', () => {
     it('calculates x.end and y.end from max values in lines', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, false, lines);
+      const result = plotConfiguration(Dimension.DISEASE, false, lines);
       const numScales = result.chartAppendConfig[0];
 
       expect(numScales.x?.end).toBe(20); // max of last x-points: 10, 15, 20
@@ -30,14 +30,14 @@ describe('plotConfiguration', () => {
     });
 
     it('sets x.start to 0 when log scaled is disabled and no x value is negative', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, false, lines);
+      const result = plotConfiguration(Dimension.DISEASE, false, lines);
       const numScales = result.chartAppendConfig[0];
 
       expect(numScales.x?.start).toBe(0);
     });
 
     it('sets x.start to min x of first point when log scaled is disabled and there is a negative x value', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, false, [...lines,
+      const result = plotConfiguration(Dimension.DISEASE, false, [...lines,
       {
         points: [{ x: -3, y: 5 }, { x: -2, y: 6 }, { x: 20, y: 2 }],
         bands: { x: 'routine', y: 'HepB' }, // same y band as first line
@@ -49,15 +49,15 @@ describe('plotConfiguration', () => {
     });
 
     it('sets x.start to min x of first point when log scale is enabled', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, true, lines);
+      const result = plotConfiguration(Dimension.DISEASE, true, lines);
       const numScales = result.chartAppendConfig[0];
 
       expect(numScales.x?.start).toBe(1); // min of first x points: 1, 2, 3
     });
 
     it('y.start is always 0 regardless of log scale', () => {
-      const resultLogOff = plotConfiguration(Dimensions.DISEASE, false, lines);
-      const resultLogOn = plotConfiguration(Dimensions.DISEASE, true, lines);
+      const resultLogOff = plotConfiguration(Dimension.DISEASE, false, lines);
+      const resultLogOn = plotConfiguration(Dimension.DISEASE, true, lines);
 
       expect(resultLogOff.chartAppendConfig[0].y?.start).toBe(0);
       expect(resultLogOn.chartAppendConfig[0].y?.start).toBe(0);
@@ -66,7 +66,7 @@ describe('plotConfiguration', () => {
 
   describe('categorical scales', () => {
     it('extracts bands.x and bands.y from lines, excluding duplicates', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, false, lines);
+      const result = plotConfiguration(Dimension.DISEASE, false, lines);
       const catScales = result.chartAppendConfig[2];
 
       expect(catScales.x).toEqual(['campaign', 'routine']);
@@ -76,7 +76,7 @@ describe('plotConfiguration', () => {
 
   describe('tick configuration including formatters', () => {
     it('sets correct categorical y tick properties when row dimension is location', () => {
-      const result = plotConfiguration(Dimensions.LOCATION, false, lines);
+      const result = plotConfiguration(Dimension.LOCATION, false, lines);
       const yConfig = result.constructorOptions.tickConfig.categorical?.y;
 
       expect(yConfig?.padding).toBe(10);
@@ -84,7 +84,7 @@ describe('plotConfiguration', () => {
     });
 
     it('sets correct categorical y tick properties when row dimension is disease', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, false, lines);
+      const result = plotConfiguration(Dimension.DISEASE, false, lines);
       const yConfig = result.constructorOptions.tickConfig.categorical?.y;
 
       expect(yConfig?.padding).toBe(30);
@@ -92,21 +92,21 @@ describe('plotConfiguration', () => {
     });
 
     it("log scale numerical formatter returns '10^exponent' in LaTeX", () => {
-      const result = plotConfiguration(Dimensions.DISEASE, true, lines);
+      const result = plotConfiguration(Dimension.DISEASE, true, lines);
       const formatter = result.constructorOptions.tickConfig.numerical?.x?.formatter;
       expect(formatter(-2)).toBe('$10^{-2}$');
       expect(formatter(3.1)).toBe('$10^{3.1}$');
     });
 
     it("linear scale numerical formatter returns numbers in LaTeX", () => {
-      const result = plotConfiguration(Dimensions.DISEASE, false, lines);
+      const result = plotConfiguration(Dimension.DISEASE, false, lines);
       const formatter = result.constructorOptions.tickConfig.numerical?.x?.formatter;
       expect(formatter(-2)).toBe('$-2$');
     });
 
     describe('location tick formatter', () => {
       const getLocationFormatter = () => {
-        const result = plotConfiguration(Dimensions.LOCATION, false, lines);
+        const result = plotConfiguration(Dimension.LOCATION, false, lines);
         return result.constructorOptions.tickConfig.categorical?.y?.formatter;
       };
 
@@ -139,19 +139,19 @@ describe('plotConfiguration', () => {
 
   describe('axis configuration', () => {
     it('sets y-axis label to sentence case of rowDimension', () => {
-      const result = plotConfiguration(Dimensions.ACTIVITY_TYPE, false, lines);
+      const result = plotConfiguration(Dimension.ACTIVITY_TYPE, false, lines);
       expect(result.axisConfig[0].y).toBe('Activity type');
     });
   });
 
   describe('margins', () => {
     it('sets left margin to 170 when rowDimension is location', () => {
-      const result = plotConfiguration(Dimensions.LOCATION, false, lines);
+      const result = plotConfiguration(Dimension.LOCATION, false, lines);
       expect(result.chartAppendConfig[3].left).toBe(170);
     });
 
     it('sets left margin to 110 when rowDimension is not location', () => {
-      const result = plotConfiguration(Dimensions.DISEASE, false, lines);
+      const result = plotConfiguration(Dimension.DISEASE, false, lines);
       expect(result.chartAppendConfig[3].left).toBe(110);
     });
   });

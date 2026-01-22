@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import type { Lines } from "@reside-ic/skadi-chart";
 import convert, { type HEX } from "color-convert";
-import { Axes, type LineColors, type LineMetadata } from "@/types";
+import { Axis, type LineColors, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
 import { globalOption } from "@/utils/options";
 
@@ -66,14 +66,14 @@ export const useColorStore = defineStore("color", () => {
     // If we're filtered to just 1 value for the withinBand axis,
     // we assign colors based on the dimension assigned to the y-axis,
     // otherwise all lines would be the same color across all rows.
-    return appStore.filters[appStore.dimensions[Axes.WITHIN_BAND]]?.length === 1
-      ? appStore.dimensions[Axes.ROW]
-      : appStore.dimensions[Axes.WITHIN_BAND];
+    return appStore.filters[appStore.dimensions[Axis.WITHIN_BAND]]?.length === 1
+      ? appStore.dimensions[Axis.ROW]
+      : appStore.dimensions[Axis.WITHIN_BAND];
   });
 
   const colorAxis = computed(() => Object.keys(appStore.dimensions).find((axis) => {
-    return appStore.dimensions[axis as Axes] === colorDimension.value;
-  }) as Axes);
+    return appStore.dimensions[axis as Axis] === colorDimension.value;
+  }) as Axis);
 
   // The mapping from category value (e.g. a specific location or disease) to color hex code.
   const mapping = ref(new Map<string, string>());
