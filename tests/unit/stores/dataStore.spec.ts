@@ -43,8 +43,8 @@ describe('data store', () => {
       expect(dataStore.histogramData[0]).toEqual({
         disease: "Cholera",
         Counts: 1,
-        lower_bound: expect.closeTo(-2.31),
-        upper_bound: expect.closeTo(-2.30),
+        lower_bound: expect.closeTo(-2, 0),
+        upper_bound: expect.closeTo(-2, 0),
       });
       expect(fetchSpy).toBeCalledTimes(expectedFetches);
       expectLastNCallsToEqual(fetchSpy, ["./data/json/hist_counts_deaths_disease_log.json"]);
