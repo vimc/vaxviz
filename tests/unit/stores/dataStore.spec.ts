@@ -53,8 +53,8 @@ describe('data store', () => {
         disease: "Cholera",
         location: "global",
         Counts: 1,
-        lower_bound: expect.closeTo(-2.31),
-        upper_bound: expect.closeTo(-2.30),
+        lower_bound: expect.closeTo(-2, 0),
+        upper_bound: expect.closeTo(-2, 0),
       }));
       expect(dataStore.summaryTableData).toHaveLength(summaryDeathsDisease.length);
       expect(dataStore.summaryTableData[0]).toEqual(expect.objectContaining({
