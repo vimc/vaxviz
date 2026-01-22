@@ -30,7 +30,7 @@ import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
-import { Axis, Dimension } from '@/types';
+import { Axis, Dimension, SummaryTableColumn } from '@/types';
 import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
@@ -55,24 +55,37 @@ const data = computed(() => dataStore.histogramData.filter(dataRow =>
 
 const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
 
-// TODO: (vimc-9191) order the plot rows by the mean of means.
+const getMeanOfMeansForPlotRow = (plotRowCategory?: string) => {
+  // A plot-row may contain multiple ridgelines.
+  const ridgelinesForPlotRow = linesToDisplay.value.filter(line => line.metadata?.[Axis.ROW] === plotRowCategory);
+  const meanValues = ridgelinesForPlotRow.map(({ metadata }) => {
+    const dataTableRow = dataStore.getSummaryDataRow(metadata!)!;
+    return dataTableRow[SummaryTableColumn.MEAN];
+  });
+  return meanValues.reduce((sum, val) => sum + val, 0) / meanValues.length;
+};
+
 const linesToDisplay = computed(() => {
+  const sortedRidgeLines = ridgeLines.value.toSorted((lineA, lineB) => {
+    return getMeanOfMeansForPlotRow(lineA.metadata?.[Axis.ROW]) - getMeanOfMeansForPlotRow(lineB.metadata?.[Axis.ROW]);
+  })
+
   // Only filter plot rows if each row represents a disease.
   if (appStore.dimensions[Axis.ROW] !== Dimension.DISEASE || appStore.dimensions[Axis.WITHIN_BAND] !== Dimension.LOCATION) {
-    return ridgeLines.value;
+    return sortedRidgeLines;
   };
 
-  return ridgeLines.value.filter((line) => {
+  return sortedRidgeLines.filter((line) => {
     // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
     // E.g. Say the focus value is 'Djibouti', a location. If for some row of ridgelines - where rows are diseases, such as Malaria -
     // there is no line for Djibouti, we should exclude the Malaria row entirely so that we only display rows that are relevant for Djibouti.
     const disease = line.metadata?.[Axis.ROW];
-    const locationsForDisease = ridgeLines.value
+    const locationsForDisease = sortedRidgeLines
       .filter(l => l.metadata?.[Axis.ROW] === disease)
       .map(({ metadata }) => metadata?.withinBand);
     return locationsForDisease.includes(appStore.focus);
   });
-})
+});
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
@@ -92,13 +105,11 @@ const updateChart = debounce(() => {
     line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
   });
 
-  const { constructorOptions, axisConfig, chartAppendConfig } = plotConfiguration(
+  const { constructorOptions, axisConfig, chartAppendConfig, categoricalScales } = plotConfiguration(
     appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
     linesToDisplay.value,
   );
-
-  const catScales = chartAppendConfig[2];
 
   new Chart(constructorOptions)
     .addAxes(...axisConfig)
@@ -107,7 +118,7 @@ const updateChart = debounce(() => {
     .addGridLines(
       {
         // TODO: vimc-9195: extend gridlines feature to work for categorical axes.
-        x: !catScales.x?.length,
+        x: !categoricalScales.x?.length,
         y: false,
       },
     )

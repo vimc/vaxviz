@@ -37,6 +37,14 @@ vi.mock('@reside-ic/skadi-chart', () => ({
   }),
 }));
 
+// Assert that the plot-rows are in the expected order,
+// and that there is or is not an x-axis categorical scale.
+const assertLastCategoricalScales = (expected: Record<"x" | "y", string[] | undefined>) => {
+  const appendToLastCallArgs = addAppendToSpy.mock.calls[addAppendToSpy.mock.calls.length - 1];
+  const catScales = appendToLastCallArgs[3];
+  expect(catScales).toEqual(expected);
+};
+
 describe('RidgelinePlot component', () => {
   beforeEach(() => {
     setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
@@ -62,6 +70,10 @@ describe('RidgelinePlot component', () => {
       // Color by row; each disease has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(14);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["Cholera", "JE", "COVID-19", "Rubella", "Typhoid", "Rota", "Meningitis", "YF", "PCV", "Hib", "Malaria", "HepB", "Measles", "HPV"],
+      });
     });
 
     // Change options: round 1
@@ -85,6 +97,10 @@ describe('RidgelinePlot component', () => {
       // Color by the 2 locations within each band: Middle Africa and global.
       expect(colorStore.colorMapping.size).toEqual(2);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
+      assertLastCategoricalScales({
+        x: ["Campaign", "Routine"],
+        y: ["Rubella", "Cholera", "Typhoid", "COVID-19", "YF", "MenACWYX", "MenA", "Measles", "HPV", "HepB", "PCV", "Rota", "Malaria", "Hib"],
+      });
     });
 
     // Change options: round 2
@@ -109,6 +125,11 @@ describe('RidgelinePlot component', () => {
       // Color by row; each location (10 subregions + global) has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(11);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
+
+      assertLastCategoricalScales({
+        x: ["Campaign", "Routine"],
+        y: ["Eastern and Southern Europe", "Eastern and South-Eastern Asia", "Southern Africa", "Northern Africa and Western Asia", "Latin America and the Caribbean", "Central and Southern Asia", "All 117 VIMC countries", "Oceania", "Eastern Africa", "Western Africa", "Middle Africa"],
+      });
     }, { timeout: 3000 });
 
     // Change options: round 3
@@ -133,6 +154,11 @@ describe('RidgelinePlot component', () => {
       // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
       expect(colorStore.colorMapping.size).toEqual(3);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
+
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["Rubella", "Cholera", "Typhoid", "Rota", "COVID-19", "PCV", "HepB", "Hib", "HPV", "Measles"],
+      });
     }, { timeout: 3000 });
   }, 10000);
 
@@ -216,9 +242,11 @@ describe('RidgelinePlot component', () => {
         },
       }));
 
-      const catScales = appendToLastCallArgs[3];
-      expect(catScales).toEqual({
-        y: expect.arrayContaining(diseases.map(d => d.label)),
+      // Assert that all diseases (the current data dimension for the plot-rows) are in the correct order,
+      // and that there is no x-axis categorical scale.
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["Cholera", "JE", "COVID-19", "Rubella", "Typhoid", "Rota", "Meningitis", "YF", "PCV", "Hib", "Malaria", "HepB", "Measles", "HPV"],
       });
 
       const margins = appendToLastCallArgs[4];

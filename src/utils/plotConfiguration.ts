@@ -127,6 +127,7 @@ export const plotConfiguration = (
   constructorOptions: PartialChartOptions
   axisConfig: AxisConfig
   chartAppendConfig: [Partial<Scales>, Partial<Scales>, Partial<XY<string[]>>, Partial<Bounds["margin"]>]
+  categoricalScales: Partial<XY<string[]>>
 } => {
   const numScales = numericalScales(logScaleEnabled, lines);
   const catScales = categoricalScales(lines);
@@ -144,5 +145,6 @@ export const plotConfiguration = (
     constructorOptions,
     axisConfig,
     chartAppendConfig: [numScales, {}, catScales, margins],
+    categoricalScales: catScales,
   };
 };

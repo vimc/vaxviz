@@ -63,7 +63,7 @@ describe('RidgelinePlot component', () => {
     expect(colorBoxes[2].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
   });
 
-  it('renders the correct labels and colors when the color dimension is disease', async () => {
+  it('renders the correct labels and colors when the color dimension is disease, in the order in which the colors were assigned', async () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
     const wrapper = mount(ColorLegend);
@@ -121,6 +121,8 @@ describe('RidgelinePlot component', () => {
     ]);
 
     expect(colorStore.colorMapping.size).toBe(3);
+    // Assert the order of the colors is the same as the order of first appearance in the call to setColors.
+    expect(Array.from(colorStore.colorMapping.keys())).toEqual(['Central and Southern Asia', 'AFG', 'global']);
 
     await vi.waitFor(() => {
       expect(wrapper.findAll(".legend-label").length).toBe(3);
@@ -157,6 +159,8 @@ describe('RidgelinePlot component', () => {
     ]);
 
     expect(colorStore.colorMapping.size).toBe(2);
+    // Assert the order of the colors is the same as the order of first appearance in the call to setColors.
+    expect(Array.from(colorStore.colorMapping.keys())).toEqual(['Cholera', 'Rubella']);
 
     await vi.waitFor(() => {
       expect(wrapper.findAll(".legend-label").length).toBe(2);
