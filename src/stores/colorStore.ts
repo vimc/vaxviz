@@ -87,12 +87,19 @@ export const useColorStore = defineStore("color", () => {
   const setColors = (lines: Lines<LineMetadata>) => {
     mapping.value = new Map<string, string>()
 
-    // `value` refers to the specific location or disease whose color we need to assign.
+    // A 'value' refers to the specific location or disease whose color we need to assign.
     const uniqueValues = Array.from(new Set(lines.map(line => line.metadata?.[colorAxis.value]))) as string[];
-    let colorList = palettesByCategoryCount[uniqueValues.length] ?? Object.values({ ...ibmAccessiblePalette, ...extraColors })
+    let palette: string[] = [];
+    if (palettesByCategoryCount[uniqueValues.length]) {
+      // Use a specific palette designed for this number of categories.
+      // Copy the array to avoid mutating the original.
+      palette = [...palettesByCategoryCount[uniqueValues.length]!];
+    } else {
+      palette = Object.values({ ...ibmAccessiblePalette, ...extraColors })
+    }
 
     if (uniqueValues.includes(globalOption.value)) {
-      colorList = colorList.filter(color => color !== globalColor);
+      palette = palette.filter(color => color !== globalColor);
     }
 
     // Assign colors in the same order as the lines argument, to keep plot-row ordering and legend ordering consistent.
@@ -102,7 +109,7 @@ export const useColorStore = defineStore("color", () => {
         mapping.value.set(globalOption.value, globalColor);
       } else {
         // Assign the next color in the list.
-        mapping.value.set(value, colorList[mapping.value.size % colorList.length]!);
+        mapping.value.set(value, palette[mapping.value.size % palette.length]!);
       }
     });
   }
