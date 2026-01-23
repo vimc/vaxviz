@@ -34,6 +34,7 @@ import { dimensionOptionLabel } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
 import usePlotTooltips from '@/composables/usePlotTooltips';
 import FetchErrorAlert from '@/components/FetchErrorAlert.vue';
+import { getOrderedYCategoricalScale } from '@/composables/useCategoricalScaleOrdering';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();
@@ -80,7 +81,14 @@ const updateChart = debounce(() => {
     return;
   }
 
-  colorStore.setColors(linesToDisplay.value);
+  // Calculate ordered y-categorical scale once for both plot and legend
+  const orderedYScale = getOrderedYCategoricalScale(
+    appStore.dimensions[Axis.ROW],
+    linesToDisplay.value
+  );
+
+  // Pass the ordered scale to colorStore so ColorLegend can use it
+  colorStore.setColors(linesToDisplay.value, orderedYScale);
 
   linesToDisplay.value.forEach(line => {
     const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
@@ -88,10 +96,12 @@ const updateChart = debounce(() => {
     line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
   });
 
+  // Pass the pre-computed ordered scale to plotConfiguration to avoid recalculating
   const { constructorOptions, axisConfig, chartAppendConfig } = plotConfiguration(
     appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
     linesToDisplay.value,
+    orderedYScale,
   );
 
   const catScales = chartAppendConfig[2];

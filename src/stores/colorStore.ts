@@ -81,12 +81,18 @@ export const useColorStore = defineStore("color", () => {
   // Store the lines for use in ordering the color legend
   const currentLines = ref<Lines<LineMetadata>>([]);
 
+  // Store the ordered y-categorical scale to avoid recalculating
+  const orderedYCategoricalScale = ref<string[]>([]);
+
   // Expose a read-only version of the mapping to consumers of the store.
   const colorMapping = computed(() => mapping.value as ReadonlyMap<string, string>);
 
   // Based on an array of all the lines, set up the color mapping.
-  const setColors = (lines: Lines<LineMetadata>) => {
+  const setColors = (lines: Lines<LineMetadata>, orderedScale?: string[]) => {
     currentLines.value = lines;
+    if (orderedScale) {
+      orderedYCategoricalScale.value = orderedScale;
+    }
     mapping.value = new Map<string, string>()
 
     // `value` refers to the specific location or disease whose color we need to assign.
@@ -123,5 +129,5 @@ export const useColorStore = defineStore("color", () => {
     return colorProperties(color);
   };
 
-  return { colorAxis, colorDimension, colorMapping, colorProperties, getColorsForLine, setColors, currentLines };
+  return { colorAxis, colorDimension, colorMapping, colorProperties, getColorsForLine, setColors, currentLines, orderedYCategoricalScale };
 });

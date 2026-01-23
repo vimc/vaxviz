@@ -30,9 +30,9 @@ const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): 
   };
 };
 
-const categoricalScales = (rowDimension: Dimension, lines: Lines<LineMetadata>): Partial<XY<string[]>> => {
+const categoricalScales = (rowDimension: Dimension, lines: Lines<LineMetadata>, orderedYScale?: string[]): Partial<XY<string[]>> => {
   const xCategoricalScale = [...new Set(lines.map(l => l.bands?.x).filter(c => !!c))] as string[];
-  const yCategoricalScale = getOrderedYCategoricalScale(rowDimension, lines);
+  const yCategoricalScale = orderedYScale ?? getOrderedYCategoricalScale(rowDimension, lines);
 
   return {
     x: xCategoricalScale.length ? xCategoricalScale : undefined,
@@ -124,13 +124,14 @@ export const plotConfiguration = (
   rowDimension: Dimension,
   logScaleEnabled: boolean,
   lines: Lines<LineMetadata>,
+  orderedYScale?: string[],
 ): {
   constructorOptions: PartialChartOptions
   axisConfig: AxisConfig
   chartAppendConfig: [Partial<Scales>, Partial<Scales>, Partial<XY<string[]>>, Partial<Bounds["margin"]>]
 } => {
   const numScales = numericalScales(logScaleEnabled, lines);
-  const catScales = categoricalScales(rowDimension, lines);
+  const catScales = categoricalScales(rowDimension, lines, orderedYScale);
   const margins = { left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 110 };
   const tickConfig = tickConfiguration(logScaleEnabled, rowDimension);
   const constructorOptions = {
