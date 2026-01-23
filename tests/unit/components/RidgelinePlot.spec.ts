@@ -18,6 +18,7 @@ import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
+import { useDataStore } from '@/stores/dataStore';
 
 const addAxesSpy = vi.fn().mockReturnThis();
 const addTracesSpy = vi.fn().mockReturnThis();
@@ -195,6 +196,27 @@ describe('RidgelinePlot component', () => {
 
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("No data available for the selected options.");
+      expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+    });
+  });
+
+  it('when there are fetch errors, shows an alert instead of the chart', async () => {
+    const dataStore = useDataStore();
+    const wrapper = mount(RidgelinePlot);
+
+    // It shows a chart initially
+    await vi.waitFor(() => {
+      const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
+      expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
+    });
+
+    dataStore.fetchErrors = [
+      { message: 'Error loading data from path: hist_counts_deaths_disease_log.json. TypeError: Failed to fetch' },
+    ];
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).not.toContain("No data available for the selected options.");
+      expect(wrapper.text()).toContain("Error loading data");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
     });
   });
