@@ -72,7 +72,7 @@ describe('RidgelinePlot component', () => {
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
       assertLastCategoricalScales({
         x: undefined,
-        y: ["Cholera", "JE", "COVID-19", "Rubella", "Typhoid", "Rota", "Meningitis", "YF", "PCV", "Hib", "Malaria", "HepB", "Measles", "HPV"],
+        y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
       });
     });
 
@@ -99,7 +99,7 @@ describe('RidgelinePlot component', () => {
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
       assertLastCategoricalScales({
         x: ["Campaign", "Routine"],
-        y: ["Rubella", "Cholera", "Typhoid", "COVID-19", "YF", "MenACWYX", "MenA", "Measles", "HPV", "HepB", "PCV", "Rota", "Malaria", "Hib"],
+        y: ["COVID-19", "Cholera", "Rubella", "MenA", "MenACWYX", "Typhoid", "Rota", "HepB", "YF", "PCV", "Malaria", "Hib", "HPV", "Measles"],
       });
     });
 
@@ -128,7 +128,19 @@ describe('RidgelinePlot component', () => {
 
       assertLastCategoricalScales({
         x: ["Campaign", "Routine"],
-        y: ["Eastern and Southern Europe", "Eastern and South-Eastern Asia", "Southern Africa", "Northern Africa and Western Asia", "Latin America and the Caribbean", "Central and Southern Asia", "All 117 VIMC countries", "Oceania", "Eastern Africa", "Western Africa", "Middle Africa"],
+        y: [
+          "Eastern and Southern Europe",
+          "Eastern and South-Eastern Asia",
+          "Southern Africa",
+          "Northern Africa and Western Asia",
+          "Latin America and the Caribbean",
+          "Central and Southern Asia",
+          "All 117 VIMC countries",
+          "Oceania",
+          "Eastern Africa",
+          "Western Africa",
+          "Middle Africa",
+        ],
       });
     }, { timeout: 3000 });
 
@@ -157,7 +169,7 @@ describe('RidgelinePlot component', () => {
 
       assertLastCategoricalScales({
         x: undefined,
-        y: ["Rubella", "Cholera", "Typhoid", "Rota", "COVID-19", "PCV", "HepB", "Hib", "HPV", "Measles"],
+        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
     }, { timeout: 3000 });
   }, 10000);
@@ -246,7 +258,7 @@ describe('RidgelinePlot component', () => {
       // and that there is no x-axis categorical scale.
       assertLastCategoricalScales({
         x: undefined,
-        y: ["Cholera", "JE", "COVID-19", "Rubella", "Typhoid", "Rota", "Meningitis", "YF", "PCV", "Hib", "Malaria", "HepB", "Measles", "HPV"],
+        y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
       });
 
       const margins = appendToLastCallArgs[4];

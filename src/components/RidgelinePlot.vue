@@ -11,7 +11,7 @@
       id="chartWrapper"
       :data-test="JSON.stringify({
         histogramDataRowCount: dataStore.histogramData.length,
-        lineCount: linesToDisplay.length,
+        lineCount: relevantRidgeLines.length,
         ...appStore.dimensions,
       })"
     />
@@ -55,9 +55,30 @@ const data = computed(() => dataStore.histogramData.filter(dataRow =>
 
 const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
 
+// Filter out ridgelines on the basis of relevance (as opposed to user-selected filters).
+const relevantRidgeLines = computed(() => {
+  // Only filter plot rows if each row represents a disease.
+  if (appStore.dimensions[Axis.ROW] !== Dimension.DISEASE || appStore.dimensions[Axis.WITHIN_BAND] !== Dimension.LOCATION) {
+    return ridgeLines.value;
+  };
+
+  return ridgeLines.value.filter((line) => {
+    // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
+    // E.g. Say the focus value is 'Djibouti', a location. If for some row of ridgelines - where rows are diseases, such as Malaria -
+    // there is no line for Djibouti, we should exclude the Malaria row entirely so that we only display rows that are relevant for Djibouti.
+    const disease = line.metadata?.[Axis.ROW];
+    const locationsForDisease = ridgeLines.value
+      .filter(l => l.metadata?.[Axis.ROW] === disease)
+      .map(({ metadata }) => metadata?.withinBand);
+    return locationsForDisease.includes(appStore.focus);
+  });
+});
+
+// A plot-row may contain multiple ridgelines.
+// Return the mean of the means for all ridgelines in the plot row.
+// The plot row is specified by its category along the relevant dimension, e.g. 'Djibouti' (a location) or 'Malaria' (a disease).
 const getMeanOfMeansForPlotRow = (plotRowCategory?: string) => {
-  // A plot-row may contain multiple ridgelines.
-  const ridgelinesForPlotRow = linesToDisplay.value.filter(line => line.metadata?.[Axis.ROW] === plotRowCategory);
+  const ridgelinesForPlotRow = relevantRidgeLines.value.filter(line => line.metadata?.[Axis.ROW] === plotRowCategory);
   const meanValues = ridgelinesForPlotRow.map(({ metadata }) => {
     const dataTableRow = dataStore.getSummaryDataRow(metadata!)!;
     return dataTableRow[SummaryTableColumn.MEAN];
@@ -65,39 +86,25 @@ const getMeanOfMeansForPlotRow = (plotRowCategory?: string) => {
   return meanValues.reduce((sum, val) => sum + val, 0) / meanValues.length;
 };
 
-const linesToDisplay = computed(() => {
-  const sortedRidgeLines = ridgeLines.value.toSorted((lineA, lineB) => {
-    return getMeanOfMeansForPlotRow(lineA.metadata?.[Axis.ROW]) - getMeanOfMeansForPlotRow(lineB.metadata?.[Axis.ROW]);
-  })
-
-  // Only filter plot rows if each row represents a disease.
-  if (appStore.dimensions[Axis.ROW] !== Dimension.DISEASE || appStore.dimensions[Axis.WITHIN_BAND] !== Dimension.LOCATION) {
-    return sortedRidgeLines;
-  };
-
-  return sortedRidgeLines.filter((line) => {
-    // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
-    // E.g. Say the focus value is 'Djibouti', a location. If for some row of ridgelines - where rows are diseases, such as Malaria -
-    // there is no line for Djibouti, we should exclude the Malaria row entirely so that we only display rows that are relevant for Djibouti.
-    const disease = line.metadata?.[Axis.ROW];
-    const locationsForDisease = sortedRidgeLines
-      .filter(l => l.metadata?.[Axis.ROW] === disease)
-      .map(({ metadata }) => metadata?.withinBand);
-    return locationsForDisease.includes(appStore.focus);
+const sortedRidgeLines = computed(() => {
+  return relevantRidgeLines.value.toSorted((lineA, lineB) => {
+    const meanA = getMeanOfMeansForPlotRow(lineA.metadata?.[Axis.ROW]);
+    const meanB = getMeanOfMeansForPlotRow(lineB.metadata?.[Axis.ROW]);
+    return meanA - meanB;
   });
 });
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  noDataToDisplay.value = linesToDisplay.value.length === 0;
+  noDataToDisplay.value = sortedRidgeLines.value.length === 0;
 
   if (noDataToDisplay.value || !chartWrapper.value) {
     return;
   }
 
-  colorStore.setColors(linesToDisplay.value);
+  colorStore.setColors(sortedRidgeLines.value);
 
-  linesToDisplay.value.forEach(line => {
+  sortedRidgeLines.value.forEach(line => {
     // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
     // the color assignment, since the palettes maximize contrast between _neighboring_ colors.
     const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
@@ -108,12 +115,12 @@ const updateChart = debounce(() => {
   const { constructorOptions, axisConfig, chartAppendConfig, categoricalScales } = plotConfiguration(
     appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
-    linesToDisplay.value,
+    sortedRidgeLines.value,
   );
 
   new Chart(constructorOptions)
     .addAxes(...axisConfig)
-    .addTraces(linesToDisplay.value)
+    .addTraces(sortedRidgeLines.value)
     .addArea()
     .addGridLines(
       {
@@ -127,7 +134,7 @@ const updateChart = debounce(() => {
     .appendTo(chartWrapper.value, ...chartAppendConfig);
 }, 100);
 
-watch([linesToDisplay, () => appStore.focus, chartWrapper], updateChart, { immediate: true });
+watch([relevantRidgeLines, () => appStore.focus, chartWrapper], updateChart, { immediate: true });
 </script>
 
 <style lang="scss" scoped>
