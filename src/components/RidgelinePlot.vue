@@ -54,7 +54,6 @@ const data = computed(() => dataStore.histogramData.filter(dataRow =>
 
 const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
 
-// TODO: (vimc-9191) order the plot rows by the mean of means.
 const linesToDisplay = computed(() => {
   // Only filter plot rows if each row represents a disease.
   if (appStore.dimensions[Axis.ROW] !== Dimension.DISEASE || appStore.dimensions[Axis.WITHIN_BAND] !== Dimension.LOCATION) {
@@ -84,8 +83,6 @@ const updateChart = debounce(() => {
   colorStore.setColors(linesToDisplay.value);
 
   linesToDisplay.value.forEach(line => {
-    // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
-    // the color assignment, since the palettes maximize contrast between _neighboring_ colors.
     const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
 
     line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };

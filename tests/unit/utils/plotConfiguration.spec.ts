@@ -276,7 +276,7 @@ describe('plotConfiguration', () => {
       });
 
       describe('error cases', () => {
-        it('throws error when summary data is missing for a row category', () => {
+        it('falls back to unsorted order when summary data is missing for a row category', () => {
           const dataStore = useDataStore();
           // Only Cholera has summary data, but lines include Measles
           dataStore.summaryTableData = [
@@ -288,9 +288,12 @@ describe('plotConfiguration', () => {
             { points: [{ x: 1, y: 2 }], bands: { y: 'Measles' }, metadata: { row: 'Measles', withinBand: 'global' } },
           ];
 
-          expect(() => {
-            plotConfiguration(Dimension.DISEASE, false, linesWithMissingData);
-          }).toThrow(/missing.*summary.*data.*Measles/i);
+          // Should not throw, but fall back to unsorted order
+          const result = plotConfiguration(Dimension.DISEASE, false, linesWithMissingData);
+          const catScales = result.chartAppendConfig[2];
+          
+          // Returns unsorted order when data is missing
+          expect(catScales.y).toEqual(['Cholera', 'Measles']);
         });
       });
     });

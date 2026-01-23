@@ -78,11 +78,15 @@ export const useColorStore = defineStore("color", () => {
   // The mapping from category value (e.g. a specific location or disease) to color hex code.
   const mapping = ref(new Map<string, string>());
 
+  // Store the lines for use in ordering the color legend
+  const currentLines = ref<Lines<LineMetadata>>([]);
+
   // Expose a read-only version of the mapping to consumers of the store.
   const colorMapping = computed(() => mapping.value as ReadonlyMap<string, string>);
 
   // Based on an array of all the lines, set up the color mapping.
   const setColors = (lines: Lines<LineMetadata>) => {
+    currentLines.value = lines;
     mapping.value = new Map<string, string>()
 
     // `value` refers to the specific location or disease whose color we need to assign.
@@ -119,5 +123,5 @@ export const useColorStore = defineStore("color", () => {
     return colorProperties(color);
   };
 
-  return { colorAxis, colorDimension, colorMapping, colorProperties, getColorsForLine, setColors };
+  return { colorAxis, colorDimension, colorMapping, colorProperties, getColorsForLine, setColors, currentLines };
 });

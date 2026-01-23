@@ -32,14 +32,38 @@ import { useColorStore } from '@/stores/colorStore';
 import { dimensionOptionLabel } from '@/utils/options';
 import { useAppStore } from '@/stores/appStore';
 import { Axis, Dimension, LocResolution } from '@/types';
+import { getOrderedYCategoricalScale } from '@/composables/useCategoricalScaleOrdering';
 
 const appStore = useAppStore();
 const colorStore = useColorStore();
 
 const colors = computed(() => {
   const { colorDimension } = colorStore;
+  
+  // When color dimension matches row dimension, use mean-based ordering
+  if (colorDimension === appStore.dimensions[Axis.ROW]) {
+    try {
+      const orderedScale = getOrderedYCategoricalScale(
+        colorDimension,
+        colorStore.currentLines
+      );
+      // Filter to only values that are in the color mapping and maintain the ordered scale
+      const orderedColors = orderedScale
+        .filter(value => colorStore.colorMapping.has(value))
+        .map(value => [value, colorStore.colorMapping.get(value)!] as [string, HEX]);
+      
+      // Only use ordered colors if we got results, otherwise fall through to default behavior
+      if (orderedColors.length > 0) {
+        return orderedColors;
+      }
+    } catch (error) {
+      // If ordering fails (e.g., missing data), fall back to existing behavior
+      console.warn('Failed to order color legend by mean values, using fallback ordering:', error);
+    }
+  }
+  
+  // Location dimension special case: Sort by geographical resolution
   if (colorDimension === appStore.dimensions[Axis.WITHIN_BAND] && colorDimension === Dimension.LOCATION) {
-
     // Sort by the geographical resolution (LocResolution) of the values.
     return Array.from(colorStore.colorMapping).sort(([aVal], [bVal]) => {
       const [aLocRes, bLocRes] = [
@@ -53,7 +77,8 @@ const colors = computed(() => {
       return bRank - aRank;
     });
   }
-  // TODO: (vimc-9191) a less hacky way of getting the same ordering on the legend as on the plot (this way doesn't work for persisted mappings like global)
+  
+  // Default: reverse the color mapping order
   return Array.from(colorStore.colorMapping).toReversed();
 })
 
