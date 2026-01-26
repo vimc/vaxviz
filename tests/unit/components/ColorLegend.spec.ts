@@ -24,7 +24,7 @@ describe('RidgelinePlot component', () => {
     appStore.dimensions.withinBand = 'location';
     appStore.dimensions.column = 'activity_type';
     appStore.dimensions.row = 'disease';
-    appStore.filters = {
+    appStore.hardFilters = {
       location: ['Central and Southern Asia', globalOption.value, 'AFG'],
       disease: ['Cholera'],
     };
@@ -77,7 +77,7 @@ describe('RidgelinePlot component', () => {
     appStore.dimensions.withinBand = 'location';
     appStore.dimensions.column = 'activity_type';
     appStore.dimensions.row = 'disease';
-    appStore.filters = {
+    appStore.hardFilters = {
       location: ['AFG'],
       disease: ['Cholera', 'Rubella'],
     };
@@ -116,7 +116,7 @@ describe('RidgelinePlot component', () => {
     appStore.dimensions.withinBand = 'location';
     appStore.dimensions.column = 'activity_type';
     appStore.dimensions.row = 'disease';
-    appStore.filters = {
+    appStore.hardFilters = {
       location: ['Central and Southern Asia', globalOption.value, 'AFG'],
       disease: ['Cholera', 'Rubella'],
     };
@@ -154,7 +154,7 @@ describe('RidgelinePlot component', () => {
 
     expectCorrectMarginForRowDimension("disease", wrapper);
 
-    appStore.filters = {
+    appStore.hardFilters = {
       location: ['AFG'],
       disease: ['Cholera', 'Rubella'],
     };
@@ -193,7 +193,7 @@ describe('RidgelinePlot component', () => {
     appStore.dimensions.withinBand = 'disease';
     appStore.dimensions.column = null;
     appStore.dimensions.row = 'location';
-    appStore.filters = {
+    appStore.hardFilters = {
       location: ['AFG', 'global'],
       disease: ['Malaria'],
     };

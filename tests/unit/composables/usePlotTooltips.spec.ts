@@ -29,7 +29,7 @@ describe('usePlotTooltips', () => {
       const appStore = useAppStore();
       const colorStore = useColorStore();
 
-      appStore.filters = {
+      appStore.hardFilters = {
         [Dimension.LOCATION]: ['AFG', 'global'],
         [Dimension.DISEASE]: ['Cholera'],
       };
@@ -63,7 +63,7 @@ describe('usePlotTooltips', () => {
       const appStore = useAppStore();
       const colorStore = useColorStore();
 
-      appStore.filters = {
+      appStore.hardFilters = {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera', 'Measles'],
       };
@@ -102,7 +102,7 @@ describe('usePlotTooltips', () => {
       await nextTick();
       expect(appStore.dimensions.column).toBe(Dimension.ACTIVITY_TYPE);
 
-      appStore.filters = {
+      appStore.hardFilters = {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera'],
         [Dimension.ACTIVITY_TYPE]: ['routine', 'campaign'],
@@ -137,7 +137,7 @@ describe('usePlotTooltips', () => {
       const colorStore = useColorStore();
       const dataStore = useDataStore();
 
-      appStore.filters = {
+      appStore.hardFilters = {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera'],
       };
@@ -170,7 +170,7 @@ describe('usePlotTooltips', () => {
       const colorStore = useColorStore();
       const dataStore = useDataStore();
 
-      appStore.filters = {
+      appStore.hardFilters = {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera'],
       };
@@ -205,7 +205,7 @@ describe('usePlotTooltips', () => {
     const colorStore = useColorStore();
     const dataStore = useDataStore();
 
-    appStore.filters = {
+    appStore.hardFilters = {
       [Dimension.LOCATION]: ['AFG'],
       [Dimension.DISEASE]: ['Cholera'],
     };

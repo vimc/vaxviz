@@ -49,7 +49,7 @@ const noDataToDisplay = ref<boolean>(false);
 const data = computed(() => dataStore.histogramData.filter(dataRow =>
   [Dimension.LOCATION, Dimension.DISEASE].every(dim => {
     const dimensionVal = getDimensionCategoryValue(dim, dataRow);
-    return appStore.filters[dim]?.includes(dimensionVal);
+    return appStore.hardFilters[dim]?.includes(dimensionVal);
   })),
 );
 
