@@ -63,6 +63,9 @@
         <p>
           Model estimates are presented in terms of 'vaccine impact ratios', defined as deaths or disability-adjusted life years (DALYs) averted per vaccination.
         </p>
+        <p class="text-xs text-gray-500 mt-2">
+          Vaxviz version: {{ version }}
+        </p>
       </div>
     </template>
   </FwbModal>
@@ -72,6 +75,8 @@
 import { FwbAlert, FwbModal } from 'flowbite-vue';
 import countryOptions from '@/data/options/countryOptions.json';
 import { ref } from 'vue';
+
+import { version } from '@/../package.json';
 
 const aboutModalVisible = ref(false);
 </script>

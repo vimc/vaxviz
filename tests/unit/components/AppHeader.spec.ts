@@ -19,5 +19,8 @@ describe('AppHeader component', () => {
       expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(true);
       expect(wrapper.findComponent({ name: 'FwbModal' }).isVisible()).toBe(true);
     })
+
+    // Check that the version number is displayed correctly
+    expect(wrapper.text()).toMatch(/Vaxviz version: \d+\.\d+\.\d+/);
   });
 });
