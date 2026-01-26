@@ -5,6 +5,7 @@ import { computed, toValue, type MaybeRefOrGetter } from 'vue';
 // Construct histogram/ridge-shaped lines by building area lines whose points trace the
 // outline of the histogram.  
 export default (
+  dataIsReady: MaybeRefOrGetter<boolean>,
   data: MaybeRefOrGetter<HistDataRow[]>,
   axisDimension: () => {
     [Axis.COLUMN]: Dimension | null;
@@ -49,6 +50,10 @@ export default (
   // Construct histogram/ridge-shaped lines by building area lines whose points trace the
   // outline of the histogram bars (including the spaces in between them).
   const ridgeLines = computed((): Lines<LineMetadata> => {
+    if (!toValue(dataIsReady)) {
+      return [];
+    }
+
     // A 3-dimensional dictionary of lines.
     // We use x-value as the key at the first level, then y-value on the second, then withinBandValue.
     // If the x-value (or anything else) is undefined, then the key should be an empty string.

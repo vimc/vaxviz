@@ -5,6 +5,7 @@
         <img src="/logo.png" id="logo" alt="VIMC logo" />
       </a>
     </div>
+    <!-- TODO: When paper is published and data finalised, remove this warning. -->
     <FwbAlert
       type="danger"
       class="border-t-4 rounded-none max-h-20 py-3"

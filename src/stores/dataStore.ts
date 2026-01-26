@@ -92,7 +92,6 @@ export const useDataStore = defineStore("data", () => {
       }
       return newRow;
     });
-    isLoading.value = false;
   };
 
   const loadAllData = async () => {

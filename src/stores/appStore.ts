@@ -39,6 +39,12 @@ export const useAppStore = defineStore("app", () => {
     [Dimension.DISEASE]: diseaseOptions.map(d => d.value),
     [Dimension.LOCATION]: [LocResolution.GLOBAL],
   });
+  const softFilters = ref<Record<string, string[]>>({});
+  const resetSoftFilters = () => softFilters.value = {
+    [Dimension.DISEASE]: [...(hardFilters.value[Dimension.DISEASE] ?? [])],
+    [Dimension.LOCATION]: [...(hardFilters.value[Dimension.LOCATION] ?? [])],
+  };
+  resetSoftFilters();
 
   const exploreByLabel = computed(() => {
     const option = exploreOptions.find(o => o.value === exploreBy.value);
@@ -53,7 +59,7 @@ export const useAppStore = defineStore("app", () => {
   }));
 
   const geographicalResolutionForLocation = (location: string): LocResolution | undefined => {
-    if (location === LocResolution.GLOBAL) {
+    if (location === globalOption.value) {
       return LocResolution.GLOBAL;
     } else if (subregionOptions.find(o => o.value === location)) {
       return LocResolution.SUBREGION;
@@ -134,6 +140,8 @@ export const useAppStore = defineStore("app", () => {
 
   watch(splitByActivityType, (split) => columnDimension.value = split ? Dimension.ACTIVITY_TYPE : null);
 
+  watch(hardFilters, resetSoftFilters);
+
   return {
     burdenMetric,
     dimensions,
@@ -146,6 +154,8 @@ export const useAppStore = defineStore("app", () => {
     getAxisForDimension,
     geographicalResolutionForLocation,
     logScaleEnabled,
+    resetSoftFilters,
+    softFilters,
     splitByActivityType,
   };
 })

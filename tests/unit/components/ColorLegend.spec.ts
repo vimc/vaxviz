@@ -225,4 +225,72 @@ describe('RidgelinePlot component', () => {
 
     expectCorrectMarginForRowDimension("location", wrapper);
   });
+
+  it('can update and reset soft filters', async () => {
+    const appStore = useAppStore();
+    const colorStore = useColorStore();
+    const wrapper = mount(ColorLegend);
+    appStore.dimensions.withinBand = 'location';
+    appStore.dimensions.column = 'activity_type';
+    appStore.dimensions.row = 'disease';
+    appStore.hardFilters = {
+      location: ['Central and Southern Asia', globalOption.value, 'AFG'],
+      disease: ['Cholera'],
+    };
+    expect(colorStore.colorDimension).toBe('location');
+
+    colorStore.setColors([
+      { metadata: { withinBand: 'Central and Southern Asia', row: 'Cholera', column: 'campaign' } },
+      { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'routine' } },
+      { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'campaign' } },
+      { metadata: { withinBand: 'global', row: 'Cholera', column: 'campaign' } },
+    ]);
+
+    expect(colorStore.colorMapping.size).toBe(3);
+
+    await vi.waitFor(() => {
+      expect(wrapper.findAll(".legend-label").length).toBe(3);
+    });
+
+    expect(wrapper.find("#resetFiltersButton").exists()).toBe(false);
+
+    expect(appStore.softFilters.location).toEqual(['Central and Southern Asia', globalOption.value, 'AFG']);
+
+    const [afgButton, centralAndSouthernAsiaButton, all117VimcCountriesButton] = wrapper.findAll(".legend-button");
+
+    expect(afgButton.text()).toBe("Afghanistan ×");
+    expect(centralAndSouthernAsiaButton.text()).toBe("Central and Southern Asia ×");
+    expect(all117VimcCountriesButton.text()).toBe("All 117 VIMC countries ×");
+    [afgButton, centralAndSouthernAsiaButton, all117VimcCountriesButton].forEach(button => {
+      expect(button.find(".remove-button").classes()).not.toContain("invisible");
+    });
+
+    await afgButton.trigger('click');
+    expect(appStore.softFilters.location).toEqual(['Central and Southern Asia', globalOption.value]);
+    expect(afgButton.find(".remove-button").classes()).toContain("invisible"); // The remove button gets visibility: hidden
+
+    expect(wrapper.find("#resetFiltersButton").exists()).toBe(true);
+
+    await afgButton.trigger('click');
+    expect(appStore.softFilters.location).toEqual(['Central and Southern Asia', globalOption.value, 'AFG']);
+    expect(afgButton.find(".remove-button").classes()).not.toContain("invisible");
+
+    expect(wrapper.find("#resetFiltersButton").exists()).toBe(false);
+
+    await centralAndSouthernAsiaButton.trigger('click');
+    await all117VimcCountriesButton.trigger('click');
+    expect(appStore.softFilters.location).toEqual(['AFG']);
+    await all117VimcCountriesButton.trigger('click');
+    expect(appStore.softFilters.location).toEqual(['AFG', globalOption.value]);
+    await afgButton.trigger('click');
+    expect(appStore.softFilters.location).toEqual([globalOption.value]);
+
+    // Use the reset button to restore all soft filters.
+    await wrapper.find("#resetFiltersButton").trigger('click');
+
+    expect(appStore.softFilters.location).toEqual(['Central and Southern Asia', globalOption.value, 'AFG']);
+    [afgButton, centralAndSouthernAsiaButton, all117VimcCountriesButton].forEach(button => {
+      expect(button.find(".remove-button").classes()).not.toContain("invisible");
+    });
+  });
 });

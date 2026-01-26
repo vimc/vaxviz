@@ -5,6 +5,28 @@ import { nextTick } from "vue";
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { useAppStore } from "@/stores/appStore";
 
+const expectedInitialFilters = Object.freeze({
+  disease: [
+    "Cholera",
+    "COVID-19",
+    "HepB",
+    "Hib",
+    "HPV",
+    "JE",
+    "Malaria",
+    "Measles",
+    "MenA",
+    "MenACWYX",
+    "Meningitis",
+    "PCV",
+    "Rota",
+    "Rubella",
+    "Typhoid",
+    "YF",
+  ],
+  location: ["global"],
+});
+
 describe("app store", () => {
   beforeEach(() => {
     setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
@@ -23,27 +45,8 @@ describe("app store", () => {
       row: "disease",
       withinBand: "location",
     });
-    expect(store.hardFilters).toEqual({
-      disease: [
-        "Cholera",
-        "COVID-19",
-        "HepB",
-        "Hib",
-        "HPV",
-        "JE",
-        "Malaria",
-        "Measles",
-        "MenA",
-        "MenACWYX",
-        "Meningitis",
-        "PCV",
-        "Rota",
-        "Rubella",
-        "Typhoid",
-        "YF",
-      ],
-      location: ["global"],
-    });
+    expect(store.hardFilters).toEqual(expectedInitialFilters);
+    expect(store.softFilters).toEqual(expectedInitialFilters);
   });
 
   it("updates the focus value when exploreBy selection changes", async () => {
@@ -72,6 +75,8 @@ describe("app store", () => {
     expect(store.dimensions.withinBand).toEqual("location");
     expect(store.hardFilters.disease).toHaveLength(diseaseOptions.length);
     expect(store.hardFilters.location).toEqual(["global"]);
+    expect(store.softFilters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.softFilters.location).toEqual(["global"]);
 
     store.focus = "AFG";
     await nextTick();
@@ -80,6 +85,8 @@ describe("app store", () => {
     expect(store.dimensions.withinBand).toEqual("location");
     expect(store.hardFilters.disease).toHaveLength(diseaseOptions.length);
     expect(store.hardFilters.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
+    expect(store.softFilters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.softFilters.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
 
     store.focus = "Cholera";
     await nextTick();
@@ -89,6 +96,9 @@ describe("app store", () => {
     expect(store.hardFilters.disease).toEqual(["Cholera"]);
     expect(store.hardFilters.location).toHaveLength(11);
     expect(store.hardFilters.location).toContain("global");
+    expect(store.softFilters.disease).toEqual(["Cholera"]);
+    expect(store.softFilters.location).toHaveLength(11);
+    expect(store.softFilters.location).toContain("global");
 
     store.focus = "Middle Africa";
     await nextTick();
@@ -97,6 +107,8 @@ describe("app store", () => {
     expect(store.dimensions.withinBand).toEqual("location");
     expect(store.hardFilters.disease).toHaveLength(diseaseOptions.length);
     expect(store.hardFilters.location).toEqual(["Middle Africa", "global"]);
+    expect(store.softFilters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.softFilters.location).toEqual(["Middle Africa", "global"]);
   });
 
   it("returns the explore by label", async () => {
@@ -146,5 +158,22 @@ describe("app store", () => {
     expect(store.geographicalResolutionForLocation("AFG")).toEqual("country");
     expect(store.geographicalResolutionForLocation("Central and Southern Asia")).toEqual("subregion");
     expect(store.geographicalResolutionForLocation("Cholera")).toBeUndefined();
+  });
+
+  it("can reset the soft filters", () => {
+    const store = useAppStore();
+
+    expect(store.hardFilters).toEqual(expectedInitialFilters);
+    expect(store.softFilters).toEqual(expectedInitialFilters);
+
+    store.softFilters.disease = ["Cholera", "Measles"];
+    store.softFilters.location = ["AFG", "global"];
+
+    expect(store.softFilters.disease).toEqual(["Cholera", "Measles"]);
+    expect(store.softFilters.location).toEqual(["AFG", "global"]);
+
+    store.resetSoftFilters();
+
+    expect(store.softFilters).toEqual(expectedInitialFilters);
   });
 });

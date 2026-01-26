@@ -5,29 +5,58 @@
     id="colorLegend"
   >
     <ul
-      class="flex flex-col gap-y-1 flex-wrap max-h-full min-h-0"
+      class="flex flex-col gap-y-1 flex-wrap max-h-full min-h-0 max-xl:ml-0!"
       :style="{ 'margin-left': `${plotLeftMargin}px` }"
     >
       <li
-        v-for="([value, color]) in colors"
+        v-for="({ value, color, softFiltered, label }) in colors"
         :key="value"
         class="flex gap-x-2 text-sm mr-20"
       >
-        <span
-          class="legend-color-box"
-          :style="colorBoxStyle(color)"
-        />
-        <span class="legend-label">
-          {{ dimensionOptionLabel(colorStore.colorDimension, value) }}
-        </span>
+        <button
+          type="button"
+          class="legend-button flex gap-x-2 cursor-pointer"
+          :class="{ 'filtered-by-legend': softFiltered }"
+          @click="handleClick(value)"
+        >
+          <div class="flex gap-x-2 items-center text-sm">
+            <span
+              class="legend-color-box"
+              :style="colorBoxStyle(color)"
+            />
+            <span class="legend-label">
+              {{ label ?? value }}
+            </span>
+          </div>
+          <span
+            class="text-xs text-gray-500 ms-auto remove-button"
+            :class="{ invisible: softFiltered }"
+            role="button"
+            :aria-label="`Remove ${label ?? value} from filter`"
+          >
+            &times;
+          </span>
+        </button>
       </li>
     </ul>
+    <div v-if="softFilter?.length !== hardFilter?.length">
+      <FwbButton
+        color="default"
+        id="resetFiltersButton"
+        class="cursor-pointer"
+        size="sm"
+        @click="appStore.resetSoftFilters"
+      >
+        Reset filters
+      </FwbButton>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import { type HEX } from "color-convert";
+import { FwbButton } from 'flowbite-vue'
 import { useColorStore } from '@/stores/colorStore';
 import { dimensionOptionLabel } from '@/utils/options';
 import { useAppStore } from '@/stores/appStore';
@@ -37,13 +66,16 @@ import { margins } from '@/utils/plotConfiguration';
 const appStore = useAppStore();
 const colorStore = useColorStore();
 
+const hardFilter = computed(() => appStore.hardFilters[colorStore.colorDimension]);
+const softFilter = computed(() => appStore.softFilters[colorStore.colorDimension]);
+
 const colors = computed(() => {
   const { colorDimension } = colorStore;
-  const colorsMap = Array.from(colorStore.colorMapping);
+  let colorsMap: [string, string][] = [];
   if (colorDimension === appStore.dimensions[Axis.WITHIN_BAND] && colorDimension === Dimension.LOCATION) {
 
     // Sort by the geographical resolution (LocResolution) of the values.
-    return colorsMap.sort(([aVal], [bVal]) => {
+    colorsMap = Array.from(colorStore.colorMapping).sort(([aVal], [bVal]) => {
       const [aLocRes, bLocRes] = [
         appStore.geographicalResolutionForLocation(aVal),
         appStore.geographicalResolutionForLocation(bVal)
@@ -54,10 +86,33 @@ const colors = computed(() => {
       ];
       return bRank - aRank;
     });
+  } else {
+    // Maintain the order of colors as in the plot-rows; the plot rows start from the bottom, so we reverse.
+    colorsMap = Array.from(colorStore.colorMapping).toReversed();
   }
-  // Maintain the order of colors as in the plot-rows; the plot rows start from the bottom, so we reverse.
-  return colorsMap.toReversed();
+
+  // Add more values to the map, denoting:
+  // softFiltered: whether it is included in the legend filters at the time of calculation.
+  // label: the human-readable label to use with this color (depends on the current value of colorDimension).
+  return colorsMap.map(([value, color]) => ({
+    value,
+    color,
+    softFiltered: !softFilter.value?.includes(value),
+    label: dimensionOptionLabel(colorStore.colorDimension, value),
+  }));
 })
+
+const handleClick = (value: string) => {
+  if (!softFilter.value) {
+    return;
+  }
+
+  if (softFilter.value.includes(value)) {
+    appStore.softFilters[colorStore.colorDimension] = softFilter.value.filter(v => v !== value);
+  } else {
+    appStore.softFilters[colorStore.colorDimension]?.push(value);
+  }
+}
 
 const colorBoxStyle = (color: HEX) => {
   const { fillColor, strokeColor } = colorStore.colorProperties(color);
@@ -76,7 +131,6 @@ const plotLeftMargin = computed(() => margins(appStore.dimensions[Axis.ROW]).lef
   width: 1rem;
   height: 1rem;
   display: inline-block;
-  border-width: 2px;
   border-style: solid;
 }
 
@@ -84,5 +138,38 @@ const plotLeftMargin = computed(() => margins(appStore.dimensions[Axis.ROW]).lef
   line-height: 1rem;
   margin-top: 1px;
   word-wrap: normal;
+}
+
+.legend-button {
+  &.filtered-by-legend {
+    text-decoration: line-through;
+    text-decoration-color: gray;
+
+    &:not(:hover) {
+      color: var(--color-gray-500);
+
+      .legend-color-box {
+        background-color: var(--color-gray-200) !important;
+      }
+    }
+
+    &:hover {
+      color: var(--color-gray-800);
+    }
+  }
+
+  &:not(.filtered-by-legend) {
+    &:hover {
+      opacity: 0.75;
+
+      .remove-button {
+        color: red;
+      }
+    }
+
+    .legend-color-box {
+      border-width: 2px;
+    }
+  }
 }
 </style>

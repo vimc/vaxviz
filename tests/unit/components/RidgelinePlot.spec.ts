@@ -18,7 +18,6 @@ import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
-import { useDataStore } from '@/stores/dataStore';
 
 const addAxesSpy = vi.fn().mockReturnThis();
 const addTracesSpy = vi.fn().mockReturnThis();
@@ -102,7 +101,7 @@ describe('RidgelinePlot component', () => {
         x: ["Campaign", "Routine"],
         y: ["COVID-19", "Cholera", "Rubella", "MenA", "MenACWYX", "Typhoid", "Rota", "HepB", "YF", "PCV", "Malaria", "Hib", "HPV", "Measles"],
       });
-    });
+    }, 3000);
 
     // Change options: round 2
     appStore.exploreBy = "disease";
@@ -173,6 +172,33 @@ describe('RidgelinePlot component', () => {
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
     }, { timeout: 3000 });
+
+    // Change options: round 4 (applying a soft filter as if via legend component)
+    expect(colorStore.colorDimension).toEqual("location");
+    appStore.softFilters["location"] = ["AFG", "global"];
+    await vi.waitFor(() => {
+      const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
+      expect(dataAttr.lineCount).toEqual(20); // 10 applicable diseases, each now with only 2 locations (no subregion
+      expect(colorStore.colorMapping.size).toEqual(3);
+
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
+      });
+    });
+
+    // Change options: round 5 (removing a soft filter)
+    appStore.softFilters["location"].push("Central and Southern Asia");
+    await vi.waitFor(() => {
+      const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
+      expect(dataAttr.lineCount).toEqual(30);
+      expect(colorStore.colorMapping.size).toEqual(3);
+
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
+      });
+    });
   }, 10000);
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {

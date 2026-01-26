@@ -12,7 +12,7 @@
       id="chartWrapper"
       :data-test="JSON.stringify({
         histogramDataRowCount: dataStore.histogramData.length,
-        lineCount: relevantRidgeLines.length,
+        lineCount: softFilteredLines.length,
         ...appStore.dimensions,
       })"
       class="flex-1 m-10"
@@ -41,7 +41,7 @@ const dataStore = useDataStore();
 const colorStore = useColorStore();
 const { tooltipCallback } = usePlotTooltips();
 
-const chartWrapper = ref<HTMLDivElement | null>(null);
+const chartWrapper = ref<HTMLDivElement>();
 // noDataToDisplay is a ref rather than computed so that we can debounce updates to it, preventing flickering
 // if appStore changes at a different moment from linesToDisplay.
 const noDataToDisplay = ref<boolean>(false);
@@ -53,7 +53,13 @@ const data = computed(() => dataStore.histogramData.filter(dataRow =>
   })),
 );
 
-const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
+const { ridgeLines } = useHistogramLines(
+  () => !dataStore.isLoading,
+  data,
+  () => appStore.dimensions,
+  getDimensionCategoryValue,
+  dimensionOptionLabel,
+);
 
 // Here, we filter ridgelines on the basis of their relevance to the 'focus' selection.
 // This is distinct from any filtering the user may apply on top of this using plot controls,
@@ -65,7 +71,8 @@ const relevantRidgeLines = computed(() => {
   };
 
   return ridgeLines.value.filter((line) => {
-    // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
+    // If data for a disease is not present at the same geographical resolution as the focus, we should consider the disease irrelevant
+    // and exclude it from the plot.
     // E.g. Say the focus value is 'Djibouti', a location. For some row of ridgelines - where rows are diseases, such as Malaria -
     // there may be data available at a global and/or subregional level, but none for Djibouti. In such cases we should exclude the
     // Malaria row entirely so that we only display rows that are relevant for Djibouti.
@@ -83,33 +90,45 @@ const relevantRidgeLines = computed(() => {
 const getMeanOfMeansForPlotRow = (plotRowCategory?: string) => {
   const ridgelinesForPlotRow = relevantRidgeLines.value.filter(line => line.metadata?.[Axis.ROW] === plotRowCategory);
   const meanValues = ridgelinesForPlotRow.map(({ metadata }) => {
-    const dataTableRow = dataStore.getSummaryDataRow(metadata!)!;
+    if (!metadata) {
+      throw new Error(`No metadata for ridgeline with category ${plotRowCategory}`);
+    }
+    const dataTableRow = dataStore.getSummaryDataRow(metadata);
+    if (!dataTableRow) {
+      throw new Error(`No dataTableRow for ridgeline with metadata ${JSON.stringify(metadata)}`);
+    }
     return dataTableRow[SummaryTableColumn.MEAN];
   });
   return meanValues.reduce((sum, val) => sum + val, 0) / meanValues.length;
 };
 
-const sortedRidgeLines = computed(() => {
-  return relevantRidgeLines.value.toSorted((lineA, lineB) => {
+const softFilteredLines = computed(() => {
+  const sortedRidgeLines = relevantRidgeLines.value.toSorted((lineA, lineB) => {
     const meanA = getMeanOfMeansForPlotRow(lineA.metadata?.[Axis.ROW]);
     const meanB = getMeanOfMeansForPlotRow(lineB.metadata?.[Axis.ROW]);
     return meanA - meanB;
   });
+
+  // Set colors before applying filters, since filtered-out lines are still rendered by the
+  // ColorLegend as options to be toggled back on.
+  colorStore.setColors(sortedRidgeLines);
+
+  // Apply soft filters
+  return sortedRidgeLines.filter(line => {
+    const colorVal = line.metadata?.[colorStore.colorAxis];
+    return colorVal && appStore.softFilters[colorStore.colorDimension]?.includes(colorVal);
+  })
 });
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  noDataToDisplay.value = sortedRidgeLines.value.length === 0;
+  noDataToDisplay.value = softFilteredLines.value.length === 0;
 
   if (noDataToDisplay.value || !chartWrapper.value) {
     return;
   }
 
-  colorStore.setColors(sortedRidgeLines.value);
-
-  sortedRidgeLines.value.forEach(line => {
-    // TODO: Once we have implemented ordering the categories, ensure that this ordering is reflected in
-    // the color assignment, since the palettes maximize contrast between _neighboring_ colors.
+  softFilteredLines.value.forEach(line => {
     const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
 
     line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
@@ -118,12 +137,12 @@ const updateChart = debounce(() => {
   const { constructorOptions, axisConfig, chartAppendConfig, categoricalScales } = plotConfiguration(
     appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
-    sortedRidgeLines.value,
+    softFilteredLines.value,
   );
 
   new Chart(constructorOptions)
     .addAxes(...axisConfig)
-    .addTraces(sortedRidgeLines.value)
+    .addTraces(softFilteredLines.value)
     .addArea()
     .addGridLines(
       {
@@ -135,8 +154,8 @@ const updateChart = debounce(() => {
     .addTooltips(tooltipCallback, TOOLTIP_RADIUS_PX)
     .makeResponsive()
     .appendTo(chartWrapper.value, ...chartAppendConfig);
-}, 100);
+}, 25);
 
-watch([relevantRidgeLines, () => appStore.focus, chartWrapper], updateChart, { immediate: true });
+watch([softFilteredLines, chartWrapper], updateChart, { immediate: true });
 </script>
 

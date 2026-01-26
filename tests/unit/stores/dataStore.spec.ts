@@ -211,8 +211,8 @@ describe('data store', () => {
     // Wait for initial data load.
     await vi.waitFor(() => {
       expect(dataStore.isLoading).toBe(false);
-      expect(dataStore.histogramData).toHaveLength(histCountsDeathsDiseaseLog.length);
     });
+    expect(dataStore.histogramData).toHaveLength(histCountsDeathsDiseaseLog.length);
 
     appStore.exploreBy = "disease";
     appStore.focus = "Cholera";
