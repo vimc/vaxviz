@@ -2,7 +2,7 @@ import { debounce } from "perfect-debounce";
 import { computed, ref, shallowRef, watch, type ShallowRef } from "vue";
 import { defineStore } from "pinia";
 import { useAppStore } from "@/stores/appStore";
-import { type HistDataRow, type SummaryTableDataRow, Dimension, LocResolution } from "@/types";
+import { type HistDataRow, type LineMetadata, type SummaryTableDataRow, Axis, Dimension, LocResolution } from "@/types";
 import { globalOption } from "@/utils/options";
 
 export const dataDir = `./data/json`
@@ -16,6 +16,16 @@ export const useDataStore = defineStore("data", () => {
   const summaryTableData = shallowRef<SummaryTableDataRow[]>([]);
   const summaryTableCache: Record<string, SummaryTableDataRow[]> = {};
   const isLoading = ref(true);
+
+  // Find the summary table row whose values for the plot row and band
+  // dimensions (and column, if set) match the values of the (ridgeline or point) metadata
+  const getSummaryDataRow = (metadata: LineMetadata) => {
+    return summaryTableData.value.find(d => {
+      return Object.entries(appStore.dimensions).every(([axis, dim]) => {
+        return !dim || d[dim] === metadata?.[axis as Axis];
+      });
+    });
+  };
 
   const constructFilenames = (dataType: "hist_counts" | "summary_table"): string[] => {
     return appStore.geographicalResolutions.map((geog) => {
@@ -108,5 +118,5 @@ export const useDataStore = defineStore("data", () => {
     }
   }, { immediate: true });
 
-  return { fetchErrors, isLoading, histogramData, summaryTableData };
+  return { fetchErrors, isLoading, getSummaryDataRow, histogramData, summaryTableData, summaryTableFilenames };
 });
