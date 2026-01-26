@@ -17,6 +17,7 @@
           type="button"
           class="legend-button flex gap-x-2 cursor-pointer"
           :class="{ 'filtered-by-legend': softFiltered }"
+          :data-testid="`${value}Button`"
           @click="handleClick(value)"
         >
           <div class="flex gap-x-2 items-center text-sm">

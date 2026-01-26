@@ -139,8 +139,9 @@ test('visits the app root url, selects options, and loads correct data', async (
   await expect(plotLegend.locator(".legend-label")).toHaveCount(3); // Colors per location
 
   // Change options: round 4 (applying a soft filter via legend component)
-  const removeSubregionButton = page.getByRole("button", { name: "Remove Central and Southern Asia from filter" });
-  await removeSubregionButton.click();
+  const subregionButton = page.getByTestId("Central and Southern AsiaButton");
+
+  await subregionButton.click();
   await expect(chartWrapper).toHaveAttribute("data-test",
     JSON.stringify({
       histogramDataRowCount: expectedHistogramRowCount,
@@ -152,8 +153,7 @@ test('visits the app root url, selects options, and loads correct data', async (
   );
 
   // Change options: round 4 (removing a soft filter via legend component)
-  const addSubregionButton = page.getByRole("button", { name: "Central and Southern Asia" });
-  await addSubregionButton.click();
+  await subregionButton.click();
   await expect(chartWrapper).toHaveAttribute("data-test",
     JSON.stringify({
       histogramDataRowCount: expectedHistogramRowCount,
