@@ -1,7 +1,7 @@
 <template>
   <header class="border-b border-gray-300 flex items-center justify-between">
     <div class="flex flex-col gap-2">
-      <a href="https://www.vaccineimpact.org/">
+      <a href="https://www.vaccineimpact.org/" target="_blank">
         <img src="/logo.png" class="" alt="VIMC logo" />
       </a>
     </div>
@@ -36,12 +36,12 @@
         <!-- TODO: The commented text will be uncommented once the estimates are final / published; until then we have to caveat them. -->
         <!-- <p>
           It shows VIMC's estimates of health impact from vaccination against 14 diseases in {{ countryOptions.length }} low- and middle-income countries from 2000 to 2030
-          (2040 for cholera) for the <a href="https://www.gavi.org/">Gavi</a> portfolio of vaccination programmes.
+          (2040 for cholera) for the <a href="https://www.gavi.org/" target="_blank">Gavi</a> portfolio of vaccination programmes.
         </p> -->
         <!-- NB: The number of diseases is 14 per the paper, and not (necessarily) the length of diseaseOptions.json, which may carve up diseases differently (particularly Meningitis). -->
         <p>
           Once that paper is published, this will show VIMC's estimates of health impact from vaccination against 14 diseases in {{ countryOptions.length }} low- and middle-income countries from 2000 to 2030
-          (2040 for cholera) for the <a href="https://www.gavi.org/">Gavi</a> portfolio of vaccination programmes. The numbers shown are only representative, pending publication.
+          (2040 for cholera) for the <a href="https://www.gavi.org/" target="_blank">Gavi</a> portfolio of vaccination programmes. The numbers shown are only representative, pending publication.
         </p>
         <p>
           Model estimates are presented in terms of 'vaccine impact ratios', defined as deaths or disability-adjusted life years (DALYs) averted per vaccination.
