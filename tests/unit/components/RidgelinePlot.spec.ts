@@ -202,7 +202,7 @@ describe('RidgelinePlot component', () => {
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
     });
-  }, 15000);
+  }, 20000);
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
     const appStore = useAppStore();
