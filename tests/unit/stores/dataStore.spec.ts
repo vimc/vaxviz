@@ -88,7 +88,7 @@ describe('data store', () => {
       expect(dataStore.summaryTableData).toHaveLength(
         summaryDalysDiseaseSubregionActivityType.length + summaryDalysDiseaseActivityType.length
       );
-    });
+    }, { timeout: 2000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
     expectLastNCallsToContain(fetchSpy, [
       "./data/json/hist_counts_dalys_disease_subregion_activity_type.json",

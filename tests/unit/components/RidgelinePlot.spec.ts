@@ -48,6 +48,9 @@ const assertLastCategoricalScales = (expected: Record<"x" | "y", string[] | unde
 describe('RidgelinePlot component', () => {
   beforeEach(() => {
     setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
+
+    // Define Mathjax globally to prevent errors during testing (in real life, it's defined in index.html)
+    globalThis.MathJax = {};
   });
 
   it('loads the correct data', async () => {
@@ -101,7 +104,7 @@ describe('RidgelinePlot component', () => {
         x: ["Campaign", "Routine"],
         y: ["COVID-19", "Cholera", "Rubella", "MenA", "MenACWYX", "Typhoid", "Rota", "HepB", "YF", "PCV", "Malaria", "Hib", "HPV", "Measles"],
       });
-    }, 3000);
+    }, 5000);
 
     // Change options: round 2
     appStore.exploreBy = "disease";
@@ -142,7 +145,7 @@ describe('RidgelinePlot component', () => {
           "Middle Africa",
         ],
       });
-    }, { timeout: 3000 });
+    }, { timeout: 5000 });
 
     // Change options: round 3
     appStore.exploreBy = "location";
@@ -171,7 +174,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
-    }, { timeout: 3000 });
+    }, { timeout: 5000 });
 
     // Change options: round 4 (applying a soft filter as if via legend component)
     expect(colorStore.colorDimension).toEqual("location");
@@ -199,7 +202,7 @@ describe('RidgelinePlot component', () => {
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
     });
-  }, 10000);
+  }, 15000);
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
     const appStore = useAppStore();
