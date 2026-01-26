@@ -2,9 +2,26 @@
   <header class="border-b border-gray-300 flex items-center justify-between">
     <div class="flex flex-col gap-2">
       <a href="https://www.vaccineimpact.org/" target="_blank">
-        <img src="/logo.png" class="" alt="VIMC logo" />
+        <img src="/logo.png" id="logo" alt="VIMC logo" />
       </a>
     </div>
+    <FwbAlert
+      type="danger"
+      class="border-t-4 rounded-none"
+    >
+      <template #icon>
+        <img class="w-4 h-4 mr-2" src="@/assets/images/icons/dangerInfoIcon.svg" alt=""/>
+        <span class="sr-only">Error</span>
+      </template>
+      <template #title>
+        <h3 class="text-lg font-medium">
+          Provisional estimates. Not to be forwarded or cited.
+        </h3>
+      </template>
+      <template #default>
+        <p class="mt-2">This is a preview. All estimates shown are representative only. Do not use or forward them.</p>
+      </template>
+    </FwbAlert>
     <div class="flex flex-col gap-4 items-end">
       <!-- TODO: When paper is published, add the link, and remove 'forthcoming'. -->
       <p class="text-right">This visualization tool accompanies Gaythorpe et al. (forthcoming)</p>
@@ -52,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { FwbModal } from 'flowbite-vue';
+import { FwbAlert, FwbModal } from 'flowbite-vue';
 import countryOptions from '@/data/options/countryOptions.json';
 import { ref } from 'vue';
 
