@@ -5,9 +5,9 @@
         <img src="/logo.png" class="" alt="VIMC logo" />
       </a>
     </div>
-    <div class="flex flex-col gap-4 max-w-100 items-end">
-      <!-- TODO: When paper is published, add the href. -->
-      <p class="text-right">This visualization tool accompanies <a href="#">Gaythorpe et al.</a></p>
+    <div class="flex flex-col gap-4 items-end">
+      <!-- TODO: When paper is published, add the link, and remove 'forthcoming'. -->
+      <p class="text-right">This visualization tool accompanies Gaythorpe et al. (forthcoming)</p>
       <button
         id="aboutLink"
         @click="aboutModalVisible = true"
@@ -29,9 +29,9 @@
     </template>
     <template #body>
       <div class="flex flex-col gap-y-4 leading-relaxed">
-        <!-- TODO: When paper is published, add the href. -->
+        <!-- TODO: When paper is published, add the link and replace '(forthcoming)' with '(2026)'. -->
         <p>
-          This visualization tool accompanies VIMC's fourth publication, <a href="#">Gaythorpe et al</a> (2026).
+          This visualization tool accompanies VIMC's fourth publication, Gaythorpe et al (forthcoming).
         </p>
         <!-- TODO: The commented text will be uncommented once the estimates are final / published; until then we have to caveat them. -->
         <!-- <p>
