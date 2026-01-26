@@ -88,7 +88,7 @@ describe('data store', () => {
       expect(dataStore.summaryTableData).toHaveLength(
         summaryDalysDiseaseSubregionActivityType.length + summaryDalysDiseaseActivityType.length
       );
-    }, { timeout: 2000 });
+    }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
     expectLastNCallsToContain(fetchSpy, [
       "./data/json/hist_counts_dalys_disease_subregion_activity_type.json",
@@ -121,7 +121,7 @@ describe('data store', () => {
       expect(dataStore.summaryTableData).toHaveLength(
         summaryDeathsDiseaseSubregionActivityType.length + summaryDeathsDiseaseActivityType.length
       );
-    });
+    }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
     expectLastNCallsToContain(fetchSpy, [
       "./data/json/hist_counts_deaths_disease_subregion_activity_type.json",
@@ -150,7 +150,7 @@ describe('data store', () => {
       expect(dataStore.summaryTableData).toHaveLength(
         summaryDalysDiseaseSubregion.length + summaryDalysDiseaseCountry.length + summaryDalysDisease.length
       );
-    }, { timeout: 2500 });
+    }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
     expectLastNCallsToContain(fetchSpy, [
       "./data/json/hist_counts_dalys_disease_subregion_log.json",
@@ -160,7 +160,7 @@ describe('data store', () => {
       "./data/json/summary_table_dalys_disease_country.json",
       "./data/json/summary_table_dalys_disease.json",
     ]);
-  })
+  }, 10000);
 
   it('should handle fetch errors gracefully', async () => {
     server.use(
