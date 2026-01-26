@@ -7,12 +7,17 @@ import { globalOption } from '@/utils/options';
 import { useAppStore } from "@/stores/appStore";
 import { useColorStore } from '@/stores/colorStore';
 
+const expectCorrectMarginForRowDimension = (rowDimension: "disease" | "location", wrapper: ReturnType<typeof mount>) => {
+  const leftMarginPx = rowDimension === "location" ? 170 : 110;
+  expect(wrapper.find('ul').attributes('style')).toBe(`margin-left: ${leftMarginPx}px;`);
+};
+
 describe('RidgelinePlot component', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
 
-  it('renders the correct labels and colors when the color dimension is location, sorting them by resolution', async () => {
+  it('renders the correct labels, colors and styles when the color dimension is location, sorting them by resolution', async () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
     const wrapper = mount(ColorLegend);
@@ -61,9 +66,11 @@ describe('RidgelinePlot component', () => {
     expect(labels[2].text()).toBe('All 117 VIMC countries');
     expect(colorBoxes[2].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
     expect(colorBoxes[2].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
+
+    expectCorrectMarginForRowDimension("disease", wrapper);
   });
 
-  it('renders the correct labels and colors when the color dimension is disease', async () => {
+  it('renders the correct labels, colors and styles when the color dimension is disease', async () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
     const wrapper = mount(ColorLegend);
@@ -98,6 +105,8 @@ describe('RidgelinePlot component', () => {
     expect(labels[1].text()).toBe('Cholera');
     expect(colorBoxes[1].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
     expect(colorBoxes[1].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
+
+    expectCorrectMarginForRowDimension("disease", wrapper);
   });
 
   it('updates the legend when the data changes', async () => {
@@ -141,9 +150,8 @@ describe('RidgelinePlot component', () => {
     expect(colorBoxes[2].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
     expect(colorBoxes[2].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
 
-    appStore.dimensions.withinBand = 'location';
-    appStore.dimensions.column = 'activity_type';
-    appStore.dimensions.row = 'disease';
+    expectCorrectMarginForRowDimension("disease", wrapper);
+
     appStore.filters = {
       location: ['AFG'],
       disease: ['Cholera', 'Rubella'],
@@ -171,5 +179,44 @@ describe('RidgelinePlot component', () => {
     expect(diseaseLabels[1].text()).toBe('Cholera');
     expect(diseaseColorBoxes[1].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
     expect(diseaseColorBoxes[1].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
+    expectCorrectMarginForRowDimension("disease", wrapper);
+  });
+
+  it('renders the correct labels, colors and styles when the _row_ dimension is location (regardless of color dimension)', async () => {
+    const appStore = useAppStore();
+    const colorStore = useColorStore();
+    const wrapper = mount(ColorLegend);
+    appStore.dimensions.withinBand = 'disease';
+    appStore.dimensions.column = null;
+    appStore.dimensions.row = 'location';
+    appStore.filters = {
+      location: ['AFG', 'global'],
+      disease: ['Malaria'],
+    };
+    expect(colorStore.colorDimension).toBe('location');
+
+    colorStore.setColors([
+      { metadata: { withinBand: 'Malaria', row: 'AFG' } },
+      { metadata: { withinBand: 'Malaria', row: 'global' } },
+    ]);
+
+    expect(colorStore.colorMapping.size).toBe(2);
+
+    await vi.waitFor(() => {
+      expect(wrapper.findAll(".legend-label").length).toBe(2);
+    });
+
+    const labels = wrapper.findAll(".legend-label");
+    const colorBoxes = wrapper.findAll(".legend-color-box");
+
+    expect(labels[0].text()).toBe('Afghanistan');
+    expect(colorBoxes[0].element.style.borderColor).toBe("rgb(0, 157, 154)"); // teal50
+    expect(colorBoxes[0].element.style.backgroundColor).toBe("rgba(0, 157, 154, 0.2)");
+
+    expect(labels[1].text()).toBe('All 117 VIMC countries');
+    expect(colorBoxes[1].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
+    expect(colorBoxes[1].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
+
+    expectCorrectMarginForRowDimension("location", wrapper);
   });
 });
