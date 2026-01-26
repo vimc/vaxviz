@@ -8,14 +8,14 @@
     <div class="flex flex-col gap-4 max-w-100 items-end">
       <!-- TODO: When paper is published, add the href. -->
       <p class="text-right">This visualization tool accompanies <a href="#">Gaythorpe et al.</a></p>
-      <a
+      <button
         id="aboutLink"
-        @click.prevent="aboutModalVisible = true"
+        @click="aboutModalVisible = true"
         href="#"
-        class="text-fg-brand underline"
+        class="link"
       >
         About
-      </a>
+      </button>
     </div>
   </header>
   <FwbModal
