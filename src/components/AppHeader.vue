@@ -7,7 +7,7 @@
     </div>
     <FwbAlert
       type="danger"
-      class="border-t-4 rounded-none"
+      class="border-t-4 rounded-none max-h-20 py-3"
     >
       <template #icon>
         <img class="w-4 h-4 mr-2" src="@/assets/images/icons/dangerInfoIcon.svg" alt=""/>
