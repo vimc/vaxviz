@@ -18,6 +18,7 @@ import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
+import { useDataStore } from '@/stores/dataStore';
 
 const addAxesSpy = vi.fn().mockReturnThis();
 const addTracesSpy = vi.fn().mockReturnThis();
@@ -36,6 +37,14 @@ vi.mock('@reside-ic/skadi-chart', () => ({
     appendTo = addAppendToSpy;
   }),
 }));
+
+// Assert that the plot-rows are in the expected order,
+// and that there is or is not an x-axis categorical scale.
+const assertLastCategoricalScales = (expected: Record<"x" | "y", string[] | undefined>) => {
+  const appendToLastCallArgs = addAppendToSpy.mock.calls[addAppendToSpy.mock.calls.length - 1];
+  const catScales = appendToLastCallArgs[3];
+  expect(catScales).toEqual(expected);
+};
 
 describe('RidgelinePlot component', () => {
   beforeEach(() => {
@@ -62,6 +71,10 @@ describe('RidgelinePlot component', () => {
       // Color by row; each disease has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(14);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
+      });
     });
 
     // Change options: round 1
@@ -85,6 +98,10 @@ describe('RidgelinePlot component', () => {
       // Color by the 2 locations within each band: Middle Africa and global.
       expect(colorStore.colorMapping.size).toEqual(2);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
+      assertLastCategoricalScales({
+        x: ["Campaign", "Routine"],
+        y: ["COVID-19", "Cholera", "Rubella", "MenA", "MenACWYX", "Typhoid", "Rota", "HepB", "YF", "PCV", "Malaria", "Hib", "HPV", "Measles"],
+      });
     });
 
     // Change options: round 2
@@ -109,6 +126,23 @@ describe('RidgelinePlot component', () => {
       // Color by row; each location (10 subregions + global) has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(11);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
+
+      assertLastCategoricalScales({
+        x: ["Campaign", "Routine"],
+        y: [
+          "Eastern and Southern Europe",
+          "Eastern and South-Eastern Asia",
+          "Southern Africa",
+          "Northern Africa and Western Asia",
+          "Latin America and the Caribbean",
+          "Central and Southern Asia",
+          "All 117 VIMC countries",
+          "Oceania",
+          "Eastern Africa",
+          "Western Africa",
+          "Middle Africa",
+        ],
+      });
     }, { timeout: 3000 });
 
     // Change options: round 3
@@ -133,6 +167,11 @@ describe('RidgelinePlot component', () => {
       // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
       expect(colorStore.colorMapping.size).toEqual(3);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
+
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
+      });
     }, { timeout: 3000 });
   }, 10000);
 
@@ -157,6 +196,27 @@ describe('RidgelinePlot component', () => {
 
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("No data available for the selected options.");
+      expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+    });
+  });
+
+  it('when there are fetch errors, shows an alert instead of the chart', async () => {
+    const dataStore = useDataStore();
+    const wrapper = mount(RidgelinePlot);
+
+    // It shows a chart initially
+    await vi.waitFor(() => {
+      const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
+      expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
+    });
+
+    dataStore.fetchErrors = [
+      { message: 'Error loading data from path: hist_counts_deaths_disease_log.json. TypeError: Failed to fetch' },
+    ];
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).not.toContain("No data available for the selected options.");
+      expect(wrapper.text()).toContain("Error loading data");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
     });
   });
@@ -216,9 +276,11 @@ describe('RidgelinePlot component', () => {
         },
       }));
 
-      const catScales = appendToLastCallArgs[3];
-      expect(catScales).toEqual({
-        y: expect.arrayContaining(diseases.map(d => d.label)),
+      // Assert that all diseases (the current data dimension for the plot-rows) are in the correct order,
+      // and that there is no x-axis categorical scale.
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
       });
 
       const margins = appendToLastCallArgs[4];

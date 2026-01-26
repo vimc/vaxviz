@@ -1,7 +1,7 @@
 import { useAppStore } from "@/stores/appStore";
 import { useColorStore } from "@/stores/colorStore";
 import { useDataStore } from "@/stores/dataStore";
-import { Axis, SummaryTableColumn, type LineMetadata, type PointWithMetadata } from "@/types";
+import { Axis, SummaryTableColumn, type PointWithMetadata } from "@/types";
 import { dimensionOptionLabel } from "@/utils/options";
 import sentenceCase from "@/utils/sentenceCase";
 
@@ -20,16 +20,6 @@ export default () => {
     return `${coefficient} × 10<sup>${exponent}</sup>`;
   };
 
-  // Find the summary table row whose values for the plot row and band
-  // dimensions (and column, if set) match the values of the tooltip point metadata
-  const getSummaryDataRow = (metadata: LineMetadata) => {
-    return dataStore.summaryTableData.find(d => {
-      return Object.entries(appStore.dimensions).every(([axis, dim]) => {
-        return !dim || d[dim] === metadata?.[axis as Axis];
-      });
-    });
-  };
-
   // Generate HTML for tooltips on ridgeline plot points.
   // This callback is passed to skadi-chart, and is invoked when hovering over the chart.
   const tooltipCallback = (point: PointWithMetadata) => {
@@ -45,7 +35,7 @@ export default () => {
     const rowOptionLabel = dimensionOptionLabel(dimensions.row, point.metadata[Axis.ROW]);
     const columnOptionLabel = dimensionOptionLabel(dimensions.column, point.metadata[Axis.COLUMN]);
 
-    const summaryDataRow = getSummaryDataRow(point.metadata);
+    const summaryDataRow = dataStore.getSummaryDataRow(point.metadata);
 
     // NB regardless of whether log scale is enabled, the summary table data are provided in non-log scale.
     const [mean, ciLower, ciUpper] = [

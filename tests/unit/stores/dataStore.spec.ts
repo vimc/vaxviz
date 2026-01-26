@@ -203,4 +203,25 @@ describe('data store', () => {
 
     expect(dataStore.histogramData).toEqual([]);
   });
+
+  it('getSummaryDataRow returns correct summary data row for given metadata', async () => {
+    const appStore = useAppStore();
+    const dataStore = useDataStore();
+
+    // Wait for initial data load.
+    await vi.waitFor(() => {
+      expect(dataStore.isLoading).toBe(false);
+      expect(dataStore.histogramData).toHaveLength(histCountsDeathsDiseaseLog.length);
+    });
+
+    appStore.exploreBy = "disease";
+    appStore.focus = "Cholera";
+
+    const row = dataStore.getSummaryDataRow({ row: "Cholera", withinBand: "global" });
+    expect(row).toEqual(expect.objectContaining({
+      disease: "Cholera",
+      location: "global",
+      mean_value: expect.closeTo(0.2, 1),
+    }));
+  });
 });

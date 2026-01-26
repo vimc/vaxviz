@@ -67,10 +67,11 @@ describe('plotConfiguration', () => {
   describe('categorical scales', () => {
     it('extracts bands.x and bands.y from lines, excluding duplicates', () => {
       const result = plotConfiguration(Dimension.DISEASE, false, lines);
-      const catScales = result.chartAppendConfig[2];
+      const catScales = result.categoricalScales;
 
       expect(catScales.x).toEqual(['campaign', 'routine']);
       expect(catScales.y).toEqual(['Cholera', 'Measles']);
+      expect(catScales).toEqual(result.chartAppendConfig[2]);
     });
   });
 

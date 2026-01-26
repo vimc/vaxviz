@@ -17,7 +17,7 @@ describe('RidgelinePlot component', () => {
     setActivePinia(createPinia());
   });
 
-  it('renders the correct labels, colors and styles when the color dimension is location, sorting them by resolution', async () => {
+  it('renders the correct labels and colours when the color dimension is location, sorting them by resolution', async () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
     const wrapper = mount(ColorLegend);
@@ -70,7 +70,7 @@ describe('RidgelinePlot component', () => {
     expectCorrectMarginForRowDimension("disease", wrapper);
   });
 
-  it('renders the correct labels, colors and styles when the color dimension is disease', async () => {
+  it('renders the correct labels and colors when the color dimension is disease, in the order in which the colors were assigned', async () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
     const wrapper = mount(ColorLegend);
@@ -130,6 +130,8 @@ describe('RidgelinePlot component', () => {
     ]);
 
     expect(colorStore.colorMapping.size).toBe(3);
+    // Assert the order of the colors is the same as the order of first appearance in the call to setColors.
+    expect(Array.from(colorStore.colorMapping.keys())).toEqual(['Central and Southern Asia', 'AFG', 'global']);
 
     await vi.waitFor(() => {
       expect(wrapper.findAll(".legend-label").length).toBe(3);
@@ -165,6 +167,8 @@ describe('RidgelinePlot component', () => {
     ]);
 
     expect(colorStore.colorMapping.size).toBe(2);
+    // Assert the order of the colors is the same as the order of first appearance in the call to setColors.
+    expect(Array.from(colorStore.colorMapping.keys())).toEqual(['Cholera', 'Rubella']);
 
     await vi.waitFor(() => {
       expect(wrapper.findAll(".legend-label").length).toBe(2);
@@ -182,7 +186,7 @@ describe('RidgelinePlot component', () => {
     expectCorrectMarginForRowDimension("disease", wrapper);
   });
 
-  it('renders the correct labels, colors and styles when the _row_ dimension is location (regardless of color dimension)', async () => {
+  it('renders the correct labels and colours when the _row_ dimension is location (regardless of color dimension)', async () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
     const wrapper = mount(ColorLegend);
@@ -209,13 +213,15 @@ describe('RidgelinePlot component', () => {
     const labels = wrapper.findAll(".legend-label");
     const colorBoxes = wrapper.findAll(".legend-color-box");
 
-    expect(labels[0].text()).toBe('Afghanistan');
-    expect(colorBoxes[0].element.style.borderColor).toBe("rgb(0, 157, 154)"); // teal50
-    expect(colorBoxes[0].element.style.backgroundColor).toBe("rgba(0, 157, 154, 0.2)");
+    // NB order of locations is _not_ determined by geographical resolution in this case, because the y-categorical scale
+    // is location and thus the color legend order is intended to match that.
+    expect(labels[0].text()).toBe('All 117 VIMC countries');
+    expect(colorBoxes[0].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
+    expect(colorBoxes[0].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
 
-    expect(labels[1].text()).toBe('All 117 VIMC countries');
-    expect(colorBoxes[1].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
-    expect(colorBoxes[1].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
+    expect(labels[1].text()).toBe('Afghanistan');
+    expect(colorBoxes[1].element.style.borderColor).toBe("rgb(0, 157, 154)"); // teal50
+    expect(colorBoxes[1].element.style.backgroundColor).toBe("rgba(0, 157, 154, 0.2)");
 
     expectCorrectMarginForRowDimension("location", wrapper);
   });

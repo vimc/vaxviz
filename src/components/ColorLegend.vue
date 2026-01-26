@@ -39,10 +39,11 @@ const colorStore = useColorStore();
 
 const colors = computed(() => {
   const { colorDimension } = colorStore;
+  const colorsMap = Array.from(colorStore.colorMapping);
   if (colorDimension === appStore.dimensions[Axis.WITHIN_BAND] && colorDimension === Dimension.LOCATION) {
 
     // Sort by the geographical resolution (LocResolution) of the values.
-    return Array.from(colorStore.colorMapping).sort(([aVal], [bVal]) => {
+    return colorsMap.sort(([aVal], [bVal]) => {
       const [aLocRes, bLocRes] = [
         appStore.geographicalResolutionForLocation(aVal),
         appStore.geographicalResolutionForLocation(bVal)
@@ -54,8 +55,8 @@ const colors = computed(() => {
       return bRank - aRank;
     });
   }
-  // TODO: (vimc-9191) a less hacky way of getting the same ordering on the legend as on the plot (this way doesn't work for persisted mappings like global)
-  return Array.from(colorStore.colorMapping).toReversed();
+  // Maintain the order of colors as in the plot-rows; the plot rows start from the bottom, so we reverse.
+  return colorsMap.toReversed();
 })
 
 const colorBoxStyle = (color: HEX) => {
