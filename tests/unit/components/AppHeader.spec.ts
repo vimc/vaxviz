@@ -12,8 +12,8 @@ describe('AppHeader component', () => {
     const wrapper = mount(AppHeader);
     expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(false);
 
-    const aboutLink = wrapper.find('a#aboutLink');
-    await aboutLink.trigger('click');
+    const aboutButton = wrapper.find('button#aboutLink');
+    await aboutButton.trigger('click');
 
     await vi.waitFor(() => {
       expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(true);
