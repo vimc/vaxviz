@@ -55,17 +55,20 @@ const data = computed(() => dataStore.histogramData.filter(dataRow =>
 
 const { ridgeLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
 
-// Filter out ridgelines on the basis of relevance (as opposed to user-selected filters).
+// Here, we filter ridgelines on the basis of their relevance to the 'focus' selection.
+// This is distinct from any filtering the user may apply on top of this using plot controls,
+// and indeed also from the implicit filtering based on the choice of dimensions (as handled by appStore).
 const relevantRidgeLines = computed(() => {
-  // Only filter plot rows if each row represents a disease.
+  // Only filter plot rows for relevance if each row represents a disease.
   if (appStore.dimensions[Axis.ROW] !== Dimension.DISEASE || appStore.dimensions[Axis.WITHIN_BAND] !== Dimension.LOCATION) {
     return ridgeLines.value;
   };
 
   return ridgeLines.value.filter((line) => {
     // If data for a disease is not present at the same geographical resolution as the focus, we should exclude the disease from the plot.
-    // E.g. Say the focus value is 'Djibouti', a location. If for some row of ridgelines - where rows are diseases, such as Malaria -
-    // there is no line for Djibouti, we should exclude the Malaria row entirely so that we only display rows that are relevant for Djibouti.
+    // E.g. Say the focus value is 'Djibouti', a location. For some row of ridgelines - where rows are diseases, such as Malaria -
+    // there may be data available at a global and/or subregional level, but none for Djibouti. In such cases we should exclude the
+    // Malaria row entirely so that we only display rows that are relevant for Djibouti.
     const disease = line.metadata?.[Axis.ROW];
     const locationsForDisease = ridgeLines.value
       .filter(l => l.metadata?.[Axis.ROW] === disease)
