@@ -15,7 +15,6 @@
       v-else
       ref="chartWrapper"
       id="chartWrapper"
-      role="img"
       :aria-label="chartAriaLabel"
       :data-test="JSON.stringify({
         histogramDataRowCount: dataStore.histogramData.length,

@@ -25,7 +25,7 @@
           :isClearable="false"
           :options="selectOptions"
           :filter-by="selectFilterBy"
-          :aria-labelledby="'focusLabel'"
+          aria-labelledby="focusLabel"
         >
           <template #menu-header>
             <div class="p-2 ps-3 disabled-text-color" role="presentation">
