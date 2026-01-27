@@ -27,7 +27,20 @@ const selectFocus = async (page: Page, focusType: FocusType, optionLabel: string
 
 const globalOptionLabel = "All 117 VIMC countries";
 
-test('visits the app root url, selects options, and loads correct data', async ({ page }) => {
+test('visits the app root url, selects options, and loads correct data', async ({ page, }) => {
+  // Expect all data requests to have 'Cache-Control: no-cache' header in response
+  // 'Cache-Control: no-cache' tells browsers and caches they can store a copy of a resource
+  // but must revalidate it with the original server before using it for any subsequent request
+  page.on('request', async (request) => {
+    if (request.url().includes("/data/json/")) {
+      const response = await request.response();
+      const responseHeaders = response.headers();
+      const cacheControlHeader = responseHeaders["cache-control"] || "";
+      // eslint-disable-next-line playwright/no-conditional-expect
+      expect(cacheControlHeader).toEqual("no-cache");
+    }
+  });
+
   await page.goto('/');
 
   const diseaseRadio = page.getByRole("radio", { name: "Disease" });
