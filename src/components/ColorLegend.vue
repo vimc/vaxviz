@@ -38,7 +38,7 @@
           </span>
         </button>
       </li>
-      <div v-if="legendSelections?.length !== filter?.length">
+      <li v-if="legendSelections?.length !== filter?.length">
         <FwbButton
           color="light"
           id="resetLegendSelectionsButton"
@@ -48,7 +48,7 @@
         >
           Reset filters
         </FwbButton>
-      </div>
+      </li>
     </ul>
   </div>
 </template>
