@@ -18,6 +18,7 @@
           class="legend-button flex gap-x-2 cursor-pointer"
           :class="{ 'filtered-by-legend': softFiltered }"
           :data-testid="`${value}Button`"
+          :aria-label="`Toggle ${label ?? value}, currently ${softFiltered ? 'hidden' : 'visible'}`"
           @click="handleClick(value)"
         >
           <div class="flex gap-x-2 items-center text-sm">
@@ -32,8 +33,6 @@
           <span
             class="text-xs text-gray-500 ms-auto remove-button"
             :class="{ invisible: softFiltered }"
-            role="button"
-            :aria-label="`Remove ${label ?? value} from filter`"
           >
             &times;
           </span>
