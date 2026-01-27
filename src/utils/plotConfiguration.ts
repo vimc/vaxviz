@@ -22,9 +22,15 @@ const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): 
     return firstPoint.x;
   }));
 
-  // x values may be slightly negative for some cases eg Typhoid
+  let xStart = logScaleEnabled ? minX : Math.min(minX, 0);
+  if (!logScaleEnabled && xStart < 0) {
+    const padding = (maxX - minX) * 0.01;
+    xStart = minX - padding;
+  }
+
+  // x values may be slightly negative for some cases eg Typhoid, JE
   return {
-    x: { start: logScaleEnabled ? minX : Math.min(minX, 0), end: maxX },
+    x: { start: xStart, end: maxX },
     y: { start: 0, end: maxY },
   };
 };

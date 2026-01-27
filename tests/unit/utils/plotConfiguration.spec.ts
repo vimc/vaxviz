@@ -36,16 +36,16 @@ describe('plotConfiguration', () => {
       expect(numScales.x?.start).toBe(0);
     });
 
-    it('sets x.start to min x of first point when log scaled is disabled and there is a negative x value', () => {
+    it('sets x.start to min x of first point (plus padding) when log scaled is disabled and there is a negative x value', () => {
       const result = plotConfiguration(Dimension.DISEASE, false, [...lines,
       {
-        points: [{ x: -3, y: 5 }, { x: -2, y: 6 }, { x: 20, y: 2 }],
+        points: [{ x: -5, y: 5 }, { x: -2, y: 6 }, { x: 20, y: 2 }],
         bands: { x: 'routine', y: 'HepB' }, // same y band as first line
       },
       ]);
       const numScales = result.chartAppendConfig[0];
 
-      expect(numScales.x?.start).toBe(-3);
+      expect(numScales.x?.start).toBe(-5.25);
     });
 
     it('sets x.start to min x of first point when log scale is enabled', () => {
