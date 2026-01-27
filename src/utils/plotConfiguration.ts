@@ -116,6 +116,8 @@ const axisConfiguration = (
     }
   ];
 
+export const margins = (rowDimension: Dimension) => ({ left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 110 });
+
 export const plotConfiguration = (
   rowDimension: Dimension,
   logScaleEnabled: boolean,
@@ -128,7 +130,6 @@ export const plotConfiguration = (
 } => {
   const numScales = numericalScales(logScaleEnabled, lines);
   const catScales = categoricalScales(lines);
-  const margins = { left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 110 };
   const tickConfig = tickConfiguration(logScaleEnabled, rowDimension);
   const constructorOptions = {
     tickConfig,
@@ -141,7 +142,7 @@ export const plotConfiguration = (
   return {
     constructorOptions,
     axisConfig,
-    chartAppendConfig: [numScales, {}, catScales, margins],
+    chartAppendConfig: [numScales, {}, catScales, margins(rowDimension)],
     categoricalScales: catScales,
   };
 };
