@@ -181,7 +181,7 @@ describe('RidgelinePlot component', () => {
     appStore.softFilters["location"] = ["AFG", "global"];
     await vi.waitFor(() => {
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
-      expect(dataAttr.lineCount).toEqual(20); // 10 applicable diseases, each now with only 2 locations (no subregion
+      expect(dataAttr.lineCount).toEqual(20); // 10 applicable diseases, each now with only 2 locations (no subregion)
       expect(colorStore.colorMapping.size).toEqual(3);
 
       assertLastCategoricalScales({
