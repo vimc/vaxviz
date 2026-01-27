@@ -140,7 +140,7 @@ export const plotConfiguration = (
   const constructorOptions = {
     tickConfig,
     categoricalScalePaddingInner: {
-      x: catScales.x && catScales.x.length > 1 ? 0.02 : 0
+      x: catScales.x && catScales.x.length > 1 ? 0.05 : 0
     },
   };
   const axisConfig = axisConfiguration(rowDimension);
