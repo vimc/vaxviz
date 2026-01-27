@@ -53,13 +53,8 @@ const data = computed(() => dataStore.histogramData.filter(dataRow =>
   })),
 );
 
-const { ridgeLines } = useHistogramLines(
-  () => !dataStore.isLoading,
-  data,
-  () => appStore.dimensions,
-  getDimensionCategoryValue,
-  dimensionOptionLabel,
-);
+const { constructLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
+const ridgeLines = computed(() => dataStore.isLoading ? [] : constructLines());
 
 // Here, we filter ridgelines on the basis of their relevance to the 'focus' selection.
 // This is distinct from any filtering the user may apply on top of this using plot controls,
