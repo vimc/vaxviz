@@ -90,13 +90,7 @@ const relevantRidgeLines = computed(() => {
 const getMeanOfMeansForPlotRow = (plotRowCategory?: string) => {
   const ridgelinesForPlotRow = relevantRidgeLines.value.filter(line => line.metadata?.[Axis.ROW] === plotRowCategory);
   const meanValues = ridgelinesForPlotRow.map(({ metadata }) => {
-    if (!metadata) {
-      throw new Error(`No metadata for ridgeline with category ${plotRowCategory}`);
-    }
-    const dataTableRow = dataStore.getSummaryDataRow(metadata);
-    if (!dataTableRow) {
-      throw new Error(`No dataTableRow for ridgeline with metadata ${JSON.stringify(metadata)}`);
-    }
+    const dataTableRow = dataStore.getSummaryDataRow(metadata!)!;
     return dataTableRow[SummaryTableColumn.MEAN];
   });
   return meanValues.reduce((sum, val) => sum + val, 0) / meanValues.length;

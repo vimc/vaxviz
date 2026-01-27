@@ -104,11 +104,7 @@ const colors = computed(() => {
 })
 
 const handleClick = (value: string) => {
-  if (!softFilter.value) {
-    return;
-  }
-
-  if (softFilter.value.includes(value)) {
+  if (softFilter.value?.includes(value)) {
     appStore.softFilters[colorStore.colorDimension] = softFilter.value.filter(v => v !== value);
   } else {
     appStore.softFilters[colorStore.colorDimension]?.push(value);
