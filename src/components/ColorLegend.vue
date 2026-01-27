@@ -3,10 +3,12 @@
     v-if="colors && colors.length >= 2"
     class="max-w-full h-full"
     id="colorLegend"
+    role="region"
+    aria-labelledby="legend-heading"
   >
-    <h3 class="fs-3 font-medium mb-5 text-heading mb-2">
+    <h2 id="legend-heading" class="fs-3 font-medium mb-5 text-heading mb-2">
       Legend
-    </h3>
+    </h2>
     <ul class="flex flex-col gap-y-1 max-h-full max-w-full">
       <li
         v-for="([value, color]) in colors"
