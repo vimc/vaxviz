@@ -152,7 +152,7 @@ test('visits the app root url, selects options, and loads correct data', async (
     })
   );
 
-  // Change options: round 4 (removing a soft filter via legend component)
+  // Change options: round 5 (removing a soft filter via legend component)
   await subregionButton.click();
   await expect(chartWrapper).toHaveAttribute("data-test",
     JSON.stringify({
