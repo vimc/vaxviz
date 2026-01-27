@@ -11,7 +11,7 @@
       <li
         v-for="({ value, color, softFiltered, label }) in colors"
         :key="value"
-        class="flex gap-x-2 text-sm mr-20"
+        class="flex gap-x-2 text-sm mr-15"
       >
         <button
           type="button"
@@ -38,18 +38,18 @@
           </span>
         </button>
       </li>
+      <div v-if="softFilter?.length !== hardFilter?.length">
+        <FwbButton
+          color="light"
+          id="resetFiltersButton"
+          class="cursor-pointer"
+          size="sm"
+          @click="appStore.resetlegendSelections"
+        >
+          Reset filters
+        </FwbButton>
+      </div>
     </ul>
-    <div v-if="softFilter?.length !== hardFilter?.length">
-      <FwbButton
-        color="default"
-        id="resetFiltersButton"
-        class="cursor-pointer"
-        size="sm"
-        @click="appStore.resetSoftFilters"
-      >
-        Reset filters
-      </FwbButton>
-    </div>
   </div>
 </template>
 
@@ -167,5 +167,9 @@ const plotLeftMargin = computed(() => margins(appStore.dimensions[Axis.ROW]).lef
       border-width: 2px;
     }
   }
+}
+
+li:last-of-type {
+  margin-bottom: 0.5rem;
 }
 </style>
