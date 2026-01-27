@@ -107,7 +107,7 @@ const axisConfiguration = (
   rowDimension: Dimension,
 ): AxisConfig => [
     {
-      x: "Impact ratio",
+      x: "Impact ratio (per thousand vaccinated)",
       y: sentenceCase(rowDimension),
     },
     {
