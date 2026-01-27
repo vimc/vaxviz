@@ -68,7 +68,7 @@ export const useColorStore = defineStore("color", () => {
     // If we're filtered to just 1 value for the withinBand axis,
     // we assign colors based on the dimension assigned to the y-axis,
     // otherwise all lines would be the same color across all rows.
-    return appStore.hardFilters[appStore.dimensions[Axis.WITHIN_BAND]]?.length === 1
+    return appStore.filters[appStore.dimensions[Axis.WITHIN_BAND]]?.length === 1
       ? appStore.dimensions[Axis.ROW]
       : appStore.dimensions[Axis.WITHIN_BAND];
   });

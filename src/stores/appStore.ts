@@ -28,23 +28,23 @@ export const useAppStore = defineStore("app", () => {
 
   // For filters, inclusion in the array means 'included in the view'.
   // Note the 2 levels of filtration of diseases and locations:
-  // - 'Hard' filters are more of an internal, developer-facing concept. They describe the possible range
+  // - 'filters' are more of an internal, developer-facing concept. They describe the possible range
   // of diseases and locations that are validly available for the current view, and are fully determined
   // by the selection of focus and exploreBy.
-  // - 'Soft' filters are a second level of filtration which the user controls via the color legend,
-  // applied on top of hard filters; they're easily toggled on and off without constituting a change to the overall view.
-  // Whenever hard filters update (or are initialized), soft filters are reset to match the hard filters.
+  // - 'legend selections' are a second level of filtration which the user controls via the color legend,
+  // applied on top of 'filters'; they're easily toggled on and off without constituting a change to the overall view.
+  // Whenever 'filters' update (or are initialized), legend selections are reset to match the 'filters'.
   // The initial filters are set to include all diseases and a single location.
-  const hardFilters = ref<Record<string, string[]>>({
+  const filters = ref<Record<string, string[]>>({
     [Dimension.DISEASE]: diseaseOptions.map(d => d.value),
     [Dimension.LOCATION]: [LocResolution.GLOBAL],
   });
-  const softFilters = ref<Record<string, string[]>>({});
-  const resetSoftFilters = () => softFilters.value = {
-    [Dimension.DISEASE]: [...(hardFilters.value[Dimension.DISEASE] ?? [])],
-    [Dimension.LOCATION]: [...(hardFilters.value[Dimension.LOCATION] ?? [])],
+  const legendSelections = ref<Record<string, string[]>>({});
+  const resetLegendSelections = () => legendSelections.value = {
+    [Dimension.DISEASE]: [...(filters.value[Dimension.DISEASE] ?? [])],
+    [Dimension.LOCATION]: [...(filters.value[Dimension.LOCATION] ?? [])],
   };
-  resetSoftFilters();
+  resetLegendSelections();
 
   const exploreByLabel = computed(() => {
     const option = exploreOptions.find(o => o.value === exploreBy.value);
@@ -119,7 +119,7 @@ export const useAppStore = defineStore("app", () => {
       rowDimension.value = Dimension.LOCATION;
       withinBandDimension.value = Dimension.DISEASE;
 
-      hardFilters.value = {
+      filters.value = {
         [Dimension.DISEASE]: [focus.value],
         [Dimension.LOCATION]: subregionOptions.map(o => o.value).concat([LocResolution.GLOBAL]),
       };
@@ -131,7 +131,7 @@ export const useAppStore = defineStore("app", () => {
       rowDimension.value = Dimension.DISEASE;
       withinBandDimension.value = Dimension.LOCATION;
 
-      hardFilters.value = {
+      filters.value = {
         [Dimension.DISEASE]: diseaseOptions.map(d => d.value),
         [Dimension.LOCATION]: geographicalResolutions.value.map(getLocationForGeographicalResolution),
       };
@@ -140,7 +140,7 @@ export const useAppStore = defineStore("app", () => {
 
   watch(splitByActivityType, (split) => columnDimension.value = split ? Dimension.ACTIVITY_TYPE : null);
 
-  watch(hardFilters, resetSoftFilters);
+  watch(filters, resetLegendSelections);
 
   return {
     burdenMetric,
@@ -148,14 +148,14 @@ export const useAppStore = defineStore("app", () => {
     exploreBy,
     exploreByLabel,
     exploreOptions,
-    hardFilters,
+    filters,
     focus,
     geographicalResolutions,
     getAxisForDimension,
     geographicalResolutionForLocation,
     logScaleEnabled,
-    resetSoftFilters,
-    softFilters,
+    resetLegendSelections,
+    legendSelections,
     splitByActivityType,
   };
 })

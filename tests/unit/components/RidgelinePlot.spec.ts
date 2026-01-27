@@ -176,9 +176,9 @@ describe('RidgelinePlot component', () => {
       });
     }, { timeout: 5000 });
 
-    // Change options: round 4 (applying a soft filter as if via legend component)
+    // Change options: round 4 (filtering out as if via legend component)
     expect(colorStore.colorDimension).toEqual("location");
-    appStore.softFilters["location"] = ["AFG", "global"];
+    appStore.legendSelections["location"] = ["AFG", "global"];
     await vi.waitFor(() => {
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.lineCount).toEqual(20); // 10 applicable diseases, each now with only 2 locations (no subregion)
@@ -190,8 +190,8 @@ describe('RidgelinePlot component', () => {
       });
     });
 
-    // Change options: round 5 (removing a soft filter)
-    appStore.softFilters["location"].push("Central and Southern Asia");
+    // Change options: round 5 (unfiltering as if via legend component)
+    appStore.legendSelections["location"].push("Central and Southern Asia");
     await vi.waitFor(() => {
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.lineCount).toEqual(30);

@@ -45,8 +45,8 @@ describe("app store", () => {
       row: "disease",
       withinBand: "location",
     });
-    expect(store.hardFilters).toEqual(expectedInitialFilters);
-    expect(store.softFilters).toEqual(expectedInitialFilters);
+    expect(store.filters).toEqual(expectedInitialFilters);
+    expect(store.legendSelections).toEqual(expectedInitialFilters);
   });
 
   it("updates the focus value when exploreBy selection changes", async () => {
@@ -73,42 +73,42 @@ describe("app store", () => {
     expect(store.exploreBy).toEqual("location");
     expect(store.dimensions.row).toEqual("disease");
     expect(store.dimensions.withinBand).toEqual("location");
-    expect(store.hardFilters.disease).toHaveLength(diseaseOptions.length);
-    expect(store.hardFilters.location).toEqual(["global"]);
-    expect(store.softFilters.disease).toHaveLength(diseaseOptions.length);
-    expect(store.softFilters.location).toEqual(["global"]);
+    expect(store.filters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.filters.location).toEqual(["global"]);
+    expect(store.legendSelections.disease).toHaveLength(diseaseOptions.length);
+    expect(store.legendSelections.location).toEqual(["global"]);
 
     store.focus = "AFG";
     await nextTick();
 
     expect(store.dimensions.row).toEqual("disease");
     expect(store.dimensions.withinBand).toEqual("location");
-    expect(store.hardFilters.disease).toHaveLength(diseaseOptions.length);
-    expect(store.hardFilters.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
-    expect(store.softFilters.disease).toHaveLength(diseaseOptions.length);
-    expect(store.softFilters.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
+    expect(store.filters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.filters.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
+    expect(store.legendSelections.disease).toHaveLength(diseaseOptions.length);
+    expect(store.legendSelections.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
 
     store.focus = "Cholera";
     await nextTick();
 
     expect(store.dimensions.row).toEqual("location");
     expect(store.dimensions.withinBand).toEqual("disease");
-    expect(store.hardFilters.disease).toEqual(["Cholera"]);
-    expect(store.hardFilters.location).toHaveLength(11);
-    expect(store.hardFilters.location).toContain("global");
-    expect(store.softFilters.disease).toEqual(["Cholera"]);
-    expect(store.softFilters.location).toHaveLength(11);
-    expect(store.softFilters.location).toContain("global");
+    expect(store.filters.disease).toEqual(["Cholera"]);
+    expect(store.filters.location).toHaveLength(11);
+    expect(store.filters.location).toContain("global");
+    expect(store.legendSelections.disease).toEqual(["Cholera"]);
+    expect(store.legendSelections.location).toHaveLength(11);
+    expect(store.legendSelections.location).toContain("global");
 
     store.focus = "Middle Africa";
     await nextTick();
 
     expect(store.dimensions.row).toEqual("disease");
     expect(store.dimensions.withinBand).toEqual("location");
-    expect(store.hardFilters.disease).toHaveLength(diseaseOptions.length);
-    expect(store.hardFilters.location).toEqual(["Middle Africa", "global"]);
-    expect(store.softFilters.disease).toHaveLength(diseaseOptions.length);
-    expect(store.softFilters.location).toEqual(["Middle Africa", "global"]);
+    expect(store.filters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.filters.location).toEqual(["Middle Africa", "global"]);
+    expect(store.legendSelections.disease).toHaveLength(diseaseOptions.length);
+    expect(store.legendSelections.location).toEqual(["Middle Africa", "global"]);
   });
 
   it("returns the explore by label", async () => {
@@ -160,20 +160,20 @@ describe("app store", () => {
     expect(store.geographicalResolutionForLocation("Cholera")).toBeUndefined();
   });
 
-  it("can reset the soft filters", () => {
+  it("can reset the legend selections", () => {
     const store = useAppStore();
 
-    expect(store.hardFilters).toEqual(expectedInitialFilters);
-    expect(store.softFilters).toEqual(expectedInitialFilters);
+    expect(store.filters).toEqual(expectedInitialFilters);
+    expect(store.legendSelections).toEqual(expectedInitialFilters);
 
-    store.softFilters.disease = ["Cholera", "Measles"];
-    store.softFilters.location = ["AFG", "global"];
+    store.legendSelections.disease = ["Cholera", "Measles"];
+    store.legendSelections.location = ["AFG", "global"];
 
-    expect(store.softFilters.disease).toEqual(["Cholera", "Measles"]);
-    expect(store.softFilters.location).toEqual(["AFG", "global"]);
+    expect(store.legendSelections.disease).toEqual(["Cholera", "Measles"]);
+    expect(store.legendSelections.location).toEqual(["AFG", "global"]);
 
-    store.resetSoftFilters();
+    store.resetLegendSelections();
 
-    expect(store.softFilters).toEqual(expectedInitialFilters);
+    expect(store.legendSelections).toEqual(expectedInitialFilters);
   });
 });

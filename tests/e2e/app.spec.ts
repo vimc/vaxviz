@@ -151,7 +151,7 @@ test('visits the app root url, selects options, and loads correct data', async (
   );
   await expect(plotLegend.locator(".legend-label")).toHaveCount(3); // Colors per location
 
-  // Change options: round 4 (applying a soft filter via legend component)
+  // Change options: round 4 (filtering out via legend component)
   const subregionButton = page.getByTestId("Central and Southern AsiaButton");
 
   await subregionButton.click();
@@ -165,7 +165,7 @@ test('visits the app root url, selects options, and loads correct data', async (
     })
   );
 
-  // Change options: round 5 (removing a soft filter via legend component)
+  // Change options: round 5 (unfiltering via legend component)
   await subregionButton.click();
   await expect(chartWrapper).toHaveAttribute("data-test",
     JSON.stringify({

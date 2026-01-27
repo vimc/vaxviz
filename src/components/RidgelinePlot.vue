@@ -12,7 +12,7 @@
       id="chartWrapper"
       :data-test="JSON.stringify({
         histogramDataRowCount: dataStore.histogramData.length,
-        lineCount: softFilteredLines.length,
+        lineCount: selectedLines.length,
         ...appStore.dimensions,
       })"
       class="flex-1 m-10"
@@ -49,7 +49,7 @@ const noDataToDisplay = ref<boolean>(false);
 const data = computed(() => dataStore.histogramData.filter(dataRow =>
   [Dimension.LOCATION, Dimension.DISEASE].every(dim => {
     const dimensionVal = getDimensionCategoryValue(dim, dataRow);
-    return appStore.hardFilters[dim]?.includes(dimensionVal);
+    return appStore.filters[dim]?.includes(dimensionVal);
   })),
 );
 
@@ -102,14 +102,15 @@ const sortedRidgeLines = computed(() => relevantRidgeLines.value.toSorted((lineA
   return meanA - meanB;
 }));
 
-const softFilteredLines = computed(() => sortedRidgeLines.value.filter(line => {
+// Apply the filtering specified by the legend selections.
+const selectedLines = computed(() => sortedRidgeLines.value.filter(line => {
   const colorVal = line.metadata?.[colorStore.colorAxis];
-  return colorVal && appStore.softFilters[colorStore.colorDimension]?.includes(colorVal);
+  return colorVal && appStore.legendSelections[colorStore.colorDimension]?.includes(colorVal);
 }));
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  noDataToDisplay.value = softFilteredLines.value.length === 0;
+  noDataToDisplay.value = selectedLines.value.length === 0;
 
   if (noDataToDisplay.value || !chartWrapper.value) {
     return;
@@ -119,7 +120,7 @@ const updateChart = debounce(() => {
   // ColorLegend as options to be toggled back on.
   colorStore.setColors(sortedRidgeLines.value);
 
-  softFilteredLines.value.forEach(line => {
+  selectedLines.value.forEach(line => {
     const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
 
     line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
@@ -128,12 +129,12 @@ const updateChart = debounce(() => {
   const { constructorOptions, axisConfig, chartAppendConfig, categoricalScales } = plotConfiguration(
     appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
-    softFilteredLines.value,
+    selectedLines.value,
   );
 
   new Chart(constructorOptions)
     .addAxes(...axisConfig)
-    .addTraces(softFilteredLines.value)
+    .addTraces(selectedLines.value)
     .addArea()
     .addGridLines(
       {
@@ -147,6 +148,6 @@ const updateChart = debounce(() => {
     .appendTo(chartWrapper.value, ...chartAppendConfig);
 }, 25);
 
-watch([softFilteredLines, chartWrapper], updateChart, { immediate: true });
+watch([selectedLines, chartWrapper], updateChart, { immediate: true });
 </script>
 

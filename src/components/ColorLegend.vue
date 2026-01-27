@@ -9,16 +9,16 @@
       :style="{ 'margin-left': `${plotLeftMargin}px` }"
     >
       <li
-        v-for="({ value, color, softFiltered, label }) in colors"
+        v-for="({ value, color, hidden, label }) in colors"
         :key="value"
         class="flex gap-x-2 text-sm mr-15"
       >
         <button
           type="button"
           class="legend-button flex gap-x-2 cursor-pointer"
-          :class="{ 'filtered-by-legend': softFiltered }"
+          :class="{ 'filtered-by-legend': hidden }"
           :data-testid="`${value}Button`"
-          :aria-label="`Toggle ${label ?? value}, currently ${softFiltered ? 'hidden' : 'visible'}`"
+          :aria-label="`Toggle ${label ?? value}, currently ${hidden ? 'hidden' : 'visible'}`"
           @click="handleClick(value)"
         >
           <div class="flex gap-x-2 items-center text-sm">
@@ -32,19 +32,19 @@
           </div>
           <span
             class="text-xs text-gray-500 ms-auto remove-button"
-            :class="{ invisible: softFiltered }"
+            :class="{ invisible: hidden }"
           >
             &times;
           </span>
         </button>
       </li>
-      <div v-if="softFilter?.length !== hardFilter?.length">
+      <div v-if="legendSelections?.length !== filter?.length">
         <FwbButton
           color="light"
-          id="resetFiltersButton"
+          id="resetLegendSelectionsButton"
           class="cursor-pointer"
           size="sm"
-          @click="appStore.resetlegendSelections"
+          @click="appStore.resetLegendSelections"
         >
           Reset filters
         </FwbButton>
@@ -66,8 +66,8 @@ import { margins } from '@/utils/plotConfiguration';
 const appStore = useAppStore();
 const colorStore = useColorStore();
 
-const hardFilter = computed(() => appStore.hardFilters[colorStore.colorDimension]);
-const softFilter = computed(() => appStore.softFilters[colorStore.colorDimension]);
+const filter = computed(() => appStore.filters[colorStore.colorDimension]);
+const legendSelections = computed(() => appStore.legendSelections[colorStore.colorDimension]);
 
 const colors = computed(() => {
   const { colorDimension } = colorStore;
@@ -92,21 +92,21 @@ const colors = computed(() => {
   }
 
   // Add more values to the map, denoting:
-  // softFiltered: whether it is included in the legend filters at the time of calculation.
+  // hidden: whether it is included in the legend filters at the time of calculation.
   // label: the human-readable label to use with this color (depends on the current value of colorDimension).
   return colorsMap.map(([value, color]) => ({
     value,
     color,
-    softFiltered: !softFilter.value?.includes(value),
+    hidden: !legendSelections.value?.includes(value),
     label: dimensionOptionLabel(colorStore.colorDimension, value),
   }));
 })
 
 const handleClick = (value: string) => {
-  if (softFilter.value?.includes(value)) {
-    appStore.softFilters[colorStore.colorDimension] = softFilter.value.filter(v => v !== value);
+  if (legendSelections.value?.includes(value)) {
+    appStore.legendSelections[colorStore.colorDimension] = legendSelections.value.filter(v => v !== value);
   } else {
-    appStore.softFilters[colorStore.colorDimension]?.push(value);
+    appStore.legendSelections[colorStore.colorDimension]?.push(value);
   }
 }
 

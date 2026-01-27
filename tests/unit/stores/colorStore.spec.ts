@@ -36,7 +36,7 @@ describe('color store', () => {
       const appStore = useAppStore();
       appStore.dimensions.withinBand = 'location';
       appStore.dimensions.row = 'disease';
-      appStore.hardFilters = {
+      appStore.filters = {
         location: ['AFG', 'CHN'],
         disease: ['Cholera'],
       };
@@ -49,7 +49,7 @@ describe('color store', () => {
       const appStore = useAppStore();
       appStore.dimensions.withinBand = 'location';
       appStore.dimensions.row = 'disease';
-      appStore.hardFilters = {
+      appStore.filters = {
         location: ['AFG'],
         disease: ['Cholera', 'Rubella'],
       };
@@ -64,7 +64,7 @@ describe('color store', () => {
     appStore.dimensions.withinBand = 'location';
     appStore.dimensions.column = 'activity_type';
     appStore.dimensions.row = 'disease';
-    appStore.hardFilters = {
+    appStore.filters = {
       location: ['AFG', 'CHN', globalOption.value],
       disease: ['Cholera'],
     };
@@ -99,7 +99,7 @@ describe('color store', () => {
     appStore.dimensions.withinBand = 'location';
     appStore.dimensions.column = 'activity_type';
     appStore.dimensions.row = 'disease';
-    appStore.hardFilters = {
+    appStore.filters = {
       location: ['AFG'],
       disease: ['Cholera', 'Rubella'],
     };
@@ -131,11 +131,11 @@ describe('color store', () => {
 
     const assignColorsByLocation = () => {
       expect(colorStore.colorDimension).toBe('location');
-      const lines = appStore.hardFilters.location.flatMap((loc) => {
+      const lines = appStore.filters.location.flatMap((loc) => {
         return ["campaign", "routine"].map((activity) => ({
           metadata: {
             column: activity,
-            row: appStore.hardFilters.disease[0],
+            row: appStore.filters.disease[0],
             withinBand: loc,
           },
         }));
@@ -145,7 +145,7 @@ describe('color store', () => {
 
     appStore.dimensions.withinBand = 'location';
     appStore.dimensions.row = 'disease';
-    appStore.hardFilters = {
+    appStore.filters = {
       location: ['AFG', 'CHN', globalOption.value],
       disease: ['Cholera'],
     };
@@ -157,7 +157,7 @@ describe('color store', () => {
       expect.arrayContaining([colors.magenta50, colors.cyan50, colors.purple70])
     );
 
-    appStore.hardFilters.location = ['AFG', globalOption.value];
+    appStore.filters.location = ['AFG', globalOption.value];
     assignColorsByLocation();
 
     expect(colorStore.colorMapping.size).toEqual(2);
@@ -168,11 +168,11 @@ describe('color store', () => {
 
     const assignColorsByDisease = () => {
       expect(colorStore.colorDimension).toBe('disease');
-      const lines = appStore.hardFilters.disease.flatMap((disease) => {
+      const lines = appStore.filters.disease.flatMap((disease) => {
         return ["campaign", "routine"].map((activity) => ({
           metadata: {
             column: activity,
-            row: appStore.hardFilters.location[0],
+            row: appStore.filters.location[0],
             withinBand: disease,
           },
         }));
@@ -182,7 +182,7 @@ describe('color store', () => {
 
     appStore.dimensions.withinBand = 'disease';
     appStore.dimensions.row = 'location';
-    appStore.hardFilters = {
+    appStore.filters = {
       location: [globalOption.value],
       disease: ['Cholera', 'Rubella', 'Measles', 'Rota'],
     };
@@ -193,7 +193,7 @@ describe('color store', () => {
       expect.arrayContaining([colors.purple70, colors.cyan90, colors.teal50, colors.magenta50])
     );
 
-    appStore.hardFilters.disease.push('Typhoid');
+    appStore.filters.disease.push('Typhoid');
     assignColorsByDisease();
 
     expect(colorStore.colorMapping.size).toEqual(5);
@@ -201,7 +201,7 @@ describe('color store', () => {
       expect.arrayContaining([colors.purple70, colors.cyan50, colors.teal70, colors.magenta70, colors.red90])
     );
 
-    appStore.hardFilters.disease.push('HPV');
+    appStore.filters.disease.push('HPV');
     assignColorsByDisease();
 
     expect(colorStore.colorMapping.size).toEqual(6);
@@ -216,7 +216,7 @@ describe('color store', () => {
       ])
     );
 
-    appStore.hardFilters.disease = diseaseOptions.map(o => o.value);
+    appStore.filters.disease = diseaseOptions.map(o => o.value);
     assignColorsByDisease();
 
     expect(colorStore.colorMapping.size).toEqual(16);
