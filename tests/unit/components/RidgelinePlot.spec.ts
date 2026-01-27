@@ -273,7 +273,7 @@ describe('RidgelinePlot component', () => {
 
       const axesLastCallArgs = addAxesSpy.mock.calls[addAxesSpy.mock.calls.length - 1];
       expect(axesLastCallArgs).toContainEqual(expect.objectContaining({
-        x: "Impact ratio",
+        x: "Impact ratio (per thousand vaccinated)",
         y: "Disease",
       }));
 
