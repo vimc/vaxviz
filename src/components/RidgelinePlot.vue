@@ -1,15 +1,21 @@
 <template>
   <div class="chart-container">
-    <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
-    <FetchErrorAlert v-else-if="dataStore.fetchErrors.length" />
-    <p v-else-if="noDataToDisplay" class="m-auto">
+    <div v-if="dataStore.isLoading" role="status" aria-live="polite" aria-label="Loading data">
+      <FwbSpinner class="m-auto" size="8" />
+      <span class="sr-only">Loading data...</span>
+    </div>
+    <div v-else-if="dataStore.fetchErrors.length" role="alert" aria-live="assertive">
+      <FetchErrorAlert />
+    </div>
+    <p v-else-if="noDataToDisplay" class="m-auto" role="status" aria-live="polite">
       <!-- E.g. Focus disease MenA, without splitting by activity type. -->
       No data available for the selected options.
     </p>
-    <div
+    <figure
       v-else
       ref="chartWrapper"
       id="chartWrapper"
+      :aria-label="chartAriaLabel"
       :data-test="JSON.stringify({
         histogramDataRowCount: dataStore.histogramData.length,
         lineCount: relevantRidgeLines.length,
@@ -44,6 +50,12 @@ const chartWrapper = ref<HTMLDivElement | null>(null);
 // noDataToDisplay is a ref rather than computed so that we can debounce updates to it, preventing flickering
 // if appStore changes at a different moment from linesToDisplay.
 const noDataToDisplay = ref<boolean>(false);
+
+const chartAriaLabel = computed(() => {
+  const focus = dimensionOptionLabel(appStore.exploreBy, appStore.focus);
+  const metric = appStore.burdenMetric;
+  return `Ridgeline chart showing ${metric} data for ${focus}. ${sortedRidgeLines.value.length} data series displayed.`;
+});
 
 const data = computed(() => dataStore.histogramData.filter(dataRow =>
   [Dimension.LOCATION, Dimension.DISEASE].every(dim => {

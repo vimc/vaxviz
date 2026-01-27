@@ -2,15 +2,16 @@
   <FwbAlert
     type="danger"
     class="m-5 h-fit border-t-4 rounded-none w-full"
+    role="alert"
   >
     <template #icon>
-      <img class="w-4 h-4 mr-2" src="@/assets/images/icons/dangerInfoIcon.svg" alt=""/>
+      <img class="w-4 h-4 mr-2" src="@/assets/images/icons/dangerInfoIcon.svg" alt="Error icon"/>
       <span class="sr-only">Error</span>
     </template>
     <template #title>
-      <h3 class="text-lg font-medium">
+      <h2 class="text-lg font-medium">
         Error loading data
-      </h3>
+      </h2>
     </template>
     <template #default>
       <p class="mt-2">This may be an intermittent issue. Try refreshing the page.</p>

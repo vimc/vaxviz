@@ -1,7 +1,7 @@
 <template>
-  <form class="m-5 flex gap-y-15 flex-wrap flex-col w-fit">
+  <form class="m-5 flex gap-y-15 flex-wrap flex-col w-fit" aria-label="Visualization controls">
     <div>
-      <fieldset class="gap-5 mb-3" aria-required="true">
+      <fieldset class="gap-5 mb-3">
         <legend class="block mb-5 font-medium text-heading">Focus on:</legend>
         <div>
           <FwbRadio
@@ -20,25 +20,26 @@
           Focus {{ appStore.exploreByLabel }}
         </label>
         <VueSelect
+          id="focus"
           v-model="appStore.focus"
           :isClearable="false"
           :options="selectOptions"
           :filter-by="selectFilterBy"
-          :aria="{ labelledby: 'focusLabel' }"
+          aria-labelledby="focusLabel"
         >
           <template #menu-header>
-            <div class="p-2 ps-3 disabled-text-color">
-              <h3 class="text-sm">Start typing to filter the list...</h3>
+            <div class="p-2 ps-3 disabled-text-color" role="presentation">
+              <p class="text-sm">Start typing to filter the list...</p>
             </div>
           </template>
           <template #option="{ option }">
-            <h4 v-if="option.value === 'optgroup'" class="font-medium text-sm text-heading disabled-text-color">{{ option.label }}</h4>
+            <strong v-if="option.value === 'optgroup'" class="font-medium text-sm text-heading disabled-text-color" role="presentation">{{ option.label }}</strong>
             <span v-else class="ps-2">{{ option.label }}</span>
           </template>
         </VueSelect>
       </div>
     </div>
-    <fieldset class="gap-5" aria-required="true">
+    <fieldset class="gap-5">
       <legend class="block mb-5 font-medium text-heading">Burden metric:</legend>
       <div>
         <FwbRadio
