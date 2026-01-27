@@ -35,14 +35,14 @@ export const useAppStore = defineStore("app", () => {
   // applied on top of 'filters'; they're easily toggled on and off without constituting a change to the overall view.
   // Whenever 'filters' update (or are initialized), legend selections are reset to match the 'filters'.
   // The initial filters are set to include all diseases and a single location.
-  const filters = ref<Record<string, string[]>>({
+  const filters = ref<Record<Dimension.DISEASE | Dimension.LOCATION, string[]>>({
     [Dimension.DISEASE]: diseaseOptions.map(d => d.value),
     [Dimension.LOCATION]: [LocResolution.GLOBAL],
   });
-  const legendSelections = ref<Record<string, string[]>>({});
+  const legendSelections = ref<Partial<Record<Dimension, string[]>>>({});
   const resetLegendSelections = () => legendSelections.value = {
-    [Dimension.DISEASE]: [...(filters.value[Dimension.DISEASE] ?? [])],
-    [Dimension.LOCATION]: [...(filters.value[Dimension.LOCATION] ?? [])],
+    [Dimension.DISEASE]: [...filters.value[Dimension.DISEASE]],
+    [Dimension.LOCATION]: [...filters.value[Dimension.LOCATION]],
   };
   resetLegendSelections();
 
