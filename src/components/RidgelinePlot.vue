@@ -96,23 +96,16 @@ const getMeanOfMeansForPlotRow = (plotRowCategory?: string) => {
   return meanValues.reduce((sum, val) => sum + val, 0) / meanValues.length;
 };
 
-const softFilteredLines = computed(() => {
-  const sortedRidgeLines = relevantRidgeLines.value.toSorted((lineA, lineB) => {
-    const meanA = getMeanOfMeansForPlotRow(lineA.metadata?.[Axis.ROW]);
-    const meanB = getMeanOfMeansForPlotRow(lineB.metadata?.[Axis.ROW]);
-    return meanA - meanB;
-  });
+const sortedRidgeLines = computed(() => relevantRidgeLines.value.toSorted((lineA, lineB) => {
+  const meanA = getMeanOfMeansForPlotRow(lineA.metadata?.[Axis.ROW]);
+  const meanB = getMeanOfMeansForPlotRow(lineB.metadata?.[Axis.ROW]);
+  return meanA - meanB;
+}));
 
-  // Set colors before applying filters, since filtered-out lines are still rendered by the
-  // ColorLegend as options to be toggled back on.
-  colorStore.setColors(sortedRidgeLines);
-
-  // Apply soft filters
-  return sortedRidgeLines.filter(line => {
-    const colorVal = line.metadata?.[colorStore.colorAxis];
-    return colorVal && appStore.softFilters[colorStore.colorDimension]?.includes(colorVal);
-  })
-});
+const softFilteredLines = computed(() => sortedRidgeLines.value.filter(line => {
+  const colorVal = line.metadata?.[colorStore.colorAxis];
+  return colorVal && appStore.softFilters[colorStore.colorDimension]?.includes(colorVal);
+}));
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
@@ -121,6 +114,10 @@ const updateChart = debounce(() => {
   if (noDataToDisplay.value || !chartWrapper.value) {
     return;
   }
+
+  // Set colors using unfiltered ridgelines, since filtered-out lines are still rendered by the
+  // ColorLegend as options to be toggled back on.
+  colorStore.setColors(sortedRidgeLines.value);
 
   softFilteredLines.value.forEach(line => {
     const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
