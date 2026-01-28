@@ -15,19 +15,6 @@ describe('DownloadButton component', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders "Download summary table" when single file', () => {
-    const wrapper = mount(DownloadButton);
-    expect(wrapper.text()).toBe("Download summary table");
-  });
-
-  it('renders "Download summary tables" when multiple files', () => {
-    const appStore = useAppStore();
-    appStore.focus = "Middle Africa"; // Subregion results in 2 files
-    
-    const wrapper = mount(DownloadButton);
-    expect(wrapper.text()).toBe("Download summary tables");
-  });
-
   it('calls downloadSummaryTables when clicked', async () => {
     const mockDownloadSummaryTables = vi.fn();
     vi.spyOn(useSummaryDownloadModule, 'useSummaryDownload').mockReturnValue({

@@ -1,34 +1,15 @@
-import { computed } from "vue";
 import JSZip from "jszip";
-import { useAppStore } from "@/stores/appStore";
-import { Dimensions, LocResolutions } from "@/types";
+import { useDataStore } from "@/stores/dataStore";
 
 const dataDir = `./data/csv`;
 
 export const useSummaryDownload = () => {
-  const appStore = useAppStore();
-
-  const summaryTablePaths = computed(() => {
-    // Generate paths for summary table CSVs based on current plot control selections.
-    return appStore.geographicalResolutions.map((geog) => {
-      const fileNameParts = ["summary_table", appStore.burdenMetric, "disease"];
-      if (geog === LocResolutions.SUBREGION) {
-        fileNameParts.push(LocResolutions.SUBREGION);
-      }
-      if (Object.values(appStore.dimensions).includes(Dimensions.ACTIVITY_TYPE)) {
-        fileNameParts.push(Dimensions.ACTIVITY_TYPE);
-      }
-      if (geog === LocResolutions.COUNTRY) {
-        fileNameParts.push(LocResolutions.COUNTRY);
-      }
-      return `${fileNameParts.join("_")}.csv`;
-    });
-  });
+  const dataStore = useDataStore();
 
   const downloadSingleFile = (path: string) => {
     const link = document.createElement("a");
-    link.href = `${dataDir}/${path}`;
-    link.download = path;
+    link.href = `${dataDir}/${path}.csv`;
+    link.download = `${path}.csv`;
     document.body.appendChild(link);
     // Use try-finally to ensure DOM cleanup even if click() throws
     try {
@@ -44,7 +25,7 @@ export const useSummaryDownload = () => {
     // Fetch all files and add to zip
     await Promise.all(
       paths.map(async (path) => {
-        const response = await fetch(`${dataDir}/${path}`);
+        const response = await fetch(`${dataDir}/${path}.csv`);
         if (!response.ok) {
           throw new Error(`Failed to fetch ${path}: ${response.statusText}`);
         }
@@ -69,7 +50,7 @@ export const useSummaryDownload = () => {
   };
 
   const downloadSummaryTables = async () => {
-    const paths = summaryTablePaths.value;
+    const paths = dataStore.summaryTableFilenames;
     if (paths.length === 1 && paths[0]) {
       downloadSingleFile(paths[0]);
     } else if (paths.length > 1) {
@@ -77,5 +58,5 @@ export const useSummaryDownload = () => {
     }
   };
 
-  return { summaryTablePaths, downloadSummaryTables };
+  return { downloadSummaryTables };
 };

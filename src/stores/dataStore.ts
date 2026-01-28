@@ -27,6 +27,7 @@ export const useDataStore = defineStore("data", () => {
     });
   };
 
+  // Construct filenames without file extension
   const constructFilenames = (dataType: "hist_counts" | "summary_table"): string[] => {
     return appStore.geographicalResolutions.map((geog) => {
       const fileNameParts = [dataType, appStore.burdenMetric, "disease"];
@@ -44,7 +45,7 @@ export const useDataStore = defineStore("data", () => {
         // Log scale is not applicable for summary tables, so does not appear in the filenames.
         fileNameParts.push("log");
       }
-      return `${fileNameParts.join("_")}.json`;
+      return fileNameParts.join("_");
     });
   }
 
@@ -59,7 +60,7 @@ export const useDataStore = defineStore("data", () => {
     // When we are using multiple geographical resolutions, we load multiple data files, to be merged together later.
     await Promise.all(filenames.map(async (filename) => {
       if (!cache[filename]) {
-        const path = `${dataDir}/${filename}`;
+        const path = `${dataDir}/${filename}.json`;
         try {
           const response = await fetch(path);
           if (!response.ok) {
