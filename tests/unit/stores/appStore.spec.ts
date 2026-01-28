@@ -5,6 +5,28 @@ import { nextTick } from "vue";
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { useAppStore } from "@/stores/appStore";
 
+const expectedInitialFilters = Object.freeze({
+  disease: [
+    "Cholera",
+    "COVID-19",
+    "HepB",
+    "Hib",
+    "HPV",
+    "JE",
+    "Malaria",
+    "Measles",
+    "MenA",
+    "MenACWYX",
+    "Meningitis",
+    "PCV",
+    "Rota",
+    "Rubella",
+    "Typhoid",
+    "YF",
+  ],
+  location: ["global"],
+});
+
 describe("app store", () => {
   beforeEach(() => {
     setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
@@ -23,27 +45,8 @@ describe("app store", () => {
       row: "disease",
       withinBand: "location",
     });
-    expect(store.filters).toEqual({
-      disease: [
-        "Cholera",
-        "COVID-19",
-        "HepB",
-        "Hib",
-        "HPV",
-        "JE",
-        "Malaria",
-        "Measles",
-        "MenA",
-        "MenACWYX",
-        "Meningitis",
-        "PCV",
-        "Rota",
-        "Rubella",
-        "Typhoid",
-        "YF",
-      ],
-      location: ["global"],
-    });
+    expect(store.filters).toEqual(expectedInitialFilters);
+    expect(store.legendSelections).toEqual(expectedInitialFilters);
   });
 
   it("updates the focus value when exploreBy selection changes", async () => {
@@ -72,6 +75,8 @@ describe("app store", () => {
     expect(store.dimensions.withinBand).toEqual("location");
     expect(store.filters.disease).toHaveLength(diseaseOptions.length);
     expect(store.filters.location).toEqual(["global"]);
+    expect(store.legendSelections.disease).toHaveLength(diseaseOptions.length);
+    expect(store.legendSelections.location).toEqual(["global"]);
 
     store.focus = "AFG";
     await nextTick();
@@ -80,6 +85,8 @@ describe("app store", () => {
     expect(store.dimensions.withinBand).toEqual("location");
     expect(store.filters.disease).toHaveLength(diseaseOptions.length);
     expect(store.filters.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
+    expect(store.legendSelections.disease).toHaveLength(diseaseOptions.length);
+    expect(store.legendSelections.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
 
     store.focus = "Cholera";
     await nextTick();
@@ -89,6 +96,9 @@ describe("app store", () => {
     expect(store.filters.disease).toEqual(["Cholera"]);
     expect(store.filters.location).toHaveLength(11);
     expect(store.filters.location).toContain("global");
+    expect(store.legendSelections.disease).toEqual(["Cholera"]);
+    expect(store.legendSelections.location).toHaveLength(11);
+    expect(store.legendSelections.location).toContain("global");
 
     store.focus = "Middle Africa";
     await nextTick();
@@ -97,6 +107,8 @@ describe("app store", () => {
     expect(store.dimensions.withinBand).toEqual("location");
     expect(store.filters.disease).toHaveLength(diseaseOptions.length);
     expect(store.filters.location).toEqual(["Middle Africa", "global"]);
+    expect(store.legendSelections.disease).toHaveLength(diseaseOptions.length);
+    expect(store.legendSelections.location).toEqual(["Middle Africa", "global"]);
   });
 
   it("returns the explore by label", async () => {
@@ -146,5 +158,22 @@ describe("app store", () => {
     expect(store.geographicalResolutionForLocation("AFG")).toEqual("country");
     expect(store.geographicalResolutionForLocation("Central and Southern Asia")).toEqual("subregion");
     expect(store.geographicalResolutionForLocation("Cholera")).toBeUndefined();
+  });
+
+  it("can reset the legend selections", () => {
+    const store = useAppStore();
+
+    expect(store.filters).toEqual(expectedInitialFilters);
+    expect(store.legendSelections).toEqual(expectedInitialFilters);
+
+    store.legendSelections.disease = ["Cholera", "Measles"];
+    store.legendSelections.location = ["AFG", "global"];
+
+    expect(store.legendSelections.disease).toEqual(["Cholera", "Measles"]);
+    expect(store.legendSelections.location).toEqual(["AFG", "global"]);
+
+    store.resetLegendSelections();
+
+    expect(store.legendSelections).toEqual(expectedInitialFilters);
   });
 });

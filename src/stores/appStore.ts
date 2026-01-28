@@ -26,10 +26,25 @@ export const useAppStore = defineStore("app", () => {
   const exploreBy = ref<Dimension.LOCATION | Dimension.DISEASE>(Dimension.LOCATION);
   const focus = ref<string>(LocResolution.GLOBAL);
 
+  // For filters, inclusion in the array means 'included in the view'.
+  // Note the 2 levels of filtration of diseases and locations:
+  // - 'filters' are more of an internal, developer-facing concept. They describe the possible range
+  // of diseases and locations that are validly available for the current view, and are fully determined
+  // by the selection of focus and exploreBy.
+  // - 'legend selections' are a second level of filtration which the user controls via the color legend,
+  // applied on top of 'filters'; they're easily toggled on and off without constituting a change to the overall view.
+  // Whenever 'filters' update (or are initialized), legend selections are reset to match the 'filters'.
+  // The initial filters are set to include all diseases and a single location.
   const filters = ref<Record<string, string[]>>({
     [Dimension.DISEASE]: diseaseOptions.map(d => d.value),
     [Dimension.LOCATION]: [LocResolution.GLOBAL],
   });
+  const legendSelections = ref<Record<string, string[]>>({});
+  const resetLegendSelections = () => legendSelections.value = {
+    [Dimension.DISEASE]: [...(filters.value[Dimension.DISEASE] ?? [])],
+    [Dimension.LOCATION]: [...(filters.value[Dimension.LOCATION] ?? [])],
+  };
+  resetLegendSelections();
 
   const exploreByLabel = computed(() => {
     const option = exploreOptions.find(o => o.value === exploreBy.value);
@@ -44,7 +59,7 @@ export const useAppStore = defineStore("app", () => {
   }));
 
   const geographicalResolutionForLocation = (location: string): LocResolution | undefined => {
-    if (location === LocResolution.GLOBAL) {
+    if (location === globalOption.value) {
       return LocResolution.GLOBAL;
     } else if (subregionOptions.find(o => o.value === location)) {
       return LocResolution.SUBREGION;
@@ -125,6 +140,8 @@ export const useAppStore = defineStore("app", () => {
 
   watch(splitByActivityType, (split) => columnDimension.value = split ? Dimension.ACTIVITY_TYPE : null);
 
+  watch(filters, resetLegendSelections);
+
   return {
     burdenMetric,
     dimensions,
@@ -137,6 +154,8 @@ export const useAppStore = defineStore("app", () => {
     getAxisForDimension,
     geographicalResolutionForLocation,
     logScaleEnabled,
+    resetLegendSelections,
+    legendSelections,
     splitByActivityType,
   };
 })
