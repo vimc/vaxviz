@@ -63,11 +63,19 @@ const downloadAsZip = async (paths: string[]) => {
 };
 
 const downloadSummaryTables = async () => {
+  dataStore.downloadErrors = [];
   const paths = dataStore.summaryTableFilenames;
-  if (paths.length === 1 && paths[0]) {
-    downloadSingleFile(paths[0]);
-  } else if (paths.length > 1) {
-    await downloadAsZip(paths);
+  try {
+    if (paths.length === 1 && paths[0]) {
+      downloadSingleFile(paths[0]);
+    } else if (paths.length > 1) {
+      await downloadAsZip(paths);
+    }
+  } catch (error) {
+    dataStore.downloadErrors.push({
+      e: error as Error,
+      message: `Error downloading summary data. ${error}`,
+    });
   }
 };
 </script>

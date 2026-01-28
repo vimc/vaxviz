@@ -66,6 +66,7 @@
       />
     </div>
     <DownloadButton />
+    <DownloadErrorAlert />
   </div>
 </template>
 
@@ -76,6 +77,7 @@ import { computed } from 'vue';
 import { useAppStore } from '@/stores/appStore';
 import { Dimension } from '@/types';
 import DownloadButton from '@/components/DownloadButton.vue';
+import DownloadErrorAlert from '@/components/DownloadErrorAlert.vue';
 import countryOptions from '@/data/options/countryOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';

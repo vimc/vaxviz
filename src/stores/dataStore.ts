@@ -11,6 +11,7 @@ export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
 
   const fetchErrors = ref<{ e: Error, message: string }[]>([]);
+  const downloadErrors = ref<{ e: Error, message: string }[]>([]);
   const histogramData = shallowRef<HistDataRow[]>([]);
   const histogramCache: Record<string, HistDataRow[]> = {};
   const summaryTableData = shallowRef<SummaryTableDataRow[]>([]);
@@ -118,5 +119,5 @@ export const useDataStore = defineStore("data", () => {
     }
   }, { immediate: true });
 
-  return { fetchErrors, isLoading, getSummaryDataRow, histogramData, summaryTableData, summaryTableFilenames };
+  return { fetchErrors, downloadErrors, isLoading, getSummaryDataRow, histogramData, summaryTableData, summaryTableFilenames };
 });
