@@ -27,7 +27,20 @@ const selectFocus = async (page: Page, focusType: FocusType, optionLabel: string
 
 const globalOptionLabel = "All 117 VIMC countries";
 
-test('visits the app root url, selects options, and loads correct data', async ({ page }) => {
+test('visits the app root url, selects options, and loads correct data', async ({ page, }) => {
+  // Expect all data requests to have 'Cache-Control: no-cache' header in response
+  // 'Cache-Control: no-cache' tells browsers and caches they can store a copy of a resource
+  // but must revalidate it with the original server before using it for any subsequent request
+  page.on('request', async (request) => {
+    if (request.url().includes("/data/json/")) {
+      const response = await request.response();
+      const responseHeaders = response.headers();
+      const cacheControlHeader = responseHeaders["cache-control"] || "";
+      // eslint-disable-next-line playwright/no-conditional-expect
+      expect(cacheControlHeader).toEqual("no-cache");
+    }
+  });
+
   await page.goto('/');
 
   const diseaseRadio = page.getByRole("radio", { name: "Disease" });
@@ -123,12 +136,13 @@ test('visits the app root url, selects options, and loads correct data', async (
   await expect(logScaleCheckbox).toBeChecked();
   await expect(dalysRadio).toBeChecked();
   await expect(deathsRadio).not.toBeChecked();
+  const expectedHistogramRowCount =
+    histCountsDalysDiseaseSubregionLog.length +
+    histCountsDalysDiseaseCountryLog.length +
+    histCountsDalysDiseaseLog.length;
   await expect(chartWrapper).toHaveAttribute("data-test",
     JSON.stringify({
-      histogramDataRowCount:
-        histCountsDalysDiseaseSubregionLog.length +
-        histCountsDalysDiseaseCountryLog.length +
-        histCountsDalysDiseaseLog.length,
+      histogramDataRowCount: expectedHistogramRowCount,
       lineCount: 30, // 10 applicable diseases, each with 3 locations (AFG, subregion, global)
       column: null,
       row: "disease",
@@ -136,4 +150,30 @@ test('visits the app root url, selects options, and loads correct data', async (
     })
   );
   await expect(plotLegend.locator(".legend-label")).toHaveCount(3); // Colors per location
+
+  // Change options: round 4 (filtering out via legend component)
+  const subregionButton = page.getByTestId("Central and Southern AsiaButton");
+
+  await subregionButton.click();
+  await expect(chartWrapper).toHaveAttribute("data-test",
+    JSON.stringify({
+      histogramDataRowCount: expectedHistogramRowCount,
+      lineCount: 20, // 10 applicable diseases, each now with only 2 locations (no subregion)
+      column: null,
+      row: "disease",
+      withinBand: "location",
+    })
+  );
+
+  // Change options: round 5 (unfiltering via legend component)
+  await subregionButton.click();
+  await expect(chartWrapper).toHaveAttribute("data-test",
+    JSON.stringify({
+      histogramDataRowCount: expectedHistogramRowCount,
+      lineCount: 30, // Back to 3 locations per disease
+      column: null,
+      row: "disease",
+      withinBand: "location",
+    })
+  );
 });

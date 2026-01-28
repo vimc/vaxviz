@@ -6,7 +6,7 @@ import { computed, toValue, type MaybeRefOrGetter } from 'vue';
 // outline of the histogram.  
 export default (
   data: MaybeRefOrGetter<HistDataRow[]>,
-  axisDimension: () => {
+  axisDimensions: () => {
     [Axis.COLUMN]: Dimension | null;
     [Axis.ROW]: Dimension;
     [Axis.WITHIN_BAND]: Dimension;
@@ -14,7 +14,7 @@ export default (
   getCategory: (dim: Dimension | null, dataRow: HistDataRow) => string,
   getLabel: (dim: Dimension | null, value: string) => string | undefined,
 ) => {
-  const dimensions = computed(() => toValue(axisDimension));
+  const dimensions = computed(() => toValue(axisDimensions));
 
   // Return corner coordinates of the histogram bar representing a row from a data file.
   const createBarCoords = (dataRow: HistDataRow): Coords[] => {
@@ -48,7 +48,7 @@ export default (
 
   // Construct histogram/ridge-shaped lines by building area lines whose points trace the
   // outline of the histogram bars (including the spaces in between them).
-  const ridgeLines = computed((): Lines<LineMetadata> => {
+  const constructLines = (): Lines<LineMetadata> => {
     // A 3-dimensional dictionary of lines.
     // We use x-value as the key at the first level, then y-value on the second, then withinBandValue.
     // If the x-value (or anything else) is undefined, then the key should be an empty string.
@@ -94,7 +94,7 @@ export default (
 
     // Unpack the lines dictionary into a flat array.
     return Object.values(lines).flatMap(y => Object.values(y)).flatMap(z => Object.values(z));
-  });
+  };
 
-  return { ridgeLines }
+  return { constructLines };
 }
