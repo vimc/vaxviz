@@ -17,22 +17,27 @@ import RidgelinePlot from './components/RidgelinePlot.vue';
 </script>
 
 <style lang="scss">
+$header-border-bottom-width: 1px;
 $header-padding: calc(var(--spacing)* 5);
 $logo-height: calc(var(--spacing)* 20);
+$header-height: calc(#{$logo-height} + #{$header-border-bottom-width} + (#{$header-padding} * 3));
 
 header {
   padding: $header-padding;
   margin-bottom: $header-padding;
+  max-height: $header-height;
 
   img#logo {
+    $logo-intrinsic-ratio: calc(143/45);
+    $logo-width: calc(#{$logo-height} * #{$logo-intrinsic-ratio});
+
     height: $logo-height;
+    min-width: $logo-width;
   }
 }
 
 main {
-  $header-height: calc(#{$logo-height} + (#{$header-padding} * 3));
-
-  height: calc(100vh - #{$header-height});
-  max-height: calc(100vh - #{$header-height});
+  height: calc(100dvh - #{$header-height});
+  max-height: calc(100dvh - #{$header-height});
 }
 </style>
