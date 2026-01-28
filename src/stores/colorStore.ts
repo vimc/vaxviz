@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import type { Lines } from "@reside-ic/skadi-chart";
 import convert, { type HEX } from "color-convert";
-import { Axes, type LineMetadata } from "@/types";
+import { Axis, type LineColors, type LineMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
 import { globalOption } from "@/utils/options";
 
@@ -27,6 +27,8 @@ const ibmAccessiblePalette = Object.freeze({
   orange70: "#8a3800",
   purple50: "#a56eff",
 });
+
+const globalColor = ibmAccessiblePalette.purple70;
 
 // Not from IBM. We need to have as many color options as there are diseases.
 const extraColors = {
@@ -66,14 +68,14 @@ export const useColorStore = defineStore("color", () => {
     // If we're filtered to just 1 value for the withinBand axis,
     // we assign colors based on the dimension assigned to the y-axis,
     // otherwise all lines would be the same color across all rows.
-    return appStore.filters[appStore.dimensions[Axes.WITHIN_BAND]]?.length === 1
-      ? appStore.dimensions[Axes.ROW]
-      : appStore.dimensions[Axes.WITHIN_BAND];
+    return appStore.filters[appStore.dimensions[Axis.WITHIN_BAND]]?.length === 1
+      ? appStore.dimensions[Axis.ROW]
+      : appStore.dimensions[Axis.WITHIN_BAND];
   });
 
   const colorAxis = computed(() => Object.keys(appStore.dimensions).find((axis) => {
-    return appStore.dimensions[axis as Axes] === colorDimension.value;
-  }) as Axes);
+    return appStore.dimensions[axis as Axis] === colorDimension.value;
+  }) as Axis);
 
   // The mapping from category value (e.g. a specific location or disease) to color hex code.
   const mapping = ref(new Map<string, string>());
@@ -85,18 +87,30 @@ export const useColorStore = defineStore("color", () => {
   const setColors = (lines: Lines<LineMetadata>) => {
     mapping.value = new Map<string, string>()
 
-    // `value` refers to the specific location or disease whose color we need to assign.
+    // A 'value' refers to the specific location or disease whose color we need to assign.
     const uniqueValues = Array.from(new Set(lines.map(line => line.metadata?.[colorAxis.value]))) as string[];
-    const colorList = palettesByCategoryCount[uniqueValues.length] ?? Object.values({ ...ibmAccessiblePalette, ...extraColors })
-
-    // Set the 'global' option first to ensure it gets the same color across chart updates.
-    if (uniqueValues.includes(globalOption.value)) {
-      mapping.value.set(globalOption.value, ibmAccessiblePalette.purple70);
+    let palette: string[] = [];
+    if (palettesByCategoryCount[uniqueValues.length]) {
+      // Use a specific palette designed for this number of categories.
+      // Copy the array to avoid mutating the original.
+      palette = [...palettesByCategoryCount[uniqueValues.length]!];
+    } else {
+      palette = Object.values({ ...ibmAccessiblePalette, ...extraColors })
     }
 
-    uniqueValues.filter(value => value !== globalOption.value).forEach((value) => {
-      // Assign the next color in the list.
-      mapping.value.set(value, colorList[mapping.value.size % colorList.length]!);
+    if (uniqueValues.includes(globalOption.value)) {
+      palette = palette.filter(color => color !== globalColor);
+    }
+
+    // Assign colors in the same order as the lines argument, to keep plot-row ordering and legend ordering consistent.
+    uniqueValues.forEach((value) => {
+      if (value === globalOption.value) {
+        // Set the 'global' option explicitly to ensure it gets the same color across chart updates.
+        mapping.value.set(globalOption.value, globalColor);
+      } else {
+        // Assign the next color in the list.
+        mapping.value.set(value, palette[mapping.value.size % palette.length]!);
+      }
     });
   }
 
@@ -111,7 +125,7 @@ export const useColorStore = defineStore("color", () => {
   });
 
   // Given a line's category values, fetch the color from the mapping.
-  const getColorsForLine = (categoryValues: LineMetadata) => {
+  const getColorsForLine = (categoryValues: LineMetadata): LineColors => {
     // `value` is the specific value, i.e. a specific location or disease,
     // whose color we need to look up or assign.
     const value = categoryValues[colorAxis.value];
@@ -119,5 +133,5 @@ export const useColorStore = defineStore("color", () => {
     return colorProperties(color);
   };
 
-  return { colorDimension, colorMapping, colorProperties, getColorsForLine, setColors };
+  return { colorAxis, colorDimension, colorMapping, colorProperties, getColorsForLine, setColors };
 });

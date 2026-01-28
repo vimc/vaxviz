@@ -1,5 +1,6 @@
-import { createPinia, setActivePinia } from 'pinia';
-import { it, expect, describe, beforeEach } from 'vitest';
+import { setActivePinia } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
+import { it, expect, describe, beforeEach, vi } from 'vitest';
 
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { globalOption } from '@/utils/options';
@@ -27,7 +28,7 @@ const colors = {
 
 describe('color store', () => {
   beforeEach(() => {
-    setActivePinia(createPinia());
+    setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
   });
 
   describe('colorDimension', () => {
@@ -79,6 +80,8 @@ describe('color store', () => {
     ]);
 
     expect(colorStore.colorMapping.size).toBe(3);
+    // Assert the order of the colors is the same as the order of first appearance in the call to setColors.
+    expect(Array.from(colorStore.colorMapping.keys())).toEqual(['CHN', 'AFG', 'global']);
 
     expect(
       colorStore.getColorsForLine({ withinBand: 'global', row: 'Cholera', column: 'campaign' }).fillColor
@@ -110,6 +113,9 @@ describe('color store', () => {
     ]);
 
     expect(colorStore.colorMapping.size).toBe(2);
+    // Assert the order of the colors is the same as the order of first appearance in the call to setColors.
+    expect(Array.from(colorStore.colorMapping.keys())).toEqual(['Cholera', 'Rubella']);
+
     expect(
       colorStore.getColorsForLine({ withinBand: 'AFG', row: 'Cholera', column: 'campaign' }).fillColor
     ).toEqual("rgba(105, 41, 196, 0.2)"); // purple70

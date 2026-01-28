@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { setActivePinia, createPinia } from 'pinia';
+import { setActivePinia } from 'pinia';
+import { createTestingPinia } from '@pinia/testing'
+import { Chart } from '@reside-ic/skadi-chart';
 
 import histCountsDeathsDiseaseLog from "@/../public/data/json/hist_counts_deaths_disease_log.json";
 import histCountsDalysDiseaseSubregionActivityType from "@/../public/data/json/hist_counts_dalys_disease_subregion_activity_type.json";
@@ -10,29 +12,45 @@ import histCountsDeathsDiseaseActivityType from "@/../public/data/json/hist_coun
 import histCountsDalysDiseaseSubregionLog from "@/../public/data/json/hist_counts_dalys_disease_subregion_log.json";
 import histCountsDalysDiseaseCountryLog from "@/../public/data/json/hist_counts_dalys_disease_country_log.json";
 import histCountsDalysDiseaseLog from "@/../public/data/json/hist_counts_dalys_disease_log.json";
-import { BurdenMetrics } from '@/types';
+import diseaseOptions from '@/data/options/diseaseOptions.json';
+import { BurdenMetric } from '@/types';
 import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
 
+const addAxesSpy = vi.fn().mockReturnThis();
+const addTracesSpy = vi.fn().mockReturnThis();
 const addGridLinesSpy = vi.fn().mockReturnThis();
+const addTooltipsSpy = vi.fn().mockReturnThis();
+const addAppendToSpy = vi.fn().mockReturnThis();
 
 vi.mock('@reside-ic/skadi-chart', () => ({
   Chart: vi.fn().mockImplementation(class MockChart {
-    addAxes = vi.fn().mockReturnThis();
-    addTraces = vi.fn().mockReturnThis();
+    addAxes = addAxesSpy;
+    addTraces = addTracesSpy;
     addArea = vi.fn().mockReturnThis();
     addGridLines = addGridLinesSpy;
-    addZoom = vi.fn().mockReturnThis();
+    addTooltips = addTooltipsSpy;
     makeResponsive = vi.fn().mockReturnThis();
-    appendTo = vi.fn();
+    appendTo = addAppendToSpy;
   }),
 }));
 
+// Assert that the plot-rows are in the expected order,
+// and that there is or is not an x-axis categorical scale.
+const assertLastCategoricalScales = (expected: Record<"x" | "y", string[] | undefined>) => {
+  const appendToLastCallArgs = addAppendToSpy.mock.calls[addAppendToSpy.mock.calls.length - 1];
+  const catScales = appendToLastCallArgs[3];
+  expect(catScales).toEqual(expected);
+};
+
 describe('RidgelinePlot component', () => {
   beforeEach(() => {
-    setActivePinia(createPinia());
+    setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
+
+    // Define Mathjax globally to prevent errors during testing (in real life, it's defined in index.html)
+    globalThis.MathJax = {};
   });
 
   it('loads the correct data', async () => {
@@ -55,13 +73,17 @@ describe('RidgelinePlot component', () => {
       // Color by row; each disease has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(14);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
+      });
     });
 
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
     expect(appStore.focus).toEqual("global");
     appStore.focus = "Middle Africa";
-    appStore.burdenMetric = BurdenMetrics.DALYS;
+    appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
     await vi.waitFor(() => {
@@ -78,7 +100,11 @@ describe('RidgelinePlot component', () => {
       // Color by the 2 locations within each band: Middle Africa and global.
       expect(colorStore.colorMapping.size).toEqual(2);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
-    });
+      assertLastCategoricalScales({
+        x: ["Campaign", "Routine"],
+        y: ["COVID-19", "Cholera", "Rubella", "MenA", "MenACWYX", "Typhoid", "Rota", "HepB", "YF", "PCV", "Malaria", "Hib", "HPV", "Measles"],
+      });
+    }, 5000);
 
     // Change options: round 2
     appStore.exploreBy = "disease";
@@ -86,7 +112,7 @@ describe('RidgelinePlot component', () => {
       expect(appStore.focus).toEqual("Cholera")
     });
     appStore.focus = "Measles";
-    appStore.burdenMetric = BurdenMetrics.DEATHS;
+    appStore.burdenMetric = BurdenMetric.DEATHS;
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
     await vi.waitFor(() => {
@@ -102,7 +128,24 @@ describe('RidgelinePlot component', () => {
       // Color by row; each location (10 subregions + global) has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(11);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
-    }, { timeout: 3000 });
+
+      assertLastCategoricalScales({
+        x: ["Campaign", "Routine"],
+        y: [
+          "Eastern and Southern Europe",
+          "Eastern and South-Eastern Asia",
+          "Southern Africa",
+          "Northern Africa and Western Asia",
+          "Latin America and the Caribbean",
+          "Central and Southern Asia",
+          "All 117 VIMC countries",
+          "Oceania",
+          "Eastern Africa",
+          "Western Africa",
+          "Middle Africa",
+        ],
+      });
+    }, { timeout: 5000 });
 
     // Change options: round 3
     appStore.exploreBy = "location";
@@ -110,7 +153,7 @@ describe('RidgelinePlot component', () => {
       expect(appStore.focus).toEqual("global")
     });
     appStore.focus = "AFG";
-    appStore.burdenMetric = BurdenMetrics.DALYS;
+    appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = true;
     appStore.splitByActivityType = false;
     await vi.waitFor(() => {
@@ -126,8 +169,40 @@ describe('RidgelinePlot component', () => {
       // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
       expect(colorStore.colorMapping.size).toEqual(3);
       expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
-    }, { timeout: 3000 });
-  }, 10000);
+
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
+      });
+    }, { timeout: 5000 });
+
+    // Change options: round 4 (filtering out as if via legend component)
+    expect(colorStore.colorDimension).toEqual("location");
+    appStore.legendSelections["location"] = ["AFG", "global"];
+    await vi.waitFor(() => {
+      const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
+      expect(dataAttr.lineCount).toEqual(20); // 10 applicable diseases, each now with only 2 locations (no subregion)
+      expect(colorStore.colorMapping.size).toEqual(3);
+
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
+      });
+    });
+
+    // Change options: round 5 (unfiltering as if via legend component)
+    appStore.legendSelections["location"].push("Central and Southern Asia");
+    await vi.waitFor(() => {
+      const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
+      expect(dataAttr.lineCount).toEqual(30);
+      expect(colorStore.colorMapping.size).toEqual(3);
+
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
+      });
+    });
+  }, 20000);
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
     const appStore = useAppStore();
@@ -151,6 +226,96 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("No data available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+    });
+  });
+
+  it('when there are fetch errors, shows an alert instead of the chart', async () => {
+    const dataStore = useDataStore();
+    const wrapper = mount(RidgelinePlot);
+
+    // It shows a chart initially
+    await vi.waitFor(() => {
+      const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
+      expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
+    });
+
+    dataStore.fetchErrors = [
+      { message: 'Error loading data from path: hist_counts_deaths_disease_log.json. TypeError: Failed to fetch' },
+    ];
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).not.toContain("No data available for the selected options.");
+      expect(wrapper.text()).toContain("Error loading data");
+      expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+    });
+  });
+
+  it('passes correct options to Chart', async () => {
+    mount(RidgelinePlot);
+
+    await vi.waitFor(() => {
+      // Access the mock calls
+      const chartMock = vi.mocked(Chart);
+      expect(chartMock).toHaveBeenCalled();
+
+      // Get the options from the most recent call
+      const lastCallArgs = chartMock.mock.calls[chartMock.mock.calls.length - 1];
+      const { tickConfig } = lastCallArgs[0]!; // First argument to constructor
+
+      expect(tickConfig).toEqual(expect.objectContaining({
+        categorical: expect.objectContaining({
+          y: expect.objectContaining({
+            padding: 30,
+          }),
+        }),
+      }));
+      expect(tickConfig?.categorical?.y?.formatter).toBeUndefined();
+
+      const axesLastCallArgs = addAxesSpy.mock.calls[addAxesSpy.mock.calls.length - 1];
+      expect(axesLastCallArgs).toContainEqual(expect.objectContaining({
+        x: "Impact ratio",
+        y: "Disease",
+      }));
+
+      const tracesLastCallArgs = addTracesSpy.mock.calls[addTracesSpy.mock.calls.length - 1];
+      const lines = tracesLastCallArgs[0];
+
+      expect(lines).toHaveLength(14);
+
+      const lineRows = lines.map(l => l.metadata.row);
+      const diseases = diseaseOptions.filter(d => lineRows.includes(d.value));
+      expect(diseases).toHaveLength(14);
+
+      expect(lines.every(l => l.metadata.withinBand === "global")).toBe(true);
+      expect(lines.every(l => l.metadata.column === undefined)).toBe(true);
+
+      const appendToLastCallArgs = addAppendToSpy.mock.calls[addAppendToSpy.mock.calls.length - 1];
+      const chartWrapperDiv = appendToLastCallArgs[0];
+      expect(chartWrapperDiv.id).toEqual("chartWrapper");
+
+      const numScales = appendToLastCallArgs[1];
+      expect(numScales).toEqual(expect.objectContaining({
+        x: {
+          start: expect.closeTo(-2, 0),
+          end: expect.closeTo(1, 0),
+        },
+        y: {
+          start: 0,
+          end: 31,
+        },
+      }));
+
+      // Assert that all diseases (the current data dimension for the plot-rows) are in the correct order,
+      // and that there is no x-axis categorical scale.
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
+      });
+
+      const margins = appendToLastCallArgs[4];
+      expect(margins).toEqual(expect.objectContaining({
+        left: 110,
+      }));
     });
   });
 
