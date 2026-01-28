@@ -1,36 +1,79 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { nextTick } from "vue";
 import { createPinia, setActivePinia } from 'pinia';
-import { ref } from 'vue';
 import { useAppStore } from '@/stores/appStore';
 import DownloadButton from '@/components/DownloadButton.vue'
-import * as useSummaryDownloadModule from '@/composables/useSummaryDownload';
 
 describe('DownloadButton component', () => {
+  let originalCreateElement: typeof document.createElement;
+  let createdLinks: { href: string; download: string; clicked: boolean }[];
+
   beforeEach(() => {
     setActivePinia(createPinia());
+
+    createdLinks = [];
+    originalCreateElement = document.createElement.bind(document);
+
+    vi.spyOn(document, "createElement").mockImplementation((tagName: string) => {
+      const element = originalCreateElement(tagName);
+      if (tagName === "a") {
+        const link = element as HTMLAnchorElement;
+        const linkData = { href: "", download: "", clicked: false };
+        createdLinks.push(linkData);
+
+        Object.defineProperty(link, "href", {
+          set: (v) => (linkData.href = v),
+          get: () => linkData.href,
+        });
+        Object.defineProperty(link, "download", {
+          set: (v) => (linkData.download = v),
+          get: () => linkData.download,
+        });
+        link.click = () => {
+          linkData.clicked = true;
+        };
+      }
+      return element;
+    });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('calls downloadSummaryTables when clicked', async () => {
-    const mockDownloadSummaryTables = vi.fn();
-    vi.spyOn(useSummaryDownloadModule, 'useSummaryDownload').mockReturnValue({
-      summaryTablePaths: ref(["file.csv"]),
-      downloadSummaryTables: mockDownloadSummaryTables,
-    });
-
+  it("should download single file directly when only one path", async () => {
     const wrapper = mount(DownloadButton);
-    await wrapper.find('button').trigger('click');
+    const button = wrapper.get('button');
+    await button.trigger('click');
 
-    expect(mockDownloadSummaryTables).toHaveBeenCalledOnce();
+    expect(createdLinks).toHaveLength(1);
+    expect(createdLinks[0].href).toBe("./data/csv/summary_table_deaths_disease.csv");
+    expect(createdLinks[0].download).toBe("summary_table_deaths_disease.csv");
+    expect(createdLinks[0].clicked).toBe(true);
   });
 
-  it('has cursor-pointer class for hover state', () => {
+  it("should download as zip when multiple paths", async () => {
+    const appStore = useAppStore();
+    appStore.focus = "Middle Africa";
+
+    // Mock fetch for zip download
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      text: () => Promise.resolve("csv,content"),
+    } as Response);
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+
     const wrapper = mount(DownloadButton);
-    const button = wrapper.find('button');
-    expect(button.classes()).toContain('cursor-pointer');
+    const button = wrapper.get('button');
+    await button.trigger('click');
+
+    await vi.waitFor(() => {
+      expect(createdLinks).toHaveLength(1);
+      expect(createdLinks[0].href).toBe("blob:test");
+      expect(createdLinks[0].download).toBe("summary_tables.zip");
+      expect(createdLinks[0].clicked).toBe(true);
+    });
   });
 });
