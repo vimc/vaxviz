@@ -5,12 +5,14 @@ import { useAppStore } from "@/stores/appStore";
 import { type HistDataRow, type LineMetadata, type SummaryTableDataRow, Axis, Dimension, LocResolution } from "@/types";
 import { globalOption } from "@/utils/options";
 import { downloadAsSingleOrZip } from "@/utils/download";
+import useZipFilename from "@/composables/useZipFilename";
 
 export const jsonDataDir = `./data/json`
 const csvDataDir = `./data/csv`;
 
 export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
+  const { getZipFileName } = useZipFilename();
 
   const histogramData = shallowRef<HistDataRow[]>([]);
   const histogramCache: Record<string, HistDataRow[]> = {};
@@ -60,20 +62,10 @@ export const useDataStore = defineStore("data", () => {
   const downloadSummaryTables = async () => {
     downloadErrors.value = [];
     const filenames = summaryTableFilenames.value.map((f) => `${f}.csv`);
-    let zipFileName = "";
-    if (filenames.length > 1) {
-      zipFileName = [
-        "summary_tables",
-        appStore.burdenMetric,
-        "disease",
-        appStore.dimensions.column,
-        ...appStore.geographicalResolutions.toSorted(),
-        appStore.logScaleEnabled ? "log" : null,
-      ].filter(Boolean).join("_") + ".zip";
-    }
+    const zipFileName = getZipFileName(filenames);
 
     try {
-      await downloadAsSingleOrZip(csvDataDir, filenames, zipFileName);
+      await downloadAsSingleOrZip(csvDataDir, filenames, zipFileName, true);
     } catch (error) {
       downloadErrors.value.push({
         e: error as Error,
