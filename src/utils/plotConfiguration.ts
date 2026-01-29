@@ -22,9 +22,15 @@ const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): 
     return firstPoint.x;
   }));
 
-  // x values may be slightly negative for some cases eg Typhoid
+  let xStart = logScaleEnabled ? minX : Math.min(minX, 0);
+  if (!logScaleEnabled && xStart < 0) {
+    const padding = (maxX - minX) * 0.01;
+    xStart = minX - padding;
+  }
+
+  // x values may be slightly negative for some cases eg Typhoid, JE
   return {
-    x: { start: logScaleEnabled ? minX : Math.min(minX, 0), end: maxX },
+    x: { start: xStart, end: maxX },
     y: { start: 0, end: maxY },
   };
 };
@@ -107,7 +113,7 @@ const axisConfiguration = (
   rowDimension: Dimension,
 ): AxisConfig => [
     {
-      x: "Impact ratio",
+      x: "Impact ratio (per thousand vaccinated)",
       y: sentenceCase(rowDimension),
     },
     {
@@ -134,7 +140,7 @@ export const plotConfiguration = (
   const constructorOptions = {
     tickConfig,
     categoricalScalePaddingInner: {
-      x: catScales.x && catScales.x.length > 1 ? 0.02 : 0
+      x: catScales.x && catScales.x.length > 1 ? 0.05 : 0
     },
   };
   const axisConfig = axisConfiguration(rowDimension);

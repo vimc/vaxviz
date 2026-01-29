@@ -7,7 +7,7 @@ import usePlotTooltips from '@/composables/usePlotTooltips';
 import { useAppStore } from '@/stores/appStore';
 import { useColorStore } from '@/stores/colorStore';
 import { useDataStore } from '@/stores/dataStore';
-import { Axis, Dimension, SummaryTableColumn, type PointWithMetadata, type SummaryTableDataRow } from '@/types';
+import { Axis, BurdenMetric, Dimension, SummaryTableColumn, type PointWithMetadata, type SummaryTableDataRow } from '@/types';
 
 describe('usePlotTooltips', () => {
   beforeEach(() => {
@@ -130,104 +130,73 @@ describe('usePlotTooltips', () => {
       expect(campaignTooltip).toContain('style="color: #6929c4'); // purple70
     });
 
-    it('displays summary data (mean, and 95% confidence interval) in tooltip (linear scale)', () => {
-      const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
+    describe('summary data (mean, and 95% confidence interval)', () => {
+      const renderTooltip = (mean: number = 1456.78, lower: number = 789.12, upper: number = 2345.67) => {
+        const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
 
-      const appStore = useAppStore();
-      const colorStore = useColorStore();
-      const dataStore = useDataStore();
+        const appStore = useAppStore();
+        const dataStore = useDataStore();
 
-      appStore.filters = {
-        [Dimension.LOCATION]: ['AFG'],
-        [Dimension.DISEASE]: ['Cholera'],
-      };
-      appStore.logScaleEnabled = false;
-      colorStore.setColors([afgPointMetadata]);
-      dataStore.summaryTableData = [
-        {
-          [Dimension.LOCATION]: 'AFG',
-          [Dimension.DISEASE]: 'Cholera',
-          [SummaryTableColumn.MEAN]: 1456.78,
-          [SummaryTableColumn.CI_LOWER]: 789.12,
-          [SummaryTableColumn.CI_UPPER]: 2345.67,
-        } as SummaryTableDataRow,
-      ];
+        appStore.filters = {
+          [Dimension.LOCATION]: ['AFG'],
+          [Dimension.DISEASE]: ['Cholera'],
+        };
+        dataStore.summaryTableData = [
+          {
+            [Dimension.LOCATION]: 'AFG',
+            [Dimension.DISEASE]: 'Cholera',
+            [SummaryTableColumn.MEAN]: mean,
+            [SummaryTableColumn.CI_LOWER]: lower,
+            [SummaryTableColumn.CI_UPPER]: upper,
+          } as SummaryTableDataRow,
+        ];
 
-      const { tooltipCallback } = usePlotTooltips();
+        const { tooltipCallback } = usePlotTooltips();
 
-      const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
+        return tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
+      }
 
-      expect(tooltip).toContain('Mean: <b>1456.78</b>');
-      expect(tooltip).toContain('95% confidence interval:');
-      expect(tooltip).toContain('<b>789.12</b>');
-      expect(tooltip).toContain('<b>2345.67</b>');
+      it('displays summary data (linear scale)', () => {
+        const appStore = useAppStore();
+        appStore.logScaleEnabled = false;
+        const tooltip = renderTooltip();
+
+        expect(tooltip).toContain('Mean: <b>1456.78</b> deaths averted per 1000 vaccinations');
+        expect(tooltip).toContain('95% confidence interval:');
+        expect(tooltip).toContain('<b>789.12</b>');
+        expect(tooltip).toContain('<b>2345.67</b>');
+      });
+
+      it('handles negative confidence interval values with appropriate sign (linear scale)', () => {
+        const appStore = useAppStore();
+        appStore.logScaleEnabled = false;
+        const tooltip = renderTooltip(55.00, -100.50, 200.75);
+
+        expect(tooltip).toContain('Mean: <b>55.00</b> deaths averted per 1000 vaccinations');
+        // Check negative lower bound and positive upper bound with + sign when interval crosses zero
+        expect(tooltip).toContain('<b>-100.50</b>');
+        expect(tooltip).toContain('<b>+200.75</b>');
+      });
+
+      it('displays summary data (log scale: scientific notation)', () => {
+        const appStore = useAppStore();
+        appStore.logScaleEnabled = true;
+        const tooltip = renderTooltip();
+
+        expect(tooltip).toContain('Mean: <b>1.46 × 10<sup>3</sup></b>');
+        expect(tooltip).toContain('95% confidence interval:');
+        expect(tooltip).toContain('<b>7.89 × 10<sup>2</sup></b>');
+        expect(tooltip).toContain('<b>2.35 × 10<sup>3</sup></b>');
+      });
+
+      it('displays summary data (burden metric: DALYs)', () => {
+        const appStore = useAppStore();
+        appStore.logScaleEnabled = true;
+        appStore.burdenMetric = BurdenMetric.DALYS;
+        const tooltip = renderTooltip();
+
+        expect(tooltip).toContain('Mean: <b>1.46 × 10<sup>3</sup></b> DALYs averted per 1000 vaccinations');
+      });
     });
-
-    it('handles negative confidence interval values with appropriate sign (linear scale)', () => {
-      const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
-
-      const appStore = useAppStore();
-      const colorStore = useColorStore();
-      const dataStore = useDataStore();
-
-      appStore.filters = {
-        [Dimension.LOCATION]: ['AFG'],
-        [Dimension.DISEASE]: ['Cholera'],
-      };
-      appStore.logScaleEnabled = false;
-      colorStore.setColors([afgPointMetadata]);
-      // Set up summary table data with negative lower bound (crossing zero)
-      dataStore.summaryTableData = [
-        {
-          [Dimension.LOCATION]: 'AFG',
-          [Dimension.DISEASE]: 'Cholera',
-          [SummaryTableColumn.MEAN]: 55.00,
-          [SummaryTableColumn.CI_LOWER]: -100.50,
-          [SummaryTableColumn.CI_UPPER]: 200.75,
-        } as SummaryTableDataRow,
-      ];
-
-      const { tooltipCallback } = usePlotTooltips();
-
-      const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
-
-      expect(tooltip).toContain('Mean: <b>55.00</b>');
-      // Check negative lower bound and positive upper bound with + sign when interval crosses zero
-      expect(tooltip).toContain('<b>-100.50</b>');
-      expect(tooltip).toContain('<b>+200.75</b>');
-    });
-  });
-
-  it('displays summary data (mean, and 95% confidence interval) in tooltip (log scale: scientific notation)', () => {
-    const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
-
-    const appStore = useAppStore();
-    const colorStore = useColorStore();
-    const dataStore = useDataStore();
-
-    appStore.filters = {
-      [Dimension.LOCATION]: ['AFG'],
-      [Dimension.DISEASE]: ['Cholera'],
-    };
-    appStore.logScaleEnabled = true;
-    colorStore.setColors([afgPointMetadata]);
-    dataStore.summaryTableData = [
-      {
-        [Dimension.LOCATION]: 'AFG',
-        [Dimension.DISEASE]: 'Cholera',
-        [SummaryTableColumn.MEAN]: 1456.78,
-        [SummaryTableColumn.CI_LOWER]: 789.12,
-        [SummaryTableColumn.CI_UPPER]: 2345.67,
-      } as SummaryTableDataRow,
-    ];
-
-    const { tooltipCallback } = usePlotTooltips();
-
-    const tooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
-
-    expect(tooltip).toContain('Mean: <b>1.46 × 10<sup>3</sup></b>');
-    expect(tooltip).toContain('95% confidence interval:');
-    expect(tooltip).toContain('<b>7.89 × 10<sup>2</sup></b>');
-    expect(tooltip).toContain('<b>2.35 × 10<sup>3</sup></b>');
   });
 });
