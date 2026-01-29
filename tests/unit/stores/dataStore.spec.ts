@@ -258,18 +258,6 @@ describe('data store', () => {
     )]);
   });
 
-  it("should check if file exists before downloading", async () => {
-    const dataStore = useDataStore();
-
-    const checkIfCsvFileExistsSpy = vi.spyOn(checkIfCsvFileExists, 'default')
-
-    expect(checkIfCsvFileExistsSpy).not.toHaveBeenCalled();
-
-    await dataStore.downloadSummaryTables();
-
-    expect(checkIfCsvFileExistsSpy).toHaveBeenCalled();
-  });
-
   it('getSummaryDataRow returns correct summary data row for given metadata', async () => {
     const appStore = useAppStore();
     const dataStore = useDataStore();

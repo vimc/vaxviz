@@ -5,7 +5,6 @@ import { useAppStore } from "@/stores/appStore";
 import { type HistDataRow, type LineMetadata, type SummaryTableDataRow, Axis, Dimension, LocResolution } from "@/types";
 import { globalOption } from "@/utils/options";
 import { downloadAsSingleOrZip } from "@/utils/download";
-import checkIfCsvFileExists from "./utils/checkIfCsvFileExists";
 
 export const jsonDataDir = `./data/json`
 const csvDataDir = `./data/csv`;
@@ -63,7 +62,6 @@ export const useDataStore = defineStore("data", () => {
     const filenames = summaryTableFilenames.value.map((f) => `${f}.csv`);
 
     try {
-      filenames.forEach(f => checkIfCsvFileExists(f));
       await downloadAsSingleOrZip(csvDataDir, filenames);
     } catch (error) {
       downloadErrors.value.push({

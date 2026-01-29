@@ -13,7 +13,11 @@ const downloadSingleFile = async (dataDir: string, filename: string) => {
   }
 };
 
-const downloadAsZip = async (dataDir: string, filenames: string[]) => {
+const downloadAsZip = async (
+  dataDir: string,
+  filenames: string[],
+  requireCsvCheck: boolean,
+) => {
   const zip = new JSZip();
 
   // Fetch all files and add to zip
@@ -22,6 +26,14 @@ const downloadAsZip = async (dataDir: string, filenames: string[]) => {
       const response = await fetch(`${dataDir}/${filename}`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      // Check for CSV content if required.
+      // If there is no csv file at the address, the server still returns a 200/OK with an HTML page.
+      if (requireCsvCheck) {
+        const contentType = response.headers.get("Content-Type") || "";
+        if (!contentType.includes("text/csv") && !contentType.includes("application/csv")) {
+          throw new Error(`File ${filename} is not a CSV file. Content-Type: ${contentType}`);
+        }
       }
       const content = await response.text();
       zip.file(filename, content);
@@ -44,10 +56,14 @@ const downloadAsZip = async (dataDir: string, filenames: string[]) => {
   }
 };
 
-export const downloadAsSingleOrZip = async (dataDir: string, filenames: string[]) => {
+export const downloadAsSingleOrZip = async (
+  dataDir: string,
+  filenames: string[],
+  requireCsvCheck: boolean = true,
+) => {
   if (filenames.length === 1 && filenames[0]) {
     await downloadSingleFile(dataDir, filenames[0]);
   } else if (filenames.length > 1) {
-    await downloadAsZip(dataDir, filenames);
+    await downloadAsZip(dataDir, filenames, requireCsvCheck);
   }
 };
