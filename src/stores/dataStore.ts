@@ -60,9 +60,20 @@ export const useDataStore = defineStore("data", () => {
   const downloadSummaryTables = async () => {
     downloadErrors.value = [];
     const filenames = summaryTableFilenames.value.map((f) => `${f}.csv`);
+    let zipFileName = "";
+    if (filenames.length > 1) {
+      zipFileName = [
+        "summary_tables",
+        appStore.burdenMetric,
+        "disease",
+        appStore.dimensions.column,
+        ...appStore.geographicalResolutions.toSorted(),
+        appStore.logScaleEnabled ? "log" : null,
+      ].filter(Boolean).join("_") + ".zip";
+    }
 
     try {
-      await downloadAsSingleOrZip(csvDataDir, filenames);
+      await downloadAsSingleOrZip(csvDataDir, filenames, zipFileName);
     } catch (error) {
       downloadErrors.value.push({
         e: error as Error,

@@ -32,9 +32,10 @@ const expectLastNFetchesToContain = (spy: Mock, args: string[]) => {
   );
 }
 
-const expectLastCallToDownloadsToContain = (spy: Mock, args: string[]) => {
+const expectLastCallToDownloadsToContain = (spy: Mock, zipFileName: string, filenames: string[]) => {
   const calls = spy.mock.calls;
-  expect(calls.at(-1)[1]).toEqual(expect.arrayContaining(args));
+  expect(calls.at(-1)[1]).toEqual(expect.arrayContaining(filenames));
+  expect(calls.at(-1)[2]).toEqual(zipFileName);
 }
 
 describe('data store', () => {
@@ -81,7 +82,7 @@ describe('data store', () => {
       ]);
     });
     await dataStore.downloadSummaryTables();
-    expectLastCallToDownloadsToContain(downloadSpy, ["summary_table_deaths_disease.csv"]);
+    expectLastCallToDownloadsToContain(downloadSpy, "", ["summary_table_deaths_disease.csv"]);
 
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
@@ -110,10 +111,13 @@ describe('data store', () => {
     ]);
     await dataStore.downloadSummaryTables();
     expectedFetches += 2; // zip downloads use 1 fetch per file
-    expectLastCallToDownloadsToContain(downloadSpy, [
-      "summary_table_dalys_disease_subregion_activity_type.csv",
-      "summary_table_dalys_disease_activity_type.csv"
-    ]);
+    expectLastCallToDownloadsToContain(downloadSpy,
+      "summary_tables_dalys_disease_activity_type_global_subregion.zip",
+      [
+        "summary_table_dalys_disease_subregion_activity_type.csv",
+        "summary_table_dalys_disease_activity_type.csv"
+      ],
+    );
 
     // Check that location columns include both global and subregional.
     expect(dataStore.summaryTableData.map(r => r.location)).toEqual(expect.arrayContaining(["Middle Africa", "global"]));
@@ -149,10 +153,13 @@ describe('data store', () => {
     ]);
     await dataStore.downloadSummaryTables();
     expectedFetches += 2;
-    expectLastCallToDownloadsToContain(downloadSpy, [
-      "summary_table_deaths_disease_subregion_activity_type.csv",
-      "summary_table_deaths_disease_activity_type.csv"
-    ]);
+    expectLastCallToDownloadsToContain(downloadSpy,
+      "summary_tables_deaths_disease_activity_type_global_subregion.zip",
+      [
+        "summary_table_deaths_disease_subregion_activity_type.csv",
+        "summary_table_deaths_disease_activity_type.csv"
+      ],
+    );
 
     // Change options: round 3
     appStore.exploreBy = "location";
@@ -186,11 +193,14 @@ describe('data store', () => {
     ]);
     await dataStore.downloadSummaryTables();
     expectedFetches += 3;
-    expectLastCallToDownloadsToContain(downloadSpy, [
-      "summary_table_dalys_disease_subregion.csv",
-      "summary_table_dalys_disease_country.csv",
-      "summary_table_dalys_disease.csv"
-    ]);
+    expectLastCallToDownloadsToContain(downloadSpy,
+      "summary_tables_dalys_disease_country_global_subregion_log.zip",
+      [
+        "summary_table_dalys_disease_subregion.csv",
+        "summary_table_dalys_disease_country.csv",
+        "summary_table_dalys_disease.csv"
+      ],
+    );
   }, 10000);
 
   it('should store errors on fetch, and clear them when filenames change', async () => {

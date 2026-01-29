@@ -42,7 +42,7 @@ describe('downloadAsSingleOrZip', () => {
   });
 
   it("should download single file directly when only one path", async () => {
-    await downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv"]);
+    await downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv"], "name.zip");
 
     expect(createdLinks).toHaveLength(1);
     expect(createdLinks[0].href).toBe("./data/csv/summary_table_deaths_disease.csv");
@@ -62,12 +62,12 @@ describe('downloadAsSingleOrZip', () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
 
-    await downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"]);
+    await downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip");
 
     await vi.waitFor(() => {
       expect(createdLinks).toHaveLength(1);
       expect(createdLinks[0].href).toBe("blob:test");
-      expect(createdLinks[0].download).toBe("summary_tables.zip");
+      expect(createdLinks[0].download).toBe("name.zip");
       expect(createdLinks[0].clicked).toBe(true);
     });
 
@@ -86,7 +86,7 @@ describe('downloadAsSingleOrZip', () => {
     } as Response);
 
     await expect(
-      downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"])
+      downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
     ).rejects.toThrow(
       'HTTP 404: Not Found'
     );
@@ -110,7 +110,7 @@ describe('downloadAsSingleOrZip', () => {
     } as Response);
 
     await expect(
-      downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"])
+      downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
     ).rejects.toThrow(
       'File summary_table_deaths_disease.csv is not a CSV file. Content-Type: text/html'
     );

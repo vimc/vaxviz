@@ -16,6 +16,7 @@ const downloadSingleFile = async (dataDir: string, filename: string) => {
 const downloadAsZip = async (
   dataDir: string,
   filenames: string[],
+  zipFileName: string,
   requireCsvCheck: boolean,
 ) => {
   const zip = new JSZip();
@@ -45,7 +46,7 @@ const downloadAsZip = async (
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "summary_tables.zip";
+  link.download = zipFileName;
   document.body.appendChild(link);
   // Use try-finally to ensure cleanup even if click() throws
   try {
@@ -59,11 +60,12 @@ const downloadAsZip = async (
 export const downloadAsSingleOrZip = async (
   dataDir: string,
   filenames: string[],
+  zipFileName: string,
   requireCsvCheck: boolean = true,
 ) => {
   if (filenames.length === 1 && filenames[0]) {
     await downloadSingleFile(dataDir, filenames[0]);
   } else if (filenames.length > 1) {
-    await downloadAsZip(dataDir, filenames, requireCsvCheck);
+    await downloadAsZip(dataDir, filenames, zipFileName, requireCsvCheck);
   }
 };
