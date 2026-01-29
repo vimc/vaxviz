@@ -2,6 +2,9 @@
   <AppHeader />
   <main class="flex">
     <PlotControls />
+      <div class="p-4">
+        <DownloadButton />
+      </div>
     <div class="flex flex-col w-full h-full max-w-full max-h-full gap-y-5">
       <RidgelinePlot />
       <ColorLegend />
@@ -14,6 +17,7 @@ import AppHeader from './components/AppHeader.vue';
 import PlotControls from './components/PlotControls.vue';
 import ColorLegend from './components/ColorLegend.vue';
 import RidgelinePlot from './components/RidgelinePlot.vue';
+import DownloadButton from './components/DownloadButton.vue';
 </script>
 
 <style lang="scss">
