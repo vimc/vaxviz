@@ -1,6 +1,6 @@
 <template>
-  <header class="border-b border-gray-300 flex items-center justify-between">
-    <div class="flex flex-col gap-2">
+  <header class="border-b border-gray-300 flex items-center justify-between gap-2">
+    <div class="flex flex-col">
       <a href="https://www.vaccineimpact.org/" target="_blank">
         <img src="/logo.png" id="logo" alt="VIMC logo" />
       </a>

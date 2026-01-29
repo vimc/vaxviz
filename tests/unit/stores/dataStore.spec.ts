@@ -1,8 +1,8 @@
 import { setActivePinia } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
-import { it, expect, describe, beforeEach, vi, Mock } from 'vitest';
-
+import { afterEach, it, expect, describe, beforeEach, vi, Mock } from 'vitest';
 import { server } from '../mocks/server';
+import { http, HttpResponse } from 'msw';
 import histCountsDeathsDiseaseLog from "@/../public/data/json/hist_counts_deaths_disease_log.json";
 import histCountsDalysDiseaseSubregionActivityType from "@/../public/data/json/hist_counts_dalys_disease_subregion_activity_type.json";
 import histCountsDalysDiseaseActivityType from "@/../public/data/json/hist_counts_dalys_disease_activity_type.json";
@@ -22,14 +22,20 @@ import summaryDalysDisease from "@/../public/data/json/summary_table_dalys_disea
 import { BurdenMetric } from '@/types';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
-import { http, HttpResponse } from 'msw';
+import * as downloadModule from '@/utils/download';
+import * as checkIfCsvFileExists from '@/stores/utils/checkIfCsvFileExists';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const expectLastNCallsToContain = (spy: Mock, args: any[]) => {
+const expectLastNFetchesToContain = (spy: Mock, args: string[]) => {
   const calls = spy.mock.calls;
   expect(calls.slice(calls.length - args.length)).toEqual(
     expect.arrayContaining(args.map(a => expect.arrayContaining([a]))),
   );
+}
+
+const expectLastCallToDownloadsToContain = (spy: Mock, zipFileName: string, filenames: string[]) => {
+  const calls = spy.mock.calls;
+  expect(calls.at(-1)[1]).toEqual(expect.arrayContaining(filenames));
+  expect(calls.at(-1)[2]).toEqual(zipFileName);
 }
 
 describe('data store', () => {
@@ -37,8 +43,13 @@ describe('data store', () => {
     setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
   });
 
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('should initialize with correct data, and request correct data as store selections change', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch')
+    const downloadSpy = vi.spyOn(downloadModule, 'downloadAsSingleOrZip')
     const appStore = useAppStore();
     const dataStore = useDataStore();
     expect(dataStore.histogramData).toEqual([]);
@@ -65,11 +76,13 @@ describe('data store', () => {
         median_value: expect.closeTo(0.1, 1),
       }));
       expect(fetchSpy).toBeCalledTimes(expectedFetches);
-      expectLastNCallsToContain(fetchSpy, [
+      expectLastNFetchesToContain(fetchSpy, [
         "./data/json/hist_counts_deaths_disease_log.json",
         "./data/json/summary_table_deaths_disease.json",
       ]);
     });
+    await dataStore.downloadSummaryTables();
+    expectLastCallToDownloadsToContain(downloadSpy, "", ["summary_table_deaths_disease.csv"]);
 
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
@@ -90,14 +103,23 @@ describe('data store', () => {
       );
     }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
-    expectLastNCallsToContain(fetchSpy, [
+    expectLastNFetchesToContain(fetchSpy, [
       "./data/json/hist_counts_dalys_disease_subregion_activity_type.json",
       "./data/json/hist_counts_dalys_disease_activity_type.json",
       "./data/json/summary_table_dalys_disease_subregion_activity_type.json",
       "./data/json/summary_table_dalys_disease_activity_type.json",
     ]);
+    await dataStore.downloadSummaryTables();
+    expectedFetches += 2; // zip downloads use 1 fetch per file
+    expectLastCallToDownloadsToContain(downloadSpy,
+      "summary_tables_dalys_disease_activity_type_global_subregion.zip",
+      [
+        "summary_table_dalys_disease_subregion_activity_type.csv",
+        "summary_table_dalys_disease_activity_type.csv"
+      ],
+    );
 
-    // Regression test: check that location columns include both global and subregional.
+    // Check that location columns include both global and subregional.
     expect(dataStore.summaryTableData.map(r => r.location)).toEqual(expect.arrayContaining(["Middle Africa", "global"]));
     expect(dataStore.histogramData.map(r => r.location)).toEqual(expect.arrayContaining(["Middle Africa", "global"]));
 
@@ -123,12 +145,21 @@ describe('data store', () => {
       );
     }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
-    expectLastNCallsToContain(fetchSpy, [
+    expectLastNFetchesToContain(fetchSpy, [
       "./data/json/hist_counts_deaths_disease_subregion_activity_type.json",
       "./data/json/hist_counts_deaths_disease_activity_type.json",
       "./data/json/summary_table_deaths_disease_subregion_activity_type.json",
       "./data/json/summary_table_deaths_disease_activity_type.json",
     ]);
+    await dataStore.downloadSummaryTables();
+    expectedFetches += 2;
+    expectLastCallToDownloadsToContain(downloadSpy,
+      "summary_tables_deaths_disease_activity_type_global_subregion.zip",
+      [
+        "summary_table_deaths_disease_subregion_activity_type.csv",
+        "summary_table_deaths_disease_activity_type.csv"
+      ],
+    );
 
     // Change options: round 3
     appStore.exploreBy = "location";
@@ -152,7 +183,7 @@ describe('data store', () => {
       );
     }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
-    expectLastNCallsToContain(fetchSpy, [
+    expectLastNFetchesToContain(fetchSpy, [
       "./data/json/hist_counts_dalys_disease_subregion_log.json",
       "./data/json/hist_counts_dalys_disease_country_log.json",
       "./data/json/hist_counts_dalys_disease_log.json",
@@ -160,30 +191,47 @@ describe('data store', () => {
       "./data/json/summary_table_dalys_disease_country.json",
       "./data/json/summary_table_dalys_disease.json",
     ]);
+    await dataStore.downloadSummaryTables();
+    expectedFetches += 3;
+    expectLastCallToDownloadsToContain(downloadSpy,
+      "summary_tables_dalys_disease_country_global_subregion_log.zip",
+      [
+        "summary_table_dalys_disease_subregion.csv",
+        "summary_table_dalys_disease_country.csv",
+        "summary_table_dalys_disease.csv"
+      ],
+    );
   }, 10000);
 
-  it('should handle fetch errors gracefully', async () => {
+  it('should store errors on fetch, and clear them when filenames change', async () => {
     server.use(
       http.get("./data/json/hist_counts_deaths_disease_log.json", async () => {
         return HttpResponse.error();
       }),
     );
+    const appStore = useAppStore();
     const dataStore = useDataStore();
 
-    expect(dataStore.fetchErrors).toEqual([]);
+    expect(dataStore.dataErrors).toHaveLength(0);
 
     const fetchSpy = vi.spyOn(global, 'fetch')
     await vi.waitFor(() => {
       expect(fetchSpy).toBeCalled();
-      expect(dataStore.fetchErrors).toEqual([expect.objectContaining(
+      expect(dataStore.dataErrors).toEqual([expect.objectContaining(
         { message: `Error loading data from path: ./data/json/hist_counts_deaths_disease_log.json. TypeError: Failed to fetch` }
       )]);
     });
 
-    expect(dataStore.histogramData).toEqual([]);
+    expect(dataStore.histogramData).toHaveLength(0);
+
+    appStore.logScaleEnabled = false;
+    await vi.waitFor(() => {
+      expect(dataStore.histogramData).not.toHaveLength(0);
+      expect(dataStore.dataErrors).toHaveLength(0);
+    });
   });
 
-  it('should handle non-OK HTTP statuses gracefully', async () => {
+  it('should store errors on fetch for non-OK HTTP statuses', async () => {
     server.use(
       http.get("./data/json/hist_counts_deaths_disease_log.json", async () => {
         return HttpResponse.json(null, { status: 404 });
@@ -191,17 +239,33 @@ describe('data store', () => {
     );
     const dataStore = useDataStore();
 
-    expect(dataStore.fetchErrors).toEqual([]);
+    expect(dataStore.dataErrors).toEqual([]);
 
     const fetchSpy = vi.spyOn(global, 'fetch')
     await vi.waitFor(() => {
       expect(fetchSpy).toBeCalled();
-      expect(dataStore.fetchErrors).toEqual([expect.objectContaining(
+      expect(dataStore.dataErrors).toEqual([expect.objectContaining(
         { message: `Error loading data from path: ./data/json/hist_counts_deaths_disease_log.json. Error: HTTP 404: Not Found` }
       )]);
     });
 
     expect(dataStore.histogramData).toEqual([]);
+  });
+
+  it('should store errors on download failure', async () => {
+    const dataStore = useDataStore();
+
+    const downloadSpy = vi.spyOn(downloadModule, 'downloadAsSingleOrZip')
+      .mockRejectedValueOnce(new Error("Simulated download failure"));
+
+    expect(dataStore.dataErrors).toEqual([]);
+
+    await dataStore.downloadSummaryTables();
+
+    expect(downloadSpy).toHaveBeenCalled();
+    expect(dataStore.dataErrors).toEqual([expect.objectContaining(
+      { message: expect.stringMatching(/Error downloading summary tables.*Simulated download failure/) }
+    )]);
   });
 
   it('getSummaryDataRow returns correct summary data row for given metadata', async () => {

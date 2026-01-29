@@ -1,4 +1,4 @@
-import { dataDir } from "@/stores/dataStore"
+import { jsonDataDir } from "@/stores/dataStore"
 import { http, HttpResponse } from "msw"
 
 const jsonDataFiles = [
@@ -41,7 +41,7 @@ const jsonDataFiles = [
 ]
 
 export const handlers = jsonDataFiles.map((filename) =>
-  http.get(`${dataDir}/${filename}.json`, async () => {
+  http.get(`${jsonDataDir}/${filename}.json`, async () => {
     const dataModule = await import(`../../../public/data/json/${filename}.json`);
     const data = dataModule.default;
     return HttpResponse.json(data);

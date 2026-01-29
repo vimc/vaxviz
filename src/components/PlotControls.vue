@@ -1,5 +1,5 @@
 <template>
-  <form class="m-5 flex gap-y-15 flex-wrap flex-col w-fit">
+  <div class="m-5 flex gap-y-15 flex-wrap flex-col w-fit">
     <div>
       <fieldset class="gap-5 mb-3" aria-required="true">
         <legend class="block mb-5 font-medium text-heading">Focus on:</legend>
@@ -65,15 +65,17 @@
         :wrapper-class="'w-fit'"
       />
     </div>
-  </form>
+    <DownloadButton />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
 import VueSelect, { type Option } from "vue3-select-component";
 import { computed } from 'vue';
-import { useAppStore } from '../stores/appStore';
+import { useAppStore } from '@/stores/appStore';
 import { Dimension } from '@/types';
+import DownloadButton from '@/components/DownloadButton.vue';
 import countryOptions from '@/data/options/countryOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
