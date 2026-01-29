@@ -36,7 +36,7 @@ const downloadAsZip = async (paths: string[]) => {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       const content = await response.text();
-      zip.file(path, content);
+      zip.file(`${path}.csv`, content);
     })
   );
 

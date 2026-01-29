@@ -24,12 +24,16 @@ import { useDataStore } from '@/stores/dataStore';
 import { http, HttpResponse } from 'msw';
 import * as downloadModule from '@/utils/download';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const expectLastNCallsToContain = (spy: Mock, args: any[]) => {
+const expectLastNFetchesToContain = (spy: Mock, args: string[]) => {
   const calls = spy.mock.calls;
   expect(calls.slice(calls.length - args.length)).toEqual(
     expect.arrayContaining(args.map(a => expect.arrayContaining([a]))),
   );
+}
+
+const expectLastCallToDownloadsToContain = (spy: Mock, args: string[]) => {
+  const calls = spy.mock.calls;
+  expect(calls.at(-1)[0]).toEqual(expect.arrayContaining(args));
 }
 
 describe('data store', () => {
@@ -43,6 +47,7 @@ describe('data store', () => {
 
   it('should initialize with correct data, and request correct data as store selections change', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch')
+    const downloadSpy = vi.spyOn(downloadModule, 'downloadAsSingleOrZip')
     const appStore = useAppStore();
     const dataStore = useDataStore();
     expect(dataStore.histogramData).toEqual([]);
@@ -69,11 +74,13 @@ describe('data store', () => {
         median_value: expect.closeTo(0.1, 1),
       }));
       expect(fetchSpy).toBeCalledTimes(expectedFetches);
-      expectLastNCallsToContain(fetchSpy, [
+      expectLastNFetchesToContain(fetchSpy, [
         "./data/json/hist_counts_deaths_disease_log.json",
         "./data/json/summary_table_deaths_disease.json",
       ]);
     });
+    await dataStore.downloadSummaryTables();
+    expectLastCallToDownloadsToContain(downloadSpy, ["summary_table_deaths_disease"]);
 
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
@@ -94,14 +101,20 @@ describe('data store', () => {
       );
     }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
-    expectLastNCallsToContain(fetchSpy, [
+    expectLastNFetchesToContain(fetchSpy, [
       "./data/json/hist_counts_dalys_disease_subregion_activity_type.json",
       "./data/json/hist_counts_dalys_disease_activity_type.json",
       "./data/json/summary_table_dalys_disease_subregion_activity_type.json",
       "./data/json/summary_table_dalys_disease_activity_type.json",
     ]);
+    await dataStore.downloadSummaryTables();
+    expectedFetches += 2; // zip downloads use 1 fetch per file
+    expectLastCallToDownloadsToContain(downloadSpy, [
+      "summary_table_dalys_disease_subregion_activity_type",
+      "summary_table_dalys_disease_activity_type"
+    ]);
 
-    // Regression test: check that location columns include both global and subregional.
+    // Check that location columns include both global and subregional.
     expect(dataStore.summaryTableData.map(r => r.location)).toEqual(expect.arrayContaining(["Middle Africa", "global"]));
     expect(dataStore.histogramData.map(r => r.location)).toEqual(expect.arrayContaining(["Middle Africa", "global"]));
 
@@ -127,11 +140,17 @@ describe('data store', () => {
       );
     }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
-    expectLastNCallsToContain(fetchSpy, [
+    expectLastNFetchesToContain(fetchSpy, [
       "./data/json/hist_counts_deaths_disease_subregion_activity_type.json",
       "./data/json/hist_counts_deaths_disease_activity_type.json",
       "./data/json/summary_table_deaths_disease_subregion_activity_type.json",
       "./data/json/summary_table_deaths_disease_activity_type.json",
+    ]);
+    await dataStore.downloadSummaryTables();
+    expectedFetches += 2;
+    expectLastCallToDownloadsToContain(downloadSpy, [
+      "summary_table_deaths_disease_subregion_activity_type",
+      "summary_table_deaths_disease_activity_type"
     ]);
 
     // Change options: round 3
@@ -156,13 +175,20 @@ describe('data store', () => {
       );
     }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
-    expectLastNCallsToContain(fetchSpy, [
+    expectLastNFetchesToContain(fetchSpy, [
       "./data/json/hist_counts_dalys_disease_subregion_log.json",
       "./data/json/hist_counts_dalys_disease_country_log.json",
       "./data/json/hist_counts_dalys_disease_log.json",
       "./data/json/summary_table_dalys_disease_subregion.json",
       "./data/json/summary_table_dalys_disease_country.json",
       "./data/json/summary_table_dalys_disease.json",
+    ]);
+    await dataStore.downloadSummaryTables();
+    expectedFetches += 3;
+    expectLastCallToDownloadsToContain(downloadSpy, [
+      "summary_table_dalys_disease_subregion",
+      "summary_table_dalys_disease_country",
+      "summary_table_dalys_disease"
     ]);
   }, 10000);
 
