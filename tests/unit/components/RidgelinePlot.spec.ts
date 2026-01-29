@@ -215,8 +215,8 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
+      expect(colorStore.colorMapping.size).toEqual(14);
     });
-    expect(colorStore.colorMapping.size).toEqual(14);
 
     // Set options that lead to no data
     // There is no data for MenA except if we split by activity type.
