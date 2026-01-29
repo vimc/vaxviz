@@ -208,6 +208,7 @@ describe('RidgelinePlot component', () => {
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
     const appStore = useAppStore();
+    const colorStore = useColorStore();
     const wrapper = mount(RidgelinePlot);
 
     // It shows a chart initially
@@ -215,6 +216,7 @@ describe('RidgelinePlot component', () => {
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
     });
+    expect(colorStore.colorMapping.size).toEqual(14);
 
     // Set options that lead to no data
     // There is no data for MenA except if we split by activity type.
@@ -229,6 +231,7 @@ describe('RidgelinePlot component', () => {
       expect(wrapper.text()).toContain("No data available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
     });
+    expect(colorStore.colorMapping.size).toEqual(0);
   });
 
   it('when there are fetch errors, shows an alert instead of the chart', async () => {

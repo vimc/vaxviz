@@ -108,6 +108,7 @@ const updateChart = debounce(() => {
   noDataToDisplay.value = selectedLines.value.length === 0;
 
   if (noDataToDisplay.value || !chartWrapper.value) {
+    colorStore.setColors([]); // Remove color legend when there is no data to display
     return;
   }
 
