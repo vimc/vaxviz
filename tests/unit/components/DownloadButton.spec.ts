@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { nextTick } from "vue";
 import { createPinia, setActivePinia } from 'pinia';
 import { useAppStore } from '@/stores/appStore';
 import DownloadButton from '@/components/DownloadButton.vue'

@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setActivePinia } from 'pinia';
+import { http, HttpResponse } from 'msw';
+import { server } from '../mocks/server';
 import { createTestingPinia } from '@pinia/testing'
 import { Chart } from '@reside-ic/skadi-chart';
 
@@ -230,7 +232,15 @@ describe('RidgelinePlot component', () => {
   });
 
   it('when there are fetch errors, shows an alert instead of the chart', async () => {
-    const dataStore = useDataStore();
+    const appStore = useAppStore();
+
+    // Mock the non-log data fetch to fail
+    server.use(
+      http.get("./data/json/hist_counts_deaths_disease.json", async () => {
+        return HttpResponse.json(null, { status: 404 });
+      }),
+    );
+
     const wrapper = mount(RidgelinePlot);
 
     // It shows a chart initially
@@ -239,9 +249,7 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
     });
 
-    dataStore.fetchErrors = [
-      { message: 'Error loading data from path: hist_counts_deaths_disease_log.json. TypeError: Failed to fetch' },
-    ];
+    appStore.logScaleEnabled = false;
 
     await vi.waitFor(() => {
       expect(wrapper.text()).not.toContain("No data available for the selected options.");

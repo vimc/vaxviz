@@ -1,7 +1,7 @@
 <template>
   <div class="chart-container min-h-0 flex-1 flex">
     <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
-    <FetchErrorAlert v-else-if="dataStore.fetchErrors.length" />
+    <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
     <p v-else-if="noDataToDisplay" class="m-auto">
       <!-- E.g. Focus disease MenA, without splitting by activity type. -->
       No data available for the selected options.
@@ -34,7 +34,7 @@ import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
 import usePlotTooltips from '@/composables/usePlotTooltips';
-import FetchErrorAlert from '@/components/FetchErrorAlert.vue';
+import DataErrorAlert from '@/components/DataErrorAlert.vue';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();

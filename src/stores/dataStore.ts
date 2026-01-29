@@ -4,18 +4,22 @@ import { defineStore } from "pinia";
 import { useAppStore } from "@/stores/appStore";
 import { type HistDataRow, type LineMetadata, type SummaryTableDataRow, Axis, Dimension, LocResolution } from "@/types";
 import { globalOption } from "@/utils/options";
+import { downloadAsSingleOrZip } from "@/utils/download";
 
 export const dataDir = `./data/json`
 
 export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
 
-  const fetchErrors = ref<{ e: Error, message: string }[]>([]);
   const histogramData = shallowRef<HistDataRow[]>([]);
   const histogramCache: Record<string, HistDataRow[]> = {};
   const summaryTableData = shallowRef<SummaryTableDataRow[]>([]);
   const summaryTableCache: Record<string, SummaryTableDataRow[]> = {};
   const isLoading = ref(true);
+  const fetchErrors = ref<{ e: Error, message: string }[]>([]);
+  const downloadErrors = ref<{ e: Error, message: string }[]>([]);
+
+  const dataErrors = computed(() => [...fetchErrors.value, ...downloadErrors.value]);
 
   // Find the summary table row whose values for the plot row and band
   // dimensions (and column, if set) match the values of the (ridgeline or point) metadata
@@ -52,6 +56,18 @@ export const useDataStore = defineStore("data", () => {
   const histFilenames = computed(() => constructFilenames("hist_counts"));
   const summaryTableFilenames = computed(() => constructFilenames("summary_table"));
 
+  const downloadSummaryTables = async () => {
+    downloadErrors.value = [];
+    try {
+      await downloadAsSingleOrZip(summaryTableFilenames.value);
+    } catch (error) {
+      downloadErrors.value.push({
+        e: error as Error,
+        message: `Error downloading summary tables: ${summaryTableFilenames.value.join(", ")}. ${error}`,
+      });
+    }
+  };
+
   const loadData = async <T extends HistDataRow | SummaryTableDataRow>(
     filenames: string[],
     cache: Record<string, T[]>,
@@ -70,7 +86,10 @@ export const useDataStore = defineStore("data", () => {
           cache[filename] = rows;
           return rows;
         } catch (error) {
-          fetchErrors.value.push({ e: error as Error, message: `Error loading data from path: ${path}. ${error}` });
+          fetchErrors.value.push({
+            e: error as Error,
+            message: `Error loading data from path: ${path}. ${error}`,
+          });
         }
       }
     }));
@@ -118,5 +137,18 @@ export const useDataStore = defineStore("data", () => {
     }
   }, { immediate: true });
 
-  return { fetchErrors, isLoading, getSummaryDataRow, histogramData, summaryTableData, summaryTableFilenames };
+  watch(summaryTableFilenames, () => {
+    // Clear any previous download errors when filenames change
+    downloadErrors.value = [];
+  })
+
+  return {
+    dataErrors,
+    downloadSummaryTables,
+    isLoading,
+    getSummaryDataRow,
+    histogramData,
+    summaryTableData,
+    summaryTableFilenames,
+  };
 });
