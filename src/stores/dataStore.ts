@@ -5,8 +5,10 @@ import { useAppStore } from "@/stores/appStore";
 import { type HistDataRow, type LineMetadata, type SummaryTableDataRow, Axis, Dimension, LocResolution } from "@/types";
 import { globalOption } from "@/utils/options";
 import { downloadAsSingleOrZip } from "@/utils/download";
+import checkIfCsvFileExists from "./utils/checkIfCsvFileExists";
 
-export const dataDir = `./data/json`
+export const jsonDataDir = `./data/json`
+const csvDataDir = `./data/csv`;
 
 export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
@@ -58,12 +60,15 @@ export const useDataStore = defineStore("data", () => {
 
   const downloadSummaryTables = async () => {
     downloadErrors.value = [];
+    const filenames = summaryTableFilenames.value.map((f) => `${f}.csv`);
+
     try {
-      await downloadAsSingleOrZip(summaryTableFilenames.value);
+      filenames.forEach(f => checkIfCsvFileExists(f));
+      await downloadAsSingleOrZip(csvDataDir, filenames);
     } catch (error) {
       downloadErrors.value.push({
         e: error as Error,
-        message: `Error downloading summary tables: ${summaryTableFilenames.value.join(", ")}. ${error}`,
+        message: `Error downloading summary tables: ${filenames.join(", ")}. ${error}`,
       });
     }
   };
@@ -76,7 +81,7 @@ export const useDataStore = defineStore("data", () => {
     // When we are using multiple geographical resolutions, we load multiple data files, to be merged together later.
     await Promise.all(filenames.map(async (filename) => {
       if (!cache[filename]) {
-        const path = `${dataDir}/${filename}.json`;
+        const path = `${jsonDataDir}/${filename}.json`;
         try {
           const response = await fetch(path);
           if (!response.ok) {

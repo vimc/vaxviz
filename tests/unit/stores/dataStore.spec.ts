@@ -2,6 +2,7 @@ import { setActivePinia } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { afterEach, it, expect, describe, beforeEach, vi, Mock } from 'vitest';
 import { server } from '../mocks/server';
+import { http, HttpResponse } from 'msw';
 import histCountsDeathsDiseaseLog from "@/../public/data/json/hist_counts_deaths_disease_log.json";
 import histCountsDalysDiseaseSubregionActivityType from "@/../public/data/json/hist_counts_dalys_disease_subregion_activity_type.json";
 import histCountsDalysDiseaseActivityType from "@/../public/data/json/hist_counts_dalys_disease_activity_type.json";
@@ -21,8 +22,8 @@ import summaryDalysDisease from "@/../public/data/json/summary_table_dalys_disea
 import { BurdenMetric } from '@/types';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
-import { http, HttpResponse } from 'msw';
 import * as downloadModule from '@/utils/download';
+import * as checkIfCsvFileExists from '@/stores/utils/checkIfCsvFileExists';
 
 const expectLastNFetchesToContain = (spy: Mock, args: string[]) => {
   const calls = spy.mock.calls;
@@ -33,7 +34,7 @@ const expectLastNFetchesToContain = (spy: Mock, args: string[]) => {
 
 const expectLastCallToDownloadsToContain = (spy: Mock, args: string[]) => {
   const calls = spy.mock.calls;
-  expect(calls.at(-1)[0]).toEqual(expect.arrayContaining(args));
+  expect(calls.at(-1)[1]).toEqual(expect.arrayContaining(args));
 }
 
 describe('data store', () => {
@@ -80,7 +81,7 @@ describe('data store', () => {
       ]);
     });
     await dataStore.downloadSummaryTables();
-    expectLastCallToDownloadsToContain(downloadSpy, ["summary_table_deaths_disease"]);
+    expectLastCallToDownloadsToContain(downloadSpy, ["summary_table_deaths_disease.csv"]);
 
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
@@ -110,8 +111,8 @@ describe('data store', () => {
     await dataStore.downloadSummaryTables();
     expectedFetches += 2; // zip downloads use 1 fetch per file
     expectLastCallToDownloadsToContain(downloadSpy, [
-      "summary_table_dalys_disease_subregion_activity_type",
-      "summary_table_dalys_disease_activity_type"
+      "summary_table_dalys_disease_subregion_activity_type.csv",
+      "summary_table_dalys_disease_activity_type.csv"
     ]);
 
     // Check that location columns include both global and subregional.
@@ -149,8 +150,8 @@ describe('data store', () => {
     await dataStore.downloadSummaryTables();
     expectedFetches += 2;
     expectLastCallToDownloadsToContain(downloadSpy, [
-      "summary_table_deaths_disease_subregion_activity_type",
-      "summary_table_deaths_disease_activity_type"
+      "summary_table_deaths_disease_subregion_activity_type.csv",
+      "summary_table_deaths_disease_activity_type.csv"
     ]);
 
     // Change options: round 3
@@ -186,9 +187,9 @@ describe('data store', () => {
     await dataStore.downloadSummaryTables();
     expectedFetches += 3;
     expectLastCallToDownloadsToContain(downloadSpy, [
-      "summary_table_dalys_disease_subregion",
-      "summary_table_dalys_disease_country",
-      "summary_table_dalys_disease"
+      "summary_table_dalys_disease_subregion.csv",
+      "summary_table_dalys_disease_country.csv",
+      "summary_table_dalys_disease.csv"
     ]);
   }, 10000);
 
@@ -245,7 +246,7 @@ describe('data store', () => {
     const dataStore = useDataStore();
 
     const downloadSpy = vi.spyOn(downloadModule, 'downloadAsSingleOrZip')
-      .mockRejectedValue(new Error("Simulated download failure"));
+      .mockRejectedValueOnce(new Error("Simulated download failure"));
 
     expect(dataStore.dataErrors).toEqual([]);
 
@@ -255,6 +256,18 @@ describe('data store', () => {
     expect(dataStore.dataErrors).toEqual([expect.objectContaining(
       { message: expect.stringMatching(/Error downloading summary tables.*Simulated download failure/) }
     )]);
+  });
+
+  it("should check if file exists before downloading", async () => {
+    const dataStore = useDataStore();
+
+    const checkIfCsvFileExistsSpy = vi.spyOn(checkIfCsvFileExists, 'default')
+
+    expect(checkIfCsvFileExistsSpy).not.toHaveBeenCalled();
+
+    await dataStore.downloadSummaryTables();
+
+    expect(checkIfCsvFileExistsSpy).toHaveBeenCalled();
   });
 
   it('getSummaryDataRow returns correct summary data row for given metadata', async () => {

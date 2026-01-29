@@ -1,20 +1,9 @@
 import JSZip from "jszip";
 
-const csvDataDir = `./data/csv`;
-
-const checkIfFileExists = (path: string) => {
-  const modules = import.meta.glob('/public/data/csv/*.csv');
-  const filePath = `/public/data/csv/${path}.csv`;
-  if (!Object.keys(modules).includes(filePath)) {
-    throw new Error(`The requested file "${path}.csv" does not exist on the server.`);
-  }
-};
-
-const downloadSingleFile = async (path: string) => {
-  checkIfFileExists(path);
+const downloadSingleFile = async (dataDir: string, filename: string) => {
   const link = document.createElement("a");
-  link.href = `${csvDataDir}/${path}.csv`;
-  link.download = `${path}.csv`;
+  link.href = `${dataDir}/${filename}`;
+  link.download = filename;
   document.body.appendChild(link);
   // Use try-finally to ensure cleanup even if click() throws
   try {
@@ -24,19 +13,18 @@ const downloadSingleFile = async (path: string) => {
   }
 };
 
-const downloadAsZip = async (paths: string[]) => {
+const downloadAsZip = async (dataDir: string, filenames: string[]) => {
   const zip = new JSZip();
 
   // Fetch all files and add to zip
   await Promise.all(
-    paths.map(async (path) => {
-      checkIfFileExists(path);
-      const response = await fetch(`${csvDataDir}/${path}.csv`);
+    filenames.map(async (filename) => {
+      const response = await fetch(`${dataDir}/${filename}`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       const content = await response.text();
-      zip.file(`${path}.csv`, content);
+      zip.file(filename, content);
     })
   );
 
@@ -56,10 +44,10 @@ const downloadAsZip = async (paths: string[]) => {
   }
 };
 
-export const downloadAsSingleOrZip = async (paths: string[]) => {
-  if (paths.length === 1 && paths[0]) {
-    await downloadSingleFile(paths[0]);
-  } else if (paths.length > 1) {
-    await downloadAsZip(paths);
+export const downloadAsSingleOrZip = async (dataDir: string, filenames: string[]) => {
+  if (filenames.length === 1 && filenames[0]) {
+    await downloadSingleFile(dataDir, filenames[0]);
+  } else if (filenames.length > 1) {
+    await downloadAsZip(dataDir, filenames);
   }
 };

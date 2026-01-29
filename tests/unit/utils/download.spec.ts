@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
-import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia';
 
 import JSZip from "jszip";
@@ -43,20 +42,12 @@ describe('downloadAsSingleOrZip', () => {
   });
 
   it("should download single file directly when only one path", async () => {
-    await downloadAsSingleOrZip(["summary_table_deaths_disease"]);
+    await downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv"]);
 
     expect(createdLinks).toHaveLength(1);
     expect(createdLinks[0].href).toBe("./data/csv/summary_table_deaths_disease.csv");
     expect(createdLinks[0].download).toBe("summary_table_deaths_disease.csv");
     expect(createdLinks[0].clicked).toBe(true);
-  });
-
-  it("should throw if file does not exist when only one path", async () => {
-    await expect(downloadAsSingleOrZip(["non_existent_file"])).rejects.toThrow(
-      'The requested file "non_existent_file.csv" does not exist on the server.'
-    );
-
-    expect(createdLinks).toHaveLength(0);
   });
 
   it("should download as zip when multiple paths", async () => {
@@ -68,7 +59,7 @@ describe('downloadAsSingleOrZip', () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
 
-    await downloadAsSingleOrZip(["summary_table_deaths_disease", "summary_table_deaths_disease_subregion"]);
+    await downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"]);
 
     await vi.waitFor(() => {
       expect(createdLinks).toHaveLength(1);
@@ -81,14 +72,6 @@ describe('downloadAsSingleOrZip', () => {
     expect(zipFileSpy).toHaveBeenCalledWith("summary_table_deaths_disease_subregion.csv", "csv,content");
   });
 
-  it("should throw if file does not exist when multiple paths", async () => {
-    await expect(downloadAsSingleOrZip(["summary_table_deaths_disease", "non_existent_file"])).rejects.toThrow(
-      'The requested file "non_existent_file.csv" does not exist on the server.'
-    );
-
-    expect(createdLinks).toHaveLength(0);
-  });
-
   it("should throw if fetch fails when multiple paths", async () => {
     vi.spyOn(global, "fetch").mockResolvedValue({
       ok: false,
@@ -96,7 +79,9 @@ describe('downloadAsSingleOrZip', () => {
       statusText: "Not Found",
     } as Response);
 
-    await expect(downloadAsSingleOrZip(["summary_table_deaths_disease", "summary_table_deaths_disease_subregion"])).rejects.toThrow(
+    await expect(
+      downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"])
+    ).rejects.toThrow(
       'HTTP 404: Not Found'
     );
 
