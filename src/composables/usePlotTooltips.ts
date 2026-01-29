@@ -1,7 +1,7 @@
 import { useAppStore } from "@/stores/appStore";
 import { useColorStore } from "@/stores/colorStore";
 import { useDataStore } from "@/stores/dataStore";
-import { Axis, SummaryTableColumn, type PointWithMetadata } from "@/types";
+import { Axis, BurdenMetric, SummaryTableColumn, type PointWithMetadata } from "@/types";
 import { dimensionOptionLabel } from "@/utils/options";
 import sentenceCase from "@/utils/sentenceCase";
 
@@ -72,7 +72,7 @@ export default () => {
         ${sentenceCase(dimensions.column)}: <b>${columnOptionLabel}</b>
       </span>` : ''}
       <p class="mt-1">
-        Mean: <b>${meanStr}</b><br/>
+        Mean: <b>${meanStr}</b> ${appStore.burdenMetric === BurdenMetric.DALYS ? "DALYs" : "deaths"} averted per 1000 vaccinations
       </p>
       <p>
         95% confidence interval: <b>${ciLowerStr}</b> — <b>${ciUpperStr}</b>
