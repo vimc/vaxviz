@@ -29,6 +29,7 @@
 /* For vue3-select-component */
 :root {
   --vs-menu-height: 50dvh;
+  --vs-font-size: 14px;
 }
 
 .skadi-charts-tooltip {
