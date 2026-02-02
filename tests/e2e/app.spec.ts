@@ -220,6 +220,6 @@ test.describe("Downloads", () => {
     const button = page.getByRole("button", { name: "Download summary" });
 
     const download = await doDownload(page, button);
-    expect(download.suggestedFilename()).toBe("summary_tables_deaths_disease_country_global_subregion.zip");
+    expect(download.suggestedFilename()).toBe("summary_tables_deaths_disease_country_subregion_global.zip");
   });
 });

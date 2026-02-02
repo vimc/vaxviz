@@ -4,11 +4,11 @@ import { defineStore } from "pinia";
 import { useAppStore } from "@/stores/appStore";
 import { type HistDataRow, type LineMetadata, type SummaryTableDataRow, Axis, Dimension, LocResolution } from "@/types";
 import { globalOption } from "@/utils/options";
-import { downloadAsSingleOrZip } from "@/utils/download";
+import { downloadCsvAsSingleOrZip } from "@/utils/csvDownload";
 import useZipFilename from "@/composables/useZipFilename";
 
 export const jsonDataDir = `./data/json`
-const csvDataDir = `./data/csv`;
+export const csvDataDir = `./data/csv`;
 
 export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
@@ -65,7 +65,7 @@ export const useDataStore = defineStore("data", () => {
     const zipFileName = constructDownloadZipFilename(filenames);
 
     try {
-      await downloadAsSingleOrZip(csvDataDir, filenames, zipFileName, true);
+      await downloadCsvAsSingleOrZip(csvDataDir, filenames, zipFileName);
     } catch (error) {
       downloadErrors.value.push({
         e: error as Error,

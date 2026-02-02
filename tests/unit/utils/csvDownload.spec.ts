@@ -2,9 +2,9 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia';
 
 import JSZip from "jszip";
-import { downloadAsSingleOrZip } from '@/utils/download';
+import { downloadCsvAsSingleOrZip } from '@/utils/csvDownload';
 
-describe('downloadAsSingleOrZip', () => {
+describe('downloadCsvAsSingleOrZip', () => {
   let originalCreateElement: typeof document.createElement;
   let createdLinks: { href: string; download: string; clicked: boolean }[];
 
@@ -42,12 +42,52 @@ describe('downloadAsSingleOrZip', () => {
   });
 
   it("should download single file directly when only one path", async () => {
-    await downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv"], "name.zip");
+    await downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv"], "name.zip");
 
     expect(createdLinks).toHaveLength(1);
     expect(createdLinks[0].href).toBe("./data/csv/summary_table_deaths_disease.csv");
     expect(createdLinks[0].download).toBe("summary_table_deaths_disease.csv");
     expect(createdLinks[0].clicked).toBe(true);
+  });
+
+  it("should throw if fetch fails when only one path", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: false,
+      status: 404,
+      statusText: "Not Found",
+    } as Response);
+
+    await expect(
+      downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv"], "name.zip")
+    ).rejects.toThrow(
+      'HTTP 404: Not Found'
+    );
+
+    expect(createdLinks).toHaveLength(0);
+  });
+
+  it("should throw if no csv found when only one path", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: "OK",
+      headers: {
+        get: (header: string) => {
+          if (header.toLowerCase() === "content-type") {
+            return "text/html";
+          }
+          return null;
+        }
+      },
+    } as Response);
+
+    await expect(
+      downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv"], "name.zip")
+    ).rejects.toThrow(
+      'File ./data/csv/summary_table_deaths_disease.csv is not a CSV file. Content-Type: text/html'
+    );
+
+    expect(createdLinks).toHaveLength(0);
   });
 
   it("should download as zip when multiple paths", async () => {
@@ -62,7 +102,7 @@ describe('downloadAsSingleOrZip', () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
 
-    await downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip");
+    await downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip");
 
     await vi.waitFor(() => {
       expect(createdLinks).toHaveLength(1);
@@ -80,13 +120,10 @@ describe('downloadAsSingleOrZip', () => {
       ok: false,
       status: 404,
       statusText: "Not Found",
-      headers: {
-        get: () => "text/csv",
-      },
     } as Response);
 
     await expect(
-      downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
+      downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
     ).rejects.toThrow(
       'HTTP 404: Not Found'
     );
@@ -110,9 +147,9 @@ describe('downloadAsSingleOrZip', () => {
     } as Response);
 
     await expect(
-      downloadAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
+      downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
     ).rejects.toThrow(
-      'File summary_table_deaths_disease.csv is not a CSV file. Content-Type: text/html'
+      'File ./data/csv/summary_table_deaths_disease.csv is not a CSV file. Content-Type: text/html'
     );
 
     expect(createdLinks).toHaveLength(0);

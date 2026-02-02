@@ -1,4 +1,4 @@
-import { jsonDataDir } from "@/stores/dataStore"
+import { csvDataDir, jsonDataDir } from "@/stores/dataStore"
 import { http, HttpResponse } from "msw"
 
 const jsonDataFiles = [
@@ -38,7 +38,22 @@ const jsonDataFiles = [
   "summary_table_deaths_disease_subregion_activity_type",
   "summary_table_deaths_disease_subregion",
   "summary_table_deaths_disease",
-]
+];
+
+const downloadableCsvFiles = [
+  "summary_table_dalys_disease_activity_type_country",
+  "summary_table_dalys_disease_activity_type",
+  "summary_table_dalys_disease_country",
+  "summary_table_dalys_disease_subregion_activity_type",
+  "summary_table_dalys_disease_subregion",
+  "summary_table_dalys_disease",
+  "summary_table_deaths_disease_activity_type_country",
+  "summary_table_deaths_disease_activity_type",
+  "summary_table_deaths_disease_country",
+  "summary_table_deaths_disease_subregion_activity_type",
+  "summary_table_deaths_disease_subregion",
+  "summary_table_deaths_disease",
+];
 
 export const handlers = jsonDataFiles.map((filename) =>
   http.get(`${jsonDataDir}/${filename}.json`, async () => {
@@ -46,4 +61,12 @@ export const handlers = jsonDataFiles.map((filename) =>
     const data = dataModule.default;
     return HttpResponse.json(data);
   })
-);
+).concat(downloadableCsvFiles.map((filename) =>
+  http.head(`${csvDataDir}/${filename}.csv`, async () => {
+    return HttpResponse.text("", {
+      headers: {
+        "Content-Type": "text/csv",
+      },
+    });
+  })
+));

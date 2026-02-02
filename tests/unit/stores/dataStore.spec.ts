@@ -1,4 +1,4 @@
-import { setActivePinia } from 'pinia';
+import { setActivePinia, Store } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { afterEach, it, expect, describe, beforeEach, vi, Mock } from 'vitest';
 import { server } from '../mocks/server';
@@ -22,7 +22,7 @@ import summaryDalysDisease from "@/../public/data/json/summary_table_dalys_disea
 import { BurdenMetric } from '@/types';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
-import * as downloadModule from '@/utils/download';
+import * as downloadModule from '@/utils/csvDownload';
 
 const expectLastNFetchesToContain = (spy: Mock, args: string[]) => {
   const calls = spy.mock.calls;
@@ -48,14 +48,27 @@ describe('data store', () => {
 
   it('should initialize with correct data, and request correct data as store selections change', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch')
-    const downloadSpy = vi.spyOn(downloadModule, 'downloadAsSingleOrZip')
+    const downloadSpy = vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip')
     const appStore = useAppStore();
     const dataStore = useDataStore();
+    let expectedFetches = 0;
+
+    const doAndExpectDownload = async (isZip: boolean, expectedZipFilename: string, expectedDownloadFilenames: string[]) => {
+      await dataStore.downloadSummaryTables();
+      if (isZip) {
+        expectedFetches += expectedDownloadFilenames.length * 2;
+      } else {
+        expectedFetches += expectedDownloadFilenames.length;
+      }
+      expectLastCallToDownloadsToContain(downloadSpy, expectedZipFilename, expectedDownloadFilenames);
+      expect(fetchSpy).toBeCalledTimes(expectedFetches);
+    }
+
     expect(dataStore.histogramData).toEqual([]);
     expect(dataStore.summaryTableData).toEqual([]);
 
     // Initial data
-    let expectedFetches = 2;
+    expectedFetches += 2;
     await vi.waitFor(() => {
       expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(histCountsDeathsDiseaseLog.length);
@@ -80,8 +93,7 @@ describe('data store', () => {
         "./data/json/summary_table_deaths_disease.json",
       ]);
     });
-    await dataStore.downloadSummaryTables();
-    expectLastCallToDownloadsToContain(downloadSpy, "", ["summary_table_deaths_disease.csv"]);
+    await doAndExpectDownload(false, "", ["summary_table_deaths_disease.csv"]);
 
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
@@ -108,9 +120,8 @@ describe('data store', () => {
       "./data/json/summary_table_dalys_disease_subregion_activity_type.json",
       "./data/json/summary_table_dalys_disease_activity_type.json",
     ]);
-    await dataStore.downloadSummaryTables();
-    expectedFetches += 2; // zip downloads use 1 fetch per file
-    expectLastCallToDownloadsToContain(downloadSpy,
+    await doAndExpectDownload(
+      true,
       "summary_tables_dalys_disease_activity_type_subregion_global.zip",
       [
         "summary_table_dalys_disease_subregion_activity_type.csv",
@@ -150,9 +161,8 @@ describe('data store', () => {
       "./data/json/summary_table_deaths_disease_subregion_activity_type.json",
       "./data/json/summary_table_deaths_disease_activity_type.json",
     ]);
-    await dataStore.downloadSummaryTables();
-    expectedFetches += 2;
-    expectLastCallToDownloadsToContain(downloadSpy,
+    await doAndExpectDownload(
+      true,
       "summary_tables_deaths_disease_activity_type_subregion_global.zip",
       [
         "summary_table_deaths_disease_subregion_activity_type.csv",
@@ -190,9 +200,8 @@ describe('data store', () => {
       "./data/json/summary_table_dalys_disease_country.json",
       "./data/json/summary_table_dalys_disease.json",
     ]);
-    await dataStore.downloadSummaryTables();
-    expectedFetches += 3;
-    expectLastCallToDownloadsToContain(downloadSpy,
+    await doAndExpectDownload(
+      true,
       "summary_tables_dalys_disease_country_subregion_global.zip",
       [
         "summary_table_dalys_disease_subregion.csv",
@@ -254,7 +263,7 @@ describe('data store', () => {
   it('should store errors on download failure', async () => {
     const dataStore = useDataStore();
 
-    const downloadSpy = vi.spyOn(downloadModule, 'downloadAsSingleOrZip')
+    const downloadSpy = vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip')
       .mockRejectedValueOnce(new Error("Simulated download failure"));
 
     expect(dataStore.dataErrors).toEqual([]);
