@@ -16,15 +16,16 @@ describe('PlotControls component', () => {
   it('renders correctly', async () => {
     const wrapper = mount(PlotControls)
     const labels = wrapper.findAll('label').map(label => label.text());
-    expect(labels).toContain(
-      "Disease",
+    ["Disease",
       "Geography",
       "Focus Geography",
       "DALYs averted",
       "Deaths averted",
       "Split by activity type",
-      "Log scale",
-    );
+      "Log scale"
+    ].forEach(expectedLabelText => {
+      expect(labels).toContain(expectedLabelText);
+    });
 
     const exploreByRadios = wrapper.findAll('input[name="exploreBy"]');
     expect((exploreByRadios.find(e => e.element.value === "disease")?.element.checked)).toBe(false);
