@@ -22,19 +22,26 @@ export const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetad
     return firstPoint.x;
   }));
 
-  // x values may be slightly negative for some cases eg Typhoid
+  let xStart = logScaleEnabled ? minX : Math.min(minX, 0);
+  if (!logScaleEnabled && xStart < 0) {
+    const padding = (maxX - minX) * 0.01;
+    xStart = minX - padding;
+  }
+
+  // x values may be slightly negative for some cases eg Typhoid, JE
   return {
-    x: { start: logScaleEnabled ? minX : Math.min(minX, 0), end: maxX },
+    x: { start: xStart, end: maxX },
     y: { start: 0, end: maxY },
   };
 };
 
 const categoricalScales = (lines: Lines<LineMetadata>): Partial<XY<string[]>> => {
+  // Assume that the lines passed in have already been sorted for the y-axis.
   const xCategoricalScale = [...new Set(lines.map(l => l.bands?.x).filter(c => !!c))] as string[];
   const yCategoricalScale = [...new Set(lines.map(l => l.bands?.y).filter(c => !!c))] as string[];
 
   return {
-    x: xCategoricalScale.length ? xCategoricalScale : undefined,
+    x: xCategoricalScale.length ? xCategoricalScale.sort() : undefined,
     y: yCategoricalScale.length ? yCategoricalScale : undefined,
   };
 };
@@ -51,13 +58,6 @@ const locationSubstitutions = [
   ["Northern", "N."],
   ["Central", "C."],
 ] as const;
-
-const applySubstitutions = (str: string, substitutions: readonly (readonly [string, string])[]): string => {
-  return substitutions.reduce(
-    (acc, [original, replacement]) => acc.replaceAll(original, replacement),
-    str
-  );
-};
 
 // Returns a callback for formatting numerical tick labels for log scales, using LaTeX for MathJax.
 const logScaleNumTickFormatter = () => (exponentForTen: number): string => {
@@ -79,7 +79,10 @@ const yAxisNeedsExtraSpace = (rowDimension: Dimension): boolean => rowDimension 
 // If the row dimension is 'Location', we apply substitutions and truncate labels that exceed the max length.
 const locationTickFormatter = () =>
   (location: string): string => {
-    const substitutionsApplied = applySubstitutions(location, locationSubstitutions);
+    const substitutionsApplied = locationSubstitutions.reduce(
+      (acc, [original, replacement]) => acc.replaceAll(original, replacement),
+      location
+    );
 
     return substitutionsApplied.length > Y_TICK_LABEL_MAX_LENGTH
       ? substitutionsApplied.slice(0, Y_TICK_LABEL_MAX_LENGTH - ELLIPSIS.length) + ELLIPSIS
@@ -110,7 +113,7 @@ const axisConfiguration = (
   rowDimension: Dimension,
 ): AxisConfig => [
     {
-      x: "Impact ratio",
+      x: "Impact ratio (per thousand vaccinated)",
       y: sentenceCase(rowDimension),
     },
     {
@@ -118,6 +121,8 @@ const axisConfiguration = (
       y: 0 // Position y-axis label as far left as possible
     }
   ];
+
+export const margins = (rowDimension: Dimension) => ({ left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 110 });
 
 export const plotConfiguration = (
   rowDimension: Dimension,
@@ -127,15 +132,15 @@ export const plotConfiguration = (
   constructorOptions: PartialChartOptions
   axisConfig: AxisConfig
   chartAppendConfig: [Partial<Scales>, Partial<Scales>, Partial<XY<string[]>>, Partial<Bounds["margin"]>]
+  categoricalScales: Partial<XY<string[]>>
 } => {
   const numScales = numericalScales(logScaleEnabled, lines);
   const catScales = categoricalScales(lines);
-  const margins = { left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 110 };
   const tickConfig = tickConfiguration(logScaleEnabled, rowDimension);
   const constructorOptions = {
     tickConfig,
     categoricalScalePaddingInner: {
-      x: catScales.x && catScales.x.length > 1 ? 0.02 : 0
+      x: catScales.x && catScales.x.length > 1 ? 0.05 : 0
     },
   };
   const axisConfig = axisConfiguration(rowDimension);
@@ -143,6 +148,7 @@ export const plotConfiguration = (
   return {
     constructorOptions,
     axisConfig,
-    chartAppendConfig: [numScales, {}, catScales, margins],
+    chartAppendConfig: [numScales, {}, catScales, margins(rowDimension)],
+    categoricalScales: catScales,
   };
 };

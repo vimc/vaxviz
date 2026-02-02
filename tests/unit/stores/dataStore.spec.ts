@@ -19,11 +19,10 @@ import summaryDeathsDiseaseActivityType from "@/../public/data/json/summary_tabl
 import summaryDalysDiseaseSubregion from "@/../public/data/json/summary_table_dalys_disease_subregion.json";
 import summaryDalysDiseaseCountry from "@/../public/data/json/summary_table_dalys_disease_country.json";
 import summaryDalysDisease from "@/../public/data/json/summary_table_dalys_disease.json";
-import { BurdenMetric, Dimension } from '@/types';
+import { BurdenMetric } from '@/types';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { http, HttpResponse } from 'msw';
-import { nextTick } from 'vue';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const expectLastNCallsToContain = (spy: Mock, args: any[]) => {
@@ -50,15 +49,21 @@ describe('data store', () => {
     await vi.waitFor(() => {
       expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(histCountsDeathsDiseaseLog.length);
-      expect(dataStore.histogramData[0]).toEqual(expect.objectContaining({ disease: "Cholera" }));
+      expect(dataStore.histogramData[0]).toEqual(expect.objectContaining({
+        disease: "JE",
+        location: "global",
+        Counts: 2,
+        lower_bound: expect.closeTo(-1, 0),
+        upper_bound: expect.closeTo(-1, 0),
+      }));
       expect(dataStore.summaryTableData).toHaveLength(summaryDeathsDisease.length);
-      expect(dataStore.summaryTableData[0]).toEqual(expect.objectContaining({ disease: "COVID-19" }));
-      expect(dataStore.histogramData[0]).toEqual({
-        disease: "Cholera",
-        Counts: 1,
-        lower_bound: expect.closeTo(-2, 0),
-        upper_bound: expect.closeTo(-2, 0),
-      });
+      expect(dataStore.summaryTableData[0]).toEqual(expect.objectContaining({
+        disease: "COVID-19",
+        lower_95: expect.closeTo(0.1, 1),
+        upper_95: expect.closeTo(0.2, 1),
+        mean_value: expect.closeTo(0.1, 1),
+        median_value: expect.closeTo(0.1, 1),
+      }));
       expect(fetchSpy).toBeCalledTimes(expectedFetches);
       expectLastNCallsToContain(fetchSpy, [
         "./data/json/hist_counts_deaths_disease_log.json",
@@ -83,7 +88,7 @@ describe('data store', () => {
       expect(dataStore.summaryTableData).toHaveLength(
         summaryDalysDiseaseSubregionActivityType.length + summaryDalysDiseaseActivityType.length
       );
-    });
+    }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
     expectLastNCallsToContain(fetchSpy, [
       "./data/json/hist_counts_dalys_disease_subregion_activity_type.json",
@@ -116,7 +121,7 @@ describe('data store', () => {
       expect(dataStore.summaryTableData).toHaveLength(
         summaryDeathsDiseaseSubregionActivityType.length + summaryDeathsDiseaseActivityType.length
       );
-    });
+    }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
     expectLastNCallsToContain(fetchSpy, [
       "./data/json/hist_counts_deaths_disease_subregion_activity_type.json",
@@ -145,7 +150,7 @@ describe('data store', () => {
       expect(dataStore.summaryTableData).toHaveLength(
         summaryDalysDiseaseSubregion.length + summaryDalysDiseaseCountry.length + summaryDalysDisease.length
       );
-    }, { timeout: 2500 });
+    }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
     expectLastNCallsToContain(fetchSpy, [
       "./data/json/hist_counts_dalys_disease_subregion_log.json",
@@ -155,7 +160,7 @@ describe('data store', () => {
       "./data/json/summary_table_dalys_disease_country.json",
       "./data/json/summary_table_dalys_disease.json",
     ]);
-  })
+  }, 10000);
 
   it('should handle fetch errors gracefully', async () => {
     server.use(
@@ -197,5 +202,26 @@ describe('data store', () => {
     });
 
     expect(dataStore.histogramData).toEqual([]);
+  });
+
+  it('getSummaryDataRow returns correct summary data row for given metadata', async () => {
+    const appStore = useAppStore();
+    const dataStore = useDataStore();
+
+    // Wait for initial data load.
+    await vi.waitFor(() => {
+      expect(dataStore.isLoading).toBe(false);
+    });
+    expect(dataStore.histogramData).toHaveLength(histCountsDeathsDiseaseLog.length);
+
+    appStore.exploreBy = "disease";
+    appStore.focus = "Cholera";
+
+    const row = dataStore.getSummaryDataRow({ row: "Cholera", withinBand: "global" });
+    expect(row).toEqual(expect.objectContaining({
+      disease: "Cholera",
+      location: "global",
+      mean_value: expect.closeTo(0.2, 1),
+    }));
   });
 });

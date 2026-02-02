@@ -28,6 +28,8 @@ const ibmAccessiblePalette = Object.freeze({
   purple50: "#a56eff",
 });
 
+const globalColor = ibmAccessiblePalette.purple70;
+
 // Not from IBM. We need to have as many color options as there are diseases.
 const extraColors = {
   black: "#000000",
@@ -85,18 +87,30 @@ export const useColorStore = defineStore("color", () => {
   const setColors = (lines: Lines<LineMetadata>) => {
     mapping.value = new Map<string, string>()
 
-    // `value` refers to the specific location or disease whose color we need to assign.
+    // A 'value' refers to the specific location or disease whose color we need to assign.
     const uniqueValues = Array.from(new Set(lines.map(line => line.metadata?.[colorAxis.value]))) as string[];
-    const colorList = palettesByCategoryCount[uniqueValues.length] ?? Object.values({ ...ibmAccessiblePalette, ...extraColors })
-
-    // Set the 'global' option first to ensure it gets the same color across chart updates.
-    if (uniqueValues.includes(globalOption.value)) {
-      mapping.value.set(globalOption.value, ibmAccessiblePalette.purple70);
+    let palette: string[] = [];
+    if (palettesByCategoryCount[uniqueValues.length]) {
+      // Use a specific palette designed for this number of categories.
+      // Copy the array to avoid mutating the original.
+      palette = [...palettesByCategoryCount[uniqueValues.length]!];
+    } else {
+      palette = Object.values({ ...ibmAccessiblePalette, ...extraColors })
     }
 
-    uniqueValues.filter(value => value !== globalOption.value).forEach((value) => {
-      // Assign the next color in the list.
-      mapping.value.set(value, colorList[mapping.value.size % colorList.length]!);
+    if (uniqueValues.includes(globalOption.value)) {
+      palette = palette.filter(color => color !== globalColor);
+    }
+
+    // Assign colors in the same order as the lines argument, to keep plot-row ordering and legend ordering consistent.
+    uniqueValues.forEach((value) => {
+      if (value === globalOption.value) {
+        // Set the 'global' option explicitly to ensure it gets the same color across chart updates.
+        mapping.value.set(globalOption.value, globalColor);
+      } else {
+        // Assign the next color in the list.
+        mapping.value.set(value, palette[mapping.value.size % palette.length]!);
+      }
     });
   }
 

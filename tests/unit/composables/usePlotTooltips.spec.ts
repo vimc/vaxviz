@@ -6,7 +6,8 @@ import { nextTick } from "vue";
 import usePlotTooltips from '@/composables/usePlotTooltips';
 import { useAppStore } from '@/stores/appStore';
 import { useColorStore } from '@/stores/colorStore';
-import { Axis, Dimension, type PointWithMetadata } from '@/types';
+import { useDataStore } from '@/stores/dataStore';
+import { Axis, BurdenMetric, Dimension, SummaryTableColumn, type PointWithMetadata, type SummaryTableDataRow } from '@/types';
 
 describe('usePlotTooltips', () => {
   beforeEach(() => {
@@ -28,28 +29,30 @@ describe('usePlotTooltips', () => {
       const appStore = useAppStore();
       const colorStore = useColorStore();
 
-      // Set up store state for location-based coloring
       appStore.filters = {
         [Dimension.LOCATION]: ['AFG', 'global'],
         [Dimension.DISEASE]: ['Cholera'],
       };
       expect(colorStore.colorDimension).toBe(Dimension.LOCATION);
+      expect(appStore.dimensions.row).toBe(Dimension.DISEASE);
 
-      // Set colors so colorStore has the mapping
       colorStore.setColors([afgPointMetadata, globalPointMetadata]);
 
       const { tooltipCallback } = usePlotTooltips();
 
       const afgTooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
 
-      expect(afgTooltip).toContain('Location: <strong>Afghanistan</strong>');
+      expect(afgTooltip).toContain('Location: <b>Afghanistan</b>');
       expect(afgTooltip).toContain('style="color: #009d9a'); // teal50
+      // Row dimension (disease) is shown because it's different from color dimension (location)
+      expect(afgTooltip).toContain('Disease: <b>Cholera</b>');
       expect(afgTooltip).not.toContain('Activity type');
 
       const globalTooltip = tooltipCallback({ x: 1, y: 2, metadata: globalPointMetadata.metadata! });
 
-      expect(globalTooltip).toContain('Location: <strong>All 117 VIMC countries</strong>');
+      expect(globalTooltip).toContain('Location: <b>All 117 VIMC countries</b>');
       expect(globalTooltip).toContain('style="color: #6929c4'); // purple70
+      expect(globalTooltip).toContain('Disease: <b>Cholera</b>');
       expect(globalTooltip).not.toContain('Activity type');
     });
 
@@ -60,12 +63,12 @@ describe('usePlotTooltips', () => {
       const appStore = useAppStore();
       const colorStore = useColorStore();
 
-      // Set up store state for disease-based coloring
       appStore.filters = {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera', 'Measles'],
       };
       expect(colorStore.colorDimension).toBe(Dimension.DISEASE);
+      expect(appStore.dimensions.row).toBe(Dimension.DISEASE);
 
       colorStore.setColors([choleraPointMetadata, measlesPointMetadata]);
 
@@ -73,14 +76,18 @@ describe('usePlotTooltips', () => {
 
       const choleraTooltip = tooltipCallback({ x: 1, y: 2, metadata: choleraPointMetadata.metadata! });
 
-      expect(choleraTooltip).toContain('Disease: <strong>Cholera</strong>');
+      expect(choleraTooltip).toContain('Disease: <b>Cholera</b>');
       expect(choleraTooltip).toContain('style="color: #6929c4'); // purple70
+      // Row dimension (disease) is NOT shown separately because it's the same as color dimension
+      expect(choleraTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(choleraTooltip).not.toContain('Activity type');
 
       const measlesTooltip = tooltipCallback({ x: 1, y: 2, metadata: measlesPointMetadata.metadata! });
 
-      expect(measlesTooltip).toContain('Disease: <strong>Measles</strong>');
+      expect(measlesTooltip).toContain('Disease: <b>Measles</b>');
       expect(measlesTooltip).toContain('style="color: #009d9a'); // teal50
+      // Row dimension (disease) is NOT shown separately because it's the same as color dimension
+      expect(measlesTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(measlesTooltip).not.toContain('Activity type');
     });
 
@@ -95,28 +102,101 @@ describe('usePlotTooltips', () => {
       await nextTick();
       expect(appStore.dimensions.column).toBe(Dimension.ACTIVITY_TYPE);
 
-      // Set up store state for disease-based coloring (single location)
       appStore.filters = {
         [Dimension.LOCATION]: ['AFG'],
         [Dimension.DISEASE]: ['Cholera'],
         [Dimension.ACTIVITY_TYPE]: ['routine', 'campaign'],
       };
       expect(colorStore.colorDimension).toBe(Dimension.DISEASE);
+      expect(appStore.dimensions.row).toBe(Dimension.DISEASE);
 
       colorStore.setColors([routinePointMetadata, campaignPointMetadata]);
 
       const { tooltipCallback } = usePlotTooltips();
 
       const routineTooltip = tooltipCallback({ x: 1, y: 2, metadata: routinePointMetadata.metadata! });
-      expect(routineTooltip).toContain('Disease: <strong>Cholera</strong>');
-      expect(routineTooltip).toContain('Activity type: <strong>Routine</strong>');
+      expect(routineTooltip).toContain('Disease: <b>Cholera</b>');
+      expect(routineTooltip).toContain('Activity type: <b>Routine</b>');
+      // Row dimension (disease) is NOT shown separately because it's the same as color dimension
+      expect(routineTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(routineTooltip).toContain('style="color: #6929c4'); // purple70
 
       const campaignTooltip = tooltipCallback({ x: 1, y: 2, metadata: campaignPointMetadata.metadata! });
 
-      expect(campaignTooltip).toContain('Disease: <strong>Cholera</strong>');
-      expect(campaignTooltip).toContain('Activity type: <strong>Campaign</strong>');
+      expect(campaignTooltip).toContain('Disease: <b>Cholera</b>');
+      expect(campaignTooltip).toContain('Activity type: <b>Campaign</b>');
+      // Row dimension (disease) is NOT shown separately because it's the same as color dimension
+      expect(campaignTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(campaignTooltip).toContain('style="color: #6929c4'); // purple70
+    });
+
+    describe('summary data (mean, and 95% confidence interval)', () => {
+      const renderTooltip = (mean: number = 1456.78, lower: number = 789.12, upper: number = 2345.67) => {
+        const afgPointMetadata = { metadata: { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' } };
+
+        const appStore = useAppStore();
+        const dataStore = useDataStore();
+
+        appStore.filters = {
+          [Dimension.LOCATION]: ['AFG'],
+          [Dimension.DISEASE]: ['Cholera'],
+        };
+        dataStore.summaryTableData = [
+          {
+            [Dimension.LOCATION]: 'AFG',
+            [Dimension.DISEASE]: 'Cholera',
+            [SummaryTableColumn.MEAN]: mean,
+            [SummaryTableColumn.CI_LOWER]: lower,
+            [SummaryTableColumn.CI_UPPER]: upper,
+          } as SummaryTableDataRow,
+        ];
+
+        const { tooltipCallback } = usePlotTooltips();
+
+        return tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
+      }
+
+      it('displays summary data (linear scale)', () => {
+        const appStore = useAppStore();
+        appStore.logScaleEnabled = false;
+        const tooltip = renderTooltip();
+
+        expect(tooltip).toContain('Mean: <b>1456.78</b> deaths averted per 1000 vaccinations');
+        expect(tooltip).toContain('95% confidence interval:');
+        expect(tooltip).toContain('<b>789.12</b>');
+        expect(tooltip).toContain('<b>2345.67</b>');
+      });
+
+      it('handles negative confidence interval values with appropriate sign (linear scale)', () => {
+        const appStore = useAppStore();
+        appStore.logScaleEnabled = false;
+        const tooltip = renderTooltip(55.00, -100.50, 200.75);
+
+        expect(tooltip).toContain('Mean: <b>55.00</b> deaths averted per 1000 vaccinations');
+        // Check negative lower bound and positive upper bound with + sign when interval crosses zero
+        expect(tooltip).toContain('<b>-100.50</b>');
+        expect(tooltip).toContain('<b>+200.75</b>');
+      });
+
+      it('displays summary data (log scale: scientific notation)', () => {
+        const appStore = useAppStore();
+        appStore.logScaleEnabled = true;
+        const tooltip = renderTooltip();
+
+        expect(tooltip).toContain('Mean: <b>1.46 × 10<sup>3</sup></b>');
+        expect(tooltip).toContain('95% confidence interval:');
+        expect(tooltip).toContain('<b>7.89 × 10<sup>2</sup></b>');
+        expect(tooltip).toContain('<b>2.35 × 10<sup>3</sup></b>');
+      });
+
+      it('displays summary data (burden metric: DALYs)', () => {
+        const appStore = useAppStore();
+        appStore.logScaleEnabled = true;
+        appStore.burdenMetric = BurdenMetric.DALYS;
+        const tooltip = renderTooltip();
+
+        expect(tooltip).toContain('Mean: <b>1.46 × 10<sup>3</sup></b> DALYs averted per 1000 vaccinations');
+      });
     });
   });
 });
