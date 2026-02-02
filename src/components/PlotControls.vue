@@ -1,5 +1,5 @@
 <template>
-  <div class="m-5 flex gap-y-15 flex-wrap flex-col w-fit">
+  <div class="m-5 flex gap-y-15 flex-col w-fit">
     <div>
       <fieldset class="gap-5 mb-3" aria-required="true">
         <legend class="block mb-5 font-medium text-heading">Focus on:</legend>
