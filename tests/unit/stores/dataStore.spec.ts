@@ -50,11 +50,11 @@ describe('data store', () => {
       expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(histCountsDeathsDiseaseLog.length);
       expect(dataStore.histogramData[0]).toEqual(expect.objectContaining({
-        disease: "Cholera",
+        disease: "JE",
         location: "global",
-        Counts: 1,
-        lower_bound: expect.closeTo(-2, 0),
-        upper_bound: expect.closeTo(-2, 0),
+        Counts: 2,
+        lower_bound: expect.closeTo(-1, 0),
+        upper_bound: expect.closeTo(-1, 0),
       }));
       expect(dataStore.summaryTableData).toHaveLength(summaryDeathsDisease.length);
       expect(dataStore.summaryTableData[0]).toEqual(expect.objectContaining({
