@@ -14,7 +14,9 @@ export default () => {
       "disease",
       appStore.dimensions[Axis.COLUMN], // Will be 'activity_type' or null
       ...sortByGeographicalResolution(appStore.geographicalResolutions),
-    ].filter(Boolean).join("_") + ".zip";
+    ]
+      .filter(Boolean) // filter out nulls
+      .join("_") + ".zip";
   };
 
   return { getZipFileName };
