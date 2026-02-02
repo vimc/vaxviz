@@ -12,7 +12,6 @@ export default () => {
       "disease",
       appStore.dimensions.column,
       ...appStore.geographicalResolutions.toSorted(),
-      appStore.logScaleEnabled ? "log" : null,
     ].filter(Boolean).join("_") + ".zip";
   };
 

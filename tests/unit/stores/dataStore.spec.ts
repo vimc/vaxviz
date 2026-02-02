@@ -194,7 +194,7 @@ describe('data store', () => {
     await dataStore.downloadSummaryTables();
     expectedFetches += 3;
     expectLastCallToDownloadsToContain(downloadSpy,
-      "summary_tables_dalys_disease_country_global_subregion_log.zip",
+      "summary_tables_dalys_disease_country_global_subregion.zip",
       [
         "summary_table_dalys_disease_subregion.csv",
         "summary_table_dalys_disease_country.csv",
