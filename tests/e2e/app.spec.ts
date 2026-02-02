@@ -180,8 +180,8 @@ test('visits the app root url, selects options, and loads correct data', async (
 });
 
 test.describe("Downloads", () => {
-  // Webkit downloads don't work in playwright, but they have been manually tested in Safari 17.5
-  // on a Mac on Sonoma 14.5.
+  // Webkit downloads don't work in playwright, but they have been manually tested in Safari 26.2
+  // on an iPhone running iOS 26.2.1.
   // eslint-disable-next-line playwright/no-skipped-test
   test.skip(({ browserName }) => browserName === "webkit", "Skipping Downloads tests for webkit");
 
