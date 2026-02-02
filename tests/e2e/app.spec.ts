@@ -33,7 +33,7 @@ test('visits the app root url, selects options, and loads correct data', async (
   // 'Cache-Control: no-cache' tells browsers and caches they can store a copy of a resource
   // but must revalidate it with the original server before using it for any subsequent request
   page.on('request', async (request) => {
-    if (request.url().includes("/data/json/")) {
+    if (request.url().includes("/data/")) {
       const response = await request.response();
       const responseHeaders = response?.headers();
       const cacheControlHeader = responseHeaders?.["cache-control"] || "";

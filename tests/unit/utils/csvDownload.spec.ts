@@ -115,12 +115,42 @@ describe('downloadCsvAsSingleOrZip', () => {
     expect(zipFileSpy).toHaveBeenCalledWith("summary_table_deaths_disease_subregion.csv", "csv,content");
   });
 
-  it("should throw if fetch fails when multiple paths", async () => {
+  it("should throw if fetch (HEAD) fails when multiple paths", async () => {
     vi.spyOn(global, "fetch").mockResolvedValue({
       ok: false,
       status: 404,
       statusText: "Not Found",
     } as Response);
+
+    await expect(
+      downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
+    ).rejects.toThrow(
+      'HTTP 404: Not Found'
+    );
+
+    expect(createdLinks).toHaveLength(0);
+  });
+
+  it("should throw if fetch (GET) fails when multiple paths", async () => {
+    vi.spyOn(global, "fetch").mockImplementation((input: RequestInfo, init?: RequestInit) => {
+      if (init && init.method === 'HEAD') {
+        // Simulate a successful HEAD request
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          statusText: "OK",
+          headers: {
+            get: () => "text/csv",
+          },
+        } as Response);
+      }
+      // Simulate a failed fetch for other requests
+      return Promise.resolve({
+        ok: false,
+        status: 404,
+        statusText: "Not Found",
+      } as Response);
+    });
 
     await expect(
       downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
