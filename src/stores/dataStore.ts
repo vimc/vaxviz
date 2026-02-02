@@ -12,7 +12,7 @@ const csvDataDir = `./data/csv`;
 
 export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
-  const { getZipFileName } = useZipFilename();
+  const { constructDownloadZipFilename } = useZipFilename();
 
   const histogramData = shallowRef<HistDataRow[]>([]);
   const histogramCache: Record<string, HistDataRow[]> = {};
@@ -35,7 +35,7 @@ export const useDataStore = defineStore("data", () => {
   };
 
   // Construct filenames without file extension
-  const constructFilenames = (dataType: "hist_counts" | "summary_table"): string[] => {
+  const getInputFilenames = (dataType: "hist_counts" | "summary_table"): string[] => {
     return appStore.geographicalResolutions.map((geog) => {
       const fileNameParts = [dataType, appStore.burdenMetric, "disease"];
       // NB files containing 'global' data simply omit location from the file name (as they have no location stratification).
@@ -56,13 +56,13 @@ export const useDataStore = defineStore("data", () => {
     });
   }
 
-  const histFilenames = computed(() => constructFilenames("hist_counts"));
-  const summaryTableFilenames = computed(() => constructFilenames("summary_table"));
+  const histFilenames = computed(() => getInputFilenames("hist_counts"));
+  const summaryTableFilenames = computed(() => getInputFilenames("summary_table"));
 
   const downloadSummaryTables = async () => {
     downloadErrors.value = [];
     const filenames = summaryTableFilenames.value.map((f) => `${f}.csv`);
-    const zipFileName = getZipFileName(filenames);
+    const zipFileName = constructDownloadZipFilename(filenames);
 
     try {
       await downloadAsSingleOrZip(csvDataDir, filenames, zipFileName, true);

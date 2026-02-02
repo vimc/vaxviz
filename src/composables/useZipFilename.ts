@@ -6,7 +6,7 @@ export default () => {
   const appStore = useAppStore();
 
   // Generate zip file name based on the current app state and names of the zippable files
-  const getZipFileName = (filenames: string[]) => {
+  const constructDownloadZipFilename = (filenames: string[]) => {
     if (filenames.length <= 1) return "";
     return [
       "summary_tables",
@@ -19,5 +19,5 @@ export default () => {
       .join("_") + ".zip";
   };
 
-  return { getZipFileName };
+  return { constructDownloadZipFilename };
 }
