@@ -23,7 +23,6 @@ import { BurdenMetric } from '@/types';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import * as downloadModule from '@/utils/download';
-import * as checkIfCsvFileExists from '@/stores/utils/checkIfCsvFileExists';
 
 const expectLastNFetchesToContain = (spy: Mock, args: string[]) => {
   const calls = spy.mock.calls;
@@ -112,7 +111,7 @@ describe('data store', () => {
     await dataStore.downloadSummaryTables();
     expectedFetches += 2; // zip downloads use 1 fetch per file
     expectLastCallToDownloadsToContain(downloadSpy,
-      "summary_tables_dalys_disease_activity_type_global_subregion.zip",
+      "summary_tables_dalys_disease_activity_type_subregion_global.zip",
       [
         "summary_table_dalys_disease_subregion_activity_type.csv",
         "summary_table_dalys_disease_activity_type.csv"
@@ -154,7 +153,7 @@ describe('data store', () => {
     await dataStore.downloadSummaryTables();
     expectedFetches += 2;
     expectLastCallToDownloadsToContain(downloadSpy,
-      "summary_tables_deaths_disease_activity_type_global_subregion.zip",
+      "summary_tables_deaths_disease_activity_type_subregion_global.zip",
       [
         "summary_table_deaths_disease_subregion_activity_type.csv",
         "summary_table_deaths_disease_activity_type.csv"
@@ -194,7 +193,7 @@ describe('data store', () => {
     await dataStore.downloadSummaryTables();
     expectedFetches += 3;
     expectLastCallToDownloadsToContain(downloadSpy,
-      "summary_tables_dalys_disease_country_global_subregion.zip",
+      "summary_tables_dalys_disease_country_subregion_global.zip",
       [
         "summary_table_dalys_disease_subregion.csv",
         "summary_table_dalys_disease_country.csv",

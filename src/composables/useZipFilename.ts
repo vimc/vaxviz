@@ -1,4 +1,6 @@
 import { useAppStore } from "@/stores/appStore";
+import { Axis } from "@/types";
+import sortByGeographicalResolution from "@/utils/sortByGeographicalResolution";
 
 export default () => {
   const appStore = useAppStore();
@@ -10,8 +12,8 @@ export default () => {
       "summary_tables",
       appStore.burdenMetric,
       "disease",
-      appStore.dimensions.column,
-      ...appStore.geographicalResolutions.toSorted(),
+      appStore.dimensions[Axis.COLUMN], // Will be 'activity_type' or null
+      ...sortByGeographicalResolution(appStore.geographicalResolutions),
     ].filter(Boolean).join("_") + ".zip";
   };
 
