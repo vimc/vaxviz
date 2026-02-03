@@ -7,6 +7,7 @@ import { nextTick } from "vue";
 
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import PlotControls from '@/components/PlotControls.vue'
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 describe('PlotControls component', () => {
   beforeEach(() => {
@@ -105,5 +106,29 @@ describe('PlotControls component', () => {
     expect(renderedOptions[0].text()).toBe("Central and Southern Asia");
     expect(renderedOptions[1].text()).toBe("Eastern and South-Eastern Asia");
     expect(renderedOptions[2].text()).toBe("Northern Africa and Western Asia");
+  });
+
+  it("shows the negative estimates help info when decreed by the help info store", async () => {
+    const wrapper = mount(PlotControls);
+
+    expect(wrapper.findAll('button').find(e => e.text().includes("Noticing negative estimates?"))).toBeUndefined();
+
+    const helpInfoStore = useHelpInfoStore();
+    helpInfoStore.showNegativeValuesHelpInfo = true;
+    await nextTick();
+
+    expect(wrapper.findAll('button').find(e => e.text().includes("Noticing negative estimates?"))).toBeDefined();
+  });
+
+  it("show the log scale help info when log scale is enabled", async () => {
+    const wrapper = mount(PlotControls);
+
+    expect(wrapper.findAll('button').find(e => e.text().includes("Note: you are viewing estimates on a log 10 scale"))).toBeDefined();
+
+    const logScaleCheckbox = wrapper.findAll('label').find(e => e.text().includes("Log scale"))?.find('input');
+    await logScaleCheckbox.setValue(false);
+    await nextTick();
+
+    expect(wrapper.findAll('button').find(e => e.text().includes("Note: you are viewing estimates on a log 10 scale"))).toBeUndefined();
   });
 })
