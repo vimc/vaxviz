@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setActivePinia } from 'pinia';
+import { http, HttpResponse } from 'msw';
+import { server } from '../mocks/server';
 import { createTestingPinia } from '@pinia/testing'
 import { Chart } from '@reside-ic/skadi-chart';
 
@@ -210,6 +212,7 @@ describe('RidgelinePlot component', () => {
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
     const appStore = useAppStore();
+    const colorStore = useColorStore();
     const helpInfoStore = useHelpInfoStore();
     const wrapper = mount(RidgelinePlot);
 
@@ -217,6 +220,7 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
+      expect(colorStore.colorMapping.size).toEqual(14);
     });
 
     // Set options that lead to no data
@@ -233,9 +237,18 @@ describe('RidgelinePlot component', () => {
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
+    expect(colorStore.colorMapping.size).toEqual(0);
   });
 
   it('when there are fetch errors, shows an alert instead of the chart', async () => {
+    // Mock the non-log data fetch to fail
+    server.use(
+      http.get("./data/json/hist_counts_deaths_disease.json", async () => {
+        return HttpResponse.json(null, { status: 404 });
+      }),
+    );
+
+    const appStore = useAppStore();
     const helpInfoStore = useHelpInfoStore();
     const dataStore = useDataStore();
     const wrapper = mount(RidgelinePlot);
@@ -246,9 +259,7 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
     });
 
-    dataStore.fetchErrors = [
-      { message: 'Error loading data from path: hist_counts_deaths_disease_log.json. TypeError: Failed to fetch' },
-    ];
+    appStore.logScaleEnabled = false;
 
     await vi.waitFor(() => {
       expect(wrapper.text()).not.toContain("No data available for the selected options.");
