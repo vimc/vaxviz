@@ -99,6 +99,12 @@ describe('plotConfiguration', () => {
       expect(formatter(3.1)).toBe('$10^{3.1}$');
     });
 
+    it("linear scale numerical formatter returns numbers in LaTeX", () => {
+      const result = plotConfiguration(Dimension.DISEASE, false, lines);
+      const formatter = result.constructorOptions.tickConfig.numerical?.x?.formatter;
+      expect(formatter(-2)).toBe('$-2$');
+    });
+
     it("sets the right tick count when x range crosses zero", () => {
       const result = plotConfiguration(Dimension.DISEASE, false, [
         {
@@ -107,19 +113,13 @@ describe('plotConfiguration', () => {
         },
       ]);
       const tickCount = result.constructorOptions.tickConfig.numerical?.x?.count;
-      expect(tickCount).toBe(3); // Expect 3 ticks when range crosses zero
+      expect(tickCount).toBe(3);
     });
 
     it("sets the right tick count when x range does not cross zero", () => {
       const result = plotConfiguration(Dimension.DISEASE, false, lines);
       const tickCount = result.constructorOptions.tickConfig.numerical?.x?.count;
-      expect(tickCount).toBe(5); // Expect 5 ticks when range does not cross zero
-    });
-
-    it("linear scale numerical formatter returns numbers in LaTeX", () => {
-      const result = plotConfiguration(Dimension.DISEASE, false, lines);
-      const formatter = result.constructorOptions.tickConfig.numerical?.x?.formatter;
-      expect(formatter(-2)).toBe('$-2$');
+      expect(tickCount).toBe(5);
     });
 
     describe('location tick formatter', () => {
