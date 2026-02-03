@@ -20,6 +20,8 @@ import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
+import { useDataStore } from '@/stores/dataStore';
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 const addAxesSpy = vi.fn().mockReturnThis();
 const addTracesSpy = vi.fn().mockReturnThis();
@@ -58,6 +60,7 @@ describe('RidgelinePlot component', () => {
   it('loads the correct data', async () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
+    const helpInfoStore = useHelpInfoStore();
     const wrapper = mount(RidgelinePlot)
 
     await vi.waitFor(() => {
@@ -79,6 +82,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
 
     // Change options: round 1
@@ -106,6 +110,7 @@ describe('RidgelinePlot component', () => {
         x: ["Campaign", "Routine"],
         y: ["COVID-19", "Cholera", "Rubella", "MenA", "MenACWYX", "Typhoid", "Rota", "HepB", "YF", "PCV", "Malaria", "Hib", "HPV", "Measles"],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(true);
     }, 5000);
 
     // Change options: round 2
@@ -147,6 +152,7 @@ describe('RidgelinePlot component', () => {
           "Middle Africa",
         ],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(true);
     }, { timeout: 5000 });
 
     // Change options: round 3
@@ -176,6 +182,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     }, { timeout: 5000 });
 
     // Change options: round 4 (filtering out as if via legend component)
@@ -190,6 +197,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
 
     // Change options: round 5 (unfiltering as if via legend component)
@@ -203,12 +211,14 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
   }, 20000);
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
+    const helpInfoStore = useHelpInfoStore();
     const wrapper = mount(RidgelinePlot);
 
     // It shows a chart initially
@@ -230,13 +240,12 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("No data available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
     expect(colorStore.colorMapping.size).toEqual(0);
   });
 
   it('when there are fetch errors, shows an alert instead of the chart', async () => {
-    const appStore = useAppStore();
-
     // Mock the non-log data fetch to fail
     server.use(
       http.get("./data/json/hist_counts_deaths_disease.json", async () => {
@@ -244,6 +253,9 @@ describe('RidgelinePlot component', () => {
       }),
     );
 
+    const appStore = useAppStore();
+    const helpInfoStore = useHelpInfoStore();
+    const dataStore = useDataStore();
     const wrapper = mount(RidgelinePlot);
 
     // It shows a chart initially
@@ -258,6 +270,7 @@ describe('RidgelinePlot component', () => {
       expect(wrapper.text()).not.toContain("No data available for the selected options.");
       expect(wrapper.text()).toContain("Error loading data");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
   });
 
@@ -332,6 +345,7 @@ describe('RidgelinePlot component', () => {
 
   it('shows a loading spinner while data is being loaded', async () => {
     const dataStore = useDataStore();
+    const helpInfoStore = useHelpInfoStore();
     const wrapper = mount(RidgelinePlot);
     const spinnerMatcher = 'svg[role="status"]';
 
@@ -347,6 +361,7 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.find(spinnerMatcher).exists()).toBe(false);
       expect(wrapper.find("#chartWrapper").exists()).toBe(true);
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
   });
 });

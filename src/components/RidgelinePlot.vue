@@ -29,6 +29,7 @@ import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import { Axis, Dimension, SummaryTableColumn } from '@/types';
 import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel } from '@/utils/options';
@@ -39,6 +40,7 @@ import DataErrorAlert from '@/components/DataErrorAlert.vue';
 const appStore = useAppStore();
 const dataStore = useDataStore();
 const colorStore = useColorStore();
+const helpInfoStore = useHelpInfoStore();
 const { tooltipCallback } = usePlotTooltips();
 
 const chartWrapper = ref<HTMLDivElement>();
@@ -122,11 +124,13 @@ const updateChart = debounce(() => {
     line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
   });
 
-  const { constructorOptions, axisConfig, chartAppendConfig, categoricalScales } = plotConfiguration(
+  const { constructorOptions, axisConfig, chartAppendConfig, categoricalScales, numericalScales } = plotConfiguration(
     appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
     selectedLines.value,
   );
+
+  helpInfoStore.showNegativeValuesHelpInfo = !appStore.logScaleEnabled && numericalScales.x.start < 0;
 
   new Chart(constructorOptions)
     .addAxes(...axisConfig)
@@ -144,6 +148,9 @@ const updateChart = debounce(() => {
     .appendTo(chartWrapper.value, ...chartAppendConfig);
 }, 25);
 
-watch([selectedLines, chartWrapper], updateChart, { immediate: true });
+watch([selectedLines, chartWrapper], () => {
+  helpInfoStore.showNegativeValuesHelpInfo = false;
+  updateChart();
+}, { immediate: true });
 </script>
 
