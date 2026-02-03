@@ -99,6 +99,23 @@ describe('plotConfiguration', () => {
       expect(formatter(3.1)).toBe('$10^{3.1}$');
     });
 
+    it("sets the right tick count when x range crosses zero", () => {
+      const result = plotConfiguration(Dimension.DISEASE, false, [...lines,
+      {
+        points: [{ x: -5, y: 5 }, { x: -2, y: 6 }, { x: 20, y: 2 }],
+        bands: { x: 'routine', y: 'HepB' }, // same y band as first line
+      },
+      ]);
+      const tickCount = result.constructorOptions.tickConfig.numerical?.x?.count;
+      expect(tickCount).toBe(3); // Expect 3 ticks when range crosses zero
+    });
+
+    it("sets the right tick count when x range does not cross zero", () => {
+      const result = plotConfiguration(Dimension.DISEASE, false, lines);
+      const tickCount = result.constructorOptions.tickConfig.numerical?.x?.count;
+      expect(tickCount).toBe(5); // Expect 5 ticks when range does not cross zero
+    });
+
     it("linear scale numerical formatter returns numbers in LaTeX", () => {
       const result = plotConfiguration(Dimension.DISEASE, false, lines);
       const formatter = result.constructorOptions.tickConfig.numerical?.x?.formatter;
