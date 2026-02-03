@@ -100,11 +100,11 @@ describe('plotConfiguration', () => {
     });
 
     it("sets the right tick count when x range crosses zero", () => {
-      const result = plotConfiguration(Dimension.DISEASE, false, [...lines,
-      {
-        points: [{ x: -5, y: 5 }, { x: -2, y: 6 }, { x: 20, y: 2 }],
-        bands: { x: 'routine', y: 'HepB' }, // same y band as first line
-      },
+      const result = plotConfiguration(Dimension.DISEASE, false, [
+        {
+          points: [{ x: -5, y: 5 }, { x: -2, y: 6 }, { x: 20, y: 2 }],
+          bands: { x: 'routine', y: 'HepB' },
+        },
       ]);
       const tickCount = result.constructorOptions.tickConfig.numerical?.x?.count;
       expect(tickCount).toBe(3); // Expect 3 ticks when range crosses zero
