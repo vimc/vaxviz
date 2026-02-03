@@ -123,7 +123,7 @@ const updateChart = debounce(() => {
     line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
   });
 
-  const { constructorOptions, axisConfig, chartAppendConfig, categoricalScales, numericalScales } = plotConfiguration(
+  const { constructorOptions, axisConfig, chartAppendConfig, numericalScales } = plotConfiguration(
     appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
     selectedLines.value,
@@ -135,13 +135,7 @@ const updateChart = debounce(() => {
     .addAxes(...axisConfig)
     .addTraces(selectedLines.value)
     .addArea()
-    .addGridLines(
-      {
-        // TODO: vimc-9195: extend gridlines feature to work for categorical axes.
-        x: !categoricalScales.x?.length,
-        y: false,
-      },
-    )
+    .addGridLines({ y: { enabled: false } })
     .addTooltips(tooltipCallback, TOOLTIP_RADIUS_PX)
     .makeResponsive()
     .appendTo(chartWrapper.value, ...chartAppendConfig);
