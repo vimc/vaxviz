@@ -60,8 +60,9 @@ import { FwbButton } from 'flowbite-vue'
 import { useColorStore } from '@/stores/colorStore';
 import { dimensionOptionLabel } from '@/utils/options';
 import { useAppStore } from '@/stores/appStore';
-import { Axis, Dimension, LocResolution } from '@/types';
+import { Axis, Dimension } from '@/types';
 import { margins } from '@/utils/plotConfiguration';
+import sortByGeographicalResolution from '@/utils/sortByGeographicalResolution';
 
 const appStore = useAppStore();
 const colorStore = useColorStore();
@@ -73,19 +74,10 @@ const colors = computed(() => {
   const { colorDimension } = colorStore;
   let colorsMap: [string, string][] = [];
   if (colorDimension === appStore.dimensions[Axis.WITHIN_BAND] && colorDimension === Dimension.LOCATION) {
-
-    // Sort by the geographical resolution (LocResolution) of the values.
-    colorsMap = Array.from(colorStore.colorMapping).sort(([aVal], [bVal]) => {
-      const [aLocRes, bLocRes] = [
-        appStore.geographicalResolutionForLocation(aVal),
-        appStore.geographicalResolutionForLocation(bVal)
-      ];
-      const [aRank, bRank] = [
-        aLocRes ? Object.values(LocResolution).indexOf(aLocRes) : -1,
-        bLocRes ? Object.values(LocResolution).indexOf(bLocRes) : -1,
-      ];
-      return bRank - aRank;
-    });
+    const sortedVals = sortByGeographicalResolution(Array.from(colorStore.colorMapping.keys()));
+    colorsMap = Array.from(colorStore.colorMapping).sort(([aLocRes], [bLocRes]) =>
+      sortedVals.indexOf(bLocRes) - sortedVals.indexOf(aLocRes),
+    );
   } else {
     // Maintain the order of colors as in the plot-rows; the plot rows start from the bottom, so we reverse.
     colorsMap = Array.from(colorStore.colorMapping).toReversed();
