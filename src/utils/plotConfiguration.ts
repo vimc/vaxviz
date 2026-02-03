@@ -95,6 +95,7 @@ const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimension) =>
       padding: 10,
       formatter: logScaleEnabled ? logScaleNumTickFormatter() : linearScaleNumTickFormatter(),
       enableMathJax: true,
+      count: 5,
     },
     y: { count: 0 },
   },
