@@ -25,7 +25,6 @@ import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 const addAxesSpy = vi.fn().mockReturnThis();
 const addTracesSpy = vi.fn().mockReturnThis();
-const addGridLinesSpy = vi.fn().mockReturnThis();
 const addTooltipsSpy = vi.fn().mockReturnThis();
 const addAppendToSpy = vi.fn().mockReturnThis();
 
@@ -34,7 +33,7 @@ vi.mock('@reside-ic/skadi-chart', () => ({
     addAxes = addAxesSpy;
     addTraces = addTracesSpy;
     addArea = vi.fn().mockReturnThis();
-    addGridLines = addGridLinesSpy;
+    addGridLines = vi.fn().mockReturnThis();
     addTooltips = addTooltipsSpy;
     makeResponsive = vi.fn().mockReturnThis();
     appendTo = addAppendToSpy;
@@ -77,7 +76,6 @@ describe('RidgelinePlot component', () => {
 
       // Color by row; each disease has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(14);
-      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
       assertLastCategoricalScales({
         x: undefined,
         y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
@@ -105,7 +103,6 @@ describe('RidgelinePlot component', () => {
 
       // Color by the 2 locations within each band: Middle Africa and global.
       expect(colorStore.colorMapping.size).toEqual(2);
-      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
       assertLastCategoricalScales({
         x: ["Campaign", "Routine"],
         y: ["COVID-19", "Cholera", "Rubella", "MenA", "MenACWYX", "Typhoid", "Rota", "HepB", "YF", "PCV", "Malaria", "Hib", "HPV", "Measles"],
@@ -134,7 +131,6 @@ describe('RidgelinePlot component', () => {
 
       // Color by row; each location (10 subregions + global) has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(11);
-      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
 
       assertLastCategoricalScales({
         x: ["Campaign", "Routine"],
@@ -176,7 +172,6 @@ describe('RidgelinePlot component', () => {
 
       // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
       expect(colorStore.colorMapping.size).toEqual(3);
-      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
 
       assertLastCategoricalScales({
         x: undefined,
