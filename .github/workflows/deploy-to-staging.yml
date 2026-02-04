@@ -1,7 +1,7 @@
 name: Deploy vaxviz-staging
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "mrc-6858-heading"]
 
 permissions:
   contents: read
