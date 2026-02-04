@@ -25,9 +25,9 @@
       </template>
       <template #default>
         <div>
-          <h3 class="text-lg font-medium">
+          <h2 class="text-lg font-medium">
             Provisional estimates. Not to be forwarded or cited.
-          </h3>
+          </h2>
           <p class="mt-2">This is a preview. All estimates shown are representative only. Do not use or forward them.</p>
         </div>
       </template>
