@@ -89,23 +89,29 @@ const locationTickFormatter = () =>
       : substitutionsApplied;
   }
 
-const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimension) => ({
-  numerical: {
-    x: {
-      padding: 10,
-      formatter: logScaleEnabled ? logScaleNumTickFormatter() : linearScaleNumTickFormatter(),
-      enableMathJax: true,
+const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimension, numericalScales: Scales) => {
+  const xRangeCrossesZero = numericalScales.x.start < 0 && numericalScales.x.end > 0;
+  const numericalXTickCount = xRangeCrossesZero ? 3 : 5; // In d3, the count property approximately controls the number of ticks on each side of zero.
+
+  return {
+    numerical: {
+      x: {
+        padding: 10,
+        formatter: logScaleEnabled ? logScaleNumTickFormatter() : linearScaleNumTickFormatter(),
+        enableMathJax: true,
+        count: numericalXTickCount,
+      },
+      y: { count: 0 },
     },
-    y: { count: 0 },
-  },
-  categorical: {
-    x: { padding: 40 },
-    y: {
-      padding: yAxisNeedsExtraSpace(rowDimension) ? 10 : 30,
-      formatter: rowDimension === Dimension.LOCATION ? locationTickFormatter() : undefined,
+    categorical: {
+      x: { padding: 40 },
+      y: {
+        padding: yAxisNeedsExtraSpace(rowDimension) ? 10 : 30,
+        formatter: rowDimension === Dimension.LOCATION ? locationTickFormatter() : undefined,
+      },
     },
-  },
-});
+  };
+};
 
 type AxisConfig = [Partial<XY<string>>, Partial<XY<number | undefined>>];
 
@@ -136,7 +142,7 @@ export const plotConfiguration = (
 } => {
   const numScales = numericalScales(logScaleEnabled, lines);
   const catScales = categoricalScales(lines);
-  const tickConfig = tickConfiguration(logScaleEnabled, rowDimension);
+  const tickConfig = tickConfiguration(logScaleEnabled, rowDimension, numScales);
   const constructorOptions = {
     tickConfig,
     categoricalScalePaddingInner: {
