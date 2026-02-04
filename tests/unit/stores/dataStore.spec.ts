@@ -50,7 +50,7 @@ describe('data store', () => {
       expect(dataStore.isLoading).toBe(false);
       expect(dataStore.histogramData).toHaveLength(histCountsDeathsDiseaseLog.length);
       expect(dataStore.histogramData[0]).toEqual(expect.objectContaining({
-        disease: "JE",
+        disease: "Typhoid",
         location: "global",
         Counts: 2,
         lower_bound: expect.closeTo(-1, 0),
