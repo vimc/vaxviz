@@ -1,5 +1,5 @@
 <template>
-  <form class="m-5 flex gap-y-15 flex-wrap flex-col w-fit">
+  <div class="m-5 flex gap-y-15 flex-col w-fit">
     <div>
       <fieldset class="gap-5 mb-3" aria-required="true">
         <legend class="block mb-5 font-medium text-heading">Focus on:</legend>
@@ -65,21 +65,43 @@
         :wrapper-class="'w-fit'"
       />
     </div>
-  </form>
+    <DownloadButton />
+    <HelpInfoModalButton
+      v-if="helpInfoStore.showNegativeValuesHelpInfo"
+      header="Noticing negative estimates?"
+      :paragraphs="[
+        'These can occur for a few reasons:',
+        'Due to stochastic variation and the accumulation of rounding differences, some negative impacts arise. For example, although the same random seed is used per stochastic run, there may be some cases where there are stochastic differences between the no vaccination and with-vaccination scenarios for the same stochastic run which can lead to small negative vaccine impacts.',
+        'Similarly, rounding errors due to estimating burden with a high number of decimal places, can accumulate over age groups, years and countries to lead to small differences and thus negative impact.',
+        'Finally, in some cases, negative impact is a known result of some of the more artificial vaccination scenarios: specifically, we model an intermediate scenario for rubella with only one vaccine activity (a strategy that would never be implemented) in order to calculate the incremental benefit of each vaccination activity. Sub-optimal rubella vaccination coverage will lead to an increase in the mean age of infection but not give sufficient protection to the wider population. As a result, the mean age at infection may occur in people of child-bearing age, increasing the incidence of Congenital Rubella Syndrome. By implementing vaccination with suitable coverage using both campaigns covering several age bands and routine vaccination, this negative impact is avoided.',
+      ]"
+    />
+    <HelpInfoModalButton
+      v-else-if="appStore.logScaleEnabled"
+      header="Note: you are viewing estimates on a log 10 scale"
+      :paragraphs="[
+        'This means that estimates that differ by orders of magnitude can be shown together. Please be aware the x-axis is non-linear and if you toggle between linear and log scales, the bins may change.',
+      ]"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
 import VueSelect, { type Option } from "vue3-select-component";
 import { computed } from 'vue';
-import { useAppStore } from '../stores/appStore';
+import { useAppStore } from '@/stores/appStore';
 import { Dimension } from '@/types';
+import DownloadButton from '@/components/DownloadButton.vue';
+import HelpInfoModalButton from '@/components/HelpInfoModalButton.vue';
 import countryOptions from '@/data/options/countryOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
 import { globalOption, metricOptions } from '@/utils/options';
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 const appStore = useAppStore();
+const helpInfoStore = useHelpInfoStore();
 
 const selectOptions = computed(() => {
   if (appStore.exploreBy === Dimension.LOCATION) {

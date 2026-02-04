@@ -1,6 +1,6 @@
 <template>
-  <header class="border-b border-gray-300 flex items-center justify-between">
-    <div class="flex flex-col gap-2">
+  <header class="border-b border-gray-300 flex items-center justify-between gap-2">
+    <div class="flex flex-col">
       <a href="https://www.vaccineimpact.org/" target="_blank">
         <img src="/logo.png" id="logo" alt="VIMC logo" />
       </a>
@@ -39,10 +39,11 @@
   <FwbModal
     v-if="aboutModalVisible"
     @close="aboutModalVisible = false"
+    :focus-trap="helpInfoStore.enableFocusTraps"
   >
     <template #header>
-      <div class="text-lg">
-        About
+      <div class="text-lg ps-2 font-medium">
+        About this tool
       </div>
     </template>
     <template #body>
@@ -78,6 +79,9 @@ import countryOptions from '@/data/options/countryOptions.json';
 import { ref } from 'vue';
 
 import { version } from '@/../package.json';
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
+
+const helpInfoStore = useHelpInfoStore();
 
 const aboutModalVisible = ref(false);
 </script>

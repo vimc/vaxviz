@@ -10,10 +10,10 @@
 </template>
 
 <script setup lang="ts">
-import AppHeader from './components/AppHeader.vue';
-import PlotControls from './components/PlotControls.vue';
-import ColorLegend from './components/ColorLegend.vue';
-import RidgelinePlot from './components/RidgelinePlot.vue';
+import AppHeader from '@/components/AppHeader.vue';
+import PlotControls from '@/components/PlotControls.vue';
+import ColorLegend from '@/components/ColorLegend.vue';
+import RidgelinePlot from '@/components/RidgelinePlot.vue';
 </script>
 
 <style lang="scss">
