@@ -1,7 +1,7 @@
 <template>
   <div class="chart-container min-h-0 flex-1 flex">
     <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
-    <FetchErrorAlert v-else-if="dataStore.fetchErrors.length" />
+    <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
     <p v-else-if="noDataToDisplay" class="m-auto">
       <!-- E.g. Focus disease MenA, without splitting by activity type. -->
       No data available for the selected options.
@@ -29,16 +29,18 @@ import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import { Axis, Dimension, SummaryTableColumn } from '@/types';
 import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
 import usePlotTooltips from '@/composables/usePlotTooltips';
-import FetchErrorAlert from '@/components/FetchErrorAlert.vue';
+import DataErrorAlert from '@/components/DataErrorAlert.vue';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();
 const colorStore = useColorStore();
+const helpInfoStore = useHelpInfoStore();
 const { tooltipCallback } = usePlotTooltips();
 
 const chartWrapper = ref<HTMLDivElement>();
@@ -108,6 +110,7 @@ const updateChart = debounce(() => {
   noDataToDisplay.value = selectedLines.value.length === 0;
 
   if (noDataToDisplay.value || !chartWrapper.value) {
+    colorStore.setColors([]); // Remove color legend when there is no data to display
     return;
   }
 
@@ -121,28 +124,27 @@ const updateChart = debounce(() => {
     line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
   });
 
-  const { constructorOptions, axisConfig, chartAppendConfig, categoricalScales } = plotConfiguration(
+  const { constructorOptions, axisConfig, chartAppendConfig, numericalScales } = plotConfiguration(
     appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
     selectedLines.value,
   );
 
+  helpInfoStore.showNegativeValuesHelpInfo = !appStore.logScaleEnabled && numericalScales.x.start < 0;
+
   new Chart(constructorOptions)
     .addAxes(...axisConfig)
     .addTraces(selectedLines.value)
     .addArea()
-    .addGridLines(
-      {
-        // TODO: vimc-9195: extend gridlines feature to work for categorical axes.
-        x: !categoricalScales.x?.length,
-        y: false,
-      },
-    )
+    .addGridLines({ y: { enabled: false } })
     .addTooltips(tooltipCallback, TOOLTIP_RADIUS_PX)
     .makeResponsive()
     .appendTo(chartWrapper.value, ...chartAppendConfig);
 }, 25);
 
-watch([selectedLines, chartWrapper], updateChart, { immediate: true });
+watch([selectedLines, chartWrapper], () => {
+  helpInfoStore.showNegativeValuesHelpInfo = false;
+  updateChart();
+}, { immediate: true });
 </script>
 

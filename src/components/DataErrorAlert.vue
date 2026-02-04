@@ -13,11 +13,11 @@
       </h3>
     </template>
     <template #default>
-      <p class="mt-2">This may be an intermittent issue. Try refreshing the page.</p>
+      <p class="mt-2">This may be an intermittent issue. Try again or try refreshing the page.</p>
       <div class="my-2 text-xs">
         <details class="cursor-pointer">
           <summary>Error details</summary>
-          <p class="mt-2 text-sm">{{ dataStore.fetchErrors.map(error => error.message).join(', ') }}</p>
+          <p class="mt-2 text-sm">{{ dataStore.dataErrors.map(error => error.message).join(', ') }}</p>
         </details>
       </div>
     </template>

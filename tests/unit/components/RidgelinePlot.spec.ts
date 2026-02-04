@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { setActivePinia } from 'pinia';
+import { http, HttpResponse } from 'msw';
+import { server } from '../mocks/server';
 import { createTestingPinia } from '@pinia/testing'
 import { Chart } from '@reside-ic/skadi-chart';
 
@@ -18,10 +20,11 @@ import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
+import { useDataStore } from '@/stores/dataStore';
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 const addAxesSpy = vi.fn().mockReturnThis();
 const addTracesSpy = vi.fn().mockReturnThis();
-const addGridLinesSpy = vi.fn().mockReturnThis();
 const addTooltipsSpy = vi.fn().mockReturnThis();
 const addAppendToSpy = vi.fn().mockReturnThis();
 
@@ -30,7 +33,7 @@ vi.mock('@reside-ic/skadi-chart', () => ({
     addAxes = addAxesSpy;
     addTraces = addTracesSpy;
     addArea = vi.fn().mockReturnThis();
-    addGridLines = addGridLinesSpy;
+    addGridLines = vi.fn().mockReturnThis();
     addTooltips = addTooltipsSpy;
     makeResponsive = vi.fn().mockReturnThis();
     appendTo = addAppendToSpy;
@@ -56,6 +59,7 @@ describe('RidgelinePlot component', () => {
   it('loads the correct data', async () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
+    const helpInfoStore = useHelpInfoStore();
     const wrapper = mount(RidgelinePlot)
 
     await vi.waitFor(() => {
@@ -72,11 +76,11 @@ describe('RidgelinePlot component', () => {
 
       // Color by row; each disease has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(14);
-      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
       assertLastCategoricalScales({
         x: undefined,
         y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
 
     // Change options: round 1
@@ -99,11 +103,11 @@ describe('RidgelinePlot component', () => {
 
       // Color by the 2 locations within each band: Middle Africa and global.
       expect(colorStore.colorMapping.size).toEqual(2);
-      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
       assertLastCategoricalScales({
         x: ["Campaign", "Routine"],
         y: ["COVID-19", "Cholera", "Rubella", "MenA", "MenACWYX", "Typhoid", "Rota", "HepB", "YF", "PCV", "Malaria", "Hib", "HPV", "Measles"],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(true);
     }, 5000);
 
     // Change options: round 2
@@ -127,7 +131,6 @@ describe('RidgelinePlot component', () => {
 
       // Color by row; each location (10 subregions + global) has been assigned a color.
       expect(colorStore.colorMapping.size).toEqual(11);
-      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: false, y: false });
 
       assertLastCategoricalScales({
         x: ["Campaign", "Routine"],
@@ -145,6 +148,7 @@ describe('RidgelinePlot component', () => {
           "Middle Africa",
         ],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(true);
     }, { timeout: 5000 });
 
     // Change options: round 3
@@ -168,12 +172,12 @@ describe('RidgelinePlot component', () => {
 
       // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
       expect(colorStore.colorMapping.size).toEqual(3);
-      expect(addGridLinesSpy).toHaveBeenLastCalledWith({ x: true, y: false });
 
       assertLastCategoricalScales({
         x: undefined,
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     }, { timeout: 5000 });
 
     // Change options: round 4 (filtering out as if via legend component)
@@ -188,6 +192,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
 
     // Change options: round 5 (unfiltering as if via legend component)
@@ -201,17 +206,21 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
   }, 20000);
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
     const appStore = useAppStore();
+    const colorStore = useColorStore();
+    const helpInfoStore = useHelpInfoStore();
     const wrapper = mount(RidgelinePlot);
 
     // It shows a chart initially
     await vi.waitFor(() => {
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
+      expect(colorStore.colorMapping.size).toEqual(14);
     });
 
     // Set options that lead to no data
@@ -226,10 +235,21 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("No data available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
+    expect(colorStore.colorMapping.size).toEqual(0);
   });
 
   it('when there are fetch errors, shows an alert instead of the chart', async () => {
+    // Mock the non-log data fetch to fail
+    server.use(
+      http.get("./data/json/hist_counts_deaths_disease.json", async () => {
+        return HttpResponse.json(null, { status: 404 });
+      }),
+    );
+
+    const appStore = useAppStore();
+    const helpInfoStore = useHelpInfoStore();
     const dataStore = useDataStore();
     const wrapper = mount(RidgelinePlot);
 
@@ -239,14 +259,13 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
     });
 
-    dataStore.fetchErrors = [
-      { message: 'Error loading data from path: hist_counts_deaths_disease_log.json. TypeError: Failed to fetch' },
-    ];
+    appStore.logScaleEnabled = false;
 
     await vi.waitFor(() => {
       expect(wrapper.text()).not.toContain("No data available for the selected options.");
       expect(wrapper.text()).toContain("Error loading data");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
   });
 
@@ -321,6 +340,7 @@ describe('RidgelinePlot component', () => {
 
   it('shows a loading spinner while data is being loaded', async () => {
     const dataStore = useDataStore();
+    const helpInfoStore = useHelpInfoStore();
     const wrapper = mount(RidgelinePlot);
     const spinnerMatcher = 'svg[role="status"]';
 
@@ -336,6 +356,7 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.find(spinnerMatcher).exists()).toBe(false);
       expect(wrapper.find("#chartWrapper").exists()).toBe(true);
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
   });
 });
