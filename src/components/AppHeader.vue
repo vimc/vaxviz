@@ -1,23 +1,28 @@
 <template>
-  <header class="border-b border-gray-300 flex items-center gap-8">
+  <header class="border-b border-gray-300 flex items-center justify-between gap-8">
     <div class="flex flex-col">
       <a href="https://www.vaccineimpact.org/" target="_blank">
         <img src="/logo.png" id="logo" alt="VIMC logo" />
       </a>
     </div>
-    <div class="mt-3">
-      <h1 class="text-2xl font-medium brand-heading">
-        Vaxviz
+    <div
+      v-if="showPageHeading"
+      class="mt-3 flex items-center"
+    >
+      <h1 class="text-2xl font-semibold text-brand brand-heading tracking-tight">
+        VAXVIZ
       </h1>
-      <p class="font-light">
+      <span class="text-xl font-light text-brand ms-4 me-3">|</span>
+      <p class="font-light text-lg text-dark-brand tracking-tight">
         Vaccine impact visualization tool
       </p>
     </div>
     <!-- TODO: When paper is published and data finalised, remove this warning. -->
     <FwbAlert
       type="danger"
-      class="border-t-4 rounded-none max-h-20 max-w-136 py-3 mx-auto"
+      class="border-t-4 rounded-none max-h-20 py-3"
       closable
+      @close="showPageHeading = true"
     >
       <template #icon>
         <img class="w-4 h-4 mr-2" src="@/assets/images/icons/dangerInfoIcon.svg" alt=""/>
@@ -32,9 +37,12 @@
         </div>
       </template>
     </FwbAlert>
-    <div class="flex flex-col gap-4 items-end ms-auto">
+    <div
+      id="blurbContainer"
+      class="flex flex-col gap-4 items-end"
+    >
       <!-- TODO: When paper is published, add the link, and remove 'forthcoming'. -->
-      <p class="text-right">This data visualization tool accompanies Gaythorpe et al. (forthcoming)</p>
+      <p class="text-right text-sm">This data visualization tool accompanies Gaythorpe et al. (forthcoming)</p>
       <button
         id="aboutLink"
         @click="aboutModalVisible = true"
@@ -93,4 +101,12 @@ import { useHelpInfoStore } from '@/stores/helpInfoStore';
 const helpInfoStore = useHelpInfoStore();
 
 const aboutModalVisible = ref(false);
+const showPageHeading = ref(false);
 </script>
+
+<style scoped lang="scss">
+.brand-heading {
+  font-family: Century Gothic, Montserrat, var(--font-sans);
+  letter-spacing: 0.075rem;
+}
+</style>

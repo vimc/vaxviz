@@ -22,17 +22,25 @@ $header-padding: calc(var(--spacing)* 5);
 $logo-height: calc(var(--spacing)* 20);
 $header-height: calc(#{$logo-height} + #{$header-border-bottom-width} + (#{$header-padding} * 3));
 
+$logo-intrinsic-ratio: calc(143/45);
+$logo-width: calc(#{$logo-height} * #{$logo-intrinsic-ratio});
+
 header {
   padding: $header-padding;
   margin-bottom: $header-padding;
   max-height: $header-height;
 
   img#logo {
-    $logo-intrinsic-ratio: calc(143/45);
-    $logo-width: calc(#{$logo-height} * #{$logo-intrinsic-ratio});
-
     height: $logo-height;
     min-width: $logo-width;
+  }
+
+  #blurbContainer {
+    max-width: $logo-width; // Set to same as logo in order to have heading div centered with respect to header
+
+    p {
+      width: max-content; // Overflow blurbContainer
+    }
   }
 }
 
