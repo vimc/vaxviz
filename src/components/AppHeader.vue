@@ -1,56 +1,63 @@
 <template>
-  <header class="border-b border-gray-300 flex items-center justify-between gap-8">
-    <div class="flex flex-col">
+  <header class="border-b border-gray-300">
+    <div class="flex flex-col absolute">
       <a href="https://www.vaccineimpact.org/" target="_blank">
         <img src="/logo.png" id="logo" alt="VIMC logo" />
       </a>
     </div>
     <div
-      v-if="showPageHeading"
-      class="mt-3 flex items-center"
+      id="headingContainer"
+      class="flex items-center justify-between gap-8 max-w-max mx-auto"
     >
-      <h1 class="text-2xl font-semibold text-brand brand-heading tracking-tight">
-        VAXVIZ
-      </h1>
-      <span class="text-xl font-light text-brand ms-4 me-3">|</span>
-      <p class="font-light text-lg text-dark-brand tracking-tight">
-        Vaccine impact visualization tool
-      </p>
+      <div
+        v-if="showPageHeading"
+        class="flex items-center"
+      >
+        <h1 class="text-2xl font-semibold text-brand brand-heading tracking-tight">
+          VAXVIZ
+        </h1>
+        <span class="text-xl font-light text-brand ms-4 me-3">|</span>
+        <p class="font-light text-lg text-dark-brand tracking-tight">
+          Vaccine impact visualization tool
+        </p>
+      </div>
+      <!-- TODO: When paper is published and data finalised, remove this warning. -->
+      <FwbAlert
+        type="danger"
+        class="border-t-4 rounded-none max-h-20 py-3"
+        closable
+        @close="showPageHeading = true"
+      >
+        <template #icon>
+          <img class="w-4 h-4 mr-2" src="@/assets/images/icons/dangerInfoIcon.svg" alt=""/>
+          <span class="sr-only">Error</span>
+        </template>
+        <template #default>
+          <div>
+            <h2 class="text-lg font-medium">
+              Provisional estimates. Not to be forwarded or cited.
+            </h2>
+            <p class="mt-2">This is a preview. All estimates shown are representative only. Do not use or forward them.</p>
+          </div>
+        </template>
+      </FwbAlert>
     </div>
-    <!-- TODO: When paper is published and data finalised, remove this warning. -->
-    <FwbAlert
-      type="danger"
-      class="border-t-4 rounded-none max-h-20 py-3"
-      closable
-      @close="showPageHeading = true"
-    >
-      <template #icon>
-        <img class="w-4 h-4 mr-2" src="@/assets/images/icons/dangerInfoIcon.svg" alt=""/>
-        <span class="sr-only">Error</span>
-      </template>
-      <template #default>
-        <div>
-          <h2 class="text-lg font-medium">
-            Provisional estimates. Not to be forwarded or cited.
-          </h2>
-          <p class="mt-2">This is a preview. All estimates shown are representative only. Do not use or forward them.</p>
-        </div>
-      </template>
-    </FwbAlert>
     <div
       id="blurbContainer"
-      class="flex flex-col gap-4 items-end"
+      class="absolute float-right flex flex-col"
     >
-      <!-- TODO: When paper is published, add the link, and remove 'forthcoming'. -->
-      <p class="text-right text-sm">This data visualization tool accompanies Gaythorpe et al. (forthcoming)</p>
-      <button
-        id="aboutLink"
-        @click="aboutModalVisible = true"
-        href="#"
-        class="link"
-      >
-        About
-      </button>
+      <div class="flex flex-col gap-4 items-end my-auto">
+        <!-- TODO: When paper is published, add the link, and remove 'forthcoming'. -->
+        <p class="text-right text-sm">This data visualization tool accompanies Gaythorpe et al. (forthcoming)</p>
+        <button
+          id="aboutLink"
+          @click="aboutModalVisible = true"
+          href="#"
+          class="link"
+        >
+          About
+        </button>
+      </div>
     </div>
   </header>
   <FwbModal

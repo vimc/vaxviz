@@ -19,15 +19,17 @@ import RidgelinePlot from '@/components/RidgelinePlot.vue';
 <style lang="scss">
 $header-border-bottom-width: 1px;
 $header-padding: calc(var(--spacing)* 5);
+$header-margin-bottom: $header-padding;
 $logo-height: calc(var(--spacing)* 20);
-$header-height: calc(#{$logo-height} + #{$header-border-bottom-width} + (#{$header-padding} * 3));
+$header-height: calc(#{$logo-height} + #{$header-border-bottom-width} + (#{$header-padding} * 2));
 
 $logo-intrinsic-ratio: calc(143/45);
 $logo-width: calc(#{$logo-height} * #{$logo-intrinsic-ratio});
 
 header {
   padding: $header-padding;
-  margin-bottom: $header-padding;
+  margin-bottom: $header-margin-bottom;
+  height: $header-height;
   max-height: $header-height;
 
   img#logo {
@@ -37,15 +39,24 @@ header {
 
   #blurbContainer {
     max-width: $logo-width; // Set to same as logo in order to have heading div centered with respect to header
+    position: absolute;
+    top: $header-padding;
+    right: $header-padding;
+    height: calc(#{$header-height} - (#{$header-padding} * 2));
 
     p {
-      width: max-content; // Overflow blurbContainer
+      // Overflow blurbContainer horizontally rather than breaking lines which would potentially overflow header vertically
+      width: max-content;
     }
+  }
+
+  #headingContainer {
+    height: calc(#{$header-height} - (#{$header-padding} * 2));
   }
 }
 
 main {
-  height: calc(100dvh - #{$header-height});
-  max-height: calc(100dvh - #{$header-height});
+  height: calc(100dvh - #{$header-height} - #{$header-margin-bottom});
+  max-height: calc(100dvh - #{$header-height} - #{$header-margin-bottom});
 }
 </style>
