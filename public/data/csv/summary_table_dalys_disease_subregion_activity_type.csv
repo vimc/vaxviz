@@ -1,183 +1,183 @@
 "disease","subregion","activity_type","mean_value","lower_95","upper_95","median_value"
-"COVID-19","Middle Africa","campaign",1.956516,-0.359385,4.139643,2.013779
-"COVID-19","Middle Africa","routine",3.046229,1.117062,4.997392,3.140544
-"COVID-19","Northern Africa and Western Asia","campaign",5.557367,3.817115,7.62536,5.483132
-"COVID-19","Northern Africa and Western Asia","routine",2.944423,2.519266,3.36796,2.945439
-"COVID-19","Eastern Africa","campaign",2.074093,1.255116,3.036325,2.04524
-"COVID-19","Eastern Africa","routine",1.94467,0.601843,3.345648,1.966651
-"COVID-19","Western Africa","campaign",2.071053,1.229778,3.110008,2.025574
-"COVID-19","Western Africa","routine",3.417312,2.216961,4.586025,3.427393
-"COVID-19","Southern Africa","campaign",14.205761,4.978915,39.547396,11.441366
-"COVID-19","Southern Africa","routine",1.225192,-5.816254,6.450262,1.636046
-"COVID-19","Central and Southern Asia","campaign",9.37985,4.293349,19.741828,8.322202
-"COVID-19","Central and Southern Asia","routine",0.951151,-0.401252,2.51402,0.996048
-"COVID-19","Eastern and South-Eastern Asia","campaign",3.086035,1.951621,4.583802,3.010613
-"COVID-19","Eastern and South-Eastern Asia","routine",0.433024,0.236877,0.598432,0.433721
-"COVID-19","Eastern and Southern Europe","campaign",10.840756,8.040326,15.015212,10.648579
-"COVID-19","Eastern and Southern Europe","routine",0.426122,-0.443596,1.172593,0.407376
-"COVID-19","Latin America and the Caribbean","campaign",12.333322,8.399804,17.502159,12.102278
-"COVID-19","Latin America and the Caribbean","routine",0.792422,0.390315,1.219453,0.781263
-"COVID-19","Oceania","campaign",2.371571,0.729461,4.444375,2.253607
-"COVID-19","Oceania","routine",0.810452,-0.831372,2.179185,0.731377
-"Cholera","Middle Africa","campaign",3.607115,0.78154,6.462761,3.490773
-"Cholera","Northern Africa and Western Asia","campaign",10.483942,0.057704,20.560545,10.694555
-"Cholera","Eastern Africa","campaign",7.492629,0.725095,13.898748,7.180992
-"Cholera","Western Africa","campaign",3.077787,0.080994,6.14715,3.152091
-"Cholera","Central and Southern Asia","campaign",1.072603,0.002327,2.507576,1.041508
-"Cholera","Latin America and the Caribbean","campaign",6.420537,0.239905,48.054902,3.039962
-"HPV","Middle Africa","campaign",519.056726,245.258874,842.285379,506.374143
-"HPV","Middle Africa","routine",587.016164,298.131871,923.332993,574.13278
-"HPV","Northern Africa and Western Asia","campaign",444.224493,106.297669,787.422429,449.136593
-"HPV","Northern Africa and Western Asia","routine",432.094978,137.419726,733.878174,434.059247
-"HPV","Eastern Africa","campaign",981.733551,387.966567,1547.319452,1016.740781
-"HPV","Eastern Africa","routine",886.829121,610.848568,1180.803299,881.345168
-"HPV","Western Africa","campaign",506.011541,213.504926,876.631386,354.858303
-"HPV","Western Africa","routine",532.884908,277.454808,834.281967,471.972019
-"HPV","Southern Africa","campaign",689.266083,400.657561,1030.522504,693.916823
-"HPV","Southern Africa","routine",439.627593,322.984599,542.796574,443.231887
-"HPV","Central and Southern Asia","campaign",487.660367,248.217313,754.784445,505.936192
-"HPV","Central and Southern Asia","routine",437.5235,236.272788,672.396554,420.745548
-"HPV","Eastern and South-Eastern Asia","campaign",310.814087,155.569554,533.736882,286.874896
-"HPV","Eastern and South-Eastern Asia","routine",528.020528,268.368725,860.32957,450.183977
-"HPV","Eastern and Southern Europe","campaign",378.285017,160.918034,603.493331,372.650896
-"HPV","Eastern and Southern Europe","routine",396.581738,169.226831,633.832329,389.470537
-"HPV","Latin America and the Caribbean","campaign",459.511072,259.244191,664.863896,458.371678
-"HPV","Latin America and the Caribbean","routine",709.112046,349.873975,1076.591051,705.784548
-"HPV","Oceania","campaign",357.540031,166.018345,983.581454,256.209211
-"HPV","Oceania","routine",389.561007,242.450986,783.501289,338.291342
-"HepB","Middle Africa","routine",134.716882,54.340009,228.516329,123.74536
-"HepB","Northern Africa and Western Asia","routine",108.581521,65.624808,154.188611,108.257302
-"HepB","Eastern Africa","routine",160.399303,105.370655,230.680742,158.459791
-"HepB","Western Africa","routine",145.172807,107.262599,184.949821,146.104072
-"HepB","Southern Africa","routine",149.552802,48.324901,294.023082,132.976366
-"HepB","Central and Southern Asia","routine",109.099341,66.664544,151.038915,108.926922
-"HepB","Eastern and South-Eastern Asia","routine",190.638133,88.696625,347.259347,161.954977
-"HepB","Eastern and Southern Europe","routine",70.992621,39.986488,112.743851,67.07408
-"HepB","Latin America and the Caribbean","routine",31.204291,21.370812,43.085073,30.740423
-"HepB","Oceania","routine",140.452635,81.774361,232.077002,123.539028
-"Hib","Middle Africa","routine",363.181433,202.237076,599.460051,343.872197
-"Hib","Northern Africa and Western Asia","routine",107.821869,60.345721,171.554011,104.73665
-"Hib","Eastern Africa","routine",198.365843,123.256247,302.789613,193.121284
-"Hib","Western Africa","routine",244.410908,146.415162,413.479028,235.499788
-"Hib","Southern Africa","routine",79.447076,43.001841,115.418953,80.840791
-"Hib","Central and Southern Asia","routine",130.033949,65.645667,267.299054,111.811614
-"Hib","Eastern and South-Eastern Asia","routine",71.381901,30.37841,143.276795,66.389689
-"Hib","Eastern and Southern Europe","routine",17.197109,8.691411,32.191918,14.284771
-"Hib","Latin America and the Caribbean","routine",67.495595,41.98929,94.661987,67.066438
-"Hib","Oceania","routine",146.16065,54.021809,310.163929,135.383719
-"JE","Central and Southern Asia","campaign",4.057504,0.256258,13.483432,2.964965
-"JE","Central and Southern Asia","routine",98.154079,18.829539,201.866262,67.489075
-"JE","Eastern and South-Eastern Asia","campaign",6.528189,0.042794,27.403235,3.9588
-"JE","Eastern and South-Eastern Asia","routine",120.478098,10.660791,271.632534,146.363734
-"JE","Oceania","campaign",2.20494,0.028955,13.488221,0.056425
-"JE","Oceania","routine",97.741308,2.392121,249.827716,28.658871
-"Malaria","Middle Africa","routine",246.499213,144.237384,386.446512,237.945347
-"Malaria","Northern Africa and Western Asia","routine",106.765024,-0.806038,354.901918,95.702635
-"Malaria","Eastern Africa","routine",174.176123,107.449488,240.518386,173.255807
-"Malaria","Western Africa","routine",209.028556,155.990487,285.102321,203.946922
-"Measles","Middle Africa","campaign",217.78838,161.297436,263.167487,217.153749
-"Measles","Middle Africa","routine",1548.441387,1143.860748,2020.758495,1547.30769
-"Measles","Northern Africa and Western Asia","campaign",33.73357,20.065407,53.020641,33.051595
-"Measles","Northern Africa and Western Asia","routine",599.633679,375.609807,819.622132,602.343118
-"Measles","Eastern Africa","campaign",132.139591,94.523342,175.825241,130.782212
-"Measles","Eastern Africa","routine",923.82162,654.706012,1209.927539,913.682167
-"Measles","Western Africa","campaign",152.844802,102.384832,191.504041,154.091253
-"Measles","Western Africa","routine",1525.93072,1097.471056,1985.333393,1523.837021
-"Measles","Southern Africa","campaign",17.5447,3.537243,33.337008,17.108165
-"Measles","Southern Africa","routine",393.355359,160.181415,743.050382,261.694016
-"Measles","Central and Southern Asia","campaign",61.471007,41.938053,85.209734,60.590403
-"Measles","Central and Southern Asia","routine",766.991756,547.428025,1051.515102,755.20034
-"Measles","Eastern and South-Eastern Asia","campaign",19.059821,11.211447,28.854181,18.762568
-"Measles","Eastern and South-Eastern Asia","routine",404.648885,202.97123,649.141986,398.67637
-"Measles","Eastern and Southern Europe","campaign",18.378059,4.014194,36.107946,17.280179
-"Measles","Eastern and Southern Europe","routine",219.030116,126.084874,330.084535,215.048674
-"Measles","Latin America and the Caribbean","campaign",31.959995,15.083542,52.748523,31.279113
-"Measles","Latin America and the Caribbean","routine",768.648615,478.80968,1116.337412,764.614378
-"Measles","Oceania","campaign",129.719032,82.841258,208.607835,107.092464
-"Measles","Oceania","routine",873.901931,432.736184,1522.273921,583.466605
-"MenA","Middle Africa","campaign",30.557594,23.081071,40.06306,30.207279
-"MenA","Middle Africa","routine",33.15587,18.941538,49.739932,32.550853
-"MenA","Northern Africa and Western Asia","campaign",49.742278,34.780686,64.857972,49.875827
-"MenA","Northern Africa and Western Asia","routine",18.069532,7.445635,27.459933,18.252821
-"MenA","Eastern Africa","campaign",29.178081,21.426823,37.297871,29.33581
-"MenA","Eastern Africa","routine",84.138917,45.731883,124.485473,83.759742
-"MenA","Western Africa","campaign",43.452663,35.328704,51.142985,43.795954
-"MenA","Western Africa","routine",16.16292,10.595898,21.132752,16.167265
-"MenACWYX","Middle Africa","campaign",58.770082,33.727915,87.325094,58.241467
-"MenACWYX","Middle Africa","routine",42.636373,28.463451,56.489745,42.862472
-"MenACWYX","Northern Africa and Western Asia","campaign",66.247424,15.945024,117.252083,66.193212
-"MenACWYX","Northern Africa and Western Asia","routine",40.29177,19.95348,60.182752,41.157872
-"MenACWYX","Eastern Africa","campaign",63.590405,26.494723,94.431258,63.213498
-"MenACWYX","Eastern Africa","routine",44.086012,25.384335,59.555656,44.822388
-"MenACWYX","Western Africa","campaign",56.051422,33.809145,80.608574,55.12688
-"MenACWYX","Western Africa","routine",34.1246,23.788376,43.501058,34.666242
-"PCV","Middle Africa","routine",242.075637,58.475475,536.327431,215.833685
-"PCV","Northern Africa and Western Asia","routine",91.404067,29.239266,180.874873,85.695333
-"PCV","Eastern Africa","routine",122.895254,55.141886,222.680248,115.768786
-"PCV","Western Africa","routine",163.776111,26.45449,375.656343,142.710156
-"PCV","Southern Africa","routine",50.897558,-1.653891,133.764717,48.301948
-"PCV","Central and Southern Asia","routine",87.400019,-37.572241,275.805404,72.219964
-"PCV","Eastern and South-Eastern Asia","routine",54.151941,-33.793732,190.084551,38.988907
-"PCV","Eastern and Southern Europe","routine",12.184716,-22.60303,44.069181,10.519321
-"PCV","Latin America and the Caribbean","routine",59.356154,27.120243,99.210812,56.816828
-"PCV","Oceania","routine",90.677299,-51.724733,283.989225,73.194504
-"Rota","Middle Africa","routine",129.16407,-29.650856,314.71753,131.98572
-"Rota","Northern Africa and Western Asia","routine",47.687842,6.430611,97.603774,44.982904
-"Rota","Eastern Africa","routine",52.820391,16.326433,91.263527,51.963226
-"Rota","Western Africa","routine",101.55286,-151.055355,248.912391,98.350701
-"Rota","Southern Africa","routine",27.852199,-11.635171,56.403395,24.560997
-"Rota","Central and Southern Asia","routine",30.936935,-41.40706,128.724383,27.880864
-"Rota","Eastern and South-Eastern Asia","routine",20.671132,-23.002754,112.108836,12.174622
-"Rota","Eastern and Southern Europe","routine",1.602306,-11.920895,15.383325,1.683439
-"Rota","Latin America and the Caribbean","routine",24.266884,12.289359,42.010173,22.965305
-"Rota","Oceania","routine",51.145176,-239.03001,310.813847,36.551161
-"Rubella","Middle Africa","campaign",3.96588,-15.056899,51.295533,-0.745102
-"Rubella","Middle Africa","routine",55.086524,7.767411,132.566699,48.496503
-"Rubella","Northern Africa and Western Asia","campaign",4.378302,-4.035103,13.472198,4.235334
-"Rubella","Northern Africa and Western Asia","routine",21.019153,8.147605,38.100381,20.337641
-"Rubella","Eastern Africa","campaign",12.634702,-5.147137,40.62377,10.392525
-"Rubella","Eastern Africa","routine",33.44463,17.957396,59.250847,31.05062
-"Rubella","Western Africa","campaign",14.029986,-7.050955,76.918634,7.217507
-"Rubella","Western Africa","routine",57.112474,18.574247,117.677373,51.624163
-"Rubella","Southern Africa","campaign",-5.296785,-45.223463,34.844382,-4.54998
-"Rubella","Southern Africa","routine",25.267256,5.470411,48.891561,24.410783
-"Rubella","Central and Southern Asia","campaign",9.848356,-1.549634,33.223825,6.941296
-"Rubella","Central and Southern Asia","routine",28.104784,10.433507,58.446265,22.038673
-"Rubella","Eastern and South-Eastern Asia","campaign",17.52588,1.733664,44.721651,15.395995
-"Rubella","Eastern and South-Eastern Asia","routine",5.668265,3.106819,8.858356,5.532596
-"Rubella","Eastern and Southern Europe","campaign",6.736607,-5.866123,25.634619,5.443028
-"Rubella","Eastern and Southern Europe","routine",13.685919,3.679041,31.306551,11.322617
-"Rubella","Latin America and the Caribbean","campaign",13.569731,2.865164,30.703318,12.370712
-"Rubella","Latin America and the Caribbean","routine",6.522312,3.341791,11.847892,6.126372
-"Rubella","Oceania","campaign",38.26714,6.318519,110.60374,27.516355
-"Rubella","Oceania","routine",13.143128,2.002867,27.993667,12.28988
-"Typhoid","Middle Africa","campaign",90.931484,7.636267,489.777961,53.555645
-"Typhoid","Middle Africa","routine",120.734293,14.380134,778.086039,53.713454
-"Typhoid","Northern Africa and Western Asia","campaign",20.353117,1.572225,89.819075,13.422086
-"Typhoid","Northern Africa and Western Asia","routine",68.196065,-4.270905,501.782299,19.027196
-"Typhoid","Eastern Africa","campaign",36.189815,10.564344,128.719548,25.5987
-"Typhoid","Eastern Africa","routine",77.607575,9.413711,322.685251,46.747644
-"Typhoid","Western Africa","campaign",47.685299,16.354586,117.394969,40.293657
-"Typhoid","Western Africa","routine",76.516851,17.788391,260.777783,53.797674
-"Typhoid","Southern Africa","campaign",10.761351,0.620392,58.196941,5.766139
-"Typhoid","Southern Africa","routine",35.07643,0.941603,198.089128,8.886884
-"Typhoid","Central and Southern Asia","campaign",4.858273,0.980296,12.720801,4.144878
-"Typhoid","Central and Southern Asia","routine",7.856888,1.179119,36.756332,4.539365
-"Typhoid","Eastern and South-Eastern Asia","campaign",5.879609,1.264606,29.799963,4.088707
-"Typhoid","Eastern and South-Eastern Asia","routine",16.085851,1.041362,99.687536,6.605287
-"Typhoid","Eastern and Southern Europe","campaign",1.291103,0,8.683444,0.352439
-"Typhoid","Eastern and Southern Europe","routine",5.402514,0,40.284578,0.221275
-"Typhoid","Latin America and the Caribbean","campaign",5.654605,1.21496,18.73095,4.325449
-"Typhoid","Latin America and the Caribbean","routine",13.352045,1.590268,66.563349,6.258175
-"Typhoid","Oceania","campaign",180.79295,3.513174,838.603288,63.534975
-"Typhoid","Oceania","routine",125.196663,2.251677,569.005316,73.916603
-"YF","Middle Africa","campaign",13.388053,2.990293,31.537434,12.249411
-"YF","Middle Africa","routine",311.569026,25.090319,957.562627,260.315606
-"YF","Northern Africa and Western Asia","campaign",49.449164,1.3615,196.803725,25.714114
-"YF","Northern Africa and Western Asia","routine",262.547682,3.766267,1199.981153,76.20806
-"YF","Eastern Africa","campaign",6.325526,0.667612,17.08972,5.411409
-"YF","Eastern Africa","routine",103.926757,24.297028,237.719865,92.426404
-"YF","Western Africa","campaign",18.260581,7.108883,44.080001,15.672698
-"YF","Western Africa","routine",278.950553,86.018366,661.619261,240.588063
-"YF","Latin America and the Caribbean","campaign",30.853889,3.105005,108.633672,19.19748
-"YF","Latin America and the Caribbean","routine",113.080845,27.555225,276.156241,100.619954
+"COVID-19","Middle Africa","campaign",1.938756,-0.432329,4.139243,2.09136
+"COVID-19","Middle Africa","routine",3.048492,1.23473,4.667408,3.18081
+"COVID-19","Northern Africa and Western Asia","campaign",5.472471,3.665064,7.881302,5.313292
+"COVID-19","Northern Africa and Western Asia","routine",2.950603,2.576753,3.30945,2.943929
+"COVID-19","Eastern Africa","campaign",2.090147,1.288941,2.958261,2.047544
+"COVID-19","Eastern Africa","routine",1.945625,0.927681,3.260417,1.864228
+"COVID-19","Western Africa","campaign",2.089115,1.228601,3.37023,2.079785
+"COVID-19","Western Africa","routine",3.419877,2.122908,4.297658,3.481473
+"COVID-19","Southern Africa","campaign",14.110233,4.907732,36.217369,11.436082
+"COVID-19","Southern Africa","routine",0.995179,-5.643807,6.374107,1.479087
+"COVID-19","Central and Southern Asia","campaign",9.521327,4.158296,19.45554,8.57972
+"COVID-19","Central and Southern Asia","routine",0.92717,-0.390113,2.415282,0.982083
+"COVID-19","Eastern and South-Eastern Asia","campaign",3.118431,2.122028,4.502051,3.125006
+"COVID-19","Eastern and South-Eastern Asia","routine",0.432701,0.192813,0.587461,0.432181
+"COVID-19","Eastern and Southern Europe","campaign",10.821198,7.53921,15.216912,10.544553
+"COVID-19","Eastern and Southern Europe","routine",0.407236,-0.35048,1.201274,0.381195
+"COVID-19","Latin America and the Caribbean","campaign",12.124248,7.602596,15.747332,12.250795
+"COVID-19","Latin America and the Caribbean","routine",0.804448,0.413367,1.081703,0.818532
+"COVID-19","Oceania","campaign",2.328851,0.656666,4.497106,2.211838
+"COVID-19","Oceania","routine",0.779377,-0.949232,2.046756,0.7767
+"Cholera","Middle Africa","campaign",3.601283,2.662863,6.452361,3.330463
+"Cholera","Northern Africa and Western Asia","campaign",10.267205,8.936013,12.285997,10.692617
+"Cholera","Eastern Africa","campaign",7.331632,5.778718,13.280939,6.940977
+"Cholera","Western Africa","campaign",3.073513,2.576289,3.921715,3.121041
+"Cholera","Central and Southern Asia","campaign",1.063586,0.813441,1.330361,1.23663
+"Cholera","Latin America and the Caribbean","campaign",5.77973,1.821228,43.626714,2.201396
+"HPV","Middle Africa","campaign",521.919091,429.390559,628.763993,520.356801
+"HPV","Middle Africa","routine",593.014812,507.401183,689.360221,590.314894
+"HPV","Northern Africa and Western Asia","campaign",449.739412,412.861746,486.673188,450.571331
+"HPV","Northern Africa and Western Asia","routine",433.60501,402.343026,466.81271,433.269714
+"HPV","Eastern Africa","campaign",953.243786,861.015331,1042.331933,952.579155
+"HPV","Eastern Africa","routine",883.273944,832.01728,935.223678,885.023174
+"HPV","Western Africa","campaign",507.621536,433.954472,583.027597,506.922707
+"HPV","Western Africa","routine",533.23802,474.565956,597.89708,530.658142
+"HPV","Southern Africa","campaign",694.226055,626.16154,756.29206,693.442415
+"HPV","Southern Africa","routine",441.333632,398.412274,482.839536,441.5049
+"HPV","Central and Southern Asia","campaign",484.03288,435.719064,539.546677,483.000754
+"HPV","Central and Southern Asia","routine",439.863316,396.482532,483.721527,439.645249
+"HPV","Eastern and South-Eastern Asia","campaign",310.645934,253.938024,365.695741,310.146363
+"HPV","Eastern and South-Eastern Asia","routine",534.303833,468.905076,601.366822,533.845523
+"HPV","Eastern and Southern Europe","campaign",382.891434,331.167427,430.738127,382.712478
+"HPV","Eastern and Southern Europe","routine",400.027432,364.096917,429.035123,401.604319
+"HPV","Latin America and the Caribbean","campaign",462.76633,434.765552,485.5789,463.478781
+"HPV","Latin America and the Caribbean","routine",709.226697,666.54017,754.094843,708.964213
+"HPV","Oceania","campaign",346.729139,184.53601,735.588299,315.850567
+"HPV","Oceania","routine",390.553983,262.056341,632.890528,371.873653
+"HepB","Middle Africa","routine",135.136654,116.32778,157.516402,134.803375
+"HepB","Northern Africa and Western Asia","routine",108.667489,96.136703,121.559592,108.413538
+"HepB","Eastern Africa","routine",159.383964,143.269221,178.015013,158.949082
+"HepB","Western Africa","routine",144.956708,126.433432,166.285451,144.503907
+"HepB","Southern Africa","routine",149.788988,121.229502,180.093554,149.724049
+"HepB","Central and Southern Asia","routine",108.890855,92.831971,127.374411,108.468664
+"HepB","Eastern and South-Eastern Asia","routine",191.97665,162.937064,225.035993,191.224966
+"HepB","Eastern and Southern Europe","routine",70.451414,62.642581,79.479826,70.313178
+"HepB","Latin America and the Caribbean","routine",31.641069,28.063383,36.025481,31.547541
+"HepB","Oceania","routine",144.531461,123.977226,165.669041,144.210871
+"Hib","Middle Africa","routine",357.537885,251.042498,472.871926,357.684187
+"Hib","Northern Africa and Western Asia","routine",108.951371,89.979258,130.083521,108.456416
+"Hib","Eastern Africa","routine",199.738958,168.415725,244.851067,197.845516
+"Hib","Western Africa","routine",245.495872,178.296078,334.148868,240.182517
+"Hib","Southern Africa","routine",78.526082,60.617411,101.052044,77.747354
+"Hib","Central and Southern Asia","routine",130.785785,72.942872,189.379486,129.436413
+"Hib","Eastern and South-Eastern Asia","routine",72.596593,39.717725,103.925932,72.299243
+"Hib","Eastern and Southern Europe","routine",17.531601,11.917927,23.984385,17.423467
+"Hib","Latin America and the Caribbean","routine",67.660893,56.35466,79.171369,67.837401
+"Hib","Oceania","routine",143.978532,73.84237,224.241241,143.125015
+"JE","Central and Southern Asia","campaign",4.104892,1.257261,9.871739,3.296819
+"JE","Central and Southern Asia","routine",98.514159,67.246792,132.86475,97.848468
+"JE","Eastern and South-Eastern Asia","campaign",6.401008,1.756493,20.341729,4.733325
+"JE","Eastern and South-Eastern Asia","routine",116.810778,80.57277,154.185768,115.237718
+"JE","Oceania","campaign",2.113233,0.044695,7.880354,1.370547
+"JE","Oceania","routine",100.370564,69.307203,132.744671,99.218419
+"Malaria","Middle Africa","routine",245.382147,164.509483,333.723028,243.420106
+"Malaria","Northern Africa and Western Asia","routine",106.273099,22.372125,248.857874,96.47541
+"Malaria","Eastern Africa","routine",173.753265,119.832659,234.223416,171.911806
+"Malaria","Western Africa","routine",207.479555,156.787986,271.725049,205.480689
+"Measles","Middle Africa","campaign",216.38418,154.351489,243.765805,222.424199
+"Measles","Middle Africa","routine",1544.663008,1340.687296,1762.81426,1551.631938
+"Measles","Northern Africa and Western Asia","campaign",33.74137,16.413556,55.176005,33.158892
+"Measles","Northern Africa and Western Asia","routine",594.774805,463.797581,709.492506,595.780888
+"Measles","Eastern Africa","campaign",133.665014,93.872366,161.553711,135.774987
+"Measles","Eastern Africa","routine",922.915066,776.534622,1074.567446,923.256692
+"Measles","Western Africa","campaign",152.727287,94.437517,192.920126,157.680931
+"Measles","Western Africa","routine",1523.642972,1299.033912,1777.579568,1531.106442
+"Measles","Southern Africa","campaign",17.123284,8.062155,28.809198,16.53715
+"Measles","Southern Africa","routine",399.092531,307.391751,493.180335,397.838625
+"Measles","Central and Southern Asia","campaign",61.539404,40.172058,78.194137,62.086907
+"Measles","Central and Southern Asia","routine",766.909801,634.096932,887.455375,767.206624
+"Measles","Eastern and South-Eastern Asia","campaign",19.145793,9.419855,29.076555,18.603741
+"Measles","Eastern and South-Eastern Asia","routine",399.712674,302.260235,492.462042,399.788984
+"Measles","Eastern and Southern Europe","campaign",18.519783,6.026423,34.128699,18.002543
+"Measles","Eastern and Southern Europe","routine",219.10482,170.281206,262.891072,219.179689
+"Measles","Latin America and the Caribbean","campaign",32.203712,9.909215,58.717148,31.791746
+"Measles","Latin America and the Caribbean","routine",776.548032,602.153176,934.600128,777.907402
+"Measles","Oceania","campaign",129.361933,86.063791,156.864687,131.976118
+"Measles","Oceania","routine",879.71956,727.578802,1063.107033,879.32499
+"MenA","Middle Africa","campaign",31.892383,24.139584,40.082397,31.757743
+"MenA","Middle Africa","routine",26.093403,12.508184,37.940093,26.784903
+"MenA","Northern Africa and Western Asia","campaign",49.679518,34.775207,63.99548,49.673431
+"MenA","Northern Africa and Western Asia","routine",17.999044,8.167594,27.307242,18.170132
+"MenA","Eastern Africa","campaign",33.150059,23.581161,43.90837,33.404111
+"MenA","Eastern Africa","routine",65.233811,27.494223,93.409363,65.83958
+"MenA","Western Africa","campaign",39.642895,32.130218,46.656249,40.043074
+"MenA","Western Africa","routine",16.01054,8.59054,22.496271,16.500415
+"MenACWYX","Middle Africa","campaign",58.981641,26.725983,95.848407,58.454462
+"MenACWYX","Middle Africa","routine",42.632187,23.403148,60.01413,44.045579
+"MenACWYX","Northern Africa and Western Asia","campaign",65.973163,9.961771,117.252083,65.81454
+"MenACWYX","Northern Africa and Western Asia","routine",39.731714,21.027628,57.245021,39.897819
+"MenACWYX","Eastern Africa","campaign",62.565567,23.183824,99.011911,61.954995
+"MenACWYX","Eastern Africa","routine",43.980206,24.180592,61.271602,45.771655
+"MenACWYX","Western Africa","campaign",54.833744,27.826869,89.363689,53.479755
+"MenACWYX","Western Africa","routine",33.390793,17.557998,46.79982,35.510172
+"PCV","Middle Africa","routine",238.514598,96.592105,361.130332,246.967659
+"PCV","Northern Africa and Western Asia","routine",89.747512,45.821345,124.643975,89.208637
+"PCV","Eastern Africa","routine",124.55827,78.241633,173.958721,124.80634
+"PCV","Western Africa","routine",160.598066,56.717575,266.468267,157.805764
+"PCV","Southern Africa","routine",49.571875,14.635391,93.8566,48.405828
+"PCV","Central and Southern Asia","routine",85.838773,-33.959799,183.073419,87.69462
+"PCV","Eastern and South-Eastern Asia","routine",52.648343,-22.487697,121.253765,51.903741
+"PCV","Eastern and Southern Europe","routine",12.123725,-9.490277,30.47766,13.46675
+"PCV","Latin America and the Caribbean","routine",59.144368,37.111305,87.794873,58.811193
+"PCV","Oceania","routine",85.956943,-41.447435,192.763249,88.070804
+"Rota","Middle Africa","routine",128.346741,26.23758,224.155837,130.090045
+"Rota","Northern Africa and Western Asia","routine",47.152094,25.618961,68.930769,46.34272
+"Rota","Eastern Africa","routine",51.675806,33.538711,68.874541,51.530896
+"Rota","Western Africa","routine",106.750961,20.685376,186.196583,106.992544
+"Rota","Southern Africa","routine",28.197159,14.986988,44.352676,27.548356
+"Rota","Central and Southern Asia","routine",32.480424,-9.074767,72.976677,31.794624
+"Rota","Eastern and South-Eastern Asia","routine",19.145098,-10.096727,58.471426,19.343562
+"Rota","Eastern and Southern Europe","routine",1.576427,-4.766076,8.086918,1.459553
+"Rota","Latin America and the Caribbean","routine",23.836599,17.530599,32.115365,23.796889
+"Rota","Oceania","routine",53.530147,-87.941942,194.194248,54.052903
+"Rubella","Middle Africa","campaign",4.099865,-11.00895,44.097106,-0.655239
+"Rubella","Middle Africa","routine",54.377374,14.482904,102.141644,52.775384
+"Rubella","Northern Africa and Western Asia","campaign",4.643183,1.031987,10.037528,4.111444
+"Rubella","Northern Africa and Western Asia","routine",21.313401,11.739634,29.520361,21.335937
+"Rubella","Eastern Africa","campaign",12.847678,-1.954643,45.582738,9.590006
+"Rubella","Eastern Africa","routine",33.729508,21.99731,48.311636,33.485319
+"Rubella","Western Africa","campaign",15.438355,-1.518444,47.330187,11.076648
+"Rubella","Western Africa","routine",57.939094,27.351633,88.889365,57.787458
+"Rubella","Southern Africa","campaign",-4.745723,-28.583059,21.332593,-5.213666
+"Rubella","Southern Africa","routine",25.400452,10.497836,38.803958,25.620974
+"Rubella","Central and Southern Asia","campaign",10.484294,2.474811,22.321618,9.87028
+"Rubella","Central and Southern Asia","routine",27.676948,12.898498,39.38167,28.172838
+"Rubella","Eastern and South-Eastern Asia","campaign",17.579602,6.7747,29.434232,17.539539
+"Rubella","Eastern and South-Eastern Asia","routine",5.743912,4.545561,7.398602,5.661134
+"Rubella","Eastern and Southern Europe","campaign",6.927994,-4.165257,31.088931,4.00896
+"Rubella","Eastern and Southern Europe","routine",14.147759,2.021871,27.630324,13.545118
+"Rubella","Latin America and the Caribbean","campaign",13.31877,1.583203,35.176608,10.257476
+"Rubella","Latin America and the Caribbean","routine",6.490173,2.948433,11.419005,6.247913
+"Rubella","Oceania","campaign",38.318368,7.013686,77.491477,33.596865
+"Rubella","Oceania","routine",12.904814,3.564647,28.184498,12.132137
+"Typhoid","Middle Africa","campaign",83.931814,21.206007,359.729552,55.819847
+"Typhoid","Middle Africa","routine",134.688059,18.761322,750.892284,64.091935
+"Typhoid","Northern Africa and Western Asia","campaign",19.534916,3.12301,64.641837,14.783543
+"Typhoid","Northern Africa and Western Asia","routine",65.680211,-9.545444,379.4929,28.33697
+"Typhoid","Eastern Africa","campaign",35.47947,7.908843,114.650417,25.903361
+"Typhoid","Eastern Africa","routine",80.894342,9.881496,284.12672,48.780746
+"Typhoid","Western Africa","campaign",45.122747,12.752146,114.681592,40.148943
+"Typhoid","Western Africa","routine",71.247967,15.28148,228.340898,54.685215
+"Typhoid","Southern Africa","campaign",11.701147,1.220549,42.072399,7.123323
+"Typhoid","Southern Africa","routine",29.938925,2.083343,234.514626,10.951404
+"Typhoid","Central and Southern Asia","campaign",4.777659,1.365156,11.610246,4.127798
+"Typhoid","Central and Southern Asia","routine",7.653648,0.69392,30.364397,5.711158
+"Typhoid","Eastern and South-Eastern Asia","campaign",5.603854,1.372747,21.835485,4.011692
+"Typhoid","Eastern and South-Eastern Asia","routine",16.499475,0.404956,70.511666,10.321032
+"Typhoid","Eastern and Southern Europe","campaign",1.235374,0.010188,5.304497,0.452245
+"Typhoid","Eastern and Southern Europe","routine",6.079528,0.003305,46.087338,1.140218
+"Typhoid","Latin America and the Caribbean","campaign",5.427266,0.840179,16.714472,4.122794
+"Typhoid","Latin America and the Caribbean","routine",12.446034,1.428943,62.585713,6.90528
+"Typhoid","Oceania","campaign",190.463376,13.462448,622.571806,152.21555
+"Typhoid","Oceania","routine",117.368998,11.300366,413.964904,85.297976
+"YF","Middle Africa","campaign",13.334517,4.158394,27.364091,12.36189
+"YF","Middle Africa","routine",317.104806,81.209695,729.181187,267.039529
+"YF","Northern Africa and Western Asia","campaign",48.637496,12.907719,112.572609,43.726809
+"YF","Northern Africa and Western Asia","routine",266.951566,63.417594,676.880511,236.498111
+"YF","Eastern Africa","campaign",6.643977,1.723301,15.6734,5.850425
+"YF","Eastern Africa","routine",102.741659,28.854068,240.017566,91.424319
+"YF","Western Africa","campaign",18.166815,5.638681,37.391424,16.859396
+"YF","Western Africa","routine",276.690104,71.886743,657.747775,240.432403
+"YF","Latin America and the Caribbean","campaign",29.737252,8.584384,65.601015,27.026297
+"YF","Latin America and the Caribbean","routine",111.940514,34.646513,240.43808,103.147292

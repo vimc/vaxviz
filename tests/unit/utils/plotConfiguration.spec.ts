@@ -105,6 +105,23 @@ describe('plotConfiguration', () => {
       expect(formatter(-2)).toBe('$-2$');
     });
 
+    it("sets the right tick count when x range crosses zero", () => {
+      const result = plotConfiguration(Dimension.DISEASE, false, [
+        {
+          points: [{ x: -5, y: 5 }, { x: -2, y: 6 }, { x: 20, y: 2 }],
+          bands: { x: 'routine', y: 'HepB' },
+        },
+      ]);
+      const tickCount = result.constructorOptions.tickConfig.numerical?.x?.count;
+      expect(tickCount).toBe(3);
+    });
+
+    it("sets the right tick count when x range does not cross zero", () => {
+      const result = plotConfiguration(Dimension.DISEASE, false, lines);
+      const tickCount = result.constructorOptions.tickConfig.numerical?.x?.count;
+      expect(tickCount).toBe(5);
+    });
+
     describe('location tick formatter', () => {
       const getLocationFormatter = () => {
         const result = plotConfiguration(Dimension.LOCATION, false, lines);

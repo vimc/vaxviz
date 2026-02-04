@@ -315,12 +315,12 @@ describe('RidgelinePlot component', () => {
       const numScales = appendToLastCallArgs[1];
       expect(numScales).toEqual(expect.objectContaining({
         x: {
-          start: expect.closeTo(-2, 0),
+          start: expect.closeTo(-1, 0),
           end: expect.closeTo(1, 0),
         },
         y: {
           start: 0,
-          end: 31,
+          end: 55,
         },
       }));
 
