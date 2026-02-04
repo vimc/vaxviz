@@ -1,31 +1,40 @@
 <template>
-  <header class="border-b border-gray-300 flex items-center justify-between gap-2">
+  <header class="border-b border-gray-300 flex items-center gap-8">
     <div class="flex flex-col">
       <a href="https://www.vaccineimpact.org/" target="_blank">
         <img src="/logo.png" id="logo" alt="VIMC logo" />
       </a>
     </div>
+    <div class="mt-3">
+      <h1 class="text-2xl font-medium brand-heading">
+        Vaxviz
+      </h1>
+      <p class="font-light">
+        Vaccine impact visualization tool
+      </p>
+    </div>
     <!-- TODO: When paper is published and data finalised, remove this warning. -->
     <FwbAlert
       type="danger"
-      class="border-t-4 rounded-none max-h-20 py-3"
+      class="border-t-4 rounded-none max-h-20 py-3 mx-auto"
+      closable
     >
       <template #icon>
         <img class="w-4 h-4 mr-2" src="@/assets/images/icons/dangerInfoIcon.svg" alt=""/>
         <span class="sr-only">Error</span>
       </template>
-      <template #title>
-        <h3 class="text-lg font-medium">
-          Provisional estimates. Not to be forwarded or cited.
-        </h3>
-      </template>
       <template #default>
-        <p class="mt-2">This is a preview. All estimates shown are representative only. Do not use or forward them.</p>
+        <div>
+          <h3 class="text-lg font-medium">
+            Provisional estimates. Not to be forwarded or cited.
+          </h3>
+          <p class="mt-2">This is a preview. All estimates shown are representative only. Do not use or forward them.</p>
+        </div>
       </template>
     </FwbAlert>
-    <div class="flex flex-col gap-4 items-end">
+    <div class="flex flex-col gap-4 items-end ms-auto">
       <!-- TODO: When paper is published, add the link, and remove 'forthcoming'. -->
-      <p class="text-right">This visualization tool accompanies Gaythorpe et al. (forthcoming)</p>
+      <p class="text-right">This data visualization tool accompanies Gaythorpe et al. (forthcoming)</p>
       <button
         id="aboutLink"
         @click="aboutModalVisible = true"
@@ -51,7 +60,7 @@
         <!-- TODO: When paper is published, add the link and replace '(forthcoming)' with '(2026)'. -->
         <!-- NB: The number of diseases is 14 per the paper, and not (necessarily) the length of diseaseOptions.json, which may carve up diseases differently (particularly Meningitis). -->
         <p>
-          This visualization tool accompanies VIMC's fourth publication, Gaythorpe et al (forthcoming).
+          This data visualization tool accompanies VIMC's fourth publication, Gaythorpe et al (forthcoming).
         </p>
         <!-- TODO: The commented text will be uncommented once the estimates are final / published; until then we have to caveat them. -->
         <!-- <p>
