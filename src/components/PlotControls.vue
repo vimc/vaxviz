@@ -28,11 +28,11 @@
         >
           <template #menu-header>
             <div class="p-2 ps-3 disabled-text-color">
-              <h3 class="text-sm">Start typing to filter the list...</h3>
+              <p class="text-sm">Start typing to filter the list...</p>
             </div>
           </template>
           <template #option="{ option }">
-            <h4 v-if="option.value === 'optgroup'" class="font-medium text-sm text-heading disabled-text-color">{{ option.label }}</h4>
+            <p v-if="option.value === 'optgroup'" class="font-medium text-sm text-heading disabled-text-color">{{ option.label }}</p>
             <span v-else class="ps-2">{{ option.label }}</span>
           </template>
         </VueSelect>
