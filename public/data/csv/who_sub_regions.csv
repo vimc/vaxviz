@@ -98,7 +98,7 @@ EMR B,Kuwait,KWT,World,Asia,Western Asia,,Northern Africa and Western Asia,0
 WPR B,Lao People's Democratic Republic,LAO,World,Asia,South-eastern Asia,,Eastern and South-Eastern Asia,1
 EMR B,Lebanon,LBN,World,Asia,Western Asia,,Northern Africa and Western Asia,0
 AFR D,Liberia,LBR,World,Africa,Sub-Saharan Africa,Western Africa,Western Africa,1
-EMR B,Libyan Arab Jamahiriya,LBY,World,Africa,Northern Africa,,Northern Africa and Western Asia,1
+EMR B,Libyan Arab Jamahiriya,LBY,World,Africa,Northern Africa,,Northern Africa and Western Asia,0
 AMR B,Saint Lucia,LCA,World,Americas,Latin America and the Caribbean,Caribbean,Latin America and the Caribbean,1
 SEAR B,Sri Lanka,LKA,World,Asia,Southern Asia,,Central and Southern Asia,1
 AFR E,Lesotho,LSO,World,Africa,Sub-Saharan Africa,Southern Africa,Southern Africa,1
@@ -185,7 +185,7 @@ AMR B,Uruguay,URY,World,Americas,Latin America and the Caribbean,South America,L
 AMR A,United States of America,USA,World,Americas,Northern America,,Northern America,0
 EUR B,Uzbekistan,UZB,World,Asia,Central Asia,,Central and Southern Asia,1
 AMR B,Saint Vincent and the Grenadines,VCT,World,Americas,Latin America and the Caribbean,Caribbean,Latin America and the Caribbean,1
-AMR B,Venezuela (Bolivarian Republic of),VEN,World,Americas,Latin America and the Caribbean,South America,Latin America and the Caribbean,0
+AMR B,Venezuela (Bolivarian Republic of),VEN,World,Americas,Latin America and the Caribbean,South America,Latin America and the Caribbean,1
 WPR B,Viet Nam,VNM,World,Asia,South-eastern Asia,,Eastern and South-Eastern Asia,1
 WPR B,Vanuatu,VUT,World,Oceania,Melanesia,,Oceania,1
 WPR B,Samoa,WSM,World,Oceania,Polynesia,,Oceania,1
