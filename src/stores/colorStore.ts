@@ -109,7 +109,7 @@ export const useColorStore = defineStore("color", () => {
         mapping.value.set(globalOption.value, globalColor);
       } else {
         // Assign the next color in the list.
-        mapping.value.set(value, palette[mapping.value.size % palette.length]!);
+        mapping.value.set(value, palette.shift()!);
       }
     });
   }
