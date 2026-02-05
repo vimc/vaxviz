@@ -1,7 +1,7 @@
 name: Deploy vaxviz-staging
 on:
   push:
-    branches: ["main", "skadi-chart-1.1.13-alpha.2"]
+    branches: ["main", "release-1.1.0"]
 
 permissions:
   contents: read
