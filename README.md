@@ -1,6 +1,6 @@
 # vaxviz
 
-Vaccine impact visualisation tool
+Vaccine impact visualization tool
 
 For broad context, see the Knowledge Base article: https://mrc-ide.myjetbrains.com/youtrack/articles/mrc-A-174/Vaxviz
 
