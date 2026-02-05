@@ -8,9 +8,9 @@
       <span class="sr-only">Error</span>
     </template>
     <template #title>
-      <h3 class="text-lg font-medium">
+      <h2 class="text-lg font-medium">
         Error loading data
-      </h3>
+      </h2>
     </template>
     <template #default>
       <p class="mt-2">This may be an intermittent issue. Try again or try refreshing the page.</p>
