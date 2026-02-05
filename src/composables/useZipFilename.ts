@@ -1,5 +1,6 @@
 import { useAppStore } from "@/stores/appStore";
-import { Axis, LocResolution } from "@/types";
+import { Axis } from "@/types";
+import getIndexOfLocResolution from "@/utils/getIndexOfLocResolution";
 
 export default () => {
   const appStore = useAppStore();
@@ -8,13 +9,9 @@ export default () => {
   const constructDownloadZipFilename = (filenames: string[]) => {
     if (filenames.length <= 1) return "";
 
-    const geographicalResolutions = appStore.geographicalResolutions.toSorted((a: LocResolution, b: LocResolution) => {
-      const [aRank, bRank] = [
-        a ? Object.values(LocResolution).indexOf(a) : -1,
-        b ? Object.values(LocResolution).indexOf(b) : -1,
-      ];
-      return bRank - aRank;
-    });
+    const geographicalResolutions = appStore.geographicalResolutions.toSorted(((a, b) => {
+      return getIndexOfLocResolution(b) - getIndexOfLocResolution(a);
+    }));
 
     return [
       "summary_tables",
