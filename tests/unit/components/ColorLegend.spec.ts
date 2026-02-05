@@ -40,10 +40,10 @@ describe('RidgelinePlot component', () => {
     expect(wrapper.findAll(".legend-label").length).toBe(0);
 
     colorStore.setColors([
-      { metadata: { withinBand: 'Central and Southern Asia', row: 'Cholera', column: 'campaign' } },
       { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'routine' } },
       { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'campaign' } },
       { metadata: { withinBand: 'global', row: 'Cholera', column: 'campaign' } },
+      { metadata: { withinBand: 'Central and Southern Asia', row: 'Cholera', column: 'campaign' } },
     ]);
 
     expect(colorStore.colorMapping.size).toBe(3);
@@ -56,12 +56,12 @@ describe('RidgelinePlot component', () => {
     const colorBoxes = wrapper.findAll(".legend-color-box");
 
     expect(labels[0].text()).toBe('Afghanistan');
-    expect(colorBoxes[0].element.style.borderColor).toBe("rgb(238, 83, 139)"); // magenta50
-    expect(colorBoxes[0].element.style.backgroundColor).toBe("rgba(238, 83, 139, 0.2)");
+    expect(colorBoxes[0].element.style.borderColor).toBe("rgb(17, 146, 232)"); // cyan50
+    expect(colorBoxes[0].element.style.backgroundColor).toBe("rgba(17, 146, 232, 0.2)");
 
     expect(labels[1].text()).toBe('Central and Southern Asia');
-    expect(colorBoxes[1].element.style.borderColor).toBe("rgb(17, 146, 232)"); // cyan50
-    expect(colorBoxes[1].element.style.backgroundColor).toBe("rgba(17, 146, 232, 0.2)");
+    expect(colorBoxes[1].element.style.borderColor).toBe("rgb(238, 83, 139)"); // magenta50
+    expect(colorBoxes[1].element.style.backgroundColor).toBe("rgba(238, 83, 139, 0.2)");
 
     expect(labels[2].text()).toBe('All 117 VIMC countries');
     expect(colorBoxes[2].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
