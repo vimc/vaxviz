@@ -20,7 +20,7 @@
     </template>
     <template #body>
       <div class="flex flex-col gap-y-4 leading-relaxed">
-        <p v-for="paragraph in props.paragraphs" :key="paragraph">{{ paragraph }}</p>
+        <slot name="body" />
       </div>
     </template>
   </FwbModal>
@@ -33,7 +33,6 @@ import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 const props = defineProps<{
   header: string;
-  paragraphs: string[];
 }>();
 
 const helpInfoStore = useHelpInfoStore();
