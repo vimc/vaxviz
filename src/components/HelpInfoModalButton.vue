@@ -19,9 +19,7 @@
       </div>
     </template>
     <template #body>
-      <div class="flex flex-col gap-y-4 leading-relaxed">
-        <slot name="body" />
-      </div>
+      <slot name="body" />
     </template>
   </FwbModal>
 </template>

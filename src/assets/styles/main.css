@@ -52,7 +52,7 @@
   width: max-content;
 }
 
-a, button.link {
+a, .link {
   color: var(--color-fg-brand);
   text-decoration: underline;
 }
