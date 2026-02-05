@@ -113,10 +113,11 @@ const tickConfiguration = (logScaleEnabled: boolean, rowDimension: Dimension, nu
   };
 };
 
-type AxisConfig = [Partial<XY<string>>, Partial<XY<number | undefined>>];
+type AxisConfig = [Partial<XY<string>>, Partial<XY<number | undefined>>, Partial<XY<boolean>>];
 
 const axisConfiguration = (
   rowDimension: Dimension,
+  logScaleEnabled: boolean,
 ): AxisConfig => [
     {
       x: "Impact ratio (per thousand vaccinated)",
@@ -125,6 +126,10 @@ const axisConfiguration = (
     {
       x: 0,
       y: 0 // Position y-axis label as far left as possible
+    },
+    {
+      x: !logScaleEnabled,
+      y: false,
     }
   ];
 
@@ -149,7 +154,7 @@ export const plotConfiguration = (
       x: catScales.x && catScales.x.length > 1 ? 0.05 : 0
     },
   };
-  const axisConfig = axisConfiguration(rowDimension);
+  const axisConfig = axisConfiguration(rowDimension, logScaleEnabled);
 
   return {
     constructorOptions,
