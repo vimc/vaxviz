@@ -42,8 +42,12 @@
   color: var(--vimc-dark-blue);
 }
 
+input[type='checkbox'] {
+  border-radius: var(--radius-xs);
+}
+
 input[type='checkbox']:checked {
-  color: var(--color-brand)
+  color: var(--color-brand);
 }
 
 .skadi-charts-tooltip {
