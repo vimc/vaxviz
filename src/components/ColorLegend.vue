@@ -62,7 +62,7 @@ import { dimensionOptionLabel } from '@/utils/options';
 import { useAppStore } from '@/stores/appStore';
 import { Axis, Dimension } from '@/types';
 import { margins } from '@/utils/plotConfiguration';
-import getIndexOfLocResolution from '@/utils/getIndexOfLocResolution';
+import { compareLocResolution } from '@/utils/compareLocResolution';
 
 const appStore = useAppStore();
 const colorStore = useColorStore();
@@ -74,12 +74,10 @@ const colors = computed(() => {
   const { colorDimension } = colorStore;
   let colorsMap: [string, string][] = [];
   if (colorDimension === appStore.dimensions[Axis.WITHIN_BAND] && colorDimension === Dimension.LOCATION) {
-    colorsMap = Array.from(colorStore.colorMapping.keys()).toSorted((aLocation, bLocation) => {
-      const [aRank, bRank] = [aLocation, bLocation]
-        .map(appStore.geographicalResolutionForLocation)
-        .map(getIndexOfLocResolution) as [number, number];
-      return bRank - aRank;
-    }).map(location => [location, colorStore.colorMapping.get(location) as string]);
+    colorsMap = Array.from(colorStore.colorMapping).toSorted(([aLocation], [bLocation]) => {
+      const [aLocRes, bLocRes] = [aLocation, bLocation].map(appStore.geographicalResolutionForLocation);
+      return compareLocResolution(aLocRes, bLocRes);
+    });
   } else {
     // Maintain the order of colors as in the plot-rows; the plot rows start from the bottom, so we reverse.
     colorsMap = Array.from(colorStore.colorMapping).toReversed();
