@@ -3,7 +3,6 @@ import { mount } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 
 import HelpInfoModalButton from '@/components/HelpInfoModalButton.vue';
-import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 describe('HelpInfoModalButton component', () => {
   beforeEach(() => {
