@@ -7,6 +7,7 @@ import histCountsDeathsDiseaseActivityType from "../../public/data/json/hist_cou
 import histCountsDalysDiseaseSubregionLog from "../../public/data/json/hist_counts_dalys_disease_subregion_log.json" with { type: "json" };
 import histCountsDalysDiseaseCountryLog from "../../public/data/json/hist_counts_dalys_disease_country_log.json" with { type: "json" };
 import histCountsDalysDiseaseLog from "../../public/data/json/hist_counts_dalys_disease_log.json" with { type: "json" };
+import { doDownload, readDownloadedFile } from './utils.ts';
 
 type FocusType = "disease" | "location";
 
@@ -17,7 +18,7 @@ const expectSelectedFocus = async (page: Page, focusType: FocusType, expectedLab
   await expect(selected).toHaveText(expectedLabel);
 };
 
-const selectFocus = async (page: Page, focusType: FocusType, optionLabel: string) => {
+const selectFocus = async (page: Page, optionLabel: string) => {
   await page.click(".dropdown-icon");
   const option = page.locator(`.menu .menu-option:has-text('${optionLabel}')`);
   await option.scrollIntoViewIfNeeded();
@@ -27,7 +28,20 @@ const selectFocus = async (page: Page, focusType: FocusType, optionLabel: string
 
 const globalOptionLabel = "All 117 VIMC countries";
 
-test('visits the app root url, selects options, and loads correct data', async ({ page }) => {
+test('visits the app root url, selects options, and loads correct data', async ({ page, }) => {
+  // Expect all data requests to have 'Cache-Control: no-cache' header in response
+  // 'Cache-Control: no-cache' tells browsers and caches they can store a copy of a resource
+  // but must revalidate it with the original server before using it for any subsequent request
+  page.on('request', async (request) => {
+    if (request.url().includes("/data/")) {
+      const response = await request.response();
+      const responseHeaders = response?.headers();
+      const cacheControlHeader = responseHeaders?.["cache-control"] || "";
+      // eslint-disable-next-line playwright/no-conditional-expect
+      expect(cacheControlHeader).toEqual("no-cache");
+    }
+  });
+
   await page.goto('/');
 
   const diseaseRadio = page.getByRole("radio", { name: "Disease" });
@@ -37,6 +51,7 @@ test('visits the app root url, selects options, and loads correct data', async (
   const dalysRadio = page.getByRole("radio", { name: "DALYs averted" });
   const deathsRadio = page.getByRole("radio", { name: "Deaths averted" });
   const chartWrapper = page.locator("#chartWrapper");
+  const plotLegend = page.locator("#colorLegend");
 
   // Initial selections
   await expect(diseaseRadio).not.toBeChecked();
@@ -46,23 +61,26 @@ test('visits the app root url, selects options, and loads correct data', async (
   await expect(logScaleCheckbox).toBeChecked();
   await expect(dalysRadio).not.toBeChecked();
   await expect(deathsRadio).toBeChecked();
-
-  const dataAttr0 = await chartWrapper.getAttribute("data-test");
-  const data0 = JSON.parse(dataAttr0!);
-  expect(data0.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
-  expect(data0.x).toBeNull();
-  expect(data0.y).toBe("disease");
-  expect(data0.withinBand).toBe("location");
+  await expect(chartWrapper).toHaveAttribute("data-test",
+    JSON.stringify({
+      histogramDataRowCount: histCountsDeathsDiseaseLog.length,
+      lineCount: 14, // 14 diseases have global data for aggregated activity type.
+      column: null,
+      row: "disease",
+      withinBand: "location",
+    })
+  );
+  await expect(plotLegend.locator(".legend-label")).toHaveCount(14); // Colors per disease.
 
   // Change options: round 1
-  await selectFocus(page, "location", "Central and Southern Asia");
+  await selectFocus(page, "Middle Africa");
   await dalysRadio.click();
   await logScaleCheckbox.click();
   await activityTypeCheckbox.click();
 
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
-  await expectSelectedFocus(page, "location", "Central and Southern Asia");
+  await expectSelectedFocus(page, "location", "Middle Africa");
   await expect(activityTypeCheckbox).toBeChecked();
   await expect(logScaleCheckbox).not.toBeChecked();
   await expect(dalysRadio).toBeChecked();
@@ -71,16 +89,18 @@ test('visits the app root url, selects options, and loads correct data', async (
     JSON.stringify({
       histogramDataRowCount: histCountsDalysDiseaseSubregionActivityType.length
         + histCountsDalysDiseaseActivityType.length,
-      x: "activity_type",
-      y: "disease",
+      lineCount: 44, // Not all diseases have data for all subregions and activity types.
+      column: "activity_type",
+      row: "disease",
       withinBand: "location",
     })
   );
+  await expect(plotLegend.locator(".legend-label")).toHaveCount(2); // Colors for Middle Africa, and global.
 
   // Change options: round 2
   await diseaseRadio.click();
   await expectSelectedFocus(page, "disease", "Cholera");
-  await selectFocus(page, "disease", "Measles");
+  await selectFocus(page, "Measles");
   await deathsRadio.click();
 
   await expect(diseaseRadio).toBeChecked();
@@ -94,16 +114,18 @@ test('visits the app root url, selects options, and loads correct data', async (
     JSON.stringify({
       histogramDataRowCount: histCountsDeathsDiseaseSubregionActivityType.length
         + histCountsDeathsDiseaseActivityType.length,
-      x: "activity_type",
-      y: "location",
+      lineCount: 22, // 10 applicable subregions with measles, + global, each with 2 activity types
+      column: "activity_type",
+      row: "location",
       withinBand: "disease",
     })
   );
+  await expect(plotLegend.locator(".legend-label")).toHaveCount(11); // Colors per location: the 10 subregions, and global.
 
   // Change options: round 3
   await geographyRadio.click();
   await expectSelectedFocus(page, "location", globalOptionLabel);
-  await selectFocus(page, "location", "AFG");
+  await selectFocus(page, "AFG");
   await dalysRadio.click();
   await logScaleCheckbox.click();
   await activityTypeCheckbox.click();
@@ -115,15 +137,89 @@ test('visits the app root url, selects options, and loads correct data', async (
   await expect(logScaleCheckbox).toBeChecked();
   await expect(dalysRadio).toBeChecked();
   await expect(deathsRadio).not.toBeChecked();
+  const expectedHistogramRowCount =
+    histCountsDalysDiseaseSubregionLog.length +
+    histCountsDalysDiseaseCountryLog.length +
+    histCountsDalysDiseaseLog.length;
   await expect(chartWrapper).toHaveAttribute("data-test",
     JSON.stringify({
-      histogramDataRowCount:
-        histCountsDalysDiseaseSubregionLog.length +
-        histCountsDalysDiseaseCountryLog.length +
-        histCountsDalysDiseaseLog.length,
-      x: null,
-      y: "disease",
+      histogramDataRowCount: expectedHistogramRowCount,
+      lineCount: 30, // 10 applicable diseases, each with 3 locations (AFG, subregion, global)
+      column: null,
+      row: "disease",
       withinBand: "location",
     })
   );
+  await expect(plotLegend.locator(".legend-label")).toHaveCount(3); // Colors per location
+
+  // Change options: round 4 (filtering out via legend component)
+  const subregionButton = page.getByTestId("Central and Southern AsiaButton");
+
+  await subregionButton.click();
+  await expect(chartWrapper).toHaveAttribute("data-test",
+    JSON.stringify({
+      histogramDataRowCount: expectedHistogramRowCount,
+      lineCount: 20, // 10 applicable diseases, each now with only 2 locations (no subregion)
+      column: null,
+      row: "disease",
+      withinBand: "location",
+    })
+  );
+
+  // Change options: round 5 (unfiltering via legend component)
+  await subregionButton.click();
+  await expect(chartWrapper).toHaveAttribute("data-test",
+    JSON.stringify({
+      histogramDataRowCount: expectedHistogramRowCount,
+      lineCount: 30, // Back to 3 locations per disease
+      column: null,
+      row: "disease",
+      withinBand: "location",
+    })
+  );
+});
+
+test.describe("Downloads", () => {
+  // Webkit downloads don't work in playwright, but they have been manually tested in Safari 26.2
+  // on an iPhone running iOS 26.2.1.
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip(({ browserName }) => browserName === "webkit", "Skipping Downloads tests for webkit");
+
+  test("can download individual files", async ({ page }) => {
+    await page.goto('/');
+
+    const button = page.getByRole("button", { name: "Download summary" });
+
+    const download = await doDownload(page, button);
+    expect(download.suggestedFilename()).toBe("summary_table_deaths_disease.csv");
+
+    const fileContents = await readDownloadedFile(download);
+    expect(fileContents).toContain('"disease","mean_value","lower_95","upper_95","median_value"');
+
+    // Set burden metric to DALYs, and split plot by activity type, and check download again
+    const dalysRadio = page.getByRole("radio", { name: "DALYs averted" });
+    await dalysRadio.click();
+    const activityTypeCheckbox = page.getByRole("checkbox", { name: "Split by activity type" });
+    await activityTypeCheckbox.click();
+
+    const download2 = await doDownload(page, button);
+    expect(download2.suggestedFilename()).toBe("summary_table_dalys_disease_activity_type.csv");
+
+    const fileContents2 = await readDownloadedFile(download2);
+    expect(fileContents2).toContain('"disease","activity_type","mean_value","lower_95","upper_95","median_value"');
+  });
+
+  test("can download multiple files as a zip", async ({ page }) => {
+    await page.goto('/');
+
+    // Set focus to a country
+    const geographyRadio = page.getByRole("radio", { name: "Geography" });
+    await geographyRadio.click();
+    await selectFocus(page, "Kenya");
+
+    const button = page.getByRole("button", { name: "Download summary" });
+
+    const download = await doDownload(page, button);
+    expect(download.suggestedFilename()).toBe("summary_tables_deaths_disease_country_subregion_global.zip");
+  });
 });

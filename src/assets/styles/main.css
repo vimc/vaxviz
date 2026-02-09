@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
 @import "flowbite/src/themes/default";
 
 /* MINIMAL THEME
@@ -26,7 +27,50 @@
 /* This is to prevents dark mode being occasionally applied to components due to user's 'prefers-color-scheme' settings */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* For vue3-select-component */
 :root {
-  --vs-menu-height: 80dvh;
+  /* For vue3-select-component */
+  --vs-menu-height: 50dvh;
+  --vs-font-size: 14px;
+  /* VIMC branding colors */
+  --vimc-dark-blue: #203380;
+  --vimc-mid-blue: #0077C2;
+  /* Flowbite variable --color-brand */
+  --color-brand: var(--vimc-mid-blue);
+}
+
+.text-dark-brand {
+  color: var(--vimc-dark-blue);
+}
+
+input[type='checkbox']:checked {
+  color: var(--color-brand)
+}
+
+.skadi-charts-tooltip {
+  /* Move smoothly from one position to another */
+  --position-transition-duration: 0.1s;
+  /* Setting opacity to delay its change prevents the tooltip from simultaneously appearing and moving great distances */
+  --opacity-transition-delay: var(--position-transition-duration);
+  transition: left var(--position-transition-duration) ease-in-out, top var(--position-transition-duration) ease-in-out, opacity 0s ease-in-out var(--opacity-transition-delay);
+}
+
+.tooltip {
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 0.25em;
+  padding: 0.5em;
+  opacity: 0.9;
+  position: relative;
+  top: 40px;
+  right: 100px;
+  width: max-content;
+}
+
+a, button.link {
+  color: var(--color-brand);
+  text-decoration: underline;
+}
+
+button {
+  cursor: pointer;
 }

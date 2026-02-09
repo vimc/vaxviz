@@ -1,6 +1,8 @@
 # vaxviz
 
-Vaccine impact visualisation tool
+Vaccine impact visualization tool
+
+For broad context, see the Knowledge Base article: https://mrc-ide.myjetbrains.com/youtrack/articles/mrc-A-174/Vaxviz
 
 ## Deployment
 
@@ -74,6 +76,8 @@ npm run build
 npm run test:unit
 ```
 
+If your unit tests fail with { code: 'ERR_REQUIRE_ESM' }, ensure you're using Node >= 24.
+
 To run with test coverage:
 ```sh
 npm run test:coverage
@@ -110,4 +114,5 @@ npm run lint
 1. From the same packet, download `who_sub_regions.csv` (under 'Other files'). This provides the mapping from countries to subregions.
 1. Delete contents of `public/data/csv`.
 1. Unzip the dataviz.zip folder into `public/data/csv`, and move `who_sub_regions.csv` there too.
+1. Ensure your current Node version is >= 24.
 1. Run `./scripts/convert-csv-files-to-json.sh <packet-id>` replacing the packet id argument
