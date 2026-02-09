@@ -160,6 +160,13 @@ describe('plotConfiguration', () => {
       const result = plotConfiguration(Dimension.ACTIVITY_TYPE, false, lines);
       expect(result.axisConfig[0].y).toBe('Activity type');
     });
+
+    it('sets x-axis includeZeroLine based on logScaleEnabled', () => {
+      const result = plotConfiguration(Dimension.ACTIVITY_TYPE, false, lines);
+      expect(result.axisConfig[2].x).toBe(true);
+      const resultLog = plotConfiguration(Dimension.ACTIVITY_TYPE, true, lines);
+      expect(resultLog.axisConfig[2].x).toBe(false);
+    });
   });
 
   describe('margins', () => {
