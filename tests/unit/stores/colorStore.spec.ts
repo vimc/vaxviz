@@ -74,14 +74,14 @@ describe('color store', () => {
 
     colorStore.setColors([
       { metadata: { withinBand: 'CHN', row: 'Cholera', column: 'campaign' } },
+      { metadata: { withinBand: 'global', row: 'Cholera', column: 'campaign' } },
       { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'routine' } },
       { metadata: { withinBand: 'AFG', row: 'Cholera', column: 'campaign' } },
-      { metadata: { withinBand: 'global', row: 'Cholera', column: 'campaign' } },
     ]);
 
     expect(colorStore.colorMapping.size).toBe(3);
     // Assert the order of the colors is the same as the order of first appearance in the call to setColors.
-    expect(Array.from(colorStore.colorMapping.keys())).toEqual(['CHN', 'AFG', 'global']);
+    expect(Array.from(colorStore.colorMapping.keys())).toEqual(['CHN', 'global', 'AFG']);
 
     expect(
       colorStore.getColorsForLine({ withinBand: 'global', row: 'Cholera', column: 'campaign' }).fillColor
