@@ -1,5 +1,5 @@
 <template>
-  <div class="chart-container min-h-0 flex-1 flex">
+  <div class="chart-container flex-1 min-h-0 w-full">
     <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
     <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
     <p v-else-if="noDataToDisplay" class="m-auto">
@@ -15,7 +15,6 @@
         lineCount: selectedLines.length,
         ...appStore.dimensions,
       })"
-      class="flex-1 m-10"
     />
   </div>
 </template>
@@ -148,3 +147,12 @@ watch([selectedLines, chartWrapper], () => {
 }, { immediate: true });
 </script>
 
+<style lang="scss" scoped>
+$chart-margin: 40px;
+
+#chartWrapper {
+  margin: $chart-margin;
+  width: calc(100% - (#{$chart-margin} * 2));
+  height: calc(100% - (#{$chart-margin} * 2));
+}
+</style>
