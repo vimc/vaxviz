@@ -1,8 +1,8 @@
 <template>
   <AppHeader />
-  <main class="flex">
+  <main class="flex w-full max-w-full">
     <PlotControls />
-    <div class="flex flex-col w-full h-full max-w-full max-h-full gap-y-5">
+    <div class="flex-1 min-w-0 h-full max-h-full flex flex-col gap-y-5">
       <RidgelinePlot />
       <ColorLegend />
     </div>

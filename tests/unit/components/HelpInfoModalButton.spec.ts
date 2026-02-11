@@ -4,18 +4,24 @@ import { setActivePinia, createPinia } from 'pinia';
 
 import HelpInfoModalButton from '@/components/HelpInfoModalButton.vue';
 
+const renderComponent = () => {
+  return mount(HelpInfoModalButton, {
+    props: {
+      header: 'Test Header',
+    },
+    slots: {
+      body: 'Paragraph content',
+    },
+  });
+}
+
 describe('HelpInfoModalButton component', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
 
   it('renders the button with the header text and does not show the modal initially', () => {
-    const wrapper = mount(HelpInfoModalButton, {
-      props: {
-        header: 'Test Header',
-        paragraphs: ['First paragraph'],
-      },
-    });
+    const wrapper = renderComponent();
 
     const button = wrapper.find('button');
     expect(button.exists()).toBe(true);
@@ -24,12 +30,7 @@ describe('HelpInfoModalButton component', () => {
   });
 
   it('shows the modal when the button is clicked', async () => {
-    const wrapper = mount(HelpInfoModalButton, {
-      props: {
-        header: 'Test Header',
-        paragraphs: ['Paragraph content'],
-      },
-    });
+    const wrapper = renderComponent();
 
     const button = wrapper.find('button');
     await button.trigger('click');
@@ -41,52 +42,29 @@ describe('HelpInfoModalButton component', () => {
   });
 
   it('displays the header in the modal', async () => {
-    const wrapper = mount(HelpInfoModalButton, {
-      props: {
-        header: 'Modal Header Text',
-        paragraphs: ['Content'],
-      },
-    });
+    const wrapper = renderComponent();
 
     await wrapper.find('button').trigger('click');
 
     await vi.waitFor(() => {
       const modal = wrapper.findComponent({ name: 'FwbModal' });
-      expect(modal.text()).toContain('Modal Header Text');
+      expect(modal.text()).toContain('Test Header');
     });
   });
 
-  it('can display multiple paragraphs in the modal body', async () => {
-    const paragraphs = [
-      'First paragraph with important info.',
-      'Second paragraph with more details.',
-      'Third paragraph concluding the help.',
-    ];
-
-    const wrapper = mount(HelpInfoModalButton, {
-      props: {
-        header: 'Detailed Help',
-        paragraphs,
-      },
-    });
+  it('displays the body slot in the modal body', async () => {
+    const wrapper = renderComponent();
 
     await wrapper.find('button').trigger('click');
 
     await vi.waitFor(() => {
       const modal = wrapper.findComponent({ name: 'FwbModal' });
-      paragraphs.forEach((paragraph) => {
-        expect(modal.text()).toContain(paragraph);
-      });
+      expect(modal.text()).toContain('Paragraph content');
     });
   });
 
   it('closes the modal when close event is emitted', async () => {
-    const wrapper = mount(HelpInfoModalButton, {
-      props: {
-        header: 'Test',
-        paragraphs: ['Content'],
-      },
-    });
+    const wrapper = renderComponent();
 
     await wrapper.find('button').trigger('click');
 
