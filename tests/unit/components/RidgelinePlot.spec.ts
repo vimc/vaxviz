@@ -250,7 +250,6 @@ describe('RidgelinePlot component', () => {
 
     const appStore = useAppStore();
     const helpInfoStore = useHelpInfoStore();
-    const dataStore = useDataStore();
     const wrapper = mount(RidgelinePlot);
 
     // It shows a chart initially
