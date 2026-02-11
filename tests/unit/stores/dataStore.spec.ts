@@ -1,4 +1,4 @@
-import { setActivePinia, Store } from 'pinia';
+import { setActivePinia } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { afterEach, it, expect, describe, beforeEach, vi, Mock } from 'vitest';
 import { server } from '../mocks/server';
