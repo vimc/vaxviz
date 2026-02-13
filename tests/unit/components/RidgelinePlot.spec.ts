@@ -63,6 +63,9 @@ describe('RidgelinePlot component', () => {
     const wrapper = mount(RidgelinePlot)
 
     await vi.waitFor(() => {
+      // Color by row; each disease has been assigned a color.
+      expect(colorStore.colorMapping.size).toEqual(14);
+
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
       expect(dataAttr.lineCount).toEqual(14); // 14 diseases have global data for aggregated activity type.
@@ -73,9 +76,6 @@ describe('RidgelinePlot component', () => {
       // Ridges within a band 'differ' by location
       // (except that in this case there is only one location in use at the moment, 'global')
       expect(dataAttr.withinBand).toEqual("location");
-
-      // Color by row; each disease has been assigned a color.
-      expect(colorStore.colorMapping.size).toEqual(14);
       assertLastCategoricalScales({
         x: undefined,
         y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
@@ -91,6 +91,9 @@ describe('RidgelinePlot component', () => {
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
     await vi.waitFor(() => {
+      // Color by the 2 locations within each band: Middle Africa and global.
+      expect(colorStore.colorMapping.size).toEqual(2);
+
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.histogramDataRowCount).toEqual(
         histCountsDalysDiseaseSubregionActivityType.length + histCountsDalysDiseaseActivityType.length
@@ -101,8 +104,6 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.row).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
 
-      // Color by the 2 locations within each band: Middle Africa and global.
-      expect(colorStore.colorMapping.size).toEqual(2);
       assertLastCategoricalScales({
         x: ["Campaign", "Routine"],
         y: ["COVID-19", "Cholera", "Rubella", "MenA", "MenACWYX", "Typhoid", "Rota", "HepB", "YF", "PCV", "Malaria", "Hib", "HPV", "Measles"],
@@ -120,6 +121,9 @@ describe('RidgelinePlot component', () => {
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
     await vi.waitFor(() => {
+      // Color by row; each location (10 subregions + global) has been assigned a color.
+      expect(colorStore.colorMapping.size).toEqual(11);
+
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.histogramDataRowCount).toEqual(
         histCountsDeathsDiseaseSubregionActivityType.length + histCountsDeathsDiseaseActivityType.length
@@ -128,9 +132,6 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.column).toEqual("activity_type");
       expect(dataAttr.row).toEqual("location");
       expect(dataAttr.withinBand).toEqual("disease");
-
-      // Color by row; each location (10 subregions + global) has been assigned a color.
-      expect(colorStore.colorMapping.size).toEqual(11);
 
       assertLastCategoricalScales({
         x: ["Campaign", "Routine"],
@@ -161,6 +162,9 @@ describe('RidgelinePlot component', () => {
     appStore.logScaleEnabled = true;
     appStore.splitByActivityType = false;
     await vi.waitFor(() => {
+      // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
+      expect(colorStore.colorMapping.size).toEqual(3);
+
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.histogramDataRowCount).toEqual(
         histCountsDalysDiseaseSubregionLog.length + histCountsDalysDiseaseCountryLog.length + histCountsDalysDiseaseLog.length
@@ -169,9 +173,6 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.column).toBeNull();
       expect(dataAttr.row).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
-
-      // Color by the 3 locations within each band: AFG, Central and Southern Asia, and global.
-      expect(colorStore.colorMapping.size).toEqual(3);
 
       assertLastCategoricalScales({
         x: undefined,
@@ -184,9 +185,9 @@ describe('RidgelinePlot component', () => {
     expect(colorStore.colorDimension).toEqual("location");
     appStore.legendSelections["location"] = ["AFG", "global"];
     await vi.waitFor(() => {
+      expect(colorStore.colorMapping.size).toEqual(3);
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.lineCount).toEqual(20); // 10 applicable diseases, each now with only 2 locations (no subregion)
-      expect(colorStore.colorMapping.size).toEqual(3);
 
       assertLastCategoricalScales({
         x: undefined,
@@ -198,9 +199,10 @@ describe('RidgelinePlot component', () => {
     // Change options: round 5 (unfiltering as if via legend component)
     appStore.legendSelections["location"].push("Central and Southern Asia");
     await vi.waitFor(() => {
+      expect(colorStore.colorMapping.size).toEqual(3);
+
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.lineCount).toEqual(30);
-      expect(colorStore.colorMapping.size).toEqual(3);
 
       assertLastCategoricalScales({
         x: undefined,
@@ -216,9 +218,10 @@ describe('RidgelinePlot component', () => {
     });
     appStore.focuses = ["Cholera", "Measles"];
     await vi.waitFor(() => {
+      expect(colorStore.colorMapping.size).toEqual(2);
+
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.lineCount).toEqual(18); // 7 locations with Cholera, 11 with Measles
-      expect(colorStore.colorMapping.size).toEqual(2);
 
       assertLastCategoricalScales({
         x: undefined,
@@ -244,9 +247,10 @@ describe('RidgelinePlot component', () => {
     });
     appStore.focuses = ["AFG", "Eastern Africa"];
     await vi.waitFor(() => {
+      expect(colorStore.colorMapping.size).toEqual(2);
+
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.lineCount).toEqual(23); // 10 diseases for Afghanistan, 13 for Eastern Africa
-      expect(colorStore.colorMapping.size).toEqual(2);
 
       assertLastCategoricalScales({
         x: undefined,
