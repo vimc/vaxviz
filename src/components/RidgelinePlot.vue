@@ -57,7 +57,7 @@ const data = computed(() => dataStore.histogramData.filter(dataRow =>
 const { constructLines } = useHistogramLines(data, () => appStore.dimensions, getDimensionCategoryValue, dimensionOptionLabel);
 const ridgeLines = computed(() => dataStore.isLoading ? [] : constructLines());
 
-// Here, we filter ridgelines on the basis of their relevance to the 'focus' selection.
+// Here, we filter ridgelines on the basis of their relevance to the 'focus' selection(s).
 // This is distinct from any filtering the user may apply on top of this using plot controls,
 // and indeed also from the implicit filtering based on the choice of dimensions (as handled by appStore).
 const relevantRidgeLines = computed(() => {
@@ -76,7 +76,8 @@ const relevantRidgeLines = computed(() => {
     const locationsForDisease = ridgeLines.value
       .filter(l => l.metadata?.[Axis.ROW] === disease)
       .map(({ metadata }) => metadata?.withinBand);
-    return locationsForDisease.includes(appStore.focus);
+    // If the disease is included in focuses, consider it as relevant and keep it.
+    return appStore.focuses.filter(f => locationsForDisease.includes(f)).length > 0;
   });
 });
 

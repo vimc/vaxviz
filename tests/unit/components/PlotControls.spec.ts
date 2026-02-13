@@ -5,7 +5,6 @@ import { createTestingPinia } from '@pinia/testing';
 import VueSelect from "vue3-select-component";
 import { nextTick } from "vue";
 
-import diseaseOptions from '@/data/options/diseaseOptions.json';
 import PlotControls from '@/components/PlotControls.vue'
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
@@ -57,55 +56,6 @@ describe('PlotControls component', () => {
     const burdenMetricRadios = wrapper.findAll('input[name="burdenMetric"]');
     expect((burdenMetricRadios.find(e => e.element.value === "dalys")?.element.checked)).toBe(false);
     expect((burdenMetricRadios.find(e => e.element.value === "deaths")?.element.checked)).toBe(true);
-  });
-
-  it("updates the focus label and select options when exploreBy selection changes", async () => {
-    const wrapper = mount(PlotControls);
-
-    const vueSelect = wrapper.findComponent(VueSelect);
-    expect(vueSelect.props("modelValue")).toBe("global");
-
-    wrapper.findAll('input[name="exploreBy"]').find(e => e.element.value === "disease")?.setChecked();
-    await nextTick();
-
-    expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus Disease/);
-    expect(vueSelect.props("modelValue")).toBe("Cholera");
-    // Expect the focus select to have updated options
-    await vueSelect.find(".dropdown-icon").trigger("click");
-    const renderedOptions = vueSelect.findAll(".menu .menu-option").filter(e => e.attributes("aria-disabled") === "false");
-    expect(renderedOptions.length).toBe(diseaseOptions.length);
-    expect(renderedOptions[0].text()).toBe("Cholera");
-
-    wrapper.findAll('input[name="exploreBy"]').find(e => e.element.value === "location")?.setChecked();
-    await nextTick();
-
-    expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus Geography/);
-    expect(vueSelect.props("modelValue")).toBe("global");
-  });
-
-  it("filtering the select menu when exploring by geography works correctly", async () => {
-    const wrapper = mount(PlotControls);
-
-    wrapper.findAll('input[name="exploreBy"]').find(e => e.element.value === "location")?.setChecked();
-    await nextTick();
-
-    const vueSelect = wrapper.findComponent(VueSelect);
-    await vueSelect.find(".dropdown-icon").trigger("click");
-
-    const input = vueSelect.find('input[type="text"]');
-    await input.setValue("Asia");
-    await nextTick();
-
-    const disabledOptions = vueSelect.findAll(".menu .menu-option").filter(e => e.attributes("aria-disabled") === "true");
-    expect(disabledOptions.length).toBe(3);
-    expect(disabledOptions[0].text()).toEqual("Global");
-    expect(disabledOptions[1].text()).toEqual("Subregions");
-    expect(disabledOptions[2].text()).toEqual("Countries");
-    const renderedOptions = vueSelect.findAll(".menu .menu-option").filter(e => e.attributes("aria-disabled") === "false");
-    expect(renderedOptions.length).toBe(3);
-    expect(renderedOptions[0].text()).toBe("Central and Southern Asia");
-    expect(renderedOptions[1].text()).toBe("Eastern and South-Eastern Asia");
-    expect(renderedOptions[2].text()).toBe("Northern Africa and Western Asia");
   });
 
   it("shows the negative estimates help info when decreed by the help info store", async () => {

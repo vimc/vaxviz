@@ -85,8 +85,8 @@ describe('RidgelinePlot component', () => {
 
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
-    expect(appStore.focus).toEqual("global");
-    appStore.focus = "Middle Africa";
+    expect(appStore.focuses).toEqual(["global"]);
+    appStore.focuses = ["Middle Africa"];
     appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
@@ -113,9 +113,9 @@ describe('RidgelinePlot component', () => {
     // Change options: round 2
     appStore.exploreBy = "disease";
     await vi.waitFor(() => {
-      expect(appStore.focus).toEqual("Cholera")
+      expect(appStore.focuses).toEqual(["Cholera"])
     });
-    appStore.focus = "Measles";
+    appStore.focuses = ["Measles"];
     appStore.burdenMetric = BurdenMetric.DEATHS;
     appStore.logScaleEnabled = false;
     appStore.splitByActivityType = true;
@@ -154,9 +154,9 @@ describe('RidgelinePlot component', () => {
     // Change options: round 3
     appStore.exploreBy = "location";
     await vi.waitFor(() => {
-      expect(appStore.focus).toEqual("global")
+      expect(appStore.focuses).toEqual(["global"])
     });
-    appStore.focus = "AFG";
+    appStore.focuses = ["AFG"];
     appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = true;
     appStore.splitByActivityType = false;
@@ -208,6 +208,51 @@ describe('RidgelinePlot component', () => {
       });
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
+
+    // Change options: round 6 (multiple focuses: diseases)
+    appStore.exploreBy = "disease";
+    await vi.waitFor(() => {
+      expect(appStore.focuses).toEqual(["Cholera"])
+    });
+    appStore.focuses = ["Cholera", "Measles"];
+    await vi.waitFor(() => {
+      const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
+      expect(dataAttr.lineCount).toEqual(18); // 7 locations with Cholera, 11 with Measles
+      expect(colorStore.colorMapping.size).toEqual(2);
+
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["Northern Africa and Western Asia",
+          "Latin America and the Caribbean",
+          "Eastern and Southern Europe",
+          "Southern Africa",
+          "All 117 VIMC countries",
+          "Eastern Africa",
+          "Central and Southern Asia",
+          "Eastern and South-Eastern Asia",
+          "Middle Africa",
+          "Western Africa",
+          "Oceania",
+        ],
+      });
+    });
+
+    // Change options: round 7 (multiple focuses: locations)
+    appStore.exploreBy = "location";
+    await vi.waitFor(() => {
+      expect(appStore.focuses).toEqual(["global"])
+    });
+    appStore.focuses = ["AFG", "Eastern Africa"];
+    await vi.waitFor(() => {
+      const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
+      expect(dataAttr.lineCount).toEqual(23); // 10 diseases for Afghanistan, 13 for Eastern Africa
+      expect(colorStore.colorMapping.size).toEqual(2);
+
+      assertLastCategoricalScales({
+        x: undefined,
+        y: ["COVID-19", "Cholera", "YF", "Rubella", "Typhoid", "Meningitis", "Rota", "PCV", "HepB", "Malaria", "Hib", "Measles", "HPV"],
+      });
+    });
   }, 20000);
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
@@ -227,9 +272,9 @@ describe('RidgelinePlot component', () => {
     // There is no data for MenA except if we split by activity type.
     appStore.exploreBy = "disease";
     await vi.waitFor(() => {
-      expect(appStore.focus).toEqual("Cholera")
+      expect(appStore.focuses).toEqual(["Cholera"])
     });
-    appStore.focus = "MenA";
+    appStore.focuses = ["MenA"];
     appStore.splitByActivityType = false;
 
     await vi.waitFor(() => {
