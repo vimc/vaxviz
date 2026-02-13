@@ -105,25 +105,18 @@ const selectedLines = computed(() => sortedRidgeLines.value.filter(line => {
   return colorVal && appStore.legendSelections[colorStore.colorDimension]?.includes(colorVal);
 }));
 
-// Set colors synchronously (not debounced) so that colorMapping is always consistent
-// with the current ridgeline data, avoiding race conditions with reactive template updates.
-watch(sortedRidgeLines, (lines) => {
-  if (lines.length === 0) {
-    colorStore.setColors([]); // Remove color legend when there is no data to display
-  } else {
-    // Set colors using unfiltered ridgelines, since filtered-out lines are still rendered by the
-    // ColorLegend as options to be toggled back on.
-    colorStore.setColors(lines);
-  }
-}, { immediate: true });
-
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
   noDataToDisplay.value = selectedLines.value.length === 0;
 
   if (noDataToDisplay.value || !chartWrapper.value) {
+    colorStore.setColors([]); // Remove color legend when there is no data to display
     return;
   }
+
+  // Set colors using unfiltered ridgelines, since filtered-out lines are still rendered by the
+  // ColorLegend as options to be toggled back on.
+  colorStore.setColors(sortedRidgeLines.value);
 
   selectedLines.value.forEach(line => {
     const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
