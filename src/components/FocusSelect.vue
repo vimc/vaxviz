@@ -73,10 +73,9 @@ const selectOptions = computed(() => {
       const optgroup = { label: group.label, value: "optgroup", disabled: true };
       return [optgroup, ...group.options];
     }).flat();
-  } else if (appStore.exploreBy === Dimension.DISEASE) {
+  } else {
     return diseaseOptions;
   }
-  return [];
 });
 
 watch(multiFocusMode, (multi) => {
