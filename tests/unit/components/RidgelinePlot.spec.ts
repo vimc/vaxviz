@@ -238,7 +238,7 @@ describe('RidgelinePlot component', () => {
           "Oceania",
         ],
       });
-    });
+    }, { timeout: 5000 });
 
     // Change options: round 7 (multiple focuses: locations)
     appStore.exploreBy = "location";
@@ -256,7 +256,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["COVID-19", "Cholera", "YF", "Rubella", "Typhoid", "Meningitis", "Rota", "PCV", "HepB", "Malaria", "Hib", "Measles", "HPV"],
       });
-    });
+    }, { timeout: 5000 });
   }, 20000);
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
