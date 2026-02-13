@@ -100,4 +100,25 @@ describe('FocusSelect component', () => {
 
     expect(vueSelect.props("modelValue")).toBe("Malaria");
   });
+
+  it("resets the focuses selection when there are zero selections when multi mode gets switched off", async () => {
+    const wrapper = mount(FocusSelect);
+
+    const vueSelect = wrapper.findComponent(VueSelect);
+
+    const multiFocusCheckbox = wrapper.findAll('label').find(e => e.text().includes("Allow multiple focus selections"))?.find('input');
+    await multiFocusCheckbox.setValue(true);
+
+    await nextTick();
+
+    expect(vueSelect.props("modelValue")).toEqual(["global"]);
+    vueSelect.vm.$emit("update:modelValue", []);
+    await nextTick();
+    expect(vueSelect.props("modelValue")).toEqual([]);
+
+    await multiFocusCheckbox.setValue(false);
+    await nextTick();
+
+    expect(vueSelect.props("modelValue")).toBe("global");
+  });
 });
