@@ -68,42 +68,16 @@ export const useAppStore = defineStore("app", () => {
     }
   };
 
-  // The geographical resolutions to use based on current exploreBy and focus selections.
+  // The geographical resolutions currently in use, based on the current location filters.
   const geographicalResolutions = computed(() => {
-    if (exploreBy.value === Dimension.DISEASE) {
-      return [LocResolution.SUBREGION, LocResolution.GLOBAL];
-    } else {
-      const locRes = geographicalResolutionForLocation(focus.value);
-      switch (locRes) {
-        case LocResolution.GLOBAL:
-          return [LocResolution.GLOBAL];
-        case LocResolution.SUBREGION:
-          return [LocResolution.SUBREGION, LocResolution.GLOBAL];
-        case LocResolution.COUNTRY:
-          return [LocResolution.COUNTRY, LocResolution.SUBREGION, LocResolution.GLOBAL];
-        default:
-          // The following line should never be able to be evaluated, because exploreBy is always either
-          // 'disease' or 'location', and the three possible types of location are covered by the branches.
-          throw new Error(`Invalid focus selection '${focus.value}' for exploreBy '${exploreBy.value}'`);
-      }
-    }
+    const locations = filters.value[Dimension.LOCATION] ?? [];
+    const locationResolutions = locations.map(geographicalResolutionForLocation).filter(r => r !== undefined);
+    return Array.from(new Set(locationResolutions)); // Get unique values;
   });
 
   const getAxisForDimension = (dimension: Dimension | null) => (Object.entries(dimensions.value).find(([, dim]) => {
     return dim === dimension
   }) as [Axis, Dimension] | undefined)?.[0];
-
-  const getLocationForGeographicalResolution = (geog: LocResolution) => {
-    switch (geog) {
-      case LocResolution.GLOBAL:
-        return globalOption.value;
-      case LocResolution.SUBREGION:
-        return subregionOptions.find(o => o.value === focus.value)?.value
-          ?? getSubregionFromCountry(focus.value);
-      case LocResolution.COUNTRY:
-        return focus.value;
-    }
-  }
 
   watch(exploreBy, () => {
     if (exploreBy.value === Dimension.DISEASE && diseaseOptions[0]) {
@@ -114,28 +88,30 @@ export const useAppStore = defineStore("app", () => {
   });
 
   watch(focus, () => {
-    const focusIsADisease = diseaseOptions.find(d => d.value === focus.value);
-    if (focusIsADisease) {
-      rowDimension.value = Dimension.LOCATION;
-      withinBandDimension.value = Dimension.DISEASE;
+    // Check that the focus is valid given the current exploreBy selection.
+    if (exploreBy.value === Dimension.DISEASE && !diseaseOptions.find(d => d.value === focus.value)) {
+      throw new Error(`Invalid focus selection '${focus.value}' for exploreBy '${exploreBy.value}'`);
+    } else if (exploreBy.value === Dimension.LOCATION && ![...countryOptions, ...subregionOptions, globalOption].find(o => o.value === focus.value)) {
+      throw new Error(`Invalid focus selection '${focus.value}' for exploreBy '${exploreBy.value}'`);
+    }
 
-      filters.value = {
-        [Dimension.DISEASE]: [focus.value],
-        [Dimension.LOCATION]: subregionOptions.map(o => o.value).concat([LocResolution.GLOBAL]),
-      };
+    const newFilters: Record<string, string[]> = {};
+
+    if (exploreBy.value === Dimension.DISEASE) {
+      newFilters[Dimension.DISEASE] = [focus.value];
+      newFilters[Dimension.LOCATION] = subregionOptions.map(o => o.value).concat([globalOption.value]); // All subregions + global.
     } else {
-      // This is only one possible way of 'focusing' on a 'location':
-      // diseases as row axis, each row with up to 3 ridges.
-      // An alternative would be to have the 3 location rows laid out on the row axis,
-      // and disease(s) as color axis.
-      rowDimension.value = Dimension.DISEASE;
-      withinBandDimension.value = Dimension.LOCATION;
+      newFilters[Dimension.DISEASE] = diseaseOptions.map(d => d.value);
 
-      filters.value = {
-        [Dimension.DISEASE]: diseaseOptions.map(d => d.value),
-        [Dimension.LOCATION]: geographicalResolutions.value.map(getLocationForGeographicalResolution),
-      };
-    };
+      // In the case of exploring by location, we want to include any subregion / global location containing the focus location.
+      const country = countryOptions.find(o => o.value === focus.value)?.value;
+      const subregion = country ? getSubregionFromCountry(country) : subregionOptions.find(o => o.value === focus.value)?.value;
+      newFilters[Dimension.LOCATION] = [country, subregion, globalOption.value].filter(loc => loc !== undefined);
+    }
+
+    withinBandDimension.value = exploreBy.value;
+    rowDimension.value = exploreOptions.find(o => o.value !== exploreBy.value)!.value;
+    filters.value = newFilters;
   });
 
   watch(splitByActivityType, (split) => columnDimension.value = split ? Dimension.ACTIVITY_TYPE : null);
