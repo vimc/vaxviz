@@ -126,6 +126,8 @@ const selectedLines = computed(() => sortedRidgeLines.value.filter(line => {
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
+  helpInfoStore.showNegativeValuesHelpInfo = false;
+
   const categoriesInUse = relevantRidgeLines.value.flatMap(line => Object.keys(appStore.dimensions).map(axis => line.metadata?.[axis as Axis]));
   focusesWithoutData.value = appStore.focuses.filter(focus => !categoriesInUse.includes(focus));
 
@@ -139,23 +141,23 @@ const updateChart = debounce(() => {
   // ColorLegend as options to be toggled back on.
   colorStore.setColors(sortedRidgeLines.value);
 
-  selectedLines.value.forEach(line => {
+  const lines = selectedLines.value.map(line => {
     const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
 
-    line.style = { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor };
+    return { ...line, style: { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor } };
   });
 
   const { constructorOptions, axisConfig, chartAppendConfig, numericalScales } = plotConfiguration(
     appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
-    selectedLines.value,
+    lines,
   );
 
   helpInfoStore.showNegativeValuesHelpInfo = !appStore.logScaleEnabled && numericalScales.x.start < 0;
 
   new Chart(constructorOptions)
     .addAxes(...axisConfig)
-    .addTraces(selectedLines.value)
+    .addTraces(lines)
     .addArea()
     .addGridLines({ y: { enabled: false } })
     .addTooltips(tooltipCallback, TOOLTIP_RADIUS_PX)
@@ -166,10 +168,7 @@ const updateChart = debounce(() => {
   plotLeftMargin.value = chartAppendConfig[3].left || 0;
 }, 25);
 
-watch([selectedLines, chartWrapper], () => {
-  helpInfoStore.showNegativeValuesHelpInfo = false;
-  updateChart();
-}, { immediate: true });
+watch([selectedLines, chartWrapper], updateChart, { immediate: true });
 </script>
 
 <style lang="scss" scoped>
