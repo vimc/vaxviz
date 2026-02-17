@@ -152,10 +152,13 @@ test('visits the app root url, selects options, and loads correct data', async (
     histCountsDalysDiseaseSubregionLog.length +
     histCountsDalysDiseaseCountryLog.length +
     histCountsDalysDiseaseLog.length;
+  // 10 applicable diseases, each with 3 locations (AFG, subregion, global),
+  // + 1 disease (JE) with only 2 locations (no country-level data).
+  const expectedLineCount = 32;
   await expect(chartWrapper).toHaveAttribute("data-test",
     JSON.stringify({
       histogramDataRowCount: expectedHistogramRowCount,
-      lineCount: 30, // 10 applicable diseases, each with 3 locations (AFG, subregion, global)
+      lineCount: expectedLineCount,
       column: null,
       row: "disease",
       withinBand: "location",
@@ -170,7 +173,7 @@ test('visits the app root url, selects options, and loads correct data', async (
   await expect(chartWrapper).toHaveAttribute("data-test",
     JSON.stringify({
       histogramDataRowCount: expectedHistogramRowCount,
-      lineCount: 20, // 10 applicable diseases, each now with only 2 locations (no subregion)
+      lineCount: 21, // One fewer line per disease, as Central and Southern Asia subregion is now filtered out.
       column: null,
       row: "disease",
       withinBand: "location",
@@ -182,7 +185,7 @@ test('visits the app root url, selects options, and loads correct data', async (
   await expect(chartWrapper).toHaveAttribute("data-test",
     JSON.stringify({
       histogramDataRowCount: expectedHistogramRowCount,
-      lineCount: 30, // Back to 3 locations per disease
+      lineCount: expectedLineCount,
       column: null,
       row: "disease",
       withinBand: "location",

@@ -4,7 +4,7 @@
     <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
     <p v-else-if="noDataToDisplay" class="m-auto">
       <!-- E.g. Focus disease MenA, without splitting by activity type. -->
-      No data available for the selected options.
+      No estimates available for the selected options.
     </p>
     <div
       v-else
@@ -29,12 +29,13 @@ import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
-import { Axis, Dimension, SummaryTableColumn } from '@/types';
+import { Axis, Dimension, LocResolution, SummaryTableColumn } from '@/types';
 import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
 import usePlotTooltips from '@/composables/usePlotTooltips';
 import DataErrorAlert from '@/components/DataErrorAlert.vue';
+import { getSubregionFromCountry } from '@/utils/regions';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();
@@ -61,23 +62,26 @@ const ridgeLines = computed(() => dataStore.isLoading ? [] : constructLines());
 // This is distinct from any filtering the user may apply on top of this using plot controls,
 // and indeed also from the implicit filtering based on the choice of dimensions (as handled by appStore).
 const relevantRidgeLines = computed(() => {
-  // Only filter plot rows for relevance if each row represents a disease.
-  if (appStore.dimensions[Axis.ROW] !== Dimension.DISEASE || appStore.dimensions[Axis.WITHIN_BAND] !== Dimension.LOCATION) {
+  // Only filter plot rows for relevance if each row represents a disease, and there is exactly one focus location.
+  const eachRowRepresentsADisease = appStore.dimensions[Axis.ROW] === Dimension.DISEASE && appStore.dimensions[Axis.WITHIN_BAND] === Dimension.LOCATION;
+  if (appStore.focuses.length !== 1 && !eachRowRepresentsADisease) {
     return ridgeLines.value;
   };
-
+  
+  // If data for a disease does not exist for the focused location, nor the corresponding subregion,
+  // we should consider the disease irrelevant and exclude its entire row from the plot.
+  // E.g. Say the focus value is 'Afghanistan'. For some row of ridgelines (where rows are diseases, such as malaria)
+  // there may be data available at a global level, but none for Afghanistan or its subregion Southern Asia.
+  // In such cases we should consider the malaria row irrelevant to the focus location, and exclude all the lines within the row,
+  // Check if any of the locations for the current line's disease match either the focus location or its subregion.
+  const focusLocation = appStore.focuses[0];
   return ridgeLines.value.filter((line) => {
-    // If data for a disease is not present at the same geographical resolution as the focus, we should consider the disease irrelevant
-    // and exclude it from the plot.
-    // E.g. Say the focus value is 'Djibouti', a location. For some row of ridgelines - where rows are diseases, such as Malaria -
-    // there may be data available at a global and/or subregional level, but none for Djibouti. In such cases we should exclude the
-    // Malaria row entirely so that we only display rows that are relevant for Djibouti.
     const disease = line.metadata?.[Axis.ROW];
     const locationsForDisease = ridgeLines.value
-      .filter(l => l.metadata?.[Axis.ROW] === disease)
-      .map(({ metadata }) => metadata?.withinBand);
-    // If the disease is included in focuses, consider it as relevant and keep it.
-    return appStore.focuses.filter(f => locationsForDisease.includes(f)).length > 0;
+      .filter(l => l.metadata?.[Axis.ROW] === disease) // Get all lines whose disease matches that of the current line.
+      .map(({ metadata }) => metadata?.withinBand); // Look up their locations.
+      // Check if any of the locations for the current line's disease match either the focus location or its subregion.
+      return [focusLocation, getSubregionFromCountry(focusLocation)].some(loc => locationsForDisease.includes(loc));
   });
 });
 

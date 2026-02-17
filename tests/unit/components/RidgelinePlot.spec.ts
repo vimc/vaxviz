@@ -169,14 +169,16 @@ describe('RidgelinePlot component', () => {
       expect(dataAttr.histogramDataRowCount).toEqual(
         histCountsDalysDiseaseSubregionLog.length + histCountsDalysDiseaseCountryLog.length + histCountsDalysDiseaseLog.length
       );
-      expect(dataAttr.lineCount).toEqual(30); // 10 applicable diseases, each with 3 locations (AFG, subregion, global)
+      // 10 applicable diseases, each with 3 locations (AFG, subregion, global),
+      // + 1 disease (JE) with only 2 locations (no country-level data).
+      expect(dataAttr.lineCount).toEqual(32);
       expect(dataAttr.column).toBeNull();
       expect(dataAttr.row).toEqual("disease");
       expect(dataAttr.withinBand).toEqual("location");
 
       assertLastCategoricalScales({
         x: undefined,
-        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
+        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "JE", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     }, { timeout: 5000 });
@@ -187,11 +189,13 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(colorStore.colorMapping.size).toEqual(3);
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
-      expect(dataAttr.lineCount).toEqual(20); // 10 applicable diseases, each now with only 2 locations (no subregion)
+      // 10 applicable diseases, each now with one fewer locations (no subregion).
+      expect(dataAttr.lineCount).toEqual(21);
+      expect(colorStore.colorMapping.size).toEqual(3);
 
       assertLastCategoricalScales({
         x: undefined,
-        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
+        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "JE", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
@@ -202,11 +206,12 @@ describe('RidgelinePlot component', () => {
       expect(colorStore.colorMapping.size).toEqual(3);
 
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
-      expect(dataAttr.lineCount).toEqual(30);
+      expect(dataAttr.lineCount).toEqual(32);
+      expect(colorStore.colorMapping.size).toEqual(3);
 
       assertLastCategoricalScales({
         x: undefined,
-        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "PCV", "HepB", "Hib", "HPV", "Measles"],
+        y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "JE", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
@@ -227,7 +232,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["Northern Africa and Western Asia",
           "Latin America and the Caribbean",
-          "Eastern and Southern Europe",
+          "Eastern and Southern Europe", 
           "Southern Africa",
           "All 117 VIMC countries",
           "Eastern Africa",
@@ -282,7 +287,7 @@ describe('RidgelinePlot component', () => {
     appStore.splitByActivityType = false;
 
     await vi.waitFor(() => {
-      expect(wrapper.text()).toContain("No data available for the selected options.");
+      expect(wrapper.text()).toContain("No estimates available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
@@ -310,7 +315,7 @@ describe('RidgelinePlot component', () => {
     appStore.logScaleEnabled = false;
 
     await vi.waitFor(() => {
-      expect(wrapper.text()).not.toContain("No data available for the selected options.");
+      expect(wrapper.text()).not.toContain("No estimates available for the selected options.");
       expect(wrapper.text()).toContain("Error loading data");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
@@ -398,7 +403,7 @@ describe('RidgelinePlot component', () => {
 
     expect(dataStore.isLoading).toBe(true);
     expect(wrapper.find(spinnerMatcher).exists()).toBe(true);
-    expect(wrapper.text()).not.toContain("No data available for the selected options.");
+    expect(wrapper.text()).not.toContain("No estimates available for the selected options.");
     expect(wrapper.find("#chartWrapper").exists()).toBe(false);
 
     await vi.waitFor(() => {
