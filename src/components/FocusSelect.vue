@@ -13,6 +13,9 @@
     "
     :aria="{ labelledby: 'focusLabel' }"
   >
+    <template #placeholder>
+      <span class="text-sm">Select {{ appStore.exploreBy }}(s) to focus on</span>
+    </template>
     <template #menu-header>
       <div class="p-2 ps-3 disabled-text-color">
         <p class="text-sm">Start typing to filter the list...</p>
