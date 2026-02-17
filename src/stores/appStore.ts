@@ -8,6 +8,8 @@ import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { exploreOptions, globalOption } from "@/utils/options";
 
 const locationOptions = [...countryOptions, ...subregionOptions, globalOption];
+const defaultLocationOption = globalOption.value;
+const defaultDiseaseOption = diseaseOptions[0]!.value;
 
 export const useAppStore = defineStore("app", () => {
   const burdenMetric = ref(BurdenMetric.DEATHS);
@@ -26,7 +28,7 @@ export const useAppStore = defineStore("app", () => {
   // Thus we first ask the user to choose whether to explore by location or by disease,
   // and then present a dropdown of the relevant options.
   const exploreBy = ref<Dimension.LOCATION | Dimension.DISEASE>(Dimension.LOCATION);
-  const focuses = ref<string[]>([LocResolution.GLOBAL]);
+  const focuses = ref<string[]>([defaultLocationOption]);
 
   // For filters, inclusion in the array means 'included in the view'.
   // Note the 2 levels of filtration of diseases and locations:
@@ -39,7 +41,7 @@ export const useAppStore = defineStore("app", () => {
   // The initial filters are set to include all diseases and a single location.
   const filters = ref<Record<string, string[]>>({
     [Dimension.DISEASE]: diseaseOptions.map(d => d.value),
-    [Dimension.LOCATION]: [LocResolution.GLOBAL],
+    [Dimension.LOCATION]: [defaultLocationOption],
   });
   const legendSelections = ref<Record<string, string[]>>({});
   const resetLegendSelections = () => legendSelections.value = {
@@ -82,11 +84,7 @@ export const useAppStore = defineStore("app", () => {
   }) as [Axis, Dimension] | undefined)?.[0];
 
   const resetFocuses = () => {
-    if (exploreBy.value === Dimension.DISEASE && diseaseOptions[0]) {
-      focuses.value = [diseaseOptions[0].value];
-    } else if (exploreBy.value === Dimension.LOCATION) {
-      focuses.value = [globalOption.value];
-    };
+    focuses.value = exploreBy.value === Dimension.DISEASE ? [defaultDiseaseOption] : [defaultLocationOption];
   };
 
   watch(exploreBy, resetFocuses);
