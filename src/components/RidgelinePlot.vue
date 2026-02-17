@@ -4,7 +4,7 @@
     <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
     <p v-else-if="noDataToDisplay" class="m-auto">
       <!-- E.g. Focus disease MenA, without splitting by activity type. -->
-      No data available for the selected options.
+      No estimates available for the selected options.
     </p>
     <div
       v-else
