@@ -29,7 +29,7 @@ import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
-import { Axis, Dimension, LocResolution, SummaryTableColumn } from '@/types';
+import { Axis, Dimension, SummaryTableColumn } from '@/types';
 import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
@@ -64,7 +64,7 @@ const ridgeLines = computed(() => dataStore.isLoading ? [] : constructLines());
 const relevantRidgeLines = computed(() => {
   // Only filter plot rows for relevance if each row represents a disease, and there is exactly one focus location.
   const eachRowRepresentsADisease = appStore.dimensions[Axis.ROW] === Dimension.DISEASE && appStore.dimensions[Axis.WITHIN_BAND] === Dimension.LOCATION;
-  if (appStore.focuses.length !== 1 && !eachRowRepresentsADisease) {
+  if (appStore.focuses.length !== 1 || !eachRowRepresentsADisease) {
     return ridgeLines.value;
   };
   

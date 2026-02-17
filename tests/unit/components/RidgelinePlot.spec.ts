@@ -255,7 +255,7 @@ describe('RidgelinePlot component', () => {
       expect(colorStore.colorMapping.size).toEqual(2);
 
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
-      expect(dataAttr.lineCount).toEqual(23); // 10 diseases for Afghanistan, 13 for Eastern Africa
+      expect(dataAttr.lineCount).toEqual(23); // 10 diseases for Afghanistan, 13 for Eastern Africa, no relevance-filtering applied
 
       assertLastCategoricalScales({
         x: undefined,
