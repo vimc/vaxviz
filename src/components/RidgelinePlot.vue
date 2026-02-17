@@ -40,6 +40,7 @@ import { dimensionOptionLabel, meningitisVaccines } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
 import usePlotTooltips from '@/composables/usePlotTooltips';
 import DataErrorAlert from '@/components/DataErrorAlert.vue';
+import { getSubregionFromCountry } from '@/utils/regions';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();
@@ -72,16 +73,17 @@ const relevantRidgeLines = computed(() => {
   };
 
   return ridgeLines.value.filter((line) => {
-    // If data for a disease is not present at the same geographical resolution as the focus, we should consider the disease irrelevant
-    // and exclude it from the plot.
-    // E.g. Say the focus value is 'Djibouti', a location. For some row of ridgelines - where rows are diseases, such as Malaria -
-    // there may be data available at a global and/or subregional level, but none for Djibouti. In such cases we should exclude the
-    // Malaria row entirely so that we only display rows that are relevant for Djibouti.
+    // If data for a disease does not exist for the focus location, nor the corresponding subregion,
+    // we should consider the disease irrelevant and exclude it from the plot.
+    // E.g. Say the focus value is 'Afghanistan'. For some row of ridgelines - where rows are diseases, such as Malaria -
+    // there may be data available at a global level, but none for Afghanistan or its subregion Southern Asia.
+    // In such cases we should consider the Malaria row irrelevant to the focus location, and exclude all the lines within the row,
     const disease = line.metadata?.[Axis.ROW];
     const locationsForDisease = ridgeLines.value
-      .filter(l => l.metadata?.[Axis.ROW] === disease)
-      .map(({ metadata }) => metadata?.withinBand);
-    return locationsForDisease.includes(appStore.focus);
+      .filter(l => l.metadata?.[Axis.ROW] === disease) // Get the ridgelines whose diseases match the current line.
+      .map(({ metadata }) => metadata?.withinBand); // Look up their locations.
+    // Check if any of the locations for the current line's disease match either the focus location or its subregion.
+    return [appStore.focus, getSubregionFromCountry(appStore.focus)].some(loc => locationsForDisease.includes(loc));
   });
 });
 
