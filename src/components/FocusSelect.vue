@@ -49,7 +49,7 @@ import { globalOption } from '@/utils/options';
 
 const appStore = useAppStore();
 
-const multiFocusMode = ref(appStore.focuses.length > 1);
+const multiFocusMode = ref(false);
 
 const focusModel = computed({
   get: () => multiFocusMode.value ? appStore.focuses : appStore.focuses[0],
