@@ -233,7 +233,7 @@ describe('RidgelinePlot component', () => {
     appStore.splitByActivityType = false;
 
     await vi.waitFor(() => {
-      expect(wrapper.text()).toContain("No data available for the selected options.");
+      expect(wrapper.text()).toContain("No estimates available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
@@ -261,7 +261,7 @@ describe('RidgelinePlot component', () => {
     appStore.logScaleEnabled = false;
 
     await vi.waitFor(() => {
-      expect(wrapper.text()).not.toContain("No data available for the selected options.");
+      expect(wrapper.text()).not.toContain("No estimates available for the selected options.");
       expect(wrapper.text()).toContain("Error loading data");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
@@ -349,7 +349,7 @@ describe('RidgelinePlot component', () => {
 
     expect(dataStore.isLoading).toBe(true);
     expect(wrapper.find(spinnerMatcher).exists()).toBe(true);
-    expect(wrapper.text()).not.toContain("No data available for the selected options.");
+    expect(wrapper.text()).not.toContain("No estimates available for the selected options.");
     expect(wrapper.find("#chartWrapper").exists()).toBe(false);
 
     await vi.waitFor(() => {
