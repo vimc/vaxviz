@@ -2,15 +2,15 @@
   <div class="chart-container flex-1 min-h-0 w-full">
     <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
     <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
-    <p v-else-if="noDataToDisplay" class="h-full flex items-center text-center justify-center pb-100">
+    <FwbAlert v-else-if="noDataToDisplay" icon class="w-fit m-auto mt-10">
       <span v-if="meningitisVaccines.includes(appStore.focus) && !appStore.splitByActivityType">
-        Estimates for {{ appStore.focus }} are only available at the campaign/routine level.
-        <br/>Try selecting ‘Split by activity type’, or view meningitis estimates (a composite of MenA and MenACWYX).
+        Estimates for {{ appStore.focus }} are only available at the campaign/routine level.<br/>
+        Try selecting ‘Split by activity type’, or view meningitis estimates (a composite of MenA and MenACWYX).
       </span>
       <span v-else>
         No estimates available for the selected options.
       </span>
-    </p>
+    </FwbAlert>
     <div
       v-else
       ref="chartWrapper"
@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { debounce } from 'perfect-debounce';
-import { FwbSpinner } from 'flowbite-vue';
+import { FwbAlert, FwbSpinner } from 'flowbite-vue';
 import { Chart } from '@reside-ic/skadi-chart';
 import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
