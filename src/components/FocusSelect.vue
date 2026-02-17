@@ -5,7 +5,7 @@
   <VueSelect
     v-model="focusModel"
     :is-multi="multiFocusMode"
-    :is-clearable="focusModel.length > 1"
+    :is-clearable="multiFocusMode && appStore.focuses.length > 1"
     :hide-selected-options="false"
     :options="selectOptions"
     :filter-by="(option: Option<string>, label: string, search: string) =>
