@@ -2,9 +2,14 @@
   <div class="chart-container flex-1 min-h-0 w-full">
     <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
     <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
-    <p v-else-if="noDataToDisplay" class="m-auto">
-      <!-- E.g. Focus disease MenA, without splitting by activity type. -->
-      No estimates available for the selected options.
+    <p v-else-if="noDataToDisplay" class="h-full flex items-center text-center justify-center pb-100">
+      <span v-if="meningitisVaccines.includes(appStore.focus) && !appStore.splitByActivityType">
+        Estimates for {{ appStore.focus }} are only available at the campaign/routine level.
+        <br/>Try selecting ‘Split by activity type’, or view meningitis estimates (a composite of MenA and MenACWYX).
+      </span>
+      <span v-else>
+        No estimates available for the selected options.
+      </span>
     </p>
     <div
       v-else
@@ -31,7 +36,7 @@ import { useColorStore } from '@/stores/colorStore';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import { Axis, Dimension, SummaryTableColumn } from '@/types';
 import useHistogramLines from '@/composables/useHistogramLines';
-import { dimensionOptionLabel } from '@/utils/options';
+import { dimensionOptionLabel, meningitisVaccines } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
 import usePlotTooltips from '@/composables/usePlotTooltips';
 import DataErrorAlert from '@/components/DataErrorAlert.vue';

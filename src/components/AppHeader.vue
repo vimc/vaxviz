@@ -73,7 +73,7 @@
     <template #body>
       <div class="flex flex-col gap-y-4 leading-relaxed">
         <!-- TODO: When paper is published, add the link and replace '(forthcoming)' with '(2026)'. -->
-        <!-- NB: The number of diseases is 14 per the paper, and not (necessarily) the length of diseaseOptions.json, which may carve up diseases differently (particularly Meningitis). -->
+        <!-- NB: The number of diseases is 14 per the paper, and not (necessarily) the length of diseaseOptions.json, which may carve up diseases differently (particularly meningitis). -->
         <p>
           This data visualization tool accompanies VIMC's fourth publication, Gaythorpe et al (forthcoming).
         </p>
