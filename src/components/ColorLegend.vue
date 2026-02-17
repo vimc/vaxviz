@@ -58,7 +58,6 @@ import { useColorStore } from '@/stores/colorStore';
 import { dimensionOptionLabel } from '@/utils/options';
 import { useAppStore } from '@/stores/appStore';
 import { Axis, Dimension } from '@/types';
-import { margins } from '@/utils/plotConfiguration';
 import { compareLocResolution } from '@/utils/compareLocResolution';
 
 const appStore = useAppStore();
