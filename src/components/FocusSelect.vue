@@ -34,7 +34,8 @@
     <FwbCheckbox
       v-model="multiFocusMode"
       label="Allow multiple focus selections"
-      :wrapper-class="'w-fit'"
+      :wrapper-class="'w-fit mt-2'"
+      :label-class="'font-normal'"
     />
   </div>
 </template>
