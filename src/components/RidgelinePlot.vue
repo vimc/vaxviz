@@ -1,28 +1,40 @@
 <template>
-  <div class="chart-container flex-1 min-h-0 w-full">
-    <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
-    <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
-    <p v-else-if="noDataToDisplay" class="m-auto">
-      <!-- E.g. Focus disease MenA, without splitting by activity type. -->
-      No estimates available for the selected options.
-    </p>
+  <div class="flex-1 min-w-0 h-full max-h-full flex flex-col gap-y-5 mx-10">
+    <div class="chart-container flex-1 min-h-0 w-full">
+      <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
+      <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
+      <p v-else-if="noDataToDisplay" class="m-auto">
+        <!-- E.g. Focus disease MenA, without splitting by activity type. -->
+        No estimates available for the selected options.
+      </p>
+      <div
+        v-else
+        ref="chartWrapper"
+        id="chartWrapper"
+        :data-test="JSON.stringify({
+          histogramDataRowCount: dataStore.histogramData.length,
+          lineCount: selectedLines.length,
+          ...appStore.dimensions,
+        })"
+      />
+    </div>
     <div
-      v-else
-      ref="chartWrapper"
-      id="chartWrapper"
-      :data-test="JSON.stringify({
-        histogramDataRowCount: dataStore.histogramData.length,
-        lineCount: selectedLines.length,
-        ...appStore.dimensions,
-      })"
-    />
+      id="legendContainer"
+      class="mb-5 w-fit max-xl:ml-10!"
+      :style="{ 'margin-left': `${plotLeftMargin}px` }"
+    >
+      <FwbAlert v-if="focusesWithoutData.length && !noDataToDisplay && !dataStore.dataErrors.length" class="w-fit mb-5" icon>
+        No estimates available with current options for the following focus selection(s): {{ focusesWithoutData.join(", ") }}.
+      </FwbAlert>
+      <ColorLegend />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { debounce } from 'perfect-debounce';
-import { FwbSpinner } from 'flowbite-vue';
+import { FwbAlert, FwbSpinner } from 'flowbite-vue';
 import { Chart } from '@reside-ic/skadi-chart';
 import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
@@ -34,6 +46,7 @@ import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
 import usePlotTooltips from '@/composables/usePlotTooltips';
+import ColorLegend from '@/components/ColorLegend.vue';
 import DataErrorAlert from '@/components/DataErrorAlert.vue';
 import { getSubregionFromCountry } from '@/utils/regions';
 
@@ -44,9 +57,11 @@ const helpInfoStore = useHelpInfoStore();
 const { tooltipCallback } = usePlotTooltips();
 
 const chartWrapper = ref<HTMLDivElement>();
-// noDataToDisplay is a ref rather than computed so that we can debounce updates to it, preventing flickering
+const plotLeftMargin = ref<number>(0);
+// noDataToDisplay and focusesWithoutData are refs rather than computeds so that we can debounce updates to them, preventing flickering
 // if appStore changes at a different moment from linesToDisplay.
-const noDataToDisplay = ref<boolean>(false);
+const noDataToDisplay = ref<boolean>(false); // Whether there are no lines to display after applying all filters, or equivalently whether the chart would be empty.
+const focusesWithoutData = ref<string[]>([]); // Any focus values for which there are no lines to display after applying all filters.
 
 const data = computed(() => dataStore.histogramData.filter(dataRow =>
   [Dimension.LOCATION, Dimension.DISEASE].every(dim => {
@@ -111,12 +126,14 @@ const selectedLines = computed(() => sortedRidgeLines.value.filter(line => {
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  noDataToDisplay.value = selectedLines.value.length === 0;
+  const categoriesInUse = relevantRidgeLines.value.flatMap(line => Object.keys(appStore.dimensions).map(axis => line.metadata?.[axis as Axis]));
+  focusesWithoutData.value = appStore.focuses.filter(focus => !categoriesInUse.includes(focus));
 
+  noDataToDisplay.value = selectedLines.value.length === 0;
   if (noDataToDisplay.value || !chartWrapper.value) {
     colorStore.setColors([]); // Remove color legend when there is no data to display
     return;
-  }
+  };
 
   // Set colors using unfiltered ridgelines, since filtered-out lines are still rendered by the
   // ColorLegend as options to be toggled back on.
@@ -144,6 +161,9 @@ const updateChart = debounce(() => {
     .addTooltips(tooltipCallback, TOOLTIP_RADIUS_PX)
     .makeResponsive()
     .appendTo(chartWrapper.value, ...chartAppendConfig);
+
+  // Align the left edge of the legend with that of the plot.
+  plotLeftMargin.value = chartAppendConfig[3].left || 0;
 }, 25);
 
 watch([selectedLines, chartWrapper], () => {
@@ -153,11 +173,9 @@ watch([selectedLines, chartWrapper], () => {
 </script>
 
 <style lang="scss" scoped>
-$chart-margin: 40px;
-
 #chartWrapper {
-  margin: $chart-margin;
-  width: calc(100% - (#{$chart-margin} * 2));
-  height: calc(100% - (#{$chart-margin} * 2));
+  width: 100%;
+  height: 100%;
+  margin: 0;
 }
 </style>

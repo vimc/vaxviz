@@ -48,6 +48,11 @@ const assertLastCategoricalScales = (expected: Record<"x" | "y", string[] | unde
   expect(catScales).toEqual(expected);
 };
 
+const expectCorrectMarginForRowDimension = (rowDimension: "disease" | "location", wrapper: ReturnType<typeof mount>) => {
+  const leftMarginPx = rowDimension === "location" ? 170 : 110;
+  expect(wrapper.find('#legendContainer').attributes('style')).toBe(`margin-left: ${leftMarginPx}px;`);
+};
+
 describe('RidgelinePlot component', () => {
   beforeEach(() => {
     setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
@@ -81,6 +86,7 @@ describe('RidgelinePlot component', () => {
         y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
       });
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expectCorrectMarginForRowDimension("disease", wrapper);
     });
 
     // Change options: round 1
@@ -109,6 +115,7 @@ describe('RidgelinePlot component', () => {
         y: ["COVID-19", "Cholera", "Rubella", "MenA", "MenACWYX", "Typhoid", "Rota", "HepB", "YF", "PCV", "Malaria", "Hib", "HPV", "Measles"],
       });
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(true);
+      expectCorrectMarginForRowDimension("disease", wrapper);
     }, 5000);
 
     // Change options: round 2
@@ -150,6 +157,7 @@ describe('RidgelinePlot component', () => {
         ],
       });
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(true);
+      expectCorrectMarginForRowDimension("location", wrapper);
     }, { timeout: 5000 });
 
     // Change options: round 3
@@ -181,6 +189,7 @@ describe('RidgelinePlot component', () => {
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "JE", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expectCorrectMarginForRowDimension("disease", wrapper);
     }, { timeout: 5000 });
 
     // Change options: round 4 (filtering out as if via legend component)
@@ -243,6 +252,7 @@ describe('RidgelinePlot component', () => {
           "Oceania",
         ],
       });
+      expectCorrectMarginForRowDimension("location", wrapper);
     }, { timeout: 5000 });
 
     // Change options: round 7 (multiple focuses: locations)
@@ -261,6 +271,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["COVID-19", "Cholera", "YF", "Rubella", "Typhoid", "Meningitis", "Rota", "PCV", "HepB", "Malaria", "Hib", "Measles", "HPV"],
       });
+      expectCorrectMarginForRowDimension("disease", wrapper);
     }, { timeout: 5000 });
   }, 20000);
 
@@ -292,6 +303,26 @@ describe('RidgelinePlot component', () => {
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
     expect(colorStore.colorMapping.size).toEqual(0);
+  });
+
+  it('when there is no data available for a subset of multiple focuses, shows a message along with the chart', async () => {
+    const appStore = useAppStore();
+    const colorStore = useColorStore();
+    const wrapper = mount(RidgelinePlot);
+
+    appStore.exploreBy = "disease";
+    await vi.waitFor(() => {
+      expect(appStore.focuses).toEqual(["Cholera"])
+    });
+    // There is no data for MenA except if we split by activity type.
+    appStore.focuses = ["MenA", "Malaria", "Hib"];
+    appStore.splitByActivityType = false;
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain("No estimates available with current options for the following focus selection(s): MenA");
+      expect(wrapper.find("#chartWrapper").exists()).toBe(true);
+      expect(colorStore.colorMapping.size).toEqual(2); // Colors for Malaria and Hib
+    });
   });
 
   it('when there are fetch errors, shows an alert instead of the chart', async () => {
