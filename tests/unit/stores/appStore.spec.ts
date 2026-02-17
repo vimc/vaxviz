@@ -66,6 +66,28 @@ describe("app store", () => {
     expect(store.focus).toEqual("global");
   });
 
+  it("throws an error if the focus value is invalid for the current exploreBy selection", async () => {
+    const store = useAppStore();
+
+    expect(store.focus).toEqual("global");
+    expect(store.exploreBy).toEqual("location");
+
+    await expect(async () => {
+      store.focus = "Malaria";
+      await nextTick();
+    }).rejects.toThrow();
+
+    store.exploreBy = "disease";
+    await nextTick();
+
+    expect(store.focus).toEqual("Cholera");
+
+    await expect(async () => {
+      store.focus = "global";
+      await nextTick();
+    }).rejects.toThrow();
+  });
+
   it("updates the dimensions and filters when focus changes", async () => {
     const store = useAppStore();
 
@@ -88,6 +110,7 @@ describe("app store", () => {
     expect(store.legendSelections.disease).toHaveLength(diseaseOptions.length);
     expect(store.legendSelections.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
 
+    store.exploreBy = "disease";
     store.focus = "Cholera";
     await nextTick();
 
@@ -100,6 +123,8 @@ describe("app store", () => {
     expect(store.legendSelections.location).toHaveLength(11);
     expect(store.legendSelections.location).toContain("global");
 
+    store.exploreBy = "location";
+    await nextTick();
     store.focus = "Middle Africa";
     await nextTick();
 
