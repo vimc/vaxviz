@@ -3,10 +3,15 @@
     <div class="chart-container flex-1 min-h-0 w-full">
       <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
       <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
-      <p v-else-if="noDataToDisplay" class="m-auto">
-        <!-- E.g. Focus disease MenA, without splitting by activity type. -->
-        No estimates available for the selected options.
-      </p>
+      <FwbAlert v-else-if="noDataToDisplay" icon class="w-fit m-auto mt-10">
+        <span v-if="appStore.focuses.length && appStore.focuses.every(f => meningitisVaccines.includes(f)) && !appStore.splitByActivityType">
+          Estimates for {{ appStore.focuses.join(", ") }} are only available at the campaign/routine level.<br/>
+          Try selecting ‘Split by activity type’, or view meningitis estimates (a composite of MenA and MenACWYX).
+        </span>
+        <span v-else>
+          No estimates available for the selected options.
+        </span>
+      </FwbAlert>
       <div
         v-else
         ref="chartWrapper"
@@ -43,7 +48,7 @@ import { useColorStore } from '@/stores/colorStore';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import { Axis, Dimension, SummaryTableColumn } from '@/types';
 import useHistogramLines from '@/composables/useHistogramLines';
-import { dimensionOptionLabel } from '@/utils/options';
+import { dimensionOptionLabel, meningitisVaccines } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
 import usePlotTooltips from '@/composables/usePlotTooltips';
 import ColorLegend from '@/components/ColorLegend.vue';

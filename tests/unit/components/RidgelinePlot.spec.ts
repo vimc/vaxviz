@@ -275,6 +275,29 @@ describe('RidgelinePlot component', () => {
     }, { timeout: 5000 });
   }, 20000);
 
+  it('when there is no focus selected, shows a message instead of the chart', async () => {
+    const appStore = useAppStore();
+    const colorStore = useColorStore();
+    const helpInfoStore = useHelpInfoStore();
+    const wrapper = mount(RidgelinePlot);
+
+    // It shows a chart initially
+    await vi.waitFor(() => {
+      const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
+      expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
+      expect(colorStore.colorMapping.size).toEqual(14);
+    });
+
+    appStore.focuses = [];
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain("No estimates available for the selected options.");
+      expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+    });
+    expect(colorStore.colorMapping.size).toEqual(0);
+  });
+
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
     const appStore = useAppStore();
     const colorStore = useColorStore();
@@ -289,6 +312,29 @@ describe('RidgelinePlot component', () => {
     });
 
     // Set options that lead to no data
+    // There is no data for meningitis if split by activity type.
+    appStore.exploreBy = "disease";
+    await vi.waitFor(() => {
+      expect(appStore.focuses).toEqual(["Cholera"])
+    });
+    appStore.focuses = ["Meningitis"];
+    appStore.splitByActivityType = true;
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain("No estimates available for the selected options.");
+      expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+    });
+    expect(colorStore.colorMapping.size).toEqual(0);
+  });
+
+  it('special "no data" message for meningitis vaccines', async () => {
+    const appStore = useAppStore();
+    const colorStore = useColorStore();
+    const helpInfoStore = useHelpInfoStore();
+    const wrapper = mount(RidgelinePlot);
+
+    // Set options that lead to no data
     // There is no data for MenA except if we split by activity type.
     appStore.exploreBy = "disease";
     await vi.waitFor(() => {
@@ -298,11 +344,17 @@ describe('RidgelinePlot component', () => {
     appStore.splitByActivityType = false;
 
     await vi.waitFor(() => {
-      expect(wrapper.text()).toContain("No estimates available for the selected options.");
+      expect(wrapper.text()).toContain("Estimates for MenA are only available at the campaign/routine level.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
     expect(colorStore.colorMapping.size).toEqual(0);
+
+    appStore.focuses = ["MenA", "MenACWYX"];
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain("Estimates for MenA, MenACWYX are only available at the campaign/routine level.");
+      expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+    });
   });
 
   it('when there is no data available for a subset of multiple focuses, shows a message along with the chart', async () => {
