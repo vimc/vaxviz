@@ -11,12 +11,23 @@ import { doDownload, readDownloadedFile } from './utils.ts';
 
 type FocusType = "disease" | "location";
 
-const expectSelectedFocus = async (page: Page, focusType: FocusType, expectedLabel: string) => {
+const expectSingleSelectedFocus = async (page: Page, focusType: FocusType, expectedLabel: string) => {
   const selected = page.getByRole("combobox", {
     name: `Focus ${focusType === "disease" ? "Disease" : "Geography"}`
   }).locator(".single-value");
   await expect(selected).toHaveText(expectedLabel);
 };
+
+const expectMultiSelectedFocus = async (page: Page, focusType: FocusType, expectedLabels: string[]) => {
+  const selected = page.getByRole("combobox", {
+    name: `Focus ${focusType === "disease" ? "Disease" : "Geography"}`
+  }).locator(".multi-value");
+  const selectedCount = await selected.count();
+  expect(selectedCount).toBe(expectedLabels.length);
+  for (let i = 0; i < expectedLabels.length; i++) {
+    await expect(selected.nth(i)).toHaveText(expectedLabels[i]);
+  }
+}
 
 const selectFocus = async (page: Page, optionLabel: string) => {
   await page.click(".dropdown-icon");
@@ -56,7 +67,7 @@ test('visits the app root url, selects options, and loads correct data', async (
   // Initial selections
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
-  await expectSelectedFocus(page, "location", globalOptionLabel);
+  await expectSingleSelectedFocus(page, "location", globalOptionLabel);
   await expect(activityTypeCheckbox).not.toBeChecked();
   await expect(logScaleCheckbox).toBeChecked();
   await expect(dalysRadio).not.toBeChecked();
@@ -80,7 +91,7 @@ test('visits the app root url, selects options, and loads correct data', async (
 
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
-  await expectSelectedFocus(page, "location", "Middle Africa");
+  await expectSingleSelectedFocus(page, "location", "Middle Africa");
   await expect(activityTypeCheckbox).toBeChecked();
   await expect(logScaleCheckbox).not.toBeChecked();
   await expect(dalysRadio).toBeChecked();
@@ -99,13 +110,13 @@ test('visits the app root url, selects options, and loads correct data', async (
 
   // Change options: round 2
   await diseaseRadio.click();
-  await expectSelectedFocus(page, "disease", "Cholera");
+  await expectSingleSelectedFocus(page, "disease", "Cholera");
   await selectFocus(page, "Measles");
   await deathsRadio.click();
 
   await expect(diseaseRadio).toBeChecked();
   await expect(geographyRadio).not.toBeChecked();
-  await expectSelectedFocus(page, "disease", "Measles");
+  await expectSingleSelectedFocus(page, "disease", "Measles");
   await expect(activityTypeCheckbox).toBeChecked();
   await expect(logScaleCheckbox).not.toBeChecked();
   await expect(dalysRadio).not.toBeChecked();
@@ -124,7 +135,7 @@ test('visits the app root url, selects options, and loads correct data', async (
 
   // Change options: round 3
   await geographyRadio.click();
-  await expectSelectedFocus(page, "location", globalOptionLabel);
+  await expectSingleSelectedFocus(page, "location", globalOptionLabel);
   await selectFocus(page, "AFG");
   await dalysRadio.click();
   await logScaleCheckbox.click();
@@ -132,7 +143,7 @@ test('visits the app root url, selects options, and loads correct data', async (
 
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
-  await expectSelectedFocus(page, "location", "Afghanistan");
+  await expectSingleSelectedFocus(page, "location", "Afghanistan");
   await expect(activityTypeCheckbox).not.toBeChecked();
   await expect(logScaleCheckbox).toBeChecked();
   await expect(dalysRadio).toBeChecked();
@@ -180,6 +191,51 @@ test('visits the app root url, selects options, and loads correct data', async (
       withinBand: "location",
     })
   );
+
+  // Change options: round 6 (multiple focuses: diseases)
+  await diseaseRadio.click();
+  await expectSingleSelectedFocus(page, "disease", "Cholera");
+
+  // Enable multi-focus mode and select multiple diseases
+  const multiFocusModeCheckbox = page.getByRole("checkbox", { name: "Allow multiple focus selections" });
+  await multiFocusModeCheckbox.click();
+
+  await selectFocus(page, "Measles");
+  await expectMultiSelectedFocus(page, "disease", ["Cholera", "Measles"]);
+
+  await expect(chartWrapper).toHaveAttribute("data-test",
+    JSON.stringify({
+      histogramDataRowCount: histCountsDalysDiseaseSubregionLog.length + histCountsDalysDiseaseLog.length,
+      lineCount: 18, // 7 locations with Cholera, 11 with Measles
+      column: null,
+      row: "location",
+      withinBand: "disease",
+    })
+  );
+  await expect(plotLegend.locator(".legend-label")).toHaveCount(2);
+
+  // Change options: round 7 (multiple focuses: locations)
+  await geographyRadio.click();
+  await expectMultiSelectedFocus(page, "location", [globalOptionLabel]);
+
+  // deselect global
+  await selectFocus(page, globalOptionLabel);
+
+  await selectFocus(page, "AFG");
+  await selectFocus(page, "Eastern Africa");
+
+  await expect(plotLegend.locator(".legend-label")).toHaveCount(2);
+
+  await expect(chartWrapper).toHaveAttribute("data-test",
+    JSON.stringify({
+      histogramDataRowCount: histCountsDalysDiseaseSubregionLog.length + histCountsDalysDiseaseCountryLog.length,
+      lineCount: 23, // 10 diseases for Afghanistan, 13 for Eastern Africa
+      column: null,
+      row: "disease",
+      withinBand: "location",
+    })
+  );
+  await expect(plotLegend.locator(".legend-label")).toHaveCount(2);
 });
 
 test.describe("Downloads", () => {

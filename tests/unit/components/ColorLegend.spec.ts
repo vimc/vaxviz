@@ -7,11 +7,6 @@ import { globalOption } from '@/utils/options';
 import { useAppStore } from "@/stores/appStore";
 import { useColorStore } from '@/stores/colorStore';
 
-const expectCorrectMarginForRowDimension = (rowDimension: "disease" | "location", wrapper: ReturnType<typeof mount>) => {
-  const leftMarginPx = rowDimension === "location" ? 170 : 110;
-  expect(wrapper.find('ul').attributes('style')).toBe(`margin-left: ${leftMarginPx}px;`);
-};
-
 describe('RidgelinePlot component', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -66,8 +61,6 @@ describe('RidgelinePlot component', () => {
     expect(labels[2].text()).toBe('All 117 VIMC countries');
     expect(colorBoxes[2].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
     expect(colorBoxes[2].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
-
-    expectCorrectMarginForRowDimension("disease", wrapper);
   });
 
   it('renders the correct labels and colors when the color dimension is disease, in the order in which the colors were assigned', async () => {
@@ -105,8 +98,6 @@ describe('RidgelinePlot component', () => {
     expect(labels[1].text()).toBe('Cholera');
     expect(colorBoxes[1].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
     expect(colorBoxes[1].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
-
-    expectCorrectMarginForRowDimension("disease", wrapper);
   });
 
   it('updates the legend when the data changes', async () => {
@@ -152,8 +143,6 @@ describe('RidgelinePlot component', () => {
     expect(colorBoxes[2].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
     expect(colorBoxes[2].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
 
-    expectCorrectMarginForRowDimension("disease", wrapper);
-
     appStore.filters = {
       location: ['AFG'],
       disease: ['Cholera', 'Rubella'],
@@ -183,7 +172,6 @@ describe('RidgelinePlot component', () => {
     expect(diseaseLabels[1].text()).toBe('Cholera');
     expect(diseaseColorBoxes[1].element.style.borderColor).toBe("rgb(105, 41, 196)"); // purple70
     expect(diseaseColorBoxes[1].element.style.backgroundColor).toBe("rgba(105, 41, 196, 0.2)");
-    expectCorrectMarginForRowDimension("disease", wrapper);
   });
 
   it('renders the correct labels and colours when the _row_ dimension is location (regardless of color dimension)', async () => {
@@ -222,8 +210,6 @@ describe('RidgelinePlot component', () => {
     expect(labels[1].text()).toBe('Afghanistan');
     expect(colorBoxes[1].element.style.borderColor).toBe("rgb(0, 157, 154)"); // teal50
     expect(colorBoxes[1].element.style.backgroundColor).toBe("rgba(0, 157, 154, 0.2)");
-
-    expectCorrectMarginForRowDimension("location", wrapper);
   });
 
   it('can update and reset legend selections', async () => {

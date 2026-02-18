@@ -1,13 +1,10 @@
 <template>
   <div
     v-if="colors && colors.length >= 2"
-    class="h-20 flex mb-5 w-fit ml-10"
+    class="h-20 flex"
     id="colorLegend"
   >
-    <ul
-      class="flex flex-col gap-y-1 flex-wrap max-h-full min-h-0 max-xl:ml-0!"
-      :style="{ 'margin-left': `${plotLeftMargin}px` }"
-    >
+    <ul class="flex flex-col gap-y-1 flex-wrap max-h-full min-h-0">
       <li
         v-for="({ value, color, hidden, label }) in colors"
         :key="value"
@@ -61,7 +58,6 @@ import { useColorStore } from '@/stores/colorStore';
 import { dimensionOptionLabel } from '@/utils/options';
 import { useAppStore } from '@/stores/appStore';
 import { Axis, Dimension } from '@/types';
-import { margins } from '@/utils/plotConfiguration';
 import { compareLocResolution } from '@/utils/compareLocResolution';
 
 const appStore = useAppStore();
@@ -109,9 +105,6 @@ const colorBoxStyle = (color: HEX) => {
     borderColor: strokeColor,
   }
 }
-
-// Align the left edge of the legend with that of the plot.
-const plotLeftMargin = computed(() => margins(appStore.dimensions[Axis.ROW]).left);
 </script>
 
 <style scoped>

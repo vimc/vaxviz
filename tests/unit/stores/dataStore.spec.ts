@@ -97,8 +97,8 @@ describe('data store', () => {
 
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
-    expect(appStore.focus).toEqual("global");
-    appStore.focus = "Middle Africa";
+    expect(appStore.focuses).toEqual(["global"]);
+    appStore.focuses = ["Middle Africa"];
     expectedFetches += 4;
     appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = false;
@@ -136,10 +136,10 @@ describe('data store', () => {
     // Change options: round 2
     appStore.exploreBy = "disease";
     await vi.waitFor(() => {
-      expect(appStore.focus).toEqual("Cholera")
+      expect(appStore.focuses).toEqual(["Cholera"])
       expect(fetchSpy).toBeCalledTimes(expectedFetches); // No increment in expectedFetches due to cacheing.
     });
-    appStore.focus = "Measles";
+    appStore.focuses = ["Measles"];
     expectedFetches += 4;
     appStore.burdenMetric = BurdenMetric.DEATHS;
     appStore.logScaleEnabled = false;
@@ -173,10 +173,10 @@ describe('data store', () => {
     // Change options: round 3
     appStore.exploreBy = "location";
     await vi.waitFor(() => {
-      expect(appStore.focus).toEqual("global")
+      expect(appStore.focuses).toEqual(["global"])
       expect(fetchSpy).toBeCalledTimes(expectedFetches); // No increment in expectedFetches due to cacheing.
     });
-    appStore.focus = "AFG";
+    appStore.focuses = ["AFG"];
     expectedFetches += 6;
     appStore.burdenMetric = BurdenMetric.DALYS;
     appStore.logScaleEnabled = true;
@@ -209,6 +209,49 @@ describe('data store', () => {
         "summary_table_dalys_disease.csv"
       ],
     );
+
+    // Change options: round 4 (multiple focuses: diseases)
+    appStore.exploreBy = "disease";
+    await vi.waitFor(() => {
+      expect(appStore.focuses).toEqual(["Cholera"])
+      expect(fetchSpy).toBeCalledTimes(expectedFetches); // No increment in expectedFetches due to cacheing.
+    });
+    appStore.focuses = ["Cholera", "Measles"];
+
+    await vi.waitFor(() => {
+      expect(dataStore.isLoading).toBe(false);
+      expect(dataStore.histogramData).toHaveLength(
+        histCountsDalysDiseaseSubregionLog.length + histCountsDalysDiseaseLog.length
+      );
+      expect(dataStore.summaryTableData).toHaveLength(
+        summaryDalysDiseaseSubregion.length + summaryDalysDisease.length
+      );
+    }, { timeout: 3000 });
+    expect(fetchSpy).toBeCalledTimes(expectedFetches);
+    await doAndExpectDownload(
+      true,
+      "summary_tables_dalys_disease_subregion_global.zip",
+      [
+        "summary_table_dalys_disease_subregion.csv",
+        "summary_table_dalys_disease.csv"
+      ],
+    );
+
+    // Change options: round 5 (multiple focuses: locations)
+    appStore.exploreBy = "location";
+    await vi.waitFor(() => {
+      expect(appStore.focuses).toEqual(["global"])
+      expect(fetchSpy).toBeCalledTimes(expectedFetches); // No increment in expectedFetches due to cacheing.
+    });
+    appStore.focuses = ["AFG", "ALB"];
+
+    await vi.waitFor(() => {
+      expect(dataStore.isLoading).toBe(false);
+      expect(dataStore.histogramData).toHaveLength(histCountsDalysDiseaseCountryLog.length);
+      expect(dataStore.summaryTableData).toHaveLength(summaryDalysDiseaseCountry.length);
+    }, { timeout: 3000 });
+    expect(fetchSpy).toBeCalledTimes(expectedFetches);
+    await doAndExpectDownload(false, "", ["summary_table_dalys_disease_country.csv"]);
   }, 10000);
 
   it('should store errors on fetch, and clear them when filenames change', async () => {

@@ -6,7 +6,7 @@ type SubregionRow = {
   subregion: string;
 }
 
-export const getSubregionFromCountry = (iso3: string) => {
+export const getSubregionFromCountry = (iso3?: string) => {
   return WHOSubRegions.find((r: SubregionRow) => r.country === iso3)?.subregion || "";
 };
 
