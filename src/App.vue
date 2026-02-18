@@ -2,17 +2,13 @@
   <AppHeader />
   <main class="flex w-full max-w-full">
     <PlotControls />
-    <div class="flex-1 min-w-0 h-full max-h-full flex flex-col gap-y-5">
-      <RidgelinePlot />
-      <ColorLegend />
-    </div>
+    <RidgelinePlot />
   </main>
 </template>
 
 <script setup lang="ts">
 import AppHeader from '@/components/AppHeader.vue';
 import PlotControls from '@/components/PlotControls.vue';
-import ColorLegend from '@/components/ColorLegend.vue';
 import RidgelinePlot from '@/components/RidgelinePlot.vue';
 </script>
 

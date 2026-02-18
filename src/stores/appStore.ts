@@ -7,6 +7,10 @@ import subregionOptions from '@/data/options/subregionOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { exploreOptions, globalOption } from "@/utils/options";
 
+const locationOptions = [...countryOptions, ...subregionOptions, globalOption];
+const defaultLocationOption = globalOption.value;
+const defaultDiseaseOption = diseaseOptions[0]!.value;
+
 export const useAppStore = defineStore("app", () => {
   const burdenMetric = ref(BurdenMetric.DEATHS);
   const logScaleEnabled = ref(true);
@@ -24,20 +28,20 @@ export const useAppStore = defineStore("app", () => {
   // Thus we first ask the user to choose whether to explore by location or by disease,
   // and then present a dropdown of the relevant options.
   const exploreBy = ref<Dimension.LOCATION | Dimension.DISEASE>(Dimension.LOCATION);
-  const focus = ref<string>(LocResolution.GLOBAL);
+  const focuses = ref<string[]>([defaultLocationOption]);
 
   // For filters, inclusion in the array means 'included in the view'.
   // Note the 2 levels of filtration of diseases and locations:
   // - 'filters' are more of an internal, developer-facing concept. They describe the possible range
   // of diseases and locations that are validly available for the current view, and are fully determined
-  // by the selection of focus and exploreBy.
+  // by the selection of focuses and exploreBy.
   // - 'legend selections' are a second level of filtration which the user controls via the color legend,
   // applied on top of 'filters'; they're easily toggled on and off without constituting a change to the overall view.
   // Whenever 'filters' update (or are initialized), legend selections are reset to match the 'filters'.
   // The initial filters are set to include all diseases and a single location.
   const filters = ref<Record<string, string[]>>({
     [Dimension.DISEASE]: diseaseOptions.map(d => d.value),
-    [Dimension.LOCATION]: [LocResolution.GLOBAL],
+    [Dimension.LOCATION]: [defaultLocationOption],
   });
   const legendSelections = ref<Record<string, string[]>>({});
   const resetLegendSelections = () => legendSelections.value = {
@@ -79,35 +83,38 @@ export const useAppStore = defineStore("app", () => {
     return dim === dimension
   }) as [Axis, Dimension] | undefined)?.[0];
 
-  watch(exploreBy, () => {
-    if (exploreBy.value === Dimension.DISEASE && diseaseOptions[0]) {
-      focus.value = diseaseOptions[0].value;
-    } else if (exploreBy.value === Dimension.LOCATION) {
-      focus.value = LocResolution.GLOBAL;
-    };
-  });
+  const resetFocuses = () => {
+    focuses.value = exploreBy.value === Dimension.DISEASE ? [defaultDiseaseOption] : [defaultLocationOption];
+  };
 
-  watch(focus, () => {
+  watch(exploreBy, resetFocuses);
+
+  watch(focuses, () => {
     // Check that the focus is valid given the current exploreBy selection.
-    if (exploreBy.value === Dimension.DISEASE && !diseaseOptions.find(d => d.value === focus.value)) {
-      throw new Error(`Invalid focus selection '${focus.value}' for exploreBy '${exploreBy.value}'`);
-    } else if (exploreBy.value === Dimension.LOCATION && ![...countryOptions, ...subregionOptions, globalOption].find(o => o.value === focus.value)) {
-      throw new Error(`Invalid focus selection '${focus.value}' for exploreBy '${exploreBy.value}'`);
+    if (exploreBy.value === Dimension.DISEASE && focuses.value.some(f => !diseaseOptions.find(o => o.value === f))) {
+      throw new Error(`Invalid focus selection(s) for exploreBy '${exploreBy.value}'`);
+    } else if (exploreBy.value === Dimension.LOCATION && focuses.value.some(f => !locationOptions.find(o => o.value === f))) {
+      throw new Error(`Invalid focus selection(s) for exploreBy '${exploreBy.value}'`);
     }
 
-    const newFilters: Record<string, string[]> = {};
+    // Set up disease filter
+    const newFilters: Record<string, string[]> = {
+      [Dimension.DISEASE]: exploreBy.value === Dimension.DISEASE ? focuses.value : diseaseOptions.map(d => d.value),
+    };
 
+    // Set up location filter
     if (exploreBy.value === Dimension.DISEASE) {
-      newFilters[Dimension.DISEASE] = [focus.value];
-      newFilters[Dimension.LOCATION] = subregionOptions.map(o => o.value).concat([globalOption.value]); // All subregions + global.
-    } else {
-      newFilters[Dimension.DISEASE] = diseaseOptions.map(d => d.value);
-
-      // In the case of exploring by location, we want to include any subregion / global location containing the focus location.
-      const country = countryOptions.find(o => o.value === focus.value)?.value;
-      const subregion = country ? getSubregionFromCountry(country) : subregionOptions.find(o => o.value === focus.value)?.value;
+      // All subregions + global
+      newFilters[Dimension.LOCATION] = subregionOptions.map(o => o.value).concat([globalOption.value]);
+    } else if (focuses.value.length === 1) {
+      // If there is a single focus location, we want to include any subregion / global location containing the focus location.
+      const country = countryOptions.find(o => o.value === focuses.value[0])?.value;
+      const subregion = country ? getSubregionFromCountry(country) : subregionOptions.find(o => o.value === focuses.value[0])?.value;
       newFilters[Dimension.LOCATION] = [country, subregion, globalOption.value].filter(loc => loc !== undefined);
-    }
+    } else {
+      // If there are multiple focus locations, we want to include only those locations (no containing subregions / global).
+      newFilters[Dimension.LOCATION] = focuses.value;
+    };
 
     withinBandDimension.value = exploreBy.value;
     rowDimension.value = exploreOptions.find(o => o.value !== exploreBy.value)!.value;
@@ -125,11 +132,12 @@ export const useAppStore = defineStore("app", () => {
     exploreByLabel,
     exploreOptions,
     filters,
-    focus,
+    focuses,
     geographicalResolutions,
     getAxisForDimension,
     geographicalResolutionForLocation,
     logScaleEnabled,
+    resetFocuses,
     resetLegendSelections,
     legendSelections,
     splitByActivityType,

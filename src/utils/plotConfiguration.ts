@@ -133,7 +133,7 @@ const axisConfiguration = (
     }
   ];
 
-export const margins = (rowDimension: Dimension) => ({ left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 110 });
+const margins = (rowDimension: Dimension) => ({ left: yAxisNeedsExtraSpace(rowDimension) ? 170 : 110 });
 
 export const plotConfiguration = (
   rowDimension: Dimension,

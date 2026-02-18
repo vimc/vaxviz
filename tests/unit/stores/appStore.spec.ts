@@ -39,7 +39,7 @@ describe("app store", () => {
     expect(store.logScaleEnabled).toBe(true);
     expect(store.splitByActivityType).toBe(false);
     expect(store.exploreBy).toBe("location");
-    expect(store.focus).toBe("global");
+    expect(store.focuses).toEqual(["global"]);
     expect(store.dimensions).toEqual({
       column: null,
       row: "disease",
@@ -49,49 +49,49 @@ describe("app store", () => {
     expect(store.legendSelections).toEqual(expectedInitialFilters);
   });
 
-  it("updates the focus value when exploreBy selection changes", async () => {
+  it("updates the focuses when exploreBy selection changes", async () => {
     const store = useAppStore();
 
-    expect(store.focus).toEqual("global");
+    expect(store.focuses).toEqual(["global"]);
     expect(store.exploreBy).toEqual("location");
 
     store.exploreBy = "disease";
     await nextTick();
 
-    expect(store.focus).toEqual("Cholera");
+    expect(store.focuses).toEqual(["Cholera"]);
 
     store.exploreBy = "location";
     await nextTick();
 
-    expect(store.focus).toEqual("global");
+    expect(store.focuses).toEqual(["global"]);
   });
 
-  it("throws an error if the focus value is invalid for the current exploreBy selection", async () => {
+  it("throws an error if any focuses value is invalid for the current exploreBy selection", async () => {
     const store = useAppStore();
 
-    expect(store.focus).toEqual("global");
+    expect(store.focuses).toEqual(["global"]);
     expect(store.exploreBy).toEqual("location");
 
     await expect(async () => {
-      store.focus = "Malaria";
+      store.focuses = ["global", "Malaria"];
       await nextTick();
     }).rejects.toThrow();
 
     store.exploreBy = "disease";
     await nextTick();
 
-    expect(store.focus).toEqual("Cholera");
+    expect(store.focuses).toEqual(["Cholera"]);
 
     await expect(async () => {
-      store.focus = "global";
+      store.focuses = ["global"];
       await nextTick();
     }).rejects.toThrow();
   });
 
-  it("updates the dimensions and filters when focus changes", async () => {
+  it("updates the dimensions and filters when focuses change (for a single focus)", async () => {
     const store = useAppStore();
 
-    expect(store.focus).toEqual("global");
+    expect(store.focuses).toEqual(["global"]);
     expect(store.exploreBy).toEqual("location");
     expect(store.dimensions.row).toEqual("disease");
     expect(store.dimensions.withinBand).toEqual("location");
@@ -100,7 +100,7 @@ describe("app store", () => {
     expect(store.legendSelections.disease).toHaveLength(diseaseOptions.length);
     expect(store.legendSelections.location).toEqual(["global"]);
 
-    store.focus = "AFG";
+    store.focuses = ["AFG"];
     await nextTick();
 
     expect(store.dimensions.row).toEqual("disease");
@@ -111,7 +111,7 @@ describe("app store", () => {
     expect(store.legendSelections.location).toEqual(["AFG", "Central and Southern Asia", "global"]);
 
     store.exploreBy = "disease";
-    store.focus = "Cholera";
+    store.focuses = ["Cholera"];
     await nextTick();
 
     expect(store.dimensions.row).toEqual("location");
@@ -125,7 +125,7 @@ describe("app store", () => {
 
     store.exploreBy = "location";
     await nextTick();
-    store.focus = "Middle Africa";
+    store.focuses = ["Middle Africa"];
     await nextTick();
 
     expect(store.dimensions.row).toEqual("disease");
@@ -134,6 +134,49 @@ describe("app store", () => {
     expect(store.filters.location).toEqual(["Middle Africa", "global"]);
     expect(store.legendSelections.disease).toHaveLength(diseaseOptions.length);
     expect(store.legendSelections.location).toEqual(["Middle Africa", "global"]);
+  });
+
+  it("updates the dimensions and filters when focuses change (for multiple focuses)", async () => {
+    const store = useAppStore();
+
+    expect(store.focuses).toEqual(["global"]);
+    expect(store.exploreBy).toEqual("location");
+
+    store.focuses = ["AFG", "global"];
+    await nextTick();
+
+    expect(store.dimensions.row).toEqual("disease");
+    expect(store.dimensions.withinBand).toEqual("location");
+    expect(store.filters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.filters.location).toEqual(["AFG", "global"]);
+    expect(store.legendSelections.disease).toHaveLength(diseaseOptions.length);
+    expect(store.legendSelections.location).toEqual(["AFG", "global"]);
+
+    store.exploreBy = "disease";
+    await nextTick();
+    store.focuses = ["Cholera", "Malaria"];
+    await nextTick();
+
+    expect(store.dimensions.row).toEqual("location");
+    expect(store.dimensions.withinBand).toEqual("disease");
+    expect(store.filters.disease).toEqual(["Cholera", "Malaria"]);
+    expect(store.filters.location).toHaveLength(11);
+    expect(store.filters.location).toContain("global");
+    expect(store.legendSelections.disease).toEqual(["Cholera", "Malaria"]);
+    expect(store.legendSelections.location).toHaveLength(11);
+    expect(store.legendSelections.location).toContain("global");
+
+    store.exploreBy = "location";
+    await nextTick();
+    store.focuses = ["Middle Africa", "Eastern Africa"];
+    await nextTick();
+
+    expect(store.dimensions.row).toEqual("disease");
+    expect(store.dimensions.withinBand).toEqual("location");
+    expect(store.filters.disease).toHaveLength(diseaseOptions.length);
+    expect(store.filters.location).toEqual(["Middle Africa", "Eastern Africa"]);
+    expect(store.legendSelections.disease).toHaveLength(diseaseOptions.length);
+    expect(store.legendSelections.location).toEqual(["Middle Africa", "Eastern Africa"]);
   });
 
   it("returns the explore by label", async () => {
@@ -200,5 +243,27 @@ describe("app store", () => {
     store.resetLegendSelections();
 
     expect(store.legendSelections).toEqual(expectedInitialFilters);
+  });
+
+  it("can reset the focuses", async () => {
+    const store = useAppStore();
+
+    store.focuses = ["AFG", "global"];
+    await nextTick();
+    expect(store.focuses).toEqual(["AFG", "global"]);
+    store.resetFocuses();
+    await nextTick();
+    expect(store.focuses).toEqual(["global"]);
+
+    store.exploreBy = "disease";
+    await nextTick();
+    expect(store.focuses).toEqual(["Cholera"]);
+    store.focuses = ["Cholera", "Measles"];
+    await nextTick();
+    expect(store.focuses).toEqual(["Cholera", "Measles"]);
+    store.resetFocuses();
+    await nextTick();
+
+    expect(store.focuses).toEqual(["Cholera"]);
   });
 });
