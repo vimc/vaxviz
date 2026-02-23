@@ -12,7 +12,7 @@ describe('AppHeader component', () => {
     const wrapper = mount(AppHeader);
     expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(false);
 
-    const aboutButton = wrapper.find('button#aboutLink');
+    const aboutButton = wrapper.find('button#aboutButton');
     await aboutButton.trigger('click');
 
     await vi.waitFor(() => {

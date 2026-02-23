@@ -4,6 +4,14 @@ Vaccine impact visualization tool
 
 For broad context, see the Knowledge Base article: https://mrc-ide.myjetbrains.com/youtrack/articles/mrc-A-174/Vaxviz
 
+## Analytics
+
+We use Posthog's 'cookieless mode'.
+
+See https://mrc-ide.myjetbrains.com/youtrack/articles/RESIDE-A-56/Analytics-and-user-consent for a great deal of documentation on data protection legislation, as well as on Posthog in particular.
+
+NB: If you don't want your own visits to https://vaxviz.vaccineimpact.org to show up in web analytics, you can use the opt-out under 'Privacy'.
+
 ## Deployment
 
 Vaxviz is deployed to github pages with a custom url: https://vaxviz.vaccineimpact.org
@@ -108,7 +116,7 @@ npm run test:e2e -- --debug
 npm run lint
 ```
 
-### Updating the static data
+## Updating the static data
 
 1. Download the dataviz.zip file from the VIMC reporting portal (packet group name paper-four-figures) and make note of the packet id.
 1. From the same packet, download `who_sub_regions.csv` (under 'Other files'). This provides the mapping from countries to subregions.
