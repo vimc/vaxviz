@@ -1,21 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { setActivePinia, createPinia } from 'pinia';
-
-const analyticsState = vi.hoisted(() => ({ permitted: true }));
+import { setActivePinia } from 'pinia';
+import { createTestingPinia } from '@pinia/testing';
 
 vi.mock('@/utils/analytics', () => ({
-  get analyticsPermittedInitially() { return analyticsState.permitted; },
+  get analyticsPermittedInitially() { return true; },
   disableAnalytics: vi.fn(),
   enableAnalytics: vi.fn(),
 }));
 
 import PrivacyModal from '@/components/PrivacyModal.vue';
+import * as analytics from '@/utils/analytics';
 
 describe('PrivacyModal component', () => {
   beforeEach(() => {
-    setActivePinia(createPinia());
-    analyticsState.permitted = true;
+    setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
+    vi.spyOn(analytics, 'analyticsPermittedInitially', 'get').mockReturnValue(true);
   });
 
   it('closes the modal when the close button is clicked', async () => {
@@ -38,7 +38,7 @@ describe('PrivacyModal component', () => {
   });
 
   it('displays opted-in text when analytics are permitted', () => {
-    analyticsState.permitted = true;
+    vi.spyOn(analytics, 'analyticsPermittedInitially', 'get').mockReturnValue(true);
 
     const wrapper = mount(PrivacyModal, {
       props: { visible: true },
@@ -50,7 +50,7 @@ describe('PrivacyModal component', () => {
   });
 
   it('displays opted-out text when analytics are not permitted', () => {
-    analyticsState.permitted = false;
+    vi.spyOn(analytics, 'analyticsPermittedInitially', 'get').mockReturnValue(false);
 
     const wrapper = mount(PrivacyModal, {
       props: { visible: true },

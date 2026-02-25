@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { analyticsPermittedInitially, disableAnalytics, enableAnalytics } from '@/utils/analytics';
 
 describe('analytics utils', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   describe('analyticsPermittedInitially', () => {
     it('is true when localStorage has no analyticsDisabled key', () => {
       expect(analyticsPermittedInitially).toBe(true);
