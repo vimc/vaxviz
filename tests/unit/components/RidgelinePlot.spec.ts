@@ -344,7 +344,7 @@ describe('RidgelinePlot component', () => {
     appStore.splitByActivityType = false;
 
     await vi.waitFor(() => {
-      expect(wrapper.text()).toContain("Estimates for MenA are only available at the campaign/routine level.");
+      expect(wrapper.text()).toContain("Estimates for MenA are only available at the activity type (campaign/routine) level.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
     });
@@ -352,7 +352,7 @@ describe('RidgelinePlot component', () => {
 
     appStore.focuses = ["MenA", "MenACWYX"];
     await vi.waitFor(() => {
-      expect(wrapper.text()).toContain("Estimates for MenA, MenACWYX are only available at the campaign/routine level.");
+      expect(wrapper.text()).toContain("Estimates for MenA, MenACWYX are only available at the activity type (campaign/routine) level.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
     });
   });

@@ -5,8 +5,8 @@
       <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
       <FwbAlert v-else-if="noDataToDisplay" icon class="w-fit m-auto mt-10">
         <span v-if="appStore.focuses.length && appStore.focuses.every(f => meningitisVaccines.includes(f)) && !appStore.splitByActivityType">
-          Estimates for {{ appStore.focuses.join(", ") }} are only available at the campaign/routine level.<br/>
-          Try selecting ‘Split by activity type’, or view meningitis estimates (a composite of MenA and MenACWYX).
+          Estimates for {{ appStore.focuses.join(", ") }} are only available at the activity type (campaign/routine) level.<br/>
+          Try selecting ‘Split by activity type’, or view ‘Meningitis’ estimates (a composite of MenA and MenACWYX).
         </span>
         <span v-else>
           No estimates available for the selected options.
