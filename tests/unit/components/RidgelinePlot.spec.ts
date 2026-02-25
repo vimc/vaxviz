@@ -393,7 +393,19 @@ describe('RidgelinePlot component', () => {
     appStore.splitByActivityType = false;
 
     await vi.waitFor(() => {
+      expect(wrapper.text()).toContain("Estimates for meningitis vaccines (MenA/MenACWYX) are only available at the activity type (campaign/routine) level.");
       expect(wrapper.text()).toContain("No estimates available with current options for the following focus selection(s): MenA");
+      expect(wrapper.find("#chartWrapper").exists()).toBe(true);
+      expect(colorStore.colorMapping.size).toEqual(2); // Colors for Malaria and Hib
+    });
+
+    // There is no data for Meningitis if we do split by activity type.
+    appStore.focuses = ["Meningitis", "Malaria", "Hib"];
+    appStore.splitByActivityType = true;
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain("Estimates for ‘Meningitis’ are not available at the activity type (campaign/routine) level.");
+      expect(wrapper.text()).toContain("No estimates available with current options for the following focus selection(s): Meningitis");
       expect(wrapper.find("#chartWrapper").exists()).toBe(true);
       expect(colorStore.colorMapping.size).toEqual(2); // Colors for Malaria and Hib
     });

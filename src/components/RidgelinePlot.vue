@@ -32,7 +32,13 @@
       class="mb-5 w-fit max-xl:ml-10!"
       :style="{ 'margin-left': `${plotLeftMargin}px` }"
     >
-      <FwbAlert v-if="focusesWithoutData.length && !noDataToDisplay && !dataStore.dataErrors.length" class="w-fit mb-5" icon>
+      <FwbAlert v-if="!noDataToDisplay && appStore.focuses.some(f => meningitisVaccines.includes(f)) && !appStore.splitByActivityType" class="w-fit mb-5" icon closable>
+        Estimates for meningitis vaccines (MenA/MenACWYX) are only available at the activity type (campaign/routine) level.
+      </FwbAlert>
+      <FwbAlert v-if="!noDataToDisplay && appStore.focuses.includes('Meningitis') && appStore.splitByActivityType" class="w-fit mb-5" icon closable>
+        Estimates for ‘Meningitis’ are not available at the activity type (campaign/routine) level.
+      </FwbAlert>
+      <FwbAlert v-if="focusesWithoutData.length && !noDataToDisplay && !dataStore.dataErrors.length" class="w-fit mb-5" icon closable>
         No estimates available with current options for the following focus selection(s): {{ focusesWithoutData.join(", ") }}.
       </FwbAlert>
       <ColorLegend />
