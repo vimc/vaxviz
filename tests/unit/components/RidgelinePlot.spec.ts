@@ -299,6 +299,12 @@ describe('RidgelinePlot component', () => {
   });
 
   it('when there is no data available for the selected options, shows a message instead of the chart', async () => {
+    server.use(
+      http.get("./data/json/hist_counts_deaths_disease.json", async () => {
+        return HttpResponse.json([]);
+      }),
+    );
+
     const appStore = useAppStore();
     const colorStore = useColorStore();
     const helpInfoStore = useHelpInfoStore();
@@ -312,14 +318,7 @@ describe('RidgelinePlot component', () => {
     });
 
     // Set options that lead to no data
-    // There is no data for meningitis if split by activity type.
-    appStore.exploreBy = "disease";
-    await vi.waitFor(() => {
-      expect(appStore.focuses).toEqual(["Cholera"])
-    });
-    appStore.focuses = ["Meningitis"];
-    appStore.splitByActivityType = true;
-
+    appStore.logScaleEnabled = false;
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("No estimates available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
@@ -355,6 +354,29 @@ describe('RidgelinePlot component', () => {
       expect(wrapper.text()).toContain("Estimates for MenA, MenACWYX are only available at the activity type (campaign/routine) level.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
     });
+  });
+
+  it('special "no data" message for meningitis', async () => {
+    const appStore = useAppStore();
+    const colorStore = useColorStore();
+    const helpInfoStore = useHelpInfoStore();
+    const wrapper = mount(RidgelinePlot);
+
+    // Set options that lead to no data
+    // There is no data for Meningitis if we split by activity type.
+    appStore.exploreBy = "disease";
+    await vi.waitFor(() => {
+      expect(appStore.focuses).toEqual(["Cholera"])
+    });
+    appStore.focuses = ["Meningitis"];
+    appStore.splitByActivityType = true;
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain("Estimates for Meningitis are not available at the activity type (campaign/routine) level.");
+      expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+    });
+    expect(colorStore.colorMapping.size).toEqual(0);
   });
 
   it('when there is no data available for a subset of multiple focuses, shows a message along with the chart', async () => {

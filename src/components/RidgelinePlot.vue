@@ -8,6 +8,10 @@
           Estimates for {{ appStore.focuses.join(", ") }} are only available at the activity type (campaign/routine) level.<br/>
           Try selecting ‘Split by activity type’, or view ‘Meningitis’ estimates (a composite of MenA and MenACWYX).
         </span>
+        <span v-else-if="appStore.focuses[0] === 'Meningitis' && appStore.focuses.length === 1 && appStore.splitByActivityType">
+          Estimates for Meningitis are not available at the activity type (campaign/routine) level.<br/>
+          Try de-selecting ‘Split by activity type’, or view the estimates for MenA/MenACWYX vaccines.
+        </span>
         <span v-else>
           No estimates available for the selected options.
         </span>
