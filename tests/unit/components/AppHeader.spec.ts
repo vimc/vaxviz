@@ -24,6 +24,19 @@ describe('AppHeader component', () => {
     expect(wrapper.text()).toMatch(/Vaxviz version: \d+\.\d+\.\d+/);
   });
 
+  it('renders the privacy modal when the privacy button is clicked', async () => {
+    const wrapper = mount(AppHeader);
+    expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(false);
+
+    const privacyButton = wrapper.find('button#privacySettingsButton');
+    await privacyButton.trigger('click');
+
+    await vi.waitFor(() => {
+      expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(true);
+      expect(wrapper.findComponent({ name: 'FwbModal' }).isVisible()).toBe(true);
+    });
+  });
+
   it('shows the page heading when the alert is dimissed', async () => {
     const wrapper = mount(AppHeader);
     expect(wrapper.find('h1').exists()).toBe(false);
