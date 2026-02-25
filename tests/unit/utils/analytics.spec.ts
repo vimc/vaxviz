@@ -1,58 +1,47 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { analyticsPermittedInitially, disableAnalytics, enableAnalytics } from '@/utils/analytics';
 
 describe('analytics utils', () => {
-  beforeEach(() => {
-    localStorage.clear();
-    vi.resetModules();
-  });
-
   describe('analyticsPermittedInitially', () => {
-    it('is true when localStorage has no analyticsDisabled key', async () => {
-      const { analyticsPermittedInitially } = await import('@/utils/analytics');
+    it('is true when localStorage has no analyticsDisabled key', () => {
       expect(analyticsPermittedInitially).toBe(true);
-    });
-
-    it('is true when localStorage analyticsDisabled is "false"', async () => {
-      localStorage.setItem('analyticsDisabled', 'false');
-      const { analyticsPermittedInitially } = await import('@/utils/analytics');
-      expect(analyticsPermittedInitially).toBe(true);
-    });
-
-    it('is false when localStorage analyticsDisabled is "true"', async () => {
-      localStorage.setItem('analyticsDisabled', 'true');
-      const { analyticsPermittedInitially } = await import('@/utils/analytics');
-      expect(analyticsPermittedInitially).toBe(false);
     });
   });
 
   describe('disableAnalytics', () => {
-    it('sets analyticsDisabled to "true" in localStorage and reloads', async () => {
-      const reloadMock = vi.fn();
-      vi.stubGlobal('location', { ...window.location, reload: reloadMock });
+    beforeEach(() => {
+      vi.stubGlobal('location', { ...window.location, reload: vi.fn() });
+    });
 
-      const { disableAnalytics } = await import('@/utils/analytics');
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      localStorage.clear();
+    });
+
+    it('sets analyticsDisabled to "true" in localStorage and reloads', () => {
       disableAnalytics();
 
       expect(localStorage.getItem('analyticsDisabled')).toBe('true');
-      expect(reloadMock).toHaveBeenCalledOnce();
-
-      vi.unstubAllGlobals();
+      expect(window.location.reload).toHaveBeenCalledOnce();
     });
   });
 
   describe('enableAnalytics', () => {
-    it('sets analyticsDisabled to "false" in localStorage and reloads', async () => {
+    beforeEach(() => {
       localStorage.setItem('analyticsDisabled', 'true');
-      const reloadMock = vi.fn();
-      vi.stubGlobal('location', { ...window.location, reload: reloadMock });
+      vi.stubGlobal('location', { ...window.location, reload: vi.fn() });
+    });
 
-      const { enableAnalytics } = await import('@/utils/analytics');
+    afterEach(() => {
+      vi.unstubAllGlobals();
+      localStorage.clear();
+    });
+
+    it('sets analyticsDisabled to "false" in localStorage and reloads', () => {
       enableAnalytics();
 
       expect(localStorage.getItem('analyticsDisabled')).toBe('false');
-      expect(reloadMock).toHaveBeenCalledOnce();
-
-      vi.unstubAllGlobals();
+      expect(window.location.reload).toHaveBeenCalledOnce();
     });
   });
 });

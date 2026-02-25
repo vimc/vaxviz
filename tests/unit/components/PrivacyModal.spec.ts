@@ -2,13 +2,20 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 
+const analyticsState = vi.hoisted(() => ({ permitted: true }));
+
+vi.mock('@/utils/analytics', () => ({
+  get analyticsPermittedInitially() { return analyticsState.permitted; },
+  disableAnalytics: vi.fn(),
+  enableAnalytics: vi.fn(),
+}));
+
 import PrivacyModal from '@/components/PrivacyModal.vue';
 
 describe('PrivacyModal component', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
-    vi.resetModules();
-    localStorage.clear();
+    analyticsState.permitted = true;
   });
 
   it('closes the modal when the close button is clicked', async () => {
@@ -30,8 +37,9 @@ describe('PrivacyModal component', () => {
     });
   });
 
-  it('displays opted-in text when analytics are permitted', async () => {
-    // Default: analyticsPermittedInitially is true (no localStorage key set)
+  it('displays opted-in text when analytics are permitted', () => {
+    analyticsState.permitted = true;
+
     const wrapper = mount(PrivacyModal, {
       props: { visible: true },
     });
@@ -41,12 +49,10 @@ describe('PrivacyModal component', () => {
     expect(statusText.text()).toContain('You can opt out of this data collection');
   });
 
-  it('displays opted-out text when analytics are not permitted', async () => {
-    localStorage.setItem('analyticsDisabled', 'true');
-    // Need to re-import to pick up the new localStorage value
-    const { default: PrivacyModalFresh } = await import('@/components/PrivacyModal.vue');
+  it('displays opted-out text when analytics are not permitted', () => {
+    analyticsState.permitted = false;
 
-    const wrapper = mount(PrivacyModalFresh, {
+    const wrapper = mount(PrivacyModal, {
       props: { visible: true },
     });
 
