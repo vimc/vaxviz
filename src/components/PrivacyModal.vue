@@ -16,7 +16,7 @@
           We do not use cookies.
         </p>
         <p>
-          For these analytical purposes, we collect data on page views, session duration, device type, and location (city).
+          For these analytical purposes, we collect data on page views, session duration, device type, and location (country).
           This data is statistically aggregated and does not identify or track individual users across sessions.
         </p>
         <p>
