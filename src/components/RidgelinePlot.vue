@@ -40,7 +40,7 @@
           </p>
         </div>
       </FwbAlert>
-      <ColorLegend />
+      <ColorLegend v-if="colorStore.colorMapping.size >= 2 || focusesWithoutData.length"/>
     </div>
   </div>
 </template>

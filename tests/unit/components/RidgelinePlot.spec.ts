@@ -315,6 +315,7 @@ describe('RidgelinePlot component', () => {
       const dataAttr = JSON.parse(wrapper.find("#chartWrapper").attributes("data-test")!);
       expect(dataAttr.histogramDataRowCount).toEqual(histCountsDeathsDiseaseLog.length);
       expect(colorStore.colorMapping.size).toEqual(14);
+      expect(wrapper.findComponent({ name: "ColorLegend" }).exists()).toBe(true);
     });
 
     // Set options that lead to no data
@@ -323,13 +324,12 @@ describe('RidgelinePlot component', () => {
       expect(wrapper.text()).toContain("No estimates available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(wrapper.findComponent({ name: "ColorLegend" }).exists()).toBe(false);
     });
-    expect(colorStore.colorMapping.size).toEqual(0);
   });
 
   it('special "no data" message for meningitis vaccines', async () => {
     const appStore = useAppStore();
-    const colorStore = useColorStore();
     const helpInfoStore = useHelpInfoStore();
     const wrapper = mount(RidgelinePlot);
 
@@ -346,19 +346,19 @@ describe('RidgelinePlot component', () => {
       expect(wrapper.text()).toContain("Estimates for MenA are only available at the activity type (campaign/routine) level.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(wrapper.findComponent({ name: "ColorLegend" }).exists()).toBe(false);
     });
-    expect(colorStore.colorMapping.size).toEqual(0);
 
     appStore.focuses = ["MenA", "MenACWYX"];
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("Estimates for MenA, MenACWYX are only available at the activity type (campaign/routine) level.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+      expect(wrapper.findComponent({ name: "ColorLegend" }).exists()).toBe(false);
     });
   });
 
   it('special "no data" message for meningitis', async () => {
     const appStore = useAppStore();
-    const colorStore = useColorStore();
     const helpInfoStore = useHelpInfoStore();
     const wrapper = mount(RidgelinePlot);
 
@@ -375,8 +375,8 @@ describe('RidgelinePlot component', () => {
       expect(wrapper.text()).toContain("Estimates for Meningitis are not available at the activity type (campaign/routine) level.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
       expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(wrapper.findComponent({ name: "ColorLegend" }).exists()).toBe(false);
     });
-    expect(colorStore.colorMapping.size).toEqual(0);
   });
 
   it('when there is no data available for a subset of multiple focuses, shows a message along with the chart', async () => {
@@ -396,18 +396,20 @@ describe('RidgelinePlot component', () => {
       expect(wrapper.text()).toContain("Estimates for meningitis vaccines (MenA/MenACWYX) are only available at the activity type (campaign/routine) level.");
       expect(wrapper.text()).toContain("No estimates available with current options for the following focus selection(s): MenA");
       expect(wrapper.find("#chartWrapper").exists()).toBe(true);
+      expect(wrapper.findComponent({ name: "ColorLegend" }).exists()).toBe(true);
       expect(colorStore.colorMapping.size).toEqual(2); // Colors for Malaria and Hib
     });
 
     // There is no data for Meningitis if we do split by activity type.
-    appStore.focuses = ["Meningitis", "Malaria", "Hib"];
+    appStore.focuses = ["Meningitis", "Hib"];
     appStore.splitByActivityType = true;
 
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("Estimates for ‘Meningitis’ are not available at the activity type (campaign/routine) level.");
       expect(wrapper.text()).toContain("No estimates available with current options for the following focus selection(s): Meningitis");
       expect(wrapper.find("#chartWrapper").exists()).toBe(true);
-      expect(colorStore.colorMapping.size).toEqual(2); // Colors for Malaria and Hib
+      expect(wrapper.findComponent({ name: "ColorLegend" }).exists()).toBe(true);
+      expect(colorStore.colorMapping.size).toEqual(1); // Colors for Malaria and Hib
     });
   });
 
