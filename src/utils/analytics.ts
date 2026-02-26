@@ -26,7 +26,6 @@ export const enableAnalytics = () => {
 export const getUserLocation = async () => {
   try {
     const res = await fetch("https://geo.kamero.ai/api/geo");
-    // const res = await fetch("https://api.ipinfo.io/lite/me?token=bd9093458fa5f9");
     if (!res.ok) throw new Error("Failed to fetch location");
     return await res.json();
   } catch (error) {
