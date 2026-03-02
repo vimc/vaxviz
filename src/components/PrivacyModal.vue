@@ -29,7 +29,8 @@
           The collection of data as described above is enabled by default.
           You are currently opted {{ analyticsPermittedInitially ? 'in to' : 'out of' }} this data collection.
           You can opt {{ analyticsPermittedInitially ? 'out of' : 'back in to' }} this data collection (for this browser) by clicking the button below.
-          If you disable data collection, your future visits to Vaxviz will no longer be tracked, but any data collected during previous visits will be retained and used in aggregate analyses.
+          This will reload the page, resetting the plot controls.
+          While you are opted out of data collection, your visits to Vaxviz are not tracked, but any data collected before opting out will be retained and used in aggregate analyses.
         </p>
         <FwbButton
           @click="analyticsPermittedInitially ? disableAnalytics() : enableAnalytics()"
