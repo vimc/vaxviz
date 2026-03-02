@@ -6,6 +6,10 @@ import diseaseOptions from '@/data/options/diseaseOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
 import activityTypeOptions from '@/data/options/activityTypeOptions.json';
 
+// Exceptionally, these options which we present as 'disease options' actually refer to vaccines.
+// Meningitis itself is included as a disease option.
+export const meningitisVaccines = ["MenA", "MenACWYX"];
+
 export const metricOptions = [
   { label: "DALYs averted", value: BurdenMetric.DALYS },
   { label: "Deaths averted", value: BurdenMetric.DEATHS },

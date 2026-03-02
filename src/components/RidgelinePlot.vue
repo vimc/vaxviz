@@ -3,10 +3,19 @@
     <div class="chart-container flex-1 min-h-0 w-full">
       <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
       <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
-      <p v-else-if="noDataToDisplay" class="m-auto">
-        <!-- E.g. Focus disease MenA, without splitting by activity type. -->
-        No estimates available for the selected options.
-      </p>
+      <FwbAlert v-else-if="noDataToDisplay" icon class="w-fit m-auto mt-10">
+        <span v-if="appStore.focuses.length && appStore.focuses.every(f => meningitisVaccines.includes(f)) && !appStore.splitByActivityType">
+          Estimates for {{ appStore.focuses.join(", ") }} are only available at the activity type (campaign/routine) level.<br/>
+          Try selecting ‘Split by activity type’, or view ‘Meningitis’ estimates (a composite of MenA and MenACWYX).
+        </span>
+        <span v-else-if="appStore.focuses[0] === 'Meningitis' && appStore.focuses.length === 1 && appStore.splitByActivityType">
+          Estimates for Meningitis are not available at the activity type (campaign/routine) level.<br/>
+          Try de-selecting ‘Split by activity type’, or view the estimates for MenA/MenACWYX vaccines.
+        </span>
+        <span v-else>
+          No estimates available for the selected options.
+        </span>
+      </FwbAlert>
       <div
         v-else
         ref="chartWrapper"
@@ -19,14 +28,19 @@
       />
     </div>
     <div
+      v-if="!noDataToDisplay && !dataStore.dataErrors.length"
       id="legendContainer"
       class="mb-5 w-fit max-xl:ml-10!"
       :style="{ 'margin-left': `${plotLeftMargin}px` }"
     >
-      <FwbAlert v-if="focusesWithoutData.length && !noDataToDisplay && !dataStore.dataErrors.length" class="w-fit mb-5" icon>
-        No estimates available with current options for the following focus selection(s): {{ focusesWithoutData.join(", ") }}.
+      <FwbAlert v-if="legendWarnings.length" class="w-fit mb-5" icon>
+        <div class="flex flex-col gap-y-1">
+          <p v-for="(warning, index) in legendWarnings" :key="index">
+            {{ warning }}
+          </p>
+        </div>
       </FwbAlert>
-      <ColorLegend />
+      <ColorLegend v-if="colorStore.colorMapping.size >= 2 || focusesWithoutData.length"/>
     </div>
   </div>
 </template>
@@ -43,7 +57,7 @@ import { useColorStore } from '@/stores/colorStore';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import { Axis, Dimension, SummaryTableColumn } from '@/types';
 import useHistogramLines from '@/composables/useHistogramLines';
-import { dimensionOptionLabel } from '@/utils/options';
+import { dimensionOptionLabel, meningitisVaccines } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
 import usePlotTooltips from '@/composables/usePlotTooltips';
 import ColorLegend from '@/components/ColorLegend.vue';
@@ -62,6 +76,19 @@ const plotLeftMargin = ref<number>(0);
 // if appStore changes at a different moment from linesToDisplay.
 const noDataToDisplay = ref<boolean>(false); // Whether there are no lines to display after applying all filters, or equivalently whether the chart would be empty.
 const focusesWithoutData = ref<string[]>([]); // Any focus values for which there are no lines to display after applying all filters.
+
+const legendWarnings = computed(() => {
+  const warnings = [];
+  if (appStore.focuses.some(f => meningitisVaccines.includes(f)) && !appStore.splitByActivityType) {
+    warnings.push("Estimates for meningitis vaccines (MenA/MenACWYX) are only available at the activity type (campaign/routine) level.");
+  } else if (appStore.focuses.includes('Meningitis') && appStore.splitByActivityType) {
+    warnings.push("Estimates for ‘Meningitis’ are not available at the activity type (campaign/routine) level.");
+  }
+  if (focusesWithoutData.value.length) {
+    warnings.push(`No estimates available with current options for the following focus selection(s): ${focusesWithoutData.value.join(", ")}.`);
+  }
+  return warnings;
+});
 
 const data = computed(() => dataStore.histogramData.filter(dataRow =>
   [Dimension.LOCATION, Dimension.DISEASE].every(dim => {

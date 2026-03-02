@@ -18,11 +18,11 @@ let subregionOpts: Option[] = [];
 let diseaseOpts: Option[] = [];
 let activityTypeOpts: Option[] = [];
 
-// Some diseases (e.g. Malaria) are included only at the subregional or the country level,
+// Some diseases (e.g. malaria) are included only at the subregional or the country level,
 // hence we need tables at both country and subregional levels in order to collect all disease options.
 // There are also some diseases (e.g. MenA) that are only included in tables that have an activity_type breakdown,
 // so we need to include those tables too.
-// All four permutations are required, since at least one disease (Meningitis) is picky about both those factors.
+// All four permutations are required, since at least one disease (meningitis) is picky about both those factors.
 [
   `summary_table_deaths_disease_country.json`,
   `summary_table_deaths_disease_subregion.json`,

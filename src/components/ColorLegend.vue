@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="colors && colors.length >= 2"
     class="h-20 flex"
     id="colorLegend"
   >
