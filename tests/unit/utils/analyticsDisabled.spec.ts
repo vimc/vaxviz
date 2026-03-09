@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
+import { beforeEach, describe, it, expect, vi } from 'vitest';
 import posthog from "posthog-js";
 import { getUserLocation, initialisePosthog } from '@/utils/analytics';
 
@@ -16,10 +16,6 @@ mockFetch.mockResolvedValue({
 
 beforeEach(() => {
   vi.stubGlobal('fetch', mockFetch);
-});
-
-afterEach(() => {
-  vi.unstubAllGlobals();
 });
 
 describe('analyticsPermittedInitially', () => {

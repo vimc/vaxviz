@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { analyticsPermittedInitially, disableAnalytics, enableAnalytics, getUserLocation, initialisePosthog } from '@/utils/analytics';
 import posthog from "posthog-js";
 
@@ -10,17 +10,10 @@ mockFetch.mockResolvedValue({
 
 beforeEach(() => {
   vi.stubGlobal('fetch', mockFetch);
-});
-
-afterEach(() => {
-  vi.unstubAllGlobals();
+  localStorage.clear();
 });
 
 describe('analytics utils', () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
-
   describe('analyticsPermittedInitially', () => {
     it('is true when localStorage has no analyticsDisabled key', () => {
       expect(analyticsPermittedInitially).toBe(true);
@@ -30,11 +23,6 @@ describe('analytics utils', () => {
   describe('disableAnalytics', () => {
     beforeEach(() => {
       vi.stubGlobal('location', { ...window.location, reload: vi.fn() });
-    });
-
-    afterEach(() => {
-      vi.unstubAllGlobals();
-      localStorage.clear();
     });
 
     it('sets analyticsDisabled to "true" in localStorage and reloads', () => {
@@ -49,11 +37,6 @@ describe('analytics utils', () => {
     beforeEach(() => {
       localStorage.setItem('analyticsDisabled', 'true');
       vi.stubGlobal('location', { ...window.location, reload: vi.fn() });
-    });
-
-    afterEach(() => {
-      vi.unstubAllGlobals();
-      localStorage.clear();
     });
 
     it('sets analyticsDisabled to "false" in localStorage and reloads', () => {
@@ -87,8 +70,6 @@ describe('analytics utils', () => {
 
       expect(location).toBeNull();
       expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching location:', new Error('Failed to fetch location'));
-
-      consoleErrorSpy.mockRestore();
     });
   });
 });
