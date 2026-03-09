@@ -1,5 +1,20 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { analyticsPermittedInitially, disableAnalytics, enableAnalytics, getUserLocation } from '@/utils/analytics';
+import { analyticsPermittedInitially, disableAnalytics, enableAnalytics, getUserLocation, initialisePosthog } from '@/utils/analytics';
+import posthog from "posthog-js";
+
+const mockFetch = vi.fn();
+mockFetch.mockResolvedValue({
+  ok: true,
+  json: async () => ({ country: 'Testland' }),
+});
+
+beforeEach(() => {
+  vi.stubGlobal('fetch', mockFetch);
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe('analytics utils', () => {
   beforeEach(() => {
@@ -50,16 +65,6 @@ describe('analytics utils', () => {
   });
 
   describe('getUserLocation', () => {
-    const mockFetch = vi.fn();
-
-    beforeEach(() => {
-      vi.stubGlobal('fetch', mockFetch);
-    });
-
-    afterEach(() => {
-      vi.unstubAllGlobals();
-    });
-
     it('returns location data when fetch is successful', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -85,5 +90,14 @@ describe('analytics utils', () => {
 
       consoleErrorSpy.mockRestore();
     });
+  });
+});
+
+describe('initialisePosthog', () => {
+  it('does initialise Posthog when analytics are implicitly permitted', () => {
+    const initSpy = vi.spyOn(posthog, 'init');
+
+    initialisePosthog();
+    expect(initSpy).toHaveBeenCalled();
   });
 });
