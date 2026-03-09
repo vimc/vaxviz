@@ -260,12 +260,12 @@ describe('data store', () => {
         return HttpResponse.error();
       }),
     );
+    const fetchSpy = vi.spyOn(global, 'fetch')
     const appStore = useAppStore();
     const dataStore = useDataStore();
 
     expect(dataStore.dataErrors).toHaveLength(0);
 
-    const fetchSpy = vi.spyOn(global, 'fetch')
     await vi.waitFor(() => {
       expect(fetchSpy).toBeCalled();
       expect(dataStore.dataErrors).toEqual([expect.objectContaining(
@@ -288,11 +288,11 @@ describe('data store', () => {
         return HttpResponse.json(null, { status: 404 });
       }),
     );
+    const fetchSpy = vi.spyOn(global, 'fetch')
     const dataStore = useDataStore();
 
     expect(dataStore.dataErrors).toEqual([]);
 
-    const fetchSpy = vi.spyOn(global, 'fetch')
     await vi.waitFor(() => {
       expect(fetchSpy).toBeCalled();
       expect(dataStore.dataErrors).toEqual([expect.objectContaining(
