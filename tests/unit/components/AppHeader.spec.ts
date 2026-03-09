@@ -16,7 +16,6 @@ describe('AppHeader component', () => {
     await aboutButton.trigger('click');
 
     await vi.waitFor(() => {
-      expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(true);
       expect(wrapper.findComponent({ name: 'FwbModal' }).isVisible()).toBe(true);
     })
 
@@ -32,7 +31,6 @@ describe('AppHeader component', () => {
     await privacyButton.trigger('click');
 
     await vi.waitFor(() => {
-      expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(true);
       expect(wrapper.findComponent({ name: 'FwbModal' }).isVisible()).toBe(true);
     });
   });
@@ -45,7 +43,6 @@ describe('AppHeader component', () => {
     await alertCloseButton.trigger('click')
 
     await vi.waitFor(() => {
-      expect(wrapper.find('h1').exists()).toBe(true);
       expect(wrapper.find('h1').text()).toContain('VAXVIZ');
     });
   });
