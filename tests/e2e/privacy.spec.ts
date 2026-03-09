@@ -26,45 +26,55 @@ const opt = async (inOrOut: "in" | "out", page: Page) => {
   await page.waitForLoadState('load');
 }
 
-test('user can change data collection preferences', async ({ context, page, baseURL }) => {
-  // Count requests to one of the endpoints Posthog queries on start-up, as a proxy for counting the number of times Posthog starts up.
-  let posthogSetupCount: number = 0;
-  page.on('request', async (request) => {
-    if (request.url().match(/https:\/\/eu-assets\.i\.posthog\.com\/array\/.*\/config\.js/)) {
-      posthogSetupCount += 1;
-    }
-  });
+test.describe('Privacy settings', () => {
+  // Posthog is only initialised in production.
+  // eslint-disable-next-line playwright/no-skipped-test
+  test.skip(() => process.env.NODE_ENV !== 'production');
 
-  let expectedPosthogSetupCount = 0;
-  expect(posthogSetupCount).toBe(expectedPosthogSetupCount); // No Posthog requests before app starts.
-  await expectNoCookiesToHaveBeenSet(page);
+  test('user can change data collection preferences', async ({ context, page, baseURL }) => {
+    page.on('console', (msg) => {
+      console.log(`Console message: ${msg.text()}`);
+    });
 
-  await page.goto('/');
+    // Count requests to one of the endpoints Posthog queries on start-up, as a proxy for counting the number of times Posthog starts up.
+    let posthogSetupCount: number = 0;
+    page.on('request', async (request) => {
+      if (request.url().match(/https:\/\/eu-assets\.i\.posthog\.com\/array\/.*\/config\.js/)) {
+        posthogSetupCount += 1;
+      }
+    });
 
-  expectedPosthogSetupCount++; // Posthog should initialise on app load, by default, if the user has expressed no preference.
-  expect(posthogSetupCount).toBe(expectedPosthogSetupCount);
-  await expectNoCookiesToHaveBeenSet(page);
-  await expectAnalyticsDisablingSettingToBe(context, undefined, baseURL);
-  await expectDisplayedStatusToBe(page, "opted in");
+    let expectedPosthogSetupCount = 0;
+    expect(posthogSetupCount).toBe(expectedPosthogSetupCount); // No Posthog requests before app starts.
+    await expectNoCookiesToHaveBeenSet(page);
 
-  await opt("out", page);
+    await page.goto('/');
 
-  await expectNoCookiesToHaveBeenSet(page);
-  await expect(async () => {
-    await expectAnalyticsDisablingSettingToBe(context, 'true', baseURL);
-  }).toPass({ timeout: 5000 });
-  await expectDisplayedStatusToBe(page, "opted out");
-  // Posthog should now NOT have re-initialised on app load, respecting the localStorage setting that the user has opted out of analytics.
-  // So the expected number of requests remains the same.
-  expect(posthogSetupCount).toBe(expectedPosthogSetupCount);
-
-  await opt("in", page);
-
-  expectedPosthogSetupCount++; // Posthog should now go back to the behaviour of (re)initialising on app load.
-  await expect(async () => {
+    expectedPosthogSetupCount++; // Posthog should initialise on app load, by default, if the user has expressed no preference.
     expect(posthogSetupCount).toBe(expectedPosthogSetupCount);
-  }).toPass({ timeout: 5000 });
-  await expectNoCookiesToHaveBeenSet(page);
-  await expectAnalyticsDisablingSettingToBe(context, 'false', baseURL);
-  await expectDisplayedStatusToBe(page, "opted in");
+    await expectNoCookiesToHaveBeenSet(page);
+    await expectAnalyticsDisablingSettingToBe(context, undefined, baseURL);
+    await expectDisplayedStatusToBe(page, "opted in");
+
+    await opt("out", page);
+
+    await expectNoCookiesToHaveBeenSet(page);
+    await expect(async () => {
+      await expectAnalyticsDisablingSettingToBe(context, 'true', baseURL);
+    }).toPass({ timeout: 5000 });
+    await expectDisplayedStatusToBe(page, "opted out");
+    // Posthog should now NOT have re-initialised on app load, respecting the localStorage setting that the user has opted out of analytics.
+    // So the expected number of requests remains the same.
+    expect(posthogSetupCount).toBe(expectedPosthogSetupCount);
+
+    await opt("in", page);
+
+    expectedPosthogSetupCount++; // Posthog should now go back to the behaviour of (re)initialising on app load.
+    await expect(async () => {
+      expect(posthogSetupCount).toBe(expectedPosthogSetupCount);
+    }).toPass({ timeout: 5000 });
+    await expectNoCookiesToHaveBeenSet(page);
+    await expectAnalyticsDisablingSettingToBe(context, 'false', baseURL);
+    await expectDisplayedStatusToBe(page, "opted in");
+  });
 });
