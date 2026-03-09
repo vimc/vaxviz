@@ -43,7 +43,7 @@ export const initialisePosthog = () => {
   posthog.init('phc_Lk7j9M24DQ0A4NMdfc0UVPM7gPFXpVylfT6YhCZLqet', {
     cookieless_mode: 'always',
     api_host: 'https://eu.i.posthog.com',
-    defaults: '2026-01-30',
+    defaults: '2026-01-30', // This specifies which version of the Posthog config we are using.
   });
 
   // Fire and forget: don't block app initialisation by waiting for the location to load.

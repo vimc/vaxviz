@@ -75,10 +75,17 @@ describe('analytics utils', () => {
 });
 
 describe('initialisePosthog', () => {
-  it('does initialise Posthog when analytics are implicitly permitted', () => {
+  it('does initialise Posthog when analytics are implicitly permitted', async () => {
     const initSpy = vi.spyOn(posthog, 'init');
+    const registerSpy = vi.spyOn(posthog, 'register');
+    const captureSpy = vi.spyOn(posthog, 'capture');
 
     initialisePosthog();
     expect(initSpy).toHaveBeenCalled();
+
+    await vi.waitFor(() => {
+      expect(registerSpy).toHaveBeenCalledWith({ country: 'Testland' });
+    });
+    expect(captureSpy).toHaveBeenCalledWith('app_loaded');
   });
 });
