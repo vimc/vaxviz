@@ -1,4 +1,5 @@
-import { test, expect, Page, BrowserContext } from '@playwright/test';
+import { expect, Page, BrowserContext } from '@playwright/test';
+import { test } from './fixtures/interceptNetworkRequests.ts';
 
 const expectNoCookiesToHaveBeenSet = async (page: Page) => {
   const cookies = await page.context().cookies();

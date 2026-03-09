@@ -1,4 +1,5 @@
 import posthog from "posthog-js";
+import { locationURL } from "./externalURLs";
 
 const analyticsDisabledKey: Readonly<string> = "analyticsDisabled";
 
@@ -22,8 +23,6 @@ export const enableAnalytics = () => {
   localStorage.setItem(analyticsDisabledKey, 'false');
   reloadApp();
 };
-
-export const locationURL = "https://geo.kamero.ai/api/geo";
 
 export const getUserLocation = async () => {
   if (!analyticsPermittedInitially) return;
@@ -59,6 +58,7 @@ export const initialisePosthog = () => {
       // 'app_loaded' is a custom event.
       // Counting 'app_loaded' events by country is slightly better than counting pageview events by country
       // for the purpose of tracking the number of visits per country.
+      // Also, by calling it explicitly, we ensure the event knows about the 'country' property.
       posthog.capture('app_loaded');
     }
   });
