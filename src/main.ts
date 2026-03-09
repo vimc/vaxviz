@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import posthog from 'posthog-js'
 
 import App from './App.vue'
 import router from './router'
@@ -16,5 +17,9 @@ const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
+
+app.config.errorHandler = (err) => {
+  posthog.captureException(err);
+};
 
 app.mount('#app')
