@@ -32,10 +32,6 @@ test.describe('Privacy settings', () => {
   test.skip(() => !process.env.CI);
 
   test('user can change data collection preferences', async ({ context, page, baseURL }) => {
-    page.on('console', (msg) => {
-      console.log(`Console message: ${msg.text()}`);
-    });
-
     // Count requests to one of the endpoints Posthog queries on start-up, as a proxy for counting the number of times Posthog starts up.
     let posthogSetupCount: number = 0;
     page.on('request', async (request) => {
