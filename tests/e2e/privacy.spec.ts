@@ -29,7 +29,7 @@ const opt = async (inOrOut: "in" | "out", page: Page) => {
 test.describe('Privacy settings', () => {
   // Posthog is only initialised in production.
   // eslint-disable-next-line playwright/no-skipped-test
-  test.skip(() => process.env.NODE_ENV !== 'production');
+  test.skip(() => !process.env.CI);
 
   test('user can change data collection preferences', async ({ context, page, baseURL }) => {
     page.on('console', (msg) => {

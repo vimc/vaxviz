@@ -6,11 +6,18 @@ For broad context, see the Knowledge Base article: https://mrc-ide.myjetbrains.c
 
 ## Analytics
 
-We use Posthog's 'cookieless mode'.
+We use [Posthog](https://posthog.com/)'s 'cookieless mode'.
 
-See https://mrc-ide.myjetbrains.com/youtrack/articles/RESIDE-A-56/Analytics-and-user-consent for a great deal of documentation on data protection legislation, as well as on Posthog in particular.
+- [VIMC Dashboard](https://eu.posthog.com/project/128512/dashboard/543420)
+- [Web analytics](https://eu.posthog.com/project/128512/web)
+
+See [this YouTrack article](https://mrc-ide.myjetbrains.com/youtrack/articles/RESIDE-A-56/Analytics-and-user-consent) for a great deal of documentation on data protection legislation, as well as on Posthog in particular.
 
 NB: If you don't want your own visits to https://vaxviz.vaccineimpact.org to show up in web analytics, you can use the opt-out under 'Privacy'.
+
+As explained in the YouTrack article:
+- Since cookieless mode doesn't include location data, we use Kamero's free geolocation API to implement location lookup (very coarsely by country based on IP address), and manually send this information to Posthog.
+- We implement opt-in/out ourselves rather than using the posthog.js methods because those are not compatible with cookieless 'always' mode.
 
 ## Deployment
 
