@@ -153,8 +153,6 @@ const selectedLines = computed(() => sortedRidgeLines.value.filter(line => {
 
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
-  helpInfoStore.showNegativeValuesHelpInfo = false;
-
   const categoriesInUse = relevantRidgeLines.value.flatMap(line => Object.keys(appStore.dimensions).map(axis => line.metadata?.[axis as Axis]));
   focusesWithoutData.value = appStore.focuses.filter(focus => !categoriesInUse.includes(focus));
 
