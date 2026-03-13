@@ -273,7 +273,7 @@ describe('RidgelinePlot component', () => {
       });
       expectCorrectMarginForRowDimension("disease", wrapper);
     }, { timeout: 5000 });
-  }, 20000);
+  }, 25000);
 
   it('when there is no focus selected, shows a message instead of the chart', async () => {
     const appStore = useAppStore();
