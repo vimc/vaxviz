@@ -50,6 +50,7 @@
     <HelpInfoModalButton
       v-if="helpInfoStore.showNegativeValuesHelpInfo"
       header="Noticing negative estimates?"
+      :animations-allowed="true"
     >
       <template #body>
         <div id="negativeEstimatesBody" class="space-y-5">
@@ -94,7 +95,7 @@ const appStore = useAppStore();
 const helpInfoStore = useHelpInfoStore();
 </script>
 
-<style lang="css" scoped>
+<style lang="scss" scoped>
 .d-flex .col-form-label {
   width: 150px;
 }

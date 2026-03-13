@@ -1,6 +1,7 @@
 import { useAppStore } from "@/stores/appStore";
 import { useColorStore } from "@/stores/colorStore";
 import { useDataStore } from "@/stores/dataStore";
+import { useHelpInfoStore } from "@/stores/helpInfoStore";
 import { Axis, BurdenMetric, SummaryTableColumn, type PointWithMetadata } from "@/types";
 import { dimensionOptionLabel } from "@/utils/options";
 import sentenceCase from "@/utils/sentenceCase";
@@ -9,6 +10,7 @@ export default () => {
   const colorStore = useColorStore();
   const appStore = useAppStore();
   const dataStore = useDataStore();
+  const helpInfoStore = useHelpInfoStore();
 
   const convertToScientificNotation = (num: number): string => {
     if (!appStore.logScaleEnabled) {
@@ -24,6 +26,10 @@ export default () => {
   // This callback is passed to skadi-chart, and is invoked when hovering over the chart.
   const tooltipCallback = (point: PointWithMetadata) => {
     if (!point.metadata) return "";
+
+    if (point.x < 0) {
+      helpInfoStore.applyHighlightingToNegativeHelpInfo();
+    }
 
     const { strokeColor } = colorStore.getColorsForLine(point.metadata)
     const { colorAxis, colorDimension } = colorStore;

@@ -3,17 +3,19 @@ import { mount } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 
 import HelpInfoModalButton from '@/components/HelpInfoModalButton.vue';
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
-const renderComponent = () => {
+const renderComponent = (animationsAllowed?: boolean) => {
   return mount(HelpInfoModalButton, {
     props: {
       header: 'Test Header',
+      animationsAllowed,
     },
     slots: {
       body: 'Paragraph content',
     },
   });
-}
+};
 
 describe('HelpInfoModalButton component', () => {
   beforeEach(() => {
@@ -77,6 +79,53 @@ describe('HelpInfoModalButton component', () => {
 
     await vi.waitFor(() => {
       expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(false);
+    });
+  });
+
+  describe('animations', () => {
+    it('allows initial animation on the first time the message has been shown', () => {
+      const helpInfoStore = useHelpInfoStore();
+      helpInfoStore.negativeHelpInfoShowCount = 1;
+
+      const wrapper = renderComponent(true);
+      expect(wrapper.find('button').classes()).toContain('allowInitialAnimation');
+    });
+
+    it('does not allow initial animation when the message has already been shown before', async () => {
+      const helpInfoStore = useHelpInfoStore();
+      helpInfoStore.negativeHelpInfoShowCount = 2;
+
+      const wrapper = renderComponent(true);
+      expect(wrapper.find('button').classes()).not.toContain('allowInitialAnimation');
+    });
+
+    describe('highlight class', () => {
+      it('adds highlight class when all conditions are met', () => {
+        const helpInfoStore = useHelpInfoStore();
+        helpInfoStore.highlightNegativeValuesHelpMessage = true;
+        helpInfoStore.negativeHelpInfoHighlightCount = 1;
+
+        const wrapper = renderComponent(true);
+        expect(wrapper.find('p.help-text').classes()).toContain('highlight');
+      });
+
+      it('does not add highlight class when highlightNegativeValuesHelpMessage is false', () => {
+        const helpInfoStore = useHelpInfoStore();
+        helpInfoStore.highlightNegativeValuesHelpMessage = false;
+        helpInfoStore.negativeHelpInfoHighlightCount = 1;
+
+        const wrapper = renderComponent(true);
+        expect(wrapper.find('p.help-text').classes()).not.toContain('highlight');
+      });
+
+      it('does not add highlight class when the text has already been highlighted before', () => {
+        const helpInfoStore = useHelpInfoStore();
+        helpInfoStore.highlightNegativeValuesHelpMessage = true;
+        helpInfoStore.negativeHelpInfoHighlightCount = 2;
+
+        const wrapper = renderComponent(true);
+        expect(wrapper.find('p.help-text').classes()).not.toContain('highlight');
+      });
     });
   });
 });

@@ -7,6 +7,7 @@ import usePlotTooltips from '@/composables/usePlotTooltips';
 import { useAppStore } from '@/stores/appStore';
 import { useColorStore } from '@/stores/colorStore';
 import { useDataStore } from '@/stores/dataStore';
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import { Axis, BurdenMetric, Dimension, SummaryTableColumn, type PointWithMetadata, type SummaryTableDataRow } from '@/types';
 
 describe('usePlotTooltips', () => {
@@ -128,6 +129,30 @@ describe('usePlotTooltips', () => {
       // Row dimension (disease) is NOT shown separately because it's the same as color dimension
       expect(campaignTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(campaignTooltip).toContain('style="color: #6929c4'); // purple70
+    });
+
+    describe('negative value highlighting', () => {
+      const metadata = { [Axis.WITHIN_BAND]: 'AFG', [Axis.ROW]: 'Cholera', [Axis.COLUMN]: '' };
+
+      it('applies highlighting when hovering a negative-x point', () => {
+        const helpInfoStore = useHelpInfoStore();
+        const spy = vi.spyOn(helpInfoStore, 'applyHighlightingToNegativeHelpInfo');
+
+        const { tooltipCallback } = usePlotTooltips();
+        tooltipCallback({ x: -5, y: 2, metadata });
+
+        expect(spy).toHaveBeenCalledOnce();
+      });
+
+      it('does not apply highlighting when hovering a positive-x point', () => {
+        const helpInfoStore = useHelpInfoStore();
+        const spy = vi.spyOn(helpInfoStore, 'applyHighlightingToNegativeHelpInfo');
+
+        const { tooltipCallback } = usePlotTooltips();
+        tooltipCallback({ x: 5, y: 2, metadata });
+
+        expect(spy).not.toHaveBeenCalled();
+      });
     });
 
     describe('summary data (mean, and 95% confidence interval)', () => {
