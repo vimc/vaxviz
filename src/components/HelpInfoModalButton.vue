@@ -49,7 +49,7 @@ const modalVisible = ref(false);
 
 const highlight = computed(() => {
   return props.animationsAllowed
-    && helpInfoStore.highlightNegativeValuesHelpMessage
+    && helpInfoStore.negativeValueHelpMessageIsHighlighted
     && helpInfoStore.negativeHelpInfoHighlightCount <= 1;
 })
 </script>

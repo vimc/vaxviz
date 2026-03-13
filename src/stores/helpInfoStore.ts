@@ -8,7 +8,7 @@ const enableFocusTraps = appMode !== 'test';
 
 export const useHelpInfoStore = defineStore("helpInfo", () => {
   const showNegativeValuesHelpInfo = ref(false);
-  const highlightNegativeValuesHelpMessage = ref(false);
+  const negativeValueHelpMessageIsHighlighted = ref(false);
 
   // Track how many times the negative help info has been shown this session
   const negativeHelpInfoShowCount = ref(0);
@@ -20,17 +20,17 @@ export const useHelpInfoStore = defineStore("helpInfo", () => {
 
   // Track how many times the negative help info has been highlighted this session
   const negativeHelpInfoHighlightCount = ref(0);
-  watch(highlightNegativeValuesHelpMessage, (highlight) => {
+  watch(negativeValueHelpMessageIsHighlighted, (highlight) => {
     if (highlight) {
       negativeHelpInfoHighlightCount.value++;
     }
   });
 
   const applyHighlightingToNegativeHelpInfo = () => {
-    if (showNegativeValuesHelpInfo.value && !highlightNegativeValuesHelpMessage.value) {
-      highlightNegativeValuesHelpMessage.value = true;
+    if (showNegativeValuesHelpInfo.value && !negativeValueHelpMessageIsHighlighted.value) {
+      negativeValueHelpMessageIsHighlighted.value = true;
       setTimeout(() => {
-        highlightNegativeValuesHelpMessage.value = false;
+        negativeValueHelpMessageIsHighlighted.value = false;
       }, 2000);
     }
   }
@@ -39,7 +39,7 @@ export const useHelpInfoStore = defineStore("helpInfo", () => {
     applyHighlightingToNegativeHelpInfo,
     showNegativeValuesHelpInfo,
     enableFocusTraps,
-    highlightNegativeValuesHelpMessage,
+    negativeValueHelpMessageIsHighlighted,
     negativeHelpInfoShowCount,
     negativeHelpInfoHighlightCount,
   };

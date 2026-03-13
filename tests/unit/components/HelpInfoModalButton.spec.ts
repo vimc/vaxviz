@@ -102,16 +102,16 @@ describe('HelpInfoModalButton component', () => {
     describe('highlight class', () => {
       it('adds highlight class when all conditions are met', () => {
         const helpInfoStore = useHelpInfoStore();
-        helpInfoStore.highlightNegativeValuesHelpMessage = true;
+        helpInfoStore.negativeValueHelpMessageIsHighlighted = true;
         helpInfoStore.negativeHelpInfoHighlightCount = 1;
 
         const wrapper = renderComponent(true);
         expect(wrapper.find('p.help-text').classes()).toContain('highlight');
       });
 
-      it('does not add highlight class when highlightNegativeValuesHelpMessage is false', () => {
+      it('does not add highlight class when negativeValueHelpMessageIsHighlighted is false', () => {
         const helpInfoStore = useHelpInfoStore();
-        helpInfoStore.highlightNegativeValuesHelpMessage = false;
+        helpInfoStore.negativeValueHelpMessageIsHighlighted = false;
         helpInfoStore.negativeHelpInfoHighlightCount = 1;
 
         const wrapper = renderComponent(true);
@@ -120,7 +120,7 @@ describe('HelpInfoModalButton component', () => {
 
       it('does not add highlight class when the text has already been highlighted before', () => {
         const helpInfoStore = useHelpInfoStore();
-        helpInfoStore.highlightNegativeValuesHelpMessage = true;
+        helpInfoStore.negativeValueHelpMessageIsHighlighted = true;
         helpInfoStore.negativeHelpInfoHighlightCount = 2;
 
         const wrapper = renderComponent(true);
