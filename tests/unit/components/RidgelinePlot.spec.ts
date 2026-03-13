@@ -115,7 +115,7 @@ describe('RidgelinePlot component', () => {
       });
       expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(true);
       expectCorrectMarginForRowDimension("disease", wrapper);
-    }, 7000);
+    }, { timeout: 7000 });
 
     // Change options: round 2
     appStore.exploreBy = "disease";
@@ -157,7 +157,7 @@ describe('RidgelinePlot component', () => {
       });
       expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(true);
       expectCorrectMarginForRowDimension("location", wrapper);
-    }, { timeout: 6000 });
+    }, { timeout: 7000 });
 
     // Change options: round 3
     appStore.exploreBy = "location";
