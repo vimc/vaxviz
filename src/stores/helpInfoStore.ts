@@ -9,63 +9,65 @@ const enableFocusTraps = appMode !== 'test';
 
 export const negativeValuesHelpInfoId = "negativeValues";
 export const logScaleHelpInfoId = "logScale";
+export type HelpInfoId = "negativeValues" | "logScale";
 
 export const useHelpInfoStore = defineStore("helpInfo", () => {
   const appStore = useAppStore();
 
   // Track which help infos are currently being shown or highlighted
-  const helpInfoStates = ref<Record<string, { shown: boolean; highlighted: boolean }>>({
+  const helpInfoStates = ref<Record<HelpInfoId, { shown: boolean; highlighted: boolean }>>({
     [negativeValuesHelpInfoId]: { shown: false, highlighted: false },
     [logScaleHelpInfoId]: { shown: false, highlighted: false },
   });
 
   // Track how many times each help info has been shown this session
-  const helpInfoShowCounts = ref<Record<string, number>>({
+  const helpInfoShowCounts = ref<Record<HelpInfoId, number>>({
     [negativeValuesHelpInfoId]: 0,
     [logScaleHelpInfoId]: 0,
   });
 
   // Track how many times each help info has been highlighted this session
-  const helpInfoHighlightCounts = ref<Record<string, number>>({
+  const helpInfoHighlightCounts = ref<Record<HelpInfoId, number>>({
     [negativeValuesHelpInfoId]: 0,
     [logScaleHelpInfoId]: 0,
   });
 
-  const showTimeouts = ref<Record<string, ReturnType<typeof setTimeout>>>({});
+  const showTimeouts = ref<Record<HelpInfoId, ReturnType<typeof setTimeout> | undefined>>({
+    [negativeValuesHelpInfoId]: undefined,
+    [logScaleHelpInfoId]: undefined,
+  });
 
-  const show = (helpInfoId: string, delayMs: number = 0) => {
+  const show = (helpInfoId: HelpInfoId, delayMs: number = 0) => {
+    clearTimeout(showTimeouts.value[helpInfoId]);
     showTimeouts.value[helpInfoId] = setTimeout(() => {
-      helpInfoStates.value[helpInfoId]!.shown = true;
-      helpInfoShowCounts.value[helpInfoId]! += 1;
+      helpInfoStates.value[helpInfoId].shown = true;
+      helpInfoShowCounts.value[helpInfoId] += 1;
     }, delayMs);
   };
 
-  const unShow = (helpInfoId: string) => {
-    if (showTimeouts.value[helpInfoId]) {
-      clearTimeout(showTimeouts.value[helpInfoId]);
-      delete showTimeouts.value[helpInfoId];
-    }
-    helpInfoStates.value[helpInfoId]!.shown = false;
+  const unShow = (helpInfoId: HelpInfoId) => {
+    clearTimeout(showTimeouts.value[helpInfoId]);
+    helpInfoStates.value[helpInfoId].shown = false;
   };
 
   // Apply a highlight only if the help info has not been highlighted before
-  const highlightOnce = (helpInfoId: string) => {
-    const { highlighted, shown } = helpInfoStates.value[helpInfoId]!;
-    if (!highlighted && shown && helpInfoHighlightCounts.value[helpInfoId]! === 0) {
-      helpInfoStates.value[helpInfoId]!.highlighted = true;
-      helpInfoHighlightCounts.value[helpInfoId]! += 1;
+  const highlightOnce = (helpInfoId: HelpInfoId) => {
+    const { highlighted, shown } = helpInfoStates.value[helpInfoId];
+    if (!highlighted && shown && helpInfoHighlightCounts.value[helpInfoId] === 0) {
+      helpInfoStates.value[helpInfoId].highlighted = true;
+      helpInfoHighlightCounts.value[helpInfoId] += 1;
       setTimeout(() => {
-        helpInfoStates.value[helpInfoId]!.highlighted = false;
+        helpInfoStates.value[helpInfoId].highlighted = false;
       }, 2000);
     }
   };
 
-  const isShown = (helpInfoId: string) => {
-    return helpInfoStates.value[helpInfoId]?.shown || false;
+  const isShown = (helpInfoId: HelpInfoId) => {
+    return helpInfoStates.value[helpInfoId].shown;
   }
 
-  const isHighlighted = (helpInfoId: string) => {
-    return helpInfoStates.value[helpInfoId]?.highlighted || false;
+  const isHighlighted = (helpInfoId: HelpInfoId) => {
+    return helpInfoStates.value[helpInfoId].highlighted;
   };
 
   watch(() => appStore.logScaleEnabled, (logScaleEnabled) => {

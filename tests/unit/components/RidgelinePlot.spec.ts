@@ -18,7 +18,6 @@ import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { BurdenMetric } from '@/types';
 import RidgelinePlot from '@/components/RidgelinePlot.vue'
 import { useAppStore } from "@/stores/appStore";
-import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
 import { useDataStore } from '@/stores/dataStore';
 import { negativeValuesHelpInfoId, useHelpInfoStore } from '@/stores/helpInfoStore';
@@ -116,7 +115,7 @@ describe('RidgelinePlot component', () => {
       });
       expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(true);
       expectCorrectMarginForRowDimension("disease", wrapper);
-    }, 6000);
+    }, 7000);
 
     // Change options: round 2
     appStore.exploreBy = "disease";

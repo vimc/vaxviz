@@ -33,11 +33,11 @@
 <script setup lang="ts">
 import { FwbModal } from 'flowbite-vue'
 import { computed, ref } from 'vue';
-import { useHelpInfoStore } from '@/stores/helpInfoStore';
+import { useHelpInfoStore, type HelpInfoId } from '@/stores/helpInfoStore';
 
 const props = defineProps<{
   header: string;
-  helpInfoId: string;
+  helpInfoId: HelpInfoId;
   allowAnimations: boolean;
 }>();
 
@@ -46,11 +46,11 @@ const helpInfoStore = useHelpInfoStore();
 const modalVisible = ref(false);
 
 const allowInitialAnimation = computed(() => {
-  return props.allowAnimations && helpInfoStore.helpInfoShowCounts[props.helpInfoId]! <= 1;
+  return props.allowAnimations && helpInfoStore.helpInfoShowCounts[props.helpInfoId] <= 1;
 })
 
 const highlight = computed(() => {
-  return props.allowAnimations && helpInfoStore.helpInfoStates[props.helpInfoId]?.highlighted;
+  return props.allowAnimations && helpInfoStore.helpInfoStates[props.helpInfoId].highlighted;
 })
 </script>
 
