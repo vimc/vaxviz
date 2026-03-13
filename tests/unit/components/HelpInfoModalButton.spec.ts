@@ -3,23 +3,13 @@ import { mount } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 
 import HelpInfoModalButton from '@/components/HelpInfoModalButton.vue';
-import { useHelpInfoStore } from '@/stores/helpInfoStore';
-
-const testHelpInfoId = 'testHelpInfo';
+import { useHelpInfoStore, negativeValuesHelpInfoId } from '@/stores/helpInfoStore';
 
 const renderComponent = (allowAnimations: boolean = false) => {
-  const helpInfoStore = useHelpInfoStore();
-  // Ensure the test help info id is registered in the store state
-  if (!helpInfoStore.helpInfoStates[testHelpInfoId]) {
-    helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: false, highlighted: false };
-    helpInfoStore.helpInfoShowCounts[testHelpInfoId] = 0;
-    helpInfoStore.helpInfoHighlightCounts[testHelpInfoId] = 0;
-  }
-
   return mount(HelpInfoModalButton, {
     props: {
       header: 'Test Header',
-      helpInfoId: testHelpInfoId,
+      helpInfoId: negativeValuesHelpInfoId,
       allowAnimations,
     },
     slots: {
@@ -96,8 +86,8 @@ describe('HelpInfoModalButton component', () => {
   describe('animations', () => {
     it('allows initial animation on mount the first time the message is shown', () => {
       const helpInfoStore = useHelpInfoStore();
-      helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: false, highlighted: false };
-      helpInfoStore.helpInfoShowCounts[testHelpInfoId] = 1;
+      helpInfoStore.helpInfoStates[negativeValuesHelpInfoId] = { shown: false, highlighted: false };
+      helpInfoStore.helpInfoShowCounts[negativeValuesHelpInfoId] = 1;
 
       const wrapper = renderComponent(true);
       expect(wrapper.find('button').classes()).toContain('allowInitialAnimation');
@@ -105,8 +95,8 @@ describe('HelpInfoModalButton component', () => {
 
     it('does not allow initial animation when the message has already been shown before', async () => {
       const helpInfoStore = useHelpInfoStore();
-      helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: false, highlighted: false };
-      helpInfoStore.helpInfoShowCounts[testHelpInfoId] = 2;
+      helpInfoStore.helpInfoStates[negativeValuesHelpInfoId] = { shown: false, highlighted: false };
+      helpInfoStore.helpInfoShowCounts[negativeValuesHelpInfoId] = 2;
 
       const wrapper = renderComponent(true);
       expect(wrapper.find('button').classes()).not.toContain('allowInitialAnimation');
@@ -115,8 +105,8 @@ describe('HelpInfoModalButton component', () => {
     describe('highlight class', () => {
       it('adds highlight class when help info is highlighted and animations are allowed', () => {
         const helpInfoStore = useHelpInfoStore();
-        helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: true, highlighted: true };
-        helpInfoStore.helpInfoShowCounts[testHelpInfoId] = 1;
+        helpInfoStore.helpInfoStates[negativeValuesHelpInfoId] = { shown: true, highlighted: true };
+        helpInfoStore.helpInfoShowCounts[negativeValuesHelpInfoId] = 1;
 
         const wrapper = renderComponent(true);
         expect(wrapper.find('p.help-text').classes()).toContain('highlight');
@@ -124,7 +114,7 @@ describe('HelpInfoModalButton component', () => {
 
       it('does not add highlight class when help info is not highlighted', () => {
         const helpInfoStore = useHelpInfoStore();
-        helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: true, highlighted: false };
+        helpInfoStore.helpInfoStates[negativeValuesHelpInfoId] = { shown: true, highlighted: false };
 
         const wrapper = renderComponent(true);
         expect(wrapper.find('p.help-text').classes()).not.toContain('highlight');
@@ -132,7 +122,7 @@ describe('HelpInfoModalButton component', () => {
 
       it('does not add highlight class when animations are not allowed', () => {
         const helpInfoStore = useHelpInfoStore();
-        helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: true, highlighted: true };
+        helpInfoStore.helpInfoStates[negativeValuesHelpInfoId] = { shown: true, highlighted: true };
 
         const wrapper = renderComponent(false);
         expect(wrapper.find('p.help-text').classes()).not.toContain('highlight');

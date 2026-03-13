@@ -37,12 +37,22 @@ export const useHelpInfoStore = defineStore("helpInfo", () => {
     [logScaleHelpInfoId]: undefined,
   });
 
+  const isShown = (helpInfoId: HelpInfoId) => {
+    return helpInfoStates.value[helpInfoId].shown;
+  }
+
+  const isHighlighted = (helpInfoId: HelpInfoId) => {
+    return helpInfoStates.value[helpInfoId].highlighted;
+  };
+
   const show = (helpInfoId: HelpInfoId, delayMs: number = 0) => {
     clearTimeout(showTimeouts.value[helpInfoId]);
-    showTimeouts.value[helpInfoId] = setTimeout(() => {
-      helpInfoStates.value[helpInfoId].shown = true;
-      helpInfoShowCounts.value[helpInfoId] += 1;
-    }, delayMs);
+    if (!isShown(helpInfoId)) {
+      showTimeouts.value[helpInfoId] = setTimeout(() => {
+        helpInfoStates.value[helpInfoId].shown = true;
+        helpInfoShowCounts.value[helpInfoId] += 1;
+      }, delayMs);
+    }
   };
 
   const unShow = (helpInfoId: HelpInfoId) => {
@@ -60,14 +70,6 @@ export const useHelpInfoStore = defineStore("helpInfo", () => {
         helpInfoStates.value[helpInfoId].highlighted = false;
       }, 2000);
     }
-  };
-
-  const isShown = (helpInfoId: HelpInfoId) => {
-    return helpInfoStates.value[helpInfoId].shown;
-  }
-
-  const isHighlighted = (helpInfoId: HelpInfoId) => {
-    return helpInfoStates.value[helpInfoId].highlighted;
   };
 
   watch(() => appStore.logScaleEnabled, (logScaleEnabled) => {
