@@ -50,7 +50,7 @@
     <HelpInfoModalButton
       v-if="helpInfoStore.showNegativeValuesHelpInfo"
       header="Noticing negative estimates?"
-      :animations-allowed="true"
+      :helpInfoId="'negativeValues'"
     >
       <template #body>
         <div id="negativeEstimatesBody" class="space-y-5">
@@ -74,6 +74,7 @@
     <HelpInfoModalButton
       v-else-if="appStore.logScaleEnabled"
       header="Note: you are viewing estimates on a log 10 scale"
+      :helpInfoId="'logScale'"
     >
       <template #body>
         <p>This means that estimates that differ by orders of magnitude can be shown together. Please be aware the x-axis is non-linear and if you toggle between linear and log scales, the bins may change.</p>

@@ -1,10 +1,9 @@
 <template>
   <button
-    id="helpButton"
+    :id="helpInfoId"
     @click="modalVisible = true"
-    class="hover:underline"
+    class="hover:underline help-button"
     :class="{
-      animationsAllowed,
       allowInitialAnimation: helpInfoStore.negativeHelpInfoShowCount <= 1
     }"
   >
@@ -40,7 +39,7 @@ import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 const props = defineProps<{
   header: string;
-  animationsAllowed?: boolean;
+  helpInfoId?: string;
 }>();
 
 const helpInfoStore = useHelpInfoStore();
@@ -48,8 +47,7 @@ const helpInfoStore = useHelpInfoStore();
 const modalVisible = ref(false);
 
 const highlight = computed(() => {
-  return props.animationsAllowed
-    && helpInfoStore.negativeValueHelpMessageIsHighlighted
+  return helpInfoStore.negativeValueHelpMessageIsHighlighted
     && helpInfoStore.negativeHelpInfoHighlightCount <= 1;
 })
 </script>
@@ -83,15 +81,16 @@ const highlight = computed(() => {
   }
 }
 
-.animationsAllowed {
+// id comes from helpInfoId prop: only animate this help info.
+#negativeValues {
   @media not (prefers-reduced-motion: reduce) {
-    &#helpButton.allowInitialAnimation {
+    &.help-button.allowInitialAnimation {
       animation: pop-in 260ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
       animation-delay: 5s;
       transform-origin: center;
     }
 
-    &#helpButton p.help-text.highlight {
+    &.help-button p.help-text.highlight {
       transform-origin: center;
       animation: help-text-pulse 400ms ease-in-out 3;
     }
