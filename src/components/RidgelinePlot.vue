@@ -153,7 +153,7 @@ const selectedLines = computed(() => sortedRidgeLines.value.filter(line => {
 
 const updateHelpInfo = (numericalScales: Scales) => {
   if (!appStore.logScaleEnabled && numericalScales.x.start < 0) {
-    const delayMs = helpInfoStore.helpInfoShowCounts[negativeValuesHelpInfoId]! <= 1
+    const delayMs = helpInfoStore.helpInfoShowCounts[negativeValuesHelpInfoId] <= 1
      ? 5000
      : 0;
 
