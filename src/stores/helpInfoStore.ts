@@ -27,7 +27,7 @@ export const useHelpInfoStore = defineStore("helpInfo", () => {
   });
 
   const applyHighlightingToNegativeHelpInfo = () => {
-    if (showNegativeValuesHelpInfo.value) {
+    if (showNegativeValuesHelpInfo.value && !highlightNegativeValuesHelpMessage.value) {
       highlightNegativeValuesHelpMessage.value = true;
       setTimeout(() => {
         highlightNegativeValuesHelpMessage.value = false;
