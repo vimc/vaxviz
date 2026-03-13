@@ -87,7 +87,7 @@ const highlight = computed(() => {
   @media not (prefers-reduced-motion: reduce) {
     &#helpButton.allowInitialAnimation {
       animation: pop-in 260ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
-      animation-delay: 0.5s;
+      animation-delay: 5s;
       transform-origin: center;
     }
 
