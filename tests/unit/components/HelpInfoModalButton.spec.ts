@@ -5,11 +5,22 @@ import { setActivePinia, createPinia } from 'pinia';
 import HelpInfoModalButton from '@/components/HelpInfoModalButton.vue';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
-const renderComponent = (animationsAllowed?: boolean) => {
+const testHelpInfoId = 'testHelpInfo';
+
+const renderComponent = (allowAnimations: boolean = false) => {
+  const helpInfoStore = useHelpInfoStore();
+  // Ensure the test help info id is registered in the store state
+  if (!helpInfoStore.helpInfoStates[testHelpInfoId]) {
+    helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: false, highlighted: false };
+    helpInfoStore.helpInfoShowCounts[testHelpInfoId] = 0;
+    helpInfoStore.helpInfoHighlightCounts[testHelpInfoId] = 0;
+  }
+
   return mount(HelpInfoModalButton, {
     props: {
       header: 'Test Header',
-      animationsAllowed,
+      helpInfoId: testHelpInfoId,
+      allowAnimations,
     },
     slots: {
       body: 'Paragraph content',
@@ -83,9 +94,10 @@ describe('HelpInfoModalButton component', () => {
   });
 
   describe('animations', () => {
-    it('allows initial animation on the first time the message has been shown', () => {
+    it('allows initial animation on mount the first time the message is shown', () => {
       const helpInfoStore = useHelpInfoStore();
-      helpInfoStore.negativeHelpInfoShowCount = 1;
+      helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: false, highlighted: false };
+      helpInfoStore.helpInfoShowCounts[testHelpInfoId] = 1;
 
       const wrapper = renderComponent(true);
       expect(wrapper.find('button').classes()).toContain('allowInitialAnimation');
@@ -93,37 +105,36 @@ describe('HelpInfoModalButton component', () => {
 
     it('does not allow initial animation when the message has already been shown before', async () => {
       const helpInfoStore = useHelpInfoStore();
-      helpInfoStore.negativeHelpInfoShowCount = 2;
+      helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: false, highlighted: false };
+      helpInfoStore.helpInfoShowCounts[testHelpInfoId] = 2;
 
       const wrapper = renderComponent(true);
       expect(wrapper.find('button').classes()).not.toContain('allowInitialAnimation');
     });
 
     describe('highlight class', () => {
-      it('adds highlight class when all conditions are met', () => {
+      it('adds highlight class when help info is highlighted and animations are allowed', () => {
         const helpInfoStore = useHelpInfoStore();
-        helpInfoStore.negativeValueHelpMessageIsHighlighted = true;
-        helpInfoStore.negativeHelpInfoHighlightCount = 1;
+        helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: true, highlighted: true };
+        helpInfoStore.helpInfoShowCounts[testHelpInfoId] = 1;
 
         const wrapper = renderComponent(true);
         expect(wrapper.find('p.help-text').classes()).toContain('highlight');
       });
 
-      it('does not add highlight class when negativeValueHelpMessageIsHighlighted is false', () => {
+      it('does not add highlight class when help info is not highlighted', () => {
         const helpInfoStore = useHelpInfoStore();
-        helpInfoStore.negativeValueHelpMessageIsHighlighted = false;
-        helpInfoStore.negativeHelpInfoHighlightCount = 1;
+        helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: true, highlighted: false };
 
         const wrapper = renderComponent(true);
         expect(wrapper.find('p.help-text').classes()).not.toContain('highlight');
       });
 
-      it('does not add highlight class when the text has already been highlighted before', () => {
+      it('does not add highlight class when animations are not allowed', () => {
         const helpInfoStore = useHelpInfoStore();
-        helpInfoStore.negativeValueHelpMessageIsHighlighted = true;
-        helpInfoStore.negativeHelpInfoHighlightCount = 2;
+        helpInfoStore.helpInfoStates[testHelpInfoId] = { shown: true, highlighted: true };
 
-        const wrapper = renderComponent(true);
+        const wrapper = renderComponent(false);
         expect(wrapper.find('p.help-text').classes()).not.toContain('highlight');
       });
     });

@@ -1,7 +1,7 @@
 import { useAppStore } from "@/stores/appStore";
 import { useColorStore } from "@/stores/colorStore";
 import { useDataStore } from "@/stores/dataStore";
-import { useHelpInfoStore } from "@/stores/helpInfoStore";
+import { negativeValuesHelpInfoId, useHelpInfoStore } from "@/stores/helpInfoStore";
 import { Axis, BurdenMetric, SummaryTableColumn, type PointWithMetadata } from "@/types";
 import { dimensionOptionLabel } from "@/utils/options";
 import sentenceCase from "@/utils/sentenceCase";
@@ -28,7 +28,7 @@ export default () => {
     if (!point.metadata) return "";
 
     if (point.x < 0) {
-      helpInfoStore.applyHighlightingToNegativeHelpInfo();
+      helpInfoStore.highlightOnce(negativeValuesHelpInfoId);
     }
 
     const { strokeColor } = colorStore.getColorsForLine(point.metadata)

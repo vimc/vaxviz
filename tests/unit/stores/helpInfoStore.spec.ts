@@ -1,9 +1,8 @@
 import { setActivePinia } from "pinia";
 import { createTestingPinia } from "@pinia/testing";
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { nextTick } from "vue";
 
-import { useHelpInfoStore } from "@/stores/helpInfoStore";
+import { negativeValuesHelpInfoId, useHelpInfoStore } from "@/stores/helpInfoStore";
 
 describe("helpInfo store", () => {
   beforeEach(() => {
@@ -17,116 +16,132 @@ describe("helpInfo store", () => {
 
   it("has expected initial state", () => {
     const store = useHelpInfoStore();
-    expect(store.showNegativeValuesHelpInfo).toBe(false);
-    expect(store.negativeValueHelpMessageIsHighlighted).toBe(false);
-    expect(store.negativeHelpInfoShowCount).toBe(0);
-    expect(store.negativeHelpInfoHighlightCount).toBe(0);
+    expect(store.isShown(negativeValuesHelpInfoId)).toBe(false);
+    expect(store.isHighlighted(negativeValuesHelpInfoId)).toBe(false);
+    expect(store.helpInfoShowCounts[negativeValuesHelpInfoId]).toBe(0);
+    expect(store.helpInfoHighlightCounts[negativeValuesHelpInfoId]).toBe(0);
   });
 
-  describe("negativeHelpInfoShowCount watcher", () => {
-    it("increments when showNegativeValuesHelpInfo becomes true", async () => {
+  describe("show and unShow", () => {
+    it("shows help info and increments show count after delay", () => {
       const store = useHelpInfoStore();
 
-      store.showNegativeValuesHelpInfo = true;
-      await nextTick();
-      expect(store.negativeHelpInfoShowCount).toBe(1);
+      store.show(negativeValuesHelpInfoId, 1000);
+      expect(store.isShown(negativeValuesHelpInfoId)).toBe(false);
+
+      vi.advanceTimersByTime(1000);
+      expect(store.isShown(negativeValuesHelpInfoId)).toBe(true);
+      expect(store.helpInfoShowCounts[negativeValuesHelpInfoId]).toBe(1);
     });
 
-    it("does not increment when showNegativeValuesHelpInfo becomes false", async () => {
+    it("shows help info immediately with zero delay", () => {
       const store = useHelpInfoStore();
 
-      store.showNegativeValuesHelpInfo = true;
-      await nextTick();
-      expect(store.negativeHelpInfoShowCount).toBe(1);
+      store.show(negativeValuesHelpInfoId, 0);
+      vi.advanceTimersByTime(0);
 
-      store.showNegativeValuesHelpInfo = false;
-      await nextTick();
-      expect(store.negativeHelpInfoShowCount).toBe(1);
+      expect(store.isShown(negativeValuesHelpInfoId)).toBe(true);
+      expect(store.helpInfoShowCounts[negativeValuesHelpInfoId]).toBe(1);
     });
 
-    it("increments each time showNegativeValuesHelpInfo is toggled on", async () => {
+    it("unShow hides help info", () => {
       const store = useHelpInfoStore();
 
-      store.showNegativeValuesHelpInfo = true;
-      await nextTick();
-      store.showNegativeValuesHelpInfo = false;
-      await nextTick();
-      store.showNegativeValuesHelpInfo = true;
-      await nextTick();
+      store.show(negativeValuesHelpInfoId);
+      vi.advanceTimersByTime(0);
+      expect(store.isShown(negativeValuesHelpInfoId)).toBe(true);
 
-      expect(store.negativeHelpInfoShowCount).toBe(2);
+      store.unShow(negativeValuesHelpInfoId);
+      expect(store.isShown(negativeValuesHelpInfoId)).toBe(false);
+    });
+
+    it("unShow cancels a pending show timeout", () => {
+      const store = useHelpInfoStore();
+
+      store.show(negativeValuesHelpInfoId, 1000);
+      store.unShow(negativeValuesHelpInfoId);
+
+      vi.advanceTimersByTime(5000);
+      expect(store.isShown(negativeValuesHelpInfoId)).toBe(false);
+      expect(store.helpInfoShowCounts[negativeValuesHelpInfoId]).toBe(0);
+    });
+
+    it("increments show count each time show completes", () => {
+      const store = useHelpInfoStore();
+
+      store.show(negativeValuesHelpInfoId);
+      vi.advanceTimersByTime(0);
+      store.unShow(negativeValuesHelpInfoId);
+      store.show(negativeValuesHelpInfoId);
+      vi.advanceTimersByTime(0);
+
+      expect(store.helpInfoShowCounts[negativeValuesHelpInfoId]).toBe(2);
     });
   });
 
-  describe("negativeHelpInfoHighlightCount watcher", () => {
-    it("increments when negativeValueHelpMessageIsHighlighted becomes true", async () => {
+  describe("highlightOnce", () => {
+    it("highlights when help info is shown and has not been highlighted before", () => {
       const store = useHelpInfoStore();
+      store.show(negativeValuesHelpInfoId);
+      vi.advanceTimersByTime(0);
 
-      store.negativeValueHelpMessageIsHighlighted = true;
-      await nextTick();
-      expect(store.negativeHelpInfoHighlightCount).toBe(1);
+      store.highlightOnce(negativeValuesHelpInfoId);
+
+      expect(store.isHighlighted(negativeValuesHelpInfoId)).toBe(true);
     });
 
-    it("does not increment when negativeValueHelpMessageIsHighlighted becomes false", async () => {
+    it("does not highlight when help info is not shown", () => {
       const store = useHelpInfoStore();
 
-      store.negativeValueHelpMessageIsHighlighted = true;
-      await nextTick();
-      store.negativeValueHelpMessageIsHighlighted = false;
-      await nextTick();
+      store.highlightOnce(negativeValuesHelpInfoId);
 
-      expect(store.negativeHelpInfoHighlightCount).toBe(1);
-    });
-  });
-
-  describe("applyHighlightingToNegativeHelpInfo", () => {
-    it("sets negativeValueHelpMessageIsHighlighted to true when help info is shown", () => {
-      const store = useHelpInfoStore();
-      store.showNegativeValuesHelpInfo = true;
-
-      store.applyHighlightingToNegativeHelpInfo();
-
-      expect(store.negativeValueHelpMessageIsHighlighted).toBe(true);
+      expect(store.isHighlighted(negativeValuesHelpInfoId)).toBe(false);
     });
 
-    it("does not set highlight when help info is not shown", () => {
+    it("resets highlighted to false after 2000ms", () => {
       const store = useHelpInfoStore();
-      store.showNegativeValuesHelpInfo = false;
+      store.show(negativeValuesHelpInfoId);
+      vi.advanceTimersByTime(0);
 
-      store.applyHighlightingToNegativeHelpInfo();
-
-      expect(store.negativeValueHelpMessageIsHighlighted).toBe(false);
-    });
-
-    it("resets negativeValueHelpMessageIsHighlighted to false after 2000ms", () => {
-      const store = useHelpInfoStore();
-      store.showNegativeValuesHelpInfo = true;
-
-      store.applyHighlightingToNegativeHelpInfo();
-      expect(store.negativeValueHelpMessageIsHighlighted).toBe(true);
+      store.highlightOnce(negativeValuesHelpInfoId);
+      expect(store.isHighlighted(negativeValuesHelpInfoId)).toBe(true);
 
       vi.advanceTimersByTime(1999);
-      expect(store.negativeValueHelpMessageIsHighlighted).toBe(true);
+      expect(store.isHighlighted(negativeValuesHelpInfoId)).toBe(true);
 
       vi.advanceTimersByTime(1);
-      expect(store.negativeValueHelpMessageIsHighlighted).toBe(false);
+      expect(store.isHighlighted(negativeValuesHelpInfoId)).toBe(false);
+    });
+
+    it("does not highlight again if already highlighted once before", () => {
+      const store = useHelpInfoStore();
+      store.show(negativeValuesHelpInfoId);
+      vi.advanceTimersByTime(0);
+
+      store.highlightOnce(negativeValuesHelpInfoId);
+      vi.advanceTimersByTime(2000); // let first highlight expire
+
+      store.highlightOnce(negativeValuesHelpInfoId);
+      expect(store.isHighlighted(negativeValuesHelpInfoId)).toBe(false);
+      expect(store.helpInfoHighlightCounts[negativeValuesHelpInfoId]).toBe(1);
     });
 
     it("does not affect highlight if a highlight is already in progress", () => {
       const store = useHelpInfoStore();
-      store.showNegativeValuesHelpInfo = true;
+      store.show(negativeValuesHelpInfoId);
+      vi.advanceTimersByTime(0);
 
-      store.applyHighlightingToNegativeHelpInfo();
-      expect(store.negativeValueHelpMessageIsHighlighted).toBe(true);
+      store.highlightOnce(negativeValuesHelpInfoId);
+      expect(store.isHighlighted(negativeValuesHelpInfoId)).toBe(true);
 
       vi.advanceTimersByTime(1000);
-      store.applyHighlightingToNegativeHelpInfo();
+      store.highlightOnce(negativeValuesHelpInfoId);
 
       vi.advanceTimersByTime(999);
-      expect(store.negativeValueHelpMessageIsHighlighted).toBe(true);
+      expect(store.isHighlighted(negativeValuesHelpInfoId)).toBe(true);
 
       vi.advanceTimersByTime(1);
-      expect(store.negativeValueHelpMessageIsHighlighted).toBe(false);
+      expect(store.isHighlighted(negativeValuesHelpInfoId)).toBe(false);
     });
   });
 });

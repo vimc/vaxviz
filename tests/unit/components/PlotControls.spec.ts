@@ -6,7 +6,7 @@ import VueSelect from "vue3-select-component";
 import { nextTick } from "vue";
 
 import PlotControls from '@/components/PlotControls.vue'
-import { useHelpInfoStore } from '@/stores/helpInfoStore';
+import { negativeValuesHelpInfoId, useHelpInfoStore } from '@/stores/helpInfoStore';
 
 describe('PlotControls component', () => {
   beforeEach(() => {
@@ -60,20 +60,23 @@ describe('PlotControls component', () => {
 
   it("shows the negative estimates help info when decreed by the help info store", async () => {
     const wrapper = mount(PlotControls);
+    const helpInfoStore = useHelpInfoStore();
 
     expect(wrapper.findAll('button').find(e => e.text().includes("Noticing negative estimates?"))).toBeUndefined();
 
-    const helpInfoStore = useHelpInfoStore();
-    helpInfoStore.showNegativeValuesHelpInfo = true;
-    await nextTick();
+    helpInfoStore.show(negativeValuesHelpInfoId);
 
-    expect(wrapper.findAll('button').find(e => e.text().includes("Noticing negative estimates?"))).toBeDefined();
+    await vi.waitFor(() => {
+      expect(wrapper.findAll('button').find(e => e.text().includes("Noticing negative estimates?"))).toBeDefined();
+    });
   });
 
   it("show the log scale help info when log scale is enabled", async () => {
     const wrapper = mount(PlotControls);
 
-    expect(wrapper.findAll('button').find(e => e.text().includes("Note: you are viewing estimates on a log 10 scale"))).toBeDefined();
+    await vi.waitFor(() => {
+      expect(wrapper.findAll('button').find(e => e.text().includes("Note: you are viewing estimates on a log 10 scale"))).toBeDefined();
+    });
 
     const logScaleCheckbox = wrapper.findAll('label').find(e => e.text().includes("Log scale"))?.find('input');
     await logScaleCheckbox.setValue(false);

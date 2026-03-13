@@ -48,9 +48,10 @@
     </div>
     <DownloadButton />
     <HelpInfoModalButton
-      v-if="helpInfoStore.showNegativeValuesHelpInfo"
+      v-if="helpInfoStore.isShown(negativeValuesHelpInfoId)"
       header="Noticing negative estimates?"
-      :helpInfoId="'negativeValues'"
+      :helpInfoId="negativeValuesHelpInfoId"
+      :allow-animations="true"
     >
       <template #body>
         <div id="negativeEstimatesBody" class="space-y-5">
@@ -72,9 +73,10 @@
       </template>
     </HelpInfoModalButton>
     <HelpInfoModalButton
-      v-else-if="appStore.logScaleEnabled"
+      v-else-if="helpInfoStore.isShown(logScaleHelpInfoId)"
       header="Note: you are viewing estimates on a log 10 scale"
-      :helpInfoId="'logScale'"
+      :helpInfoId="logScaleHelpInfoId"
+      :allow-animations="false"
     >
       <template #body>
         <p>This means that estimates that differ by orders of magnitude can be shown together. Please be aware the x-axis is non-linear and if you toggle between linear and log scales, the bins may change.</p>
@@ -89,7 +91,7 @@ import { useAppStore } from '@/stores/appStore';
 import DownloadButton from '@/components/DownloadButton.vue';
 import HelpInfoModalButton from '@/components/HelpInfoModalButton.vue';
 import { metricOptions } from '@/utils/options';
-import { useHelpInfoStore } from '@/stores/helpInfoStore';
+import { logScaleHelpInfoId, negativeValuesHelpInfoId, useHelpInfoStore } from '@/stores/helpInfoStore';
 import FocusSelect from './FocusSelect.vue';
 
 const appStore = useAppStore();

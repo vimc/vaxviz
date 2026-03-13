@@ -7,7 +7,7 @@ import usePlotTooltips from '@/composables/usePlotTooltips';
 import { useAppStore } from '@/stores/appStore';
 import { useColorStore } from '@/stores/colorStore';
 import { useDataStore } from '@/stores/dataStore';
-import { useHelpInfoStore } from '@/stores/helpInfoStore';
+import { negativeValuesHelpInfoId, useHelpInfoStore } from '@/stores/helpInfoStore';
 import { Axis, BurdenMetric, Dimension, SummaryTableColumn, type PointWithMetadata, type SummaryTableDataRow } from '@/types';
 
 describe('usePlotTooltips', () => {
@@ -136,17 +136,17 @@ describe('usePlotTooltips', () => {
 
       it('applies highlighting when hovering a negative-x point', () => {
         const helpInfoStore = useHelpInfoStore();
-        const spy = vi.spyOn(helpInfoStore, 'applyHighlightingToNegativeHelpInfo');
+        const spy = vi.spyOn(helpInfoStore, 'highlightOnce');
 
         const { tooltipCallback } = usePlotTooltips();
         tooltipCallback({ x: -5, y: 2, metadata });
 
-        expect(spy).toHaveBeenCalledOnce();
+        expect(spy).toHaveBeenCalledWith(negativeValuesHelpInfoId);
       });
 
       it('does not apply highlighting when hovering a positive-x point', () => {
         const helpInfoStore = useHelpInfoStore();
-        const spy = vi.spyOn(helpInfoStore, 'applyHighlightingToNegativeHelpInfo');
+        const spy = vi.spyOn(helpInfoStore, 'highlightOnce');
 
         const { tooltipCallback } = usePlotTooltips();
         tooltipCallback({ x: 5, y: 2, metadata });

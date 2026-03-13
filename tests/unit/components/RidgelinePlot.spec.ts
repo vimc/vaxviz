@@ -21,7 +21,7 @@ import { useAppStore } from "@/stores/appStore";
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
 import { useDataStore } from '@/stores/dataStore';
-import { useHelpInfoStore } from '@/stores/helpInfoStore';
+import { negativeValuesHelpInfoId, useHelpInfoStore } from '@/stores/helpInfoStore';
 
 const addAxesSpy = vi.fn().mockReturnThis();
 const addTracesSpy = vi.fn().mockReturnThis();
@@ -85,7 +85,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["COVID-19", "JE", "Cholera", "Rubella", "Meningitis", "Typhoid", "Rota", "PCV", "YF", "Hib", "Malaria", "HepB", "Measles", "HPV"],
       });
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(false);
       expectCorrectMarginForRowDimension("disease", wrapper);
     });
 
@@ -114,9 +114,9 @@ describe('RidgelinePlot component', () => {
         x: ["Campaign", "Routine"],
         y: ["COVID-19", "Cholera", "Rubella", "MenA", "MenACWYX", "Typhoid", "Rota", "HepB", "YF", "PCV", "Malaria", "Hib", "HPV", "Measles"],
       });
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(true);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(true);
       expectCorrectMarginForRowDimension("disease", wrapper);
-    }, 5000);
+    }, 6000);
 
     // Change options: round 2
     appStore.exploreBy = "disease";
@@ -156,9 +156,9 @@ describe('RidgelinePlot component', () => {
           "Middle Africa",
         ],
       });
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(true);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(true);
       expectCorrectMarginForRowDimension("location", wrapper);
-    }, { timeout: 5000 });
+    }, { timeout: 6000 });
 
     // Change options: round 3
     appStore.exploreBy = "location";
@@ -188,7 +188,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "JE", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(false);
       expectCorrectMarginForRowDimension("disease", wrapper);
     }, { timeout: 5000 });
 
@@ -206,7 +206,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "JE", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(false);
     });
 
     // Change options: round 5 (unfiltering as if via legend component)
@@ -222,7 +222,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["Cholera", "COVID-19", "Typhoid", "Rubella", "Rota", "JE", "PCV", "HepB", "Hib", "HPV", "Measles"],
       });
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(false);
     });
 
     // Change options: round 6 (multiple focuses: diseases)
@@ -293,7 +293,7 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("No estimates available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(false);
     });
     expect(colorStore.colorMapping.size).toEqual(0);
   });
@@ -323,7 +323,7 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("No estimates available for the selected options.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(false);
       expect(wrapper.findComponent({ name: "ColorLegend" }).exists()).toBe(false);
     });
   });
@@ -345,7 +345,7 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("Estimates for MenA are only available at the activity type (campaign/routine) level.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(false);
       expect(wrapper.findComponent({ name: "ColorLegend" }).exists()).toBe(false);
     });
 
@@ -374,7 +374,7 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain("Estimates for Meningitis are not available at the activity type (campaign/routine) level.");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(false);
       expect(wrapper.findComponent({ name: "ColorLegend" }).exists()).toBe(false);
     });
   });
@@ -437,7 +437,7 @@ describe('RidgelinePlot component', () => {
       expect(wrapper.text()).not.toContain("No estimates available for the selected options.");
       expect(wrapper.text()).toContain("Error loading data");
       expect(wrapper.find("#chartWrapper").exists()).toBe(false);
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(false);
     });
   });
 
@@ -532,7 +532,7 @@ describe('RidgelinePlot component', () => {
     await vi.waitFor(() => {
       expect(wrapper.find(spinnerMatcher).exists()).toBe(false);
       expect(wrapper.find("#chartWrapper").exists()).toBe(true);
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+      expect(helpInfoStore.isShown(negativeValuesHelpInfoId)).toBe(false);
     });
   });
 });

@@ -49,12 +49,12 @@
 import { computed, ref, watch } from 'vue';
 import { debounce } from 'perfect-debounce';
 import { FwbAlert, FwbSpinner } from 'flowbite-vue';
-import { Chart } from '@reside-ic/skadi-chart';
+import { Chart, type Scales } from '@reside-ic/skadi-chart';
 import { getDimensionCategoryValue } from '@/utils/fileParse';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
 import { useColorStore } from '@/stores/colorStore';
-import { useHelpInfoStore } from '@/stores/helpInfoStore';
+import { negativeValuesHelpInfoId, useHelpInfoStore } from '@/stores/helpInfoStore';
 import { Axis, Dimension, SummaryTableColumn } from '@/types';
 import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel, meningitisVaccines } from '@/utils/options';
@@ -151,6 +151,18 @@ const selectedLines = computed(() => sortedRidgeLines.value.filter(line => {
   return colorVal && appStore.legendSelections[colorStore.colorDimension]?.includes(colorVal);
 }));
 
+const updateHelpInfo = (numericalScales: Scales) => {
+  if (!appStore.logScaleEnabled && numericalScales.x.start < 0) {
+    const delayMs = helpInfoStore.helpInfoShowCounts[negativeValuesHelpInfoId]! <= 1
+     ? 5000
+     : 0;
+
+    helpInfoStore.show(negativeValuesHelpInfoId, delayMs);
+  } else {
+    helpInfoStore.unShow(negativeValuesHelpInfoId);
+  };
+}
+
 // Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
 const updateChart = debounce(() => {
   const categoriesInUse = relevantRidgeLines.value.flatMap(line => Object.keys(appStore.dimensions).map(axis => line.metadata?.[axis as Axis]));
@@ -178,7 +190,7 @@ const updateChart = debounce(() => {
     lines,
   );
 
-  helpInfoStore.showNegativeValuesHelpInfo = !appStore.logScaleEnabled && numericalScales.x.start < 0;
+  updateHelpInfo(numericalScales);
 
   new Chart(constructorOptions)
     .addAxes(...axisConfig)
