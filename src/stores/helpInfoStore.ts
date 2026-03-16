@@ -7,8 +7,6 @@ const appMode = import.meta.env.MODE;
 // focus-trap is an accessibility feature for modal dialogs
 const enableFocusTraps = appMode !== 'test';
 
-export const negativeValuesHelpInfoId = "negativeValues";
-export const logScaleHelpInfoId = "logScale";
 export type HelpInfoId = "negativeValues" | "logScale";
 
 export const useHelpInfoStore = defineStore("helpInfo", () => {
@@ -16,25 +14,25 @@ export const useHelpInfoStore = defineStore("helpInfo", () => {
 
   // Track which help infos are currently being shown or highlighted
   const helpInfoStates = ref<Record<HelpInfoId, { shown: boolean; highlighted: boolean }>>({
-    [negativeValuesHelpInfoId]: { shown: false, highlighted: false },
-    [logScaleHelpInfoId]: { shown: false, highlighted: false },
+    negativeValues: { shown: false, highlighted: false },
+    logScale: { shown: false, highlighted: false },
   });
 
   // Track how many times each help info has been shown this session
   const helpInfoShowCounts = ref<Record<HelpInfoId, number>>({
-    [negativeValuesHelpInfoId]: 0,
-    [logScaleHelpInfoId]: 0,
+    negativeValues: 0,
+    logScale: 0,
   });
 
   // Track how many times each help info has been highlighted this session
   const helpInfoHighlightCounts = ref<Record<HelpInfoId, number>>({
-    [negativeValuesHelpInfoId]: 0,
-    [logScaleHelpInfoId]: 0,
+    negativeValues: 0,
+    logScale: 0,
   });
 
   const showTimeouts = ref<Record<HelpInfoId, ReturnType<typeof setTimeout> | undefined>>({
-    [negativeValuesHelpInfoId]: undefined,
-    [logScaleHelpInfoId]: undefined,
+    negativeValues: undefined,
+    logScale: undefined,
   });
 
   const isShown = (helpInfoId: HelpInfoId) => {
@@ -74,9 +72,9 @@ export const useHelpInfoStore = defineStore("helpInfo", () => {
 
   watch(() => appStore.logScaleEnabled, (logScaleEnabled) => {
     if (logScaleEnabled) {
-      show(logScaleHelpInfoId)
+      show("logScale");
     } else {
-      unShow(logScaleHelpInfoId);
+      unShow("logScale");
     };
   }, { immediate: true });
 

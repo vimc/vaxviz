@@ -7,7 +7,7 @@ import usePlotTooltips from '@/composables/usePlotTooltips';
 import { useAppStore } from '@/stores/appStore';
 import { useColorStore } from '@/stores/colorStore';
 import { useDataStore } from '@/stores/dataStore';
-import { negativeValuesHelpInfoId, useHelpInfoStore } from '@/stores/helpInfoStore';
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import { Axis, BurdenMetric, Dimension, SummaryTableColumn, type PointWithMetadata, type SummaryTableDataRow } from '@/types';
 
 describe('usePlotTooltips', () => {
@@ -141,7 +141,7 @@ describe('usePlotTooltips', () => {
         const { tooltipCallback } = usePlotTooltips();
         tooltipCallback({ x: -5, y: 2, metadata });
 
-        expect(spy).toHaveBeenCalledWith(negativeValuesHelpInfoId);
+        expect(spy).toHaveBeenCalledWith('negativeValues');
       });
 
       it('does not apply highlighting when hovering a positive-x point', () => {

@@ -6,7 +6,7 @@ import VueSelect from "vue3-select-component";
 import { nextTick } from "vue";
 
 import PlotControls from '@/components/PlotControls.vue'
-import { negativeValuesHelpInfoId, useHelpInfoStore } from '@/stores/helpInfoStore';
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 describe('PlotControls component', () => {
   beforeEach(() => {
@@ -64,7 +64,7 @@ describe('PlotControls component', () => {
 
     expect(wrapper.findAll('button').find(e => e.text().includes("Noticing negative estimates?"))).toBeUndefined();
 
-    helpInfoStore.show(negativeValuesHelpInfoId);
+    helpInfoStore.show('negativeValues');
 
     await vi.waitFor(() => {
       expect(wrapper.findAll('button').find(e => e.text().includes("Noticing negative estimates?"))).toBeDefined();

@@ -48,9 +48,9 @@
     </div>
     <DownloadButton />
     <HelpInfoModalButton
-      v-if="helpInfoStore.isShown(negativeValuesHelpInfoId)"
+      v-if="helpInfoStore.isShown('negativeValues')"
       header="Noticing negative estimates?"
-      :helpInfoId="negativeValuesHelpInfoId"
+      :helpInfoId="'negativeValues'"
       :allow-animations="true"
     >
       <template #body>
@@ -73,9 +73,9 @@
       </template>
     </HelpInfoModalButton>
     <HelpInfoModalButton
-      v-else-if="helpInfoStore.isShown(logScaleHelpInfoId)"
+      v-else-if="helpInfoStore.isShown('logScale')"
       header="Note: you are viewing estimates on a log 10 scale"
-      :helpInfoId="logScaleHelpInfoId"
+      :helpInfoId="'logScale'"
       :allow-animations="false"
     >
       <template #body>
@@ -91,7 +91,7 @@ import { useAppStore } from '@/stores/appStore';
 import DownloadButton from '@/components/DownloadButton.vue';
 import HelpInfoModalButton from '@/components/HelpInfoModalButton.vue';
 import { metricOptions } from '@/utils/options';
-import { logScaleHelpInfoId, negativeValuesHelpInfoId, useHelpInfoStore } from '@/stores/helpInfoStore';
+import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import FocusSelect from './FocusSelect.vue';
 
 const appStore = useAppStore();
