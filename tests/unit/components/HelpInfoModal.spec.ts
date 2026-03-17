@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 
-import HelpInfoModalButton from '@/components/HelpInfoModalButton.vue';
+import HelpInfoModal from '@/components/HelpInfoModal.vue';
 
 const renderComponent = () => {
-  return mount(HelpInfoModalButton, {
+  return mount(HelpInfoModal, {
     props: {
       header: 'Test Header',
     },
@@ -15,7 +15,7 @@ const renderComponent = () => {
   });
 }
 
-describe('HelpInfoModalButton component', () => {
+describe('HelpInfoModal component', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });

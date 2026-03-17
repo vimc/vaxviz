@@ -3,7 +3,10 @@
     class="h-20 flex"
     id="colorLegend"
   >
-    <ul class="flex flex-col gap-y-1 flex-wrap max-h-full min-h-0">
+    <ul
+      class="flex flex-col gap-y-1 flex-wrap max-h-full min-h-0"
+      :class="{ 'justify-center': colors.length <= 4 }"
+    >
       <li
         v-for="({ value, color, hidden, label }) in colors"
         :key="value"

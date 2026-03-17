@@ -1,5 +1,6 @@
 <template>
   <FwbAlert
+    v-if="!dismissed"
     icon
     class="w-fit h-full ml-auto"
   >
@@ -25,7 +26,7 @@
           size="xs"
           outline
           aria-label="Never show this message again"
-          @click="console.log('dismissForever')"
+          @click="dismissForever"
           class="rounded ml-auto"
         >
           Dismiss forever
@@ -60,11 +61,19 @@ import { ref } from 'vue';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 const props = defineProps<{
+  id: string;
   alertText: string;
   header: string;
 }>();
 
 const helpInfoStore = useHelpInfoStore();
-
 const modalVisible = ref(false);
+
+const hasBeenDismissedForever = () => localStorage.getItem(`helpInfoDismissed_${props.id}`) === "true";
+const dismissed = ref(hasBeenDismissedForever());
+
+const dismissForever = () => {
+  dismissed.value = true;
+  localStorage.setItem(`helpInfoDismissed_${props.id}`, "true");
+}
 </script>

@@ -55,7 +55,6 @@ import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
 import { useAppStore } from '@/stores/appStore';
 import DownloadButton from '@/components/DownloadButton.vue';
 import { metricOptions } from '@/utils/options';
-import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import FocusSelect from './FocusSelect.vue';
 
 const appStore = useAppStore();

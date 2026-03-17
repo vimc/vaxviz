@@ -6,8 +6,9 @@
     >
       <ColorLegend v-if="colorStore.colorMapping.size >= 2 || focusesWithoutData.length"/>
     </div>
-    <HelpInfoModalButton
+    <HelpInfoModal
       v-if="helpInfoStore.showNegativeValuesHelpInfo"
+      id="negativeEstimates"
       alert-text="Some estimates are negative – this is expected."
       header="Negative estimates"
     >
@@ -24,16 +25,17 @@
           </details>
         </div>
       </template>
-    </HelpInfoModalButton>
-    <HelpInfoModalButton
+    </HelpInfoModal>
+    <HelpInfoModal
       v-else-if="appStore.logScaleEnabled"
+      id="logScale"
       alert-text="Note: you are viewing estimates on a log 10 scale"
       header="Log 10 scale"
     >
       <template #body>
         <p>This means that estimates that differ by orders of magnitude can be shown together. Please be aware the x-axis is non-linear and if you toggle between linear and log scales, the bins may change.</p>
       </template>
-    </HelpInfoModalButton>
+    </HelpInfoModal>
     <FwbAlert
       v-if="legendWarnings.length"
       class="w-fit h-full ml-auto"
@@ -56,7 +58,7 @@ import { useColorStore } from '@/stores/colorStore';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import { meningitisVaccines } from '@/utils/options';
 import ColorLegend from '@/components/ColorLegend.vue';
-import HelpInfoModalButton from '@/components/HelpInfoModalButton.vue';
+import HelpInfoModal from '@/components/HelpInfoModal.vue';
 
 const props = defineProps<{
   focusesWithoutData: string[];
