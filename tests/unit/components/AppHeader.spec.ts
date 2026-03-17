@@ -12,16 +12,27 @@ describe('AppHeader component', () => {
     const wrapper = mount(AppHeader);
     expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(false);
 
-    const aboutButton = wrapper.find('button#aboutLink');
+    const aboutButton = wrapper.find('button#aboutButton');
     await aboutButton.trigger('click');
 
     await vi.waitFor(() => {
-      expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(true);
       expect(wrapper.findComponent({ name: 'FwbModal' }).isVisible()).toBe(true);
     })
 
     // Check that the version number is displayed correctly
     expect(wrapper.text()).toMatch(/Vaxviz version: \d+\.\d+\.\d+/);
+  });
+
+  it('renders the privacy modal when the privacy button is clicked', async () => {
+    const wrapper = mount(AppHeader);
+    expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(false);
+
+    const privacyButton = wrapper.find('button#privacySettingsButton');
+    await privacyButton.trigger('click');
+
+    await vi.waitFor(() => {
+      expect(wrapper.findComponent({ name: 'FwbModal' }).isVisible()).toBe(true);
+    });
   });
 
   it('shows the page heading when the alert is dimissed', async () => {
@@ -32,7 +43,6 @@ describe('AppHeader component', () => {
     await alertCloseButton.trigger('click')
 
     await vi.waitFor(() => {
-      expect(wrapper.find('h1').exists()).toBe(true);
       expect(wrapper.find('h1').text()).toContain('VAXVIZ');
     });
   });

@@ -48,14 +48,22 @@
       <div class="flex flex-col gap-4 items-end my-auto">
         <!-- TODO: When paper is published, add the link, and remove 'forthcoming'. -->
         <p class="text-right text-sm">This data visualization tool accompanies Gaythorpe et al. (forthcoming)</p>
-        <button
-          id="aboutLink"
-          @click="aboutModalVisible = true"
-          href="#"
-          class="link"
-        >
-          About
-        </button>
+        <div class="flex gap-10">
+          <button
+            id="aboutButton"
+            @click="aboutModalVisible = true"
+            class="link"
+          >
+            About
+          </button>
+          <button
+            id="privacySettingsButton"
+            @click="privacyModalVisible = true"
+            class="link"
+          >
+            Privacy
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -94,6 +102,9 @@
       </div>
     </template>
   </FwbModal>
+  <PrivacyModal
+    v-model:visible="privacyModalVisible"
+  />
 </template>
 
 <script setup lang="ts">
@@ -103,10 +114,12 @@ import { ref } from 'vue';
 
 import { version } from '@/../package.json';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
+import PrivacyModal from './PrivacyModal.vue';
 
 const helpInfoStore = useHelpInfoStore();
 
 const aboutModalVisible = ref(false);
+const privacyModalVisible = ref(false);
 const showPageHeading = ref(false);
 </script>
 

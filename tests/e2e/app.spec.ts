@@ -1,4 +1,5 @@
-import { test, expect, Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
+import { test } from './fixtures/interceptNetworkRequests.ts';
 import histCountsDeathsDiseaseLog from "../../public/data/json/hist_counts_deaths_disease_log.json" with { type: "json" };
 import histCountsDalysDiseaseSubregionActivityType from "../../public/data/json/hist_counts_dalys_disease_subregion_activity_type.json" with { type: "json" };
 import histCountsDalysDiseaseActivityType from "../../public/data/json/hist_counts_dalys_disease_activity_type.json" with { type: "json" };
