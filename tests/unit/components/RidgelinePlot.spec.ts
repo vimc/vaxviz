@@ -50,7 +50,7 @@ const assertLastCategoricalScales = (expected: Record<"x" | "y", string[] | unde
 
 const expectCorrectMarginForRowDimension = (rowDimension: "disease" | "location", wrapper: ReturnType<typeof mount>) => {
   const leftMarginPx = rowDimension === "location" ? 170 : 110;
-  expect(wrapper.find('#legendContainer').attributes('style')).toBe(`margin-left: ${leftMarginPx}px;`);
+  expect(wrapper.find('#legendContainerWrapper').attributes('style')).toBe(`margin-left: ${leftMarginPx}px;`);
 };
 
 describe('RidgelinePlot component', () => {

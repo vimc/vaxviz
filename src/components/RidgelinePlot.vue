@@ -29,6 +29,7 @@
     </div>
     <div
       v-if="!noDataToDisplay && !dataStore.dataErrors.length"
+      id="legendContainerWrapper"
       :style="{ 'margin-left': `${plotLeftMargin}px` }"
     >
       <LegendContainer :focuses-without-data="focusesWithoutData"/>

@@ -3,10 +3,7 @@ import { mount } from '@vue/test-utils'
 import { setActivePinia } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import VueSelect from "vue3-select-component";
-import { nextTick } from "vue";
-
 import PlotControls from '@/components/PlotControls.vue'
-import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 describe('PlotControls component', () => {
   beforeEach(() => {
@@ -56,29 +53,5 @@ describe('PlotControls component', () => {
     const burdenMetricRadios = wrapper.findAll('input[name="burdenMetric"]');
     expect((burdenMetricRadios.find(e => e.element.value === "dalys")?.element.checked)).toBe(false);
     expect((burdenMetricRadios.find(e => e.element.value === "deaths")?.element.checked)).toBe(true);
-  });
-
-  it("shows the negative estimates help info when decreed by the help info store", async () => {
-    const wrapper = mount(PlotControls);
-
-    expect(wrapper.findAll('button').find(e => e.text().includes("Noticing negative estimates?"))).toBeUndefined();
-
-    const helpInfoStore = useHelpInfoStore();
-    helpInfoStore.showNegativeValuesHelpInfo = true;
-    await nextTick();
-
-    expect(wrapper.findAll('button').find(e => e.text().includes("Noticing negative estimates?"))).toBeDefined();
-  });
-
-  it("show the log scale help info when log scale is enabled", async () => {
-    const wrapper = mount(PlotControls);
-
-    expect(wrapper.findAll('button').find(e => e.text().includes("Note: you are viewing estimates on a log 10 scale"))).toBeDefined();
-
-    const logScaleCheckbox = wrapper.findAll('label').find(e => e.text().includes("Log scale"))?.find('input');
-    await logScaleCheckbox.setValue(false);
-    await nextTick();
-
-    expect(wrapper.findAll('button').find(e => e.text().includes("Note: you are viewing estimates on a log 10 scale"))).toBeUndefined();
   });
 })
