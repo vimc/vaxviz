@@ -1,13 +1,43 @@
 <template>
-  <button
-    @click="modalVisible = true"
-    class="hover:underline"
+  <FwbAlert
+    icon
+    class="w-fit h-full ml-auto"
   >
-    <p class="text-sm text-gray-500" style="text-align: start; line-height: 1.5rem;">
-      <img class="w-4 h-4 mr-1 mb-1 inline" src="@/assets/images/icons/questionMark.svg" alt="Help icon"/>
-      {{ props.header}}
-    </p>
-  </button>
+    <div class="flex flex-col gap-2">
+      <div>
+        {{ props.alertText }}
+      </div>
+      <div class="flex">
+        <FwbButton
+          @click="modalVisible = true"
+          size="xs"
+          aria-label="Learn more"
+          class="rounded"
+        >
+          Learn more
+          <template #suffix>
+            <svg class="size-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path clip-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" fill-rule="evenodd" />
+            </svg>
+          </template>
+        </FwbButton>
+        <FwbButton
+          size="xs"
+          outline
+          aria-label="Never show this message again"
+          @click="console.log('dismissForever')"
+          class="rounded ml-auto"
+        >
+          Dismiss forever
+          <template #suffix>
+            <svg class="size-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+            </svg>
+          </template>
+        </FwbButton>
+      </div>
+    </div>
+  </FwbAlert>
   <FwbModal
     v-if="modalVisible"
     @close="modalVisible = false"
@@ -25,11 +55,12 @@
 </template>
 
 <script setup lang="ts">
-import { FwbModal } from 'flowbite-vue'
+import { FwbAlert, FwbButton, FwbModal } from 'flowbite-vue'
 import { ref } from 'vue';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 const props = defineProps<{
+  alertText: string;
   header: string;
 }>();
 
