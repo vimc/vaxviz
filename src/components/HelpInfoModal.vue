@@ -25,7 +25,7 @@
         <FwbButton
           size="xs"
           outline
-          aria-label="Never show this message again"
+          aria-label="Dismiss forever"
           @click="dismissForever"
           class="rounded ml-auto"
         >
