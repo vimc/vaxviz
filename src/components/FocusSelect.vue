@@ -1,8 +1,9 @@
 <template>
-  <label id="focusLabel" for="focus" class="sr-only">
+  <label id="focusLabel" for="focusSelect" class="sr-only">
     Focus {{ appStore.exploreByLabel }}
   </label>
   <VueSelect
+    id="focusSelect"
     v-model="focusModel"
     :is-multi="multiFocusMode"
     :is-clearable="multiFocusMode && appStore.focuses.length > 1"
@@ -11,7 +12,7 @@
     :filter-by="(option: Option<string>, label: string, search: string) =>
       label.toLowerCase().includes(search.toLowerCase()) && option.value !== 'optgroup'
     "
-    :aria="{ labelledby: 'focusLabel' }"
+    aria-labelledby="focusLabel"
   >
     <template #placeholder>
       <span class="text-sm">Select {{ appStore.exploreBy }}(s) to focus on</span>

@@ -3,9 +3,10 @@ import { computed, ref, shallowRef, watch, type ShallowRef } from "vue";
 import { defineStore } from "pinia";
 import { useAppStore } from "@/stores/appStore";
 import { type HistDataRow, type LineMetadata, type SummaryTableDataRow, Axis, Dimension, LocResolution } from "@/types";
-import { globalOption } from "@/utils/options";
+import { globalOption, metricOptions } from "@/utils/options";
 import { downloadCsvAsSingleOrZip } from "@/utils/csvDownload";
 import useZipFilename from "@/composables/useZipFilename";
+import activityTypeOptions from '@/data/options/activityTypeOptions.json';
 
 export const jsonDataDir = `./data/json`
 export const csvDataDir = `./data/csv`;
@@ -54,7 +55,38 @@ export const useDataStore = defineStore("data", () => {
       }
       return fileNameParts.join("_");
     });
-  }
+  };
+
+  const allPossibleSummaryTableFilenames = computed(() => {
+    const burdenMetrics = metricOptions.map(o => o.value);
+    const scales = ["log", ""];
+    const activityTypes = [Dimension.ACTIVITY_TYPE, ""];
+    const geogs = [LocResolution.COUNTRY, LocResolution.SUBREGION, ""];
+    const combinations: string[] = [];
+
+    burdenMetrics.forEach((metric) => {
+      scales.forEach((scale) => {
+        activityTypes.forEach((activityType) => {
+          geogs.forEach((geog) => {
+            const fileNameParts = ["summary_table", metric, "disease"];
+            if (geog === LocResolution.SUBREGION) {
+              fileNameParts.push(LocResolution.SUBREGION);
+            }
+            console.log("activityType", activityType)
+            fileNameParts.push(activityType);
+            if (geog === LocResolution.COUNTRY) {
+              fileNameParts.push(LocResolution.COUNTRY);
+            }
+            fileNameParts.push(scale);
+            const fileName = fileNameParts.filter(p => p !== "").join("_");
+            combinations.push(fileName);
+          });
+        });
+      });
+    });
+
+    return combinations;
+  });
 
   const histFilenames = computed(() => getInputFilenames("hist_counts"));
   const summaryTableFilenames = computed(() => getInputFilenames("summary_table"));
@@ -149,6 +181,7 @@ export const useDataStore = defineStore("data", () => {
   })
 
   return {
+    allPossibleSummaryTableFilenames,
     dataErrors,
     downloadSummaryTables,
     isLoading,

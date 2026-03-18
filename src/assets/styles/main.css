@@ -31,6 +31,8 @@
   /* For vue3-select-component */
   --vs-menu-height: 50dvh;
   --vs-font-size: 14px;
+  --vs-option-disabled-text-color: var(--color-gray-400);
+  --vs-option-disabled-background-color: var(--color-gray-200);
   /* VIMC branding colors */
   --vimc-dark-blue: #203380;
   --vimc-mid-blue: #0077C2;
@@ -77,4 +79,9 @@ a, button.link {
 
 button {
   cursor: pointer;
+}
+
+.wide-modal .h-modal div {
+  /* Override max-w-2xl class */
+  max-width: var(--container-7xl);
 }
