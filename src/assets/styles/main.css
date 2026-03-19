@@ -29,7 +29,6 @@
 
 :root {
   /* For vue3-select-component */
-  --vs-menu-height: 50dvh;
   --vs-font-size: 14px;
   --vs-option-disabled-text-color: var(--color-gray-400);
   --vs-option-disabled-background-color: var(--color-gray-200);
@@ -81,7 +80,13 @@ button {
   cursor: pointer;
 }
 
-.wide-modal .h-modal div {
+.wide-modal .h-modal > div {
   /* Override max-w-2xl class */
-  max-width: 90rem;
+  max-width: var(--container-6xl);
+}
+
+.top-modal .h-modal > div {
+  /* Override self-center class */
+  align-self: start;
+  margin-top: 5rem;
 }

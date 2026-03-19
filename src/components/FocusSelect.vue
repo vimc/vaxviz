@@ -94,6 +94,10 @@ watch(multiFocusMode, (multi) => {
 </script>
 
 <style lang="css" scoped>
+:deep(.vue-select) {
+  --vs-menu-height: 50dvh;
+}
+
 :deep(.disabled-text-color) {
   color: var(--vs-option-disabled-text-color);
 }
