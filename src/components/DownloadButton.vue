@@ -40,49 +40,11 @@
             >
               Select files to download
             </label>
-            <VueSelect
-              id="toDownloadSelect"
-              v-model="toDownload"
-              :is-multi="true"
-              :is-clearable="toDownload.length > 1"
-              :is-menu-open="menuOpen"
-              :hide-selected-options="false"
-              :close-on-select="false"
-              :options="fileOptions"
-              :classes="{
-                control: '!items-start',
-              }"
-              aria-labelledby="downloadSelectLabel"
-              @menu-closed="menuOpen = false"
-              @menu-opened="menuOpen = true"
-            >
-              <template #placeholder>
-                <span class="text-xs">None selected</span>
-              </template>
-            </VueSelect>
-            <div class="flex flex-wrap gap-4">
-              <FwbButton
-                @click="doDownload(toDownload)"
-                color="default"
-                class="cursor-pointer mt-auto w-fit"
-                :disabled="toDownload.length < 1"
-              >
-                <span class="flex items-center gap-2 justify-center">
-                  <DownloadIcon class="size-4" />
-                  Download {{ toDownload.length }} selected file{{ toDownload.length === 1 ? '' : 's' }}
-                </span>
-              </FwbButton>
-              <FwbButton
-                @click="doDownload(dataStore.allPossibleSummaryTables)"
-                color="light"
-                class="cursor-pointer w-fit"
-              >
-                <span class="flex items-center gap-2 justify-center">
-                  <DownloadIcon class="size-4" />
-                  Download all available files
-                </span>
-              </FwbButton>
-            </div>
+            <DownloadSelect
+              :filtered-files="filteredFiles"
+              v-model:menu-open="menuOpen"
+              v-model:to-download="toDownload"
+            />
           </div>
           <div class="flex flex-col gap-4">
             <h3 class="flex items-center gap-1 font-medium text-lg">
@@ -91,47 +53,10 @@
               </svg>
               Filters
             </h3>
-            <div class="flex flex-wrap gap-6">
-              <fieldset
-                v-for="config in filterConfigs"
-                :key="config.label"
-                class="gap-5 w-fit"
-              >
-                <legend class="block text-sm mb-2">{{ config.label }}:</legend>
-                <div>
-                  <FwbCheckbox
-                    v-for="opt in config.options"
-                    :key="opt.value"
-                    v-model="config.filter.value[opt.value]"
-                    :label="opt.label"
-                    :wrapper-class="'w-fit'"
-                  />
-                </div>
-              </fieldset>
-              <div class="w-fit flex flex-col gap-4 ml-auto">
-                <FwbButton
-                  @click="selectAllFilesMatchingFilters"
-                  color="default"
-                  class="cursor-pointer w-fit"
-                  size="sm"
-                >
-                  <span class="flex items-center gap-2 justify-center">
-                    Select all files matching filters
-                  </span>
-                </FwbButton>
-                <FwbButton
-                  color="light"
-                  class="cursor-pointer w-50"
-                  size="xs"
-                  :disabled="filtersAreClear"
-                  @click="clearFilters"
-                >
-                  <span class="flex items-center gap-2 justify-center">
-                    Clear filters
-                  </span>
-                </FwbButton>
-              </div>
-            </div>
+            <DownloadFilters
+              v-model:filtered-files="filteredFiles"
+              @select-all-files-matching-filters="selectAllFilesMatchingFilters"
+            />
           </div>
         </div>
       </div>
@@ -140,14 +65,13 @@
 </template>
 
 <script setup lang="ts">
-import { FwbButton, FwbCheckbox, FwbModal } from 'flowbite-vue';
-import VueSelect from "vue3-select-component";
+import { FwbButton, FwbModal } from 'flowbite-vue';
 import { useDataStore } from "@/stores/dataStore";
 import { useHelpInfoStore } from "@/stores/helpInfoStore";
-import { ref, watch, computed } from 'vue';
-import { Dimension, LocResolution } from '@/types';
-import { metricOptions } from '@/utils/options';
+import { ref, watch } from 'vue';
 import DownloadIcon from './DownloadIcon.vue';
+import DownloadSelect from './DownloadSelect.vue';
+import DownloadFilters from './DownloadFilters.vue';
 
 const dataStore = useDataStore();
 const helpInfoStore = useHelpInfoStore();
@@ -163,124 +87,13 @@ const handleModalClose = () => {
   }
 };
 
-const fileLabel = (fileName: string) => {
-  const fileLabelParts = [];
-  metricOptions.forEach((metric) => {
-    if (fileName.includes(metric.value)) {
-      fileLabelParts.push(`${metric.label.split(" ")[0]} impact ratios`);
-    }
-  });
-  if (fileName.includes(LocResolution.COUNTRY)) {
-    fileLabelParts.push(" by country");
-  } else if (fileName.includes(LocResolution.SUBREGION)) {
-    fileLabelParts.push(" by subregion");
-  } else {
-    fileLabelParts.push(" globally")
-  }
-  if (fileName.includes(Dimension.ACTIVITY_TYPE)) {
-    fileLabelParts.push(", split by activity type");
-  }
-  return fileLabelParts.join("");
-};
-
-// The 'values' of these options are matched against file names to filter them.
-// The exception is: if inverseMatch is true, then we should instead look for file names that
-// contain any _other_ option from the set: e.g. when filtering for files with
-// global data, filter out the by-country and by-subregion files to find the global ones.
-type FilterOption = {
-  label: string;
-  value: string;
-  inverseMatch?: boolean;
-};
-
-const filterOptions = [
-  {
-    label: "Burden metrics",
-    options: metricOptions as FilterOption[],
-  },
-  {
-    label: "Geographical resolution",
-    options: [
-      { label: "By country", value: LocResolution.COUNTRY },
-      { label: "By subregion", value: LocResolution.SUBREGION },
-      { label: "Global", value: LocResolution.GLOBAL, inverseMatch: true },
-    ],
-  },
-  {
-    label: "Activity types",
-    options: [
-      { label: "Split", value: Dimension.ACTIVITY_TYPE },
-      { label: "Not split", value: "not split", inverseMatch: true },
-    ],
-  }
-];
-
-const filterConfigs = filterOptions.map(({ label, options }) => {
-  return {
-    label,
-    options,
-    filter: ref(Object.keys(options).reduce((acc, key) => {
-      acc[key] = false;
-      return acc;
-    }, {} as Record<string, boolean>)),
-  };
-});
-
-// Derive a subset of all files to be presented as options in the select, based on filter selections.
-const filteredFiles = computed(() => dataStore.allPossibleSummaryTables.filter((fileName) => {
-  return filterConfigs.every((config) => {
-    if (Object.values(config.filter.value).every(filteredIn => filteredIn === false)) {
-      // If no checkboxes are selected for this filter, don't apply this filter to files,
-      // otherwise deselecting all checkboxes for a filter would result in no files
-      // being listed in the select options.
-      return true;
-    } else {
-      return Object.entries(config.filter.value).some(([key, filteredIn]) => {
-        const option = config.options.find(({ value }) => value === key);
-        if (option?.inverseMatch) {
-          const allOtherOptions = config.options.map(({ value }) => value).filter(v => v !== key);
-          return filteredIn && allOtherOptions.every((o) => !fileName.includes(o));
-        }
-        return filteredIn && fileName.includes(key);
-      });
-    }
-  });
-}));
-
-const fileOptions = computed(() => {
-  return dataStore.allPossibleSummaryTables.map((fileName) => ({
-    label: fileLabel(fileName),
-    value: fileName,
-    disabled: !filteredFiles.value.includes(fileName),
-  }));
-});
+// filteredFiles is initialized here (for state sharing) but updated by the filters component
+const filteredFiles = ref<string[]>(dataStore.allPossibleSummaryTables);
 
 // toDownload will be a subset of filteredFiles
 const toDownload = ref<string[]>([]);
 
-const doDownload = async (files: string[]) => {
-  // await dataStore.downloadSummaryTables(files);
-};
-
-const filtersAreClear = computed(() => {
-  return Object.values(filterConfigs).every(({ filter }) => {
-    return Object.values(filter.value).every(filteredIn => filteredIn === false);
-  });
-});
-
-const clearFilters = () => {
-  Object.values(filterConfigs).forEach(({ filter }) => {
-    Object.keys(filter.value).forEach(key => {
-      filter.value[key] = false;
-    });
-  });
-};
-
-const selectAllFilesMatchingFilters = () => {
-  const allFiltersUnchecked = Object.values(filterConfigs).every(({ filter }) => {
-    return Object.values(filter.value).every(filteredIn => filteredIn === false);
-  });
-
+const selectAllFilesMatchingFilters = (allFiltersUnchecked: boolean) => {
   toDownload.value = allFiltersUnchecked ? [] : filteredFiles.value;
 };
 
@@ -292,21 +105,3 @@ watch(downloadModalVisible, (visible) => {
 });
 </script>
 
-<style lang="scss" scoped>
-:deep(.vue-select) {
-  --vs-min-height: 79px;
-  --vs-menu-height: 360px;
-
-  .control {
-    // Based on longest file name
-    width: 564px;
-  }
-
-  .menu[data-state-position^="bottom"] {
-    --vs-menu-height: 500px;
-  }
-  .menu[data-state-position^="top"] {
-    --vs-menu-height: 360px;
-  }
-}
-</style>
