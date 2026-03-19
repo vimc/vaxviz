@@ -52,6 +52,11 @@
             </span>
           </FwbButton>
         </div>
+        <DataErrorAlert
+          v-if="downloadErrors.length"
+          :errors="downloadErrors"
+          title="Error downloading files"
+        />
       </div>
     </div>
     <div class="flex flex-col gap-4">
@@ -72,19 +77,23 @@
 <script lang="ts" setup>
 import VueSelect from "vue3-select-component";
 import { FwbButton } from 'flowbite-vue';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useDataStore } from '@/stores/dataStore';
 import { Dimension, LocResolution } from '@/types';
 import { metricOptions } from '@/utils/options';
 import DownloadIcon from './DownloadIcon.vue';
 import DownloadFilters from './DownloadFilters.vue';
+import DataErrorAlert from "./DataErrorAlert.vue";
+import { downloadCsvAsSingleOrZip } from "@/utils/csvDownload";
 
+const csvDataDir = `./data/csv`;
 const dataStore = useDataStore();
 
 const filteredFiles = ref<string[]>(dataStore.allPossibleSummaryTables);
 // toDownload will be a subset of filteredFiles
 // Initialise toDownload to the files relevant to the current plot: this pre-selects them.
 const toDownload = ref<string[]>(dataStore.summaryTableFilenames);
+const downloadErrors = ref<{ e: Error, message: string }[]>([]);
 
 const menuOpen = defineModel<boolean>('menuOpen', { required: true });
 
@@ -121,8 +130,23 @@ const selectAllFilesMatchingFilters = (allFiltersUnchecked: boolean) => {
 };
 
 const doDownload = async (files: string[]) => {
-  // await dataStore.downloadSummaryTables(files);
+  downloadErrors.value = [];
+  const filenames = files.map((f) => `${f}.csv`);
+
+  try {
+    await downloadCsvAsSingleOrZip(csvDataDir, filenames, "vaxviz_download.zip");
+  } catch (error) {
+    downloadErrors.value.push({
+      e: error as Error,
+      message: `Error downloading summary tables: ${filenames.join(", ")}. ${error}`,
+    });
+  }
 };
+
+watch(toDownload, () => {
+  // Clear any previous download errors when filenames change
+  downloadErrors.value = [];
+})
 </script>
 
 <style lang="scss" scoped>

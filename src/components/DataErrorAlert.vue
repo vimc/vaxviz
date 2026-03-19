@@ -1,5 +1,6 @@
 <template>
   <FwbAlert
+    v-if="props.errors.length"
     type="danger"
     class="m-5 h-fit border-t-4 rounded-none w-full"
   >
@@ -9,7 +10,7 @@
     </template>
     <template #title>
       <h2 class="text-lg font-medium">
-        Error loading data
+        {{ title }}
       </h2>
     </template>
     <template #default>
@@ -17,7 +18,7 @@
       <div class="my-2 text-xs">
         <details class="cursor-pointer">
           <summary>Error details</summary>
-          <p class="mt-2 text-sm">{{ dataStore.dataErrors.map(error => error.message).join(', ') }}</p>
+          <p class="mt-2 text-sm">{{ props.errors.map(error => error.message).join(', ') }}</p>
         </details>
       </div>
     </template>
@@ -26,7 +27,9 @@
 
 <script setup lang="ts">
 import { FwbAlert } from 'flowbite-vue'
-import { useDataStore } from '@/stores/dataStore';
 
-const dataStore = useDataStore();
+const props = defineProps<{
+  errors: { e: Error, message: string }[];
+  title: string;
+}>();
 </script>

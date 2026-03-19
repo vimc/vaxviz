@@ -4,11 +4,8 @@ import { defineStore } from "pinia";
 import { useAppStore } from "@/stores/appStore";
 import { type HistDataRow, type LineMetadata, type SummaryTableDataRow, Axis, Dimension, LocResolution } from "@/types";
 import { globalOption, metricOptions } from "@/utils/options";
-import { downloadCsvAsSingleOrZip } from "@/utils/csvDownload";
-import useZipFilename from "@/composables/useZipFilename";
 
 export const jsonDataDir = `./data/json`
-export const csvDataDir = `./data/csv`;
 
 const getSummaryTableNames = () => {
   const burdenMetrics = metricOptions.map(o => o.value);
@@ -40,7 +37,6 @@ const allPossibleSummaryTables = getSummaryTableNames();
 
 export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
-  const { constructDownloadZipFilename } = useZipFilename();
 
   const histogramData = shallowRef<HistDataRow[]>([]);
   const histogramCache: Record<string, HistDataRow[]> = {};
@@ -48,9 +44,6 @@ export const useDataStore = defineStore("data", () => {
   const summaryTableCache: Record<string, SummaryTableDataRow[]> = {};
   const isLoading = ref(true);
   const fetchErrors = ref<{ e: Error, message: string }[]>([]);
-  const downloadErrors = ref<{ e: Error, message: string }[]>([]);
-
-  const dataErrors = computed(() => [...fetchErrors.value, ...downloadErrors.value]);
 
   // Find the summary table row whose values for the plot row and band
   // dimensions (and column, if set) match the values of the (ridgeline or point) metadata
@@ -62,7 +55,7 @@ export const useDataStore = defineStore("data", () => {
     });
   };
 
-  // Construct filenames without file extension
+  // Construct filenames without file extension, to get data relevant to current plot control selections
   const getInputFilenames = (dataType: "hist_counts" | "summary_table"): string[] => {
     return appStore.geographicalResolutions.map((geog) => {
       const fileNameParts = [dataType, appStore.burdenMetric, "disease"];
@@ -86,21 +79,6 @@ export const useDataStore = defineStore("data", () => {
 
   const histFilenames = computed(() => getInputFilenames("hist_counts"));
   const summaryTableFilenames = computed(() => getInputFilenames("summary_table"));
-
-  const downloadSummaryTables = async () => {
-    downloadErrors.value = [];
-    const filenames = summaryTableFilenames.value.map((f) => `${f}.csv`);
-    const zipFileName = constructDownloadZipFilename(filenames);
-
-    try {
-      await downloadCsvAsSingleOrZip(csvDataDir, filenames, zipFileName);
-    } catch (error) {
-      downloadErrors.value.push({
-        e: error as Error,
-        message: `Error downloading summary tables: ${filenames.join(", ")}. ${error}`,
-      });
-    }
-  };
 
   const loadData = async <T extends HistDataRow | SummaryTableDataRow>(
     filenames: string[],
@@ -171,15 +149,9 @@ export const useDataStore = defineStore("data", () => {
     }
   }, { immediate: true });
 
-  watch(summaryTableFilenames, () => {
-    // Clear any previous download errors when filenames change
-    downloadErrors.value = [];
-  })
-
   return {
     allPossibleSummaryTables,
-    dataErrors,
-    downloadSummaryTables,
+    dataErrors: fetchErrors,
     isLoading,
     getSummaryDataRow,
     histogramData,
