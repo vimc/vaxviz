@@ -16,7 +16,7 @@
         />
       </div>
     </fieldset>
-    <div class="w-fit flex flex-col gap-4 ml-auto">
+    <div class="w-fit flex flex-col gap-4 ml-auto items-end">
       <FwbButton
         color="default"
         class="cursor-pointer w-fit"

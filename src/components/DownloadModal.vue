@@ -9,10 +9,11 @@
       Downloads
     </span>
   </FwbButton>
+  <!-- We can't use focus-trap here as its use of preventDefault prevents programmatic downloads -->
   <FwbModal
     v-if="downloadModalVisible"
     @close="handleModalClose"
-    :focus-trap="helpInfoStore.enableFocusTraps"
+    :focus-trap="false"
     class="wide-modal top-modal"
   >
     <template #header>
@@ -39,12 +40,9 @@
 
 <script setup lang="ts">
 import { FwbButton, FwbModal } from 'flowbite-vue';
-import { useHelpInfoStore } from "@/stores/helpInfoStore";
 import { ref } from 'vue';
 import DownloadIcon from './DownloadIcon.vue';
 import DownloadSelect from './DownloadSelect.vue';
-
-const helpInfoStore = useHelpInfoStore();
 
 const downloadModalVisible = ref(false);
 const menuOpen = ref(false);
