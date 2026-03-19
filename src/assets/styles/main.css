@@ -83,5 +83,5 @@ button {
 
 .wide-modal .h-modal div {
   /* Override max-w-2xl class */
-  max-width: var(--container-7xl);
+  max-width: 90rem;
 }
