@@ -46,7 +46,7 @@
         :wrapper-class="'w-fit'"
       />
     </div>
-    <DownloadButton />
+    <DownloadModal />
     <HelpInfoModalButton
       v-if="helpInfoStore.showNegativeValuesHelpInfo"
       header="Noticing negative estimates?"
@@ -79,7 +79,7 @@
 <script setup lang="ts">
 import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
 import { useAppStore } from '@/stores/appStore';
-import DownloadButton from '@/components/DownloadButton.vue';
+import DownloadModal from '@/components/DownloadModal.vue';
 import HelpInfoModalButton from '@/components/HelpInfoModalButton.vue';
 import { metricOptions } from '@/utils/options';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
