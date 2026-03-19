@@ -22,19 +22,12 @@ import summaryDalysDisease from "@/../public/data/json/summary_table_dalys_disea
 import { BurdenMetric } from '@/types';
 import { useAppStore } from '@/stores/appStore';
 import { useDataStore } from '@/stores/dataStore';
-import * as downloadModule from '@/utils/csvDownload';
 
 const expectLastNFetchesToContain = (spy: Mock, args: string[]) => {
   const calls = spy.mock.calls;
   expect(calls.slice(calls.length - args.length)).toEqual(
     expect.arrayContaining(args.map(a => expect.arrayContaining([a]))),
   );
-}
-
-const expectLastCallToDownloadsToContain = (spy: Mock, zipFileName: string, filenames: string[]) => {
-  const calls = spy.mock.calls;
-  expect(calls.at(-1)[1]).toEqual(expect.arrayContaining(filenames));
-  expect(calls.at(-1)[2]).toEqual(zipFileName);
 }
 
 describe('data store', () => {
@@ -48,21 +41,9 @@ describe('data store', () => {
 
   it('should initialize with correct data, and request correct data as store selections change', async () => {
     const fetchSpy = vi.spyOn(global, 'fetch')
-    const downloadSpy = vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip')
     const appStore = useAppStore();
     const dataStore = useDataStore();
     let expectedFetches = 0;
-
-    const doAndExpectDownload = async (isZip: boolean, expectedZipFilename: string, expectedDownloadFilenames: string[]) => {
-      await dataStore.downloadSummaryTables();
-      if (isZip) {
-        expectedFetches += expectedDownloadFilenames.length * 2;
-      } else {
-        expectedFetches += expectedDownloadFilenames.length;
-      }
-      expectLastCallToDownloadsToContain(downloadSpy, expectedZipFilename, expectedDownloadFilenames);
-      expect(fetchSpy).toBeCalledTimes(expectedFetches);
-    }
 
     expect(dataStore.histogramData).toEqual([]);
     expect(dataStore.summaryTableData).toEqual([]);
@@ -93,8 +74,6 @@ describe('data store', () => {
         "./data/json/summary_table_deaths_disease.json",
       ]);
     });
-    await doAndExpectDownload(false, "", ["summary_table_deaths_disease.csv"]);
-
     // Change options: round 1
     expect(appStore.exploreBy).toEqual("location");
     expect(appStore.focuses).toEqual(["global"]);
@@ -120,15 +99,6 @@ describe('data store', () => {
       "./data/json/summary_table_dalys_disease_subregion_activity_type.json",
       "./data/json/summary_table_dalys_disease_activity_type.json",
     ]);
-    await doAndExpectDownload(
-      true,
-      "summary_tables_dalys_disease_activity_type_subregion_global.zip",
-      [
-        "summary_table_dalys_disease_subregion_activity_type.csv",
-        "summary_table_dalys_disease_activity_type.csv"
-      ],
-    );
-
     // Check that location columns include both global and subregional.
     expect(dataStore.summaryTableData.map(r => r.location)).toEqual(expect.arrayContaining(["Middle Africa", "global"]));
     expect(dataStore.histogramData.map(r => r.location)).toEqual(expect.arrayContaining(["Middle Africa", "global"]));
@@ -161,15 +131,6 @@ describe('data store', () => {
       "./data/json/summary_table_deaths_disease_subregion_activity_type.json",
       "./data/json/summary_table_deaths_disease_activity_type.json",
     ]);
-    await doAndExpectDownload(
-      true,
-      "summary_tables_deaths_disease_activity_type_subregion_global.zip",
-      [
-        "summary_table_deaths_disease_subregion_activity_type.csv",
-        "summary_table_deaths_disease_activity_type.csv"
-      ],
-    );
-
     // Change options: round 3
     appStore.exploreBy = "location";
     await vi.waitFor(() => {
@@ -200,16 +161,6 @@ describe('data store', () => {
       "./data/json/summary_table_dalys_disease_country.json",
       "./data/json/summary_table_dalys_disease.json",
     ]);
-    await doAndExpectDownload(
-      true,
-      "summary_tables_dalys_disease_country_subregion_global.zip",
-      [
-        "summary_table_dalys_disease_subregion.csv",
-        "summary_table_dalys_disease_country.csv",
-        "summary_table_dalys_disease.csv"
-      ],
-    );
-
     // Change options: round 4 (multiple focuses: diseases)
     appStore.exploreBy = "disease";
     await vi.waitFor(() => {
@@ -228,14 +179,6 @@ describe('data store', () => {
       );
     }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
-    await doAndExpectDownload(
-      true,
-      "summary_tables_dalys_disease_subregion_global.zip",
-      [
-        "summary_table_dalys_disease_subregion.csv",
-        "summary_table_dalys_disease.csv"
-      ],
-    );
 
     // Change options: round 5 (multiple focuses: locations)
     appStore.exploreBy = "location";
@@ -251,7 +194,6 @@ describe('data store', () => {
       expect(dataStore.summaryTableData).toHaveLength(summaryDalysDiseaseCountry.length);
     }, { timeout: 3000 });
     expect(fetchSpy).toBeCalledTimes(expectedFetches);
-    await doAndExpectDownload(false, "", ["summary_table_dalys_disease_country.csv"]);
   }, 10000);
 
   it('should store errors on fetch, and clear them when filenames change', async () => {
@@ -303,20 +245,20 @@ describe('data store', () => {
     expect(dataStore.histogramData).toEqual([]);
   });
 
-  it('should store errors on download failure', async () => {
+  it('should expose allPossibleSummaryTables', () => {
     const dataStore = useDataStore();
 
-    const downloadSpy = vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip')
-      .mockRejectedValueOnce(new Error("Simulated download failure"));
-
-    expect(dataStore.dataErrors).toEqual([]);
-
-    await dataStore.downloadSummaryTables();
-
-    expect(downloadSpy).toHaveBeenCalled();
-    expect(dataStore.dataErrors).toEqual([expect.objectContaining(
-      { message: expect.stringMatching(/Error downloading summary tables.*Simulated download failure/) }
-    )]);
+    expect(dataStore.allPossibleSummaryTables).toEqual(expect.arrayContaining([
+      "summary_table_deaths_disease",
+      "summary_table_deaths_disease_activity_type",
+      "summary_table_deaths_disease_subregion",
+      "summary_table_deaths_disease_country",
+      "summary_table_dalys_disease",
+      "summary_table_dalys_disease_activity_type",
+      "summary_table_dalys_disease_subregion",
+      "summary_table_dalys_disease_country",
+    ]));
+    expect(dataStore.allPossibleSummaryTables.length).toBe(12);
   });
 
   it('getSummaryDataRow returns correct summary data row for given metadata', async () => {

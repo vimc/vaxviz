@@ -6,6 +6,7 @@ import VueSelect from "vue3-select-component";
 import { nextTick } from "vue";
 
 import PlotControls from '@/components/PlotControls.vue'
+import DownloadModal from '@/components/DownloadModal.vue';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 describe('PlotControls component', () => {
@@ -32,7 +33,7 @@ describe('PlotControls component', () => {
     expect((exploreByRadios.find(e => e.element.value === "location")?.element.checked)).toBe(true);
 
     const vueSelect = wrapper.findComponent(VueSelect);
-    expect(vueSelect.props("aria").labelledby).toEqual("focusLabel");
+    expect(vueSelect.attributes("aria-labelledby")).toEqual("focusLabel");
     expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus Geography/);
     expect(vueSelect.props("modelValue")).toBe("global");
     await vueSelect.find(".dropdown-icon").trigger("click");
@@ -56,6 +57,8 @@ describe('PlotControls component', () => {
     const burdenMetricRadios = wrapper.findAll('input[name="burdenMetric"]');
     expect((burdenMetricRadios.find(e => e.element.value === "dalys")?.element.checked)).toBe(false);
     expect((burdenMetricRadios.find(e => e.element.value === "deaths")?.element.checked)).toBe(true);
+
+    expect(wrapper.findComponent(DownloadModal).exists()).toBe(true);
   });
 
   it("shows the negative estimates help info when decreed by the help info store", async () => {
