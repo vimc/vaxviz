@@ -78,6 +78,10 @@ a, button.link {
 
 button {
   cursor: pointer;
+
+  &[disabled] {
+    cursor: auto;
+  }
 }
 
 .wide-modal .h-modal > div {

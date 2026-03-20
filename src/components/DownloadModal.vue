@@ -1,9 +1,5 @@
 <template>
-  <FwbButton
-    @click="downloadModalVisible = true"
-    color="light"
-    class="cursor-pointer"
-  >
+  <FwbButton @click="downloadModalVisible = true" color="light">
     <span class="flex items-center gap-2 justify-center">
       <DownloadIcon class="size-4" />
       Downloads

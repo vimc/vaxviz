@@ -1,10 +1,7 @@
 <template>
   <div class="flex gap-20">
     <div class="flex flex-col gap-4">
-      <label
-        id="downloadSelectLabel"
-        class="font-medium text-lg"
-      >
+      <label id="downloadSelectLabel" class="font-medium text-lg">
         Select files to download
       </label>
       <div class="flex flex-col gap-4">
@@ -29,30 +26,22 @@
           <FwbButton
             @click="doDownload(toDownload)"
             color="default"
-            class="cursor-pointer mt-auto w-fit"
-            :disabled="toDownload.length < 1"
+            class="mt-auto w-fit"
+            :disabled="!toDownload.length"
           >
             <span class="flex items-center gap-2 justify-center">
               <DownloadIcon class="size-4" />
               Download {{ toDownload.length }} selected file{{ toDownload.length === 1 ? '' : 's' }}
             </span>
           </FwbButton>
-          <FwbButton
-            @click="doDownload(dataStore.allPossibleSummaryTables)"
-            color="light"
-            class="cursor-pointer w-fit"
-          >
+          <FwbButton @click="doDownload(dataStore.allPossibleSummaryTables)" color="light">
             <span class="flex items-center gap-2 justify-center">
               <DownloadIcon class="size-4" />
               Download all available files
             </span>
           </FwbButton>
         </div>
-        <DataErrorAlert
-          v-if="downloadErrors.length"
-          :errors="downloadErrors"
-          title="Error downloading files"
-        />
+        <DataErrorAlert v-if="downloadErrors.length" :errors="downloadErrors" title="Error downloading files" />
       </div>
     </div>
     <div class="flex flex-col gap-4">
@@ -94,36 +83,32 @@ const downloadErrors = ref<{ e: Error, message: string }[]>([]);
 const menuOpen = defineModel<boolean>('menuOpen', { required: true });
 
 const fileLabel = (fileName: string) => {
-  const fileLabelParts = [];
+  let label = "";
   metricOptions.forEach((metric) => {
     if (fileName.includes(metric.value)) {
-      fileLabelParts.push(`${metric.label.split(" ")[0]} impact ratios`);
+      label += `${metric.label.split(" ")[0]} impact ratios`;
     }
   });
   if (fileName.includes(LocResolution.COUNTRY)) {
-    fileLabelParts.push(" by country");
+    label += " by country";
   } else if (fileName.includes(LocResolution.SUBREGION)) {
-    fileLabelParts.push(" by subregion");
+    label += " by subregion";
   } else {
-    fileLabelParts.push(" globally")
+    label += " globally"
   }
   if (fileName.includes(Dimension.ACTIVITY_TYPE)) {
-    fileLabelParts.push(", split by activity type");
+    label += ", split by activity type";
   }
-  return fileLabelParts.join("");
+  return label;
 };
 
-const options = computed(() => {
-  return dataStore.allPossibleSummaryTables.map((fileName) => ({
-    label: fileLabel(fileName),
-    value: fileName,
-    disabled: !filteredFiles.value.includes(fileName),
-  }));
-});
+const options = computed(() => dataStore.allPossibleSummaryTables.map((fileName) => ({
+  label: fileLabel(fileName),
+  value: fileName,
+  disabled: !filteredFiles.value.includes(fileName),
+})));
 
-const selectAllFilesMatchingFilters = (allFiltersUnchecked: boolean) => {
-  toDownload.value = allFiltersUnchecked ? [] : filteredFiles.value;
-};
+const selectAllFilesMatchingFilters = (allFiltersUnchecked: boolean) => toDownload.value = allFiltersUnchecked ? [] : filteredFiles.value;
 
 const doDownload = async (files: string[]) => {
   downloadErrors.value = [];
@@ -132,10 +117,8 @@ const doDownload = async (files: string[]) => {
   try {
     await downloadCsvAsSingleOrZip(csvDataDir, filenames, "vaxviz_download.zip");
   } catch (error) {
-    downloadErrors.value.push({
-      e: error as Error,
-      message: `Error downloading summary tables: ${filenames.join(", ")}. ${error}`,
-    });
+    const message = `Error downloading summary tables: ${filenames.join(", ")}. ${error}`;
+    downloadErrors.value.push({ e: error as Error, message });
   }
 };
 

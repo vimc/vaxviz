@@ -19,24 +19,18 @@
     <div class="w-fit flex flex-col gap-4 ml-auto items-end">
       <FwbButton
         color="default"
-        class="cursor-pointer w-fit"
         size="sm"
         @click="selectAllFiles"
       >
-        <span class="flex items-center gap-2 justify-center">
-          Select all files matching filters
-        </span>
+        Select all files matching filters
       </FwbButton>
       <FwbButton
         color="light"
-        class="cursor-pointer w-50"
         size="sm"
         :disabled="filtersAreClear"
         @click="clearFilters"
       >
-        <span class="flex items-center gap-2 justify-center">
-          Clear filters
-        </span>
+        Clear filters
       </FwbButton>
     </div>
   </div>
@@ -57,17 +51,10 @@ const emit = defineEmits(['selectAllFilesMatchingFilters']);
 // The exception is: if inverseMatch is true, then we should instead look for file names that
 // contain any _other_ option from the set: e.g. when filtering for files with
 // global data, filter out the by-country and by-subregion files to find the global ones.
-type FilterOption = {
-  label: string;
-  value: string;
-  inverseMatch?: boolean;
-};
+type FilterOption = { label: string; value: string; inverseMatch?: boolean };
 
 const filterOptions = [
-  {
-    label: "Burden metrics",
-    options: metricOptions as FilterOption[],
-  },
+  { label: "Burden metrics", options: metricOptions as FilterOption[] },
   {
     label: "Geographical resolution",
     options: [
@@ -85,16 +72,14 @@ const filterOptions = [
   }
 ];
 
-const filterConfigs = filterOptions.map(({ label, options }) => {
-  return {
-    label,
-    options,
-    filter: ref(options.reduce((acc, opt) => {
-      acc[opt.value] = false;
-      return acc;
-    }, {} as Record<string, boolean>)),
-  };
-});
+const filterConfigs = filterOptions.map(({ label, options }) => ({
+  label,
+  options,
+  filter: ref(options.reduce((acc, opt) => {
+    acc[opt.value] = false;
+    return acc;
+  }, {} as Record<string, boolean>)),
+}));
 
 const filteredFiles = defineModel<string[]>('filteredFiles', { required: true })
 
@@ -117,7 +102,7 @@ watch(filterConfigs.map(config => config.filter), () => {
       } else {
         return Object.entries(config.filter.value).some(([key, filteredIn]) => {
           const option = config.options.find(({ value }) => value === key);
-          if (option?.inverseMatch) {
+          if (option!.inverseMatch) {
             const allOtherOptions = config.options.map(({ value }) => value).filter(v => v !== key);
             return filteredIn && allOtherOptions.every((o) => !fileName.includes(o));
           }
@@ -130,9 +115,7 @@ watch(filterConfigs.map(config => config.filter), () => {
 
 const clearFilters = () => {
   Object.values(filterConfigs).forEach(({ filter }) => {
-    Object.keys(filter.value).forEach(key => {
-      filter.value[key] = false;
-    });
+    Object.keys(filter.value).forEach(key => { filter.value[key] = false });
   });
 };
 
