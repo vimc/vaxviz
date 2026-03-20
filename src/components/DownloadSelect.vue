@@ -3,14 +3,12 @@
     <div class="flex flex-col gap-4">
       <label
         id="downloadSelectLabel"
-        for="toDownloadSelect"
         class="font-medium text-lg"
       >
         Select files to download
       </label>
       <div class="flex flex-col gap-4">
         <VueSelect
-          id="toDownloadSelect"
           v-model="toDownload"
           :is-multi="true"
           :is-clearable="toDownload.length > 1"
@@ -18,10 +16,8 @@
           :hide-selected-options="false"
           :close-on-select="false"
           :options="options"
-          :classes="{
-            control: '!items-start',
-          }"
-          aria-labelledby="downloadSelectLabel"
+          :classes="{ control: '!items-start' }"
+          :aria="{ labelledby: 'downloadSelectLabel' }"
           @menu-closed="menuOpen = false"
           @menu-opened="menuOpen = true"
         >
