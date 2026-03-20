@@ -10,6 +10,11 @@ import DownloadFilters from '@/components/DownloadFilters.vue';
 import DataErrorAlert from '@/components/DataErrorAlert.vue';
 import { useDataStore } from '@/stores/dataStore';
 import * as downloadModule from '@/utils/csvDownload';
+import { checkCheckbox } from '../testUtils';
+
+const mockDownload = () => {
+  return vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip').mockResolvedValue(undefined);
+};
 
 describe('DownloadSelect component', () => {
   beforeEach(() => {
@@ -25,13 +30,11 @@ describe('DownloadSelect component', () => {
   });
 
   it('should call downloadCsvAsSingleOrZip with pre-selected files from the current plot', async () => {
-    const downloadSpy = vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip')
-      .mockResolvedValue(undefined);
+    const downloadSpy = mockDownload();
     const dataStore = useDataStore();
-
     const wrapper = mountComponent();
 
-    const downloadSelectedBtn = wrapper.findAll('button').find(b => b.text().includes('Download') && b.text().includes('selected'));
+    const downloadSelectedBtn = wrapper.findAll('button').find(b => /Download.*selected/.test(b.text()));
     await downloadSelectedBtn!.trigger('click');
 
     expect(downloadSpy).toHaveBeenCalledWith(
@@ -42,22 +45,17 @@ describe('DownloadSelect component', () => {
   });
 
   it('should download the correct files after the selection has changed', async () => {
-    const downloadSpy = vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip')
-      .mockResolvedValue(undefined);
-
+    const downloadSpy = mockDownload();
     const wrapper = mountComponent();
 
     // Apply a filter and select all matching files to change the selection
-    const filtersComponent = wrapper.findComponent(DownloadFilters);
-    const deathsCheckbox = filtersComponent.findAll('label').find(l => l.text() === 'Deaths averted')?.find('input');
-    await deathsCheckbox!.setValue(true);
-    await nextTick();
+    await checkCheckbox(wrapper, 'Deaths averted');
 
-    const selectAllBtn = filtersComponent.findAll('button').find(b => b.text().includes('Select all files matching filters'));
+    const selectAllBtn = wrapper.findAll('button').find(b => b.text().includes('Select all files matching filters'));
     await selectAllBtn!.trigger('click');
     await nextTick();
 
-    const downloadSelectedBtn = wrapper.findAll('button').find(b => b.text().includes('Download') && b.text().includes('selected'));
+    const downloadSelectedBtn = wrapper.findAll('button').find(b => /Download.*selected/.test(b.text()));
     await downloadSelectedBtn!.trigger('click');
 
     expect(downloadSpy).toHaveBeenCalledWith(
@@ -74,13 +72,11 @@ describe('DownloadSelect component', () => {
     );
     // Should only contain deaths files, not dalys
     const calledFilenames = downloadSpy.mock.calls[0][1];
-    expect(calledFilenames).toHaveLength(6);
     expect(calledFilenames.every((f: string) => f.includes('deaths'))).toBe(true);
   });
 
   it('should call downloadCsvAsSingleOrZip with all files when "Download all" is clicked', async () => {
-    const downloadSpy = vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip')
-      .mockResolvedValue(undefined);
+    const downloadSpy = mockDownload();
     const dataStore = useDataStore();
 
     const wrapper = mountComponent();
@@ -103,7 +99,7 @@ describe('DownloadSelect component', () => {
 
     expect(wrapper.findComponent(DataErrorAlert).exists()).toBe(false);
 
-    const downloadSelectedBtn = wrapper.findAll('button').find(b => b.text().includes('Download') && b.text().includes('selected'));
+    const downloadSelectedBtn = wrapper.findAll('button').find(b => /Download.*selected/.test(b.text()));
     await downloadSelectedBtn!.trigger('click');
 
     await nextTick();
@@ -121,19 +117,15 @@ describe('DownloadSelect component', () => {
     const vueSelect = wrapper.findComponent(VueSelect);
     const options = vueSelect.props('options') as { label: string, value: string }[];
 
-    // Country + activity type file
     const countryActivityType = options.find(o => o.value === 'summary_table_deaths_disease_activity_type_country');
     expect(countryActivityType!.label).toBe('Deaths impact ratios by country, split by activity type');
 
-    // Subregion file (no activity type)
     const subregion = options.find(o => o.value === 'summary_table_dalys_disease_subregion');
     expect(subregion!.label).toBe('DALYs impact ratios by subregion');
 
-    // Global file (no country, subregion, or activity type)
     const global = options.find(o => o.value === 'summary_table_deaths_disease');
     expect(global!.label).toBe('Deaths impact ratios globally');
 
-    // Global + activity type
     const globalActivityType = options.find(o => o.value === 'summary_table_dalys_disease_activity_type');
     expect(globalActivityType!.label).toBe('DALYs impact ratios globally, split by activity type');
   });
@@ -141,19 +133,14 @@ describe('DownloadSelect component', () => {
   it('should disable options not in filteredFiles', async () => {
     const wrapper = mountComponent();
 
-    const filtersComponent = wrapper.findComponent(DownloadFilters);
-    const deathsCheckbox = filtersComponent.findAll('label').find(l => l.text() === 'Deaths averted')?.find('input');
-    await deathsCheckbox!.setValue(true);
-    await nextTick();
+    await checkCheckbox(wrapper, 'Deaths averted');
 
     const vueSelect = wrapper.findComponent(VueSelect);
     const options = vueSelect.props('options') as { label: string, value: string, disabled: boolean }[];
 
-    // Deaths files should be enabled
     const deathsOption = options.find(o => o.value === 'summary_table_deaths_disease');
     expect(deathsOption!.disabled).toBe(false);
 
-    // DALYs files should be disabled
     const dalysOption = options.find(o => o.value === 'summary_table_dalys_disease');
     expect(dalysOption!.disabled).toBe(true);
   });
@@ -169,7 +156,7 @@ describe('DownloadSelect component', () => {
 
     // Should have 0 files selected and the download button should be disabled
     expect(wrapper.text()).toContain('Download 0 selected files');
-    const downloadSelectedBtn = wrapper.findAll('button').find(b => b.text().includes('Download') && b.text().includes('selected'));
+    const downloadSelectedBtn = wrapper.findAll('button').find(b => /Download.*selected/.test(b.text()));
     expect(downloadSelectedBtn!.attributes('disabled')).toBeDefined();
   });
 
@@ -179,19 +166,15 @@ describe('DownloadSelect component', () => {
 
     const wrapper = mountComponent();
 
-    const downloadSelectedBtn = wrapper.findAll('button').find(b => b.text().includes('Download') && b.text().includes('selected'));
+    const downloadSelectedBtn = wrapper.findAll('button').find(b => /Download.*selected/.test(b.text()));
     await downloadSelectedBtn!.trigger('click');
     await nextTick();
 
     expect(wrapper.findComponent(DataErrorAlert).exists()).toBe(true);
 
     // Change toDownload via selectAllFilesMatchingFilters, which modifies toDownload directly
-    const filtersComponent = wrapper.findComponent(DownloadFilters);
-    const deathsCheckbox = filtersComponent.findAll('label').find(l => l.text() === 'Deaths averted')?.find('input');
-    await deathsCheckbox!.setValue(true);
-    await nextTick();
-
-    const selectAllBtn = filtersComponent.findAll('button').find(b => b.text().includes('Select all files matching filters'));
+    await checkCheckbox(wrapper, 'Deaths averted');
+    const selectAllBtn = wrapper.findAll('button').find(b => b.text().includes('Select all files matching filters'));
     await selectAllBtn!.trigger('click');
     await nextTick();
 

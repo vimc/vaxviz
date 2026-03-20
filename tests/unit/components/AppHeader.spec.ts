@@ -39,7 +39,7 @@ describe('AppHeader component', () => {
     const wrapper = mount(AppHeader);
     expect(wrapper.find('h1').exists()).toBe(false);
 
-    const alertCloseButton = wrapper.find('button', { name: "Dismiss" });
+    const alertCloseButton = wrapper.find('button');
     await alertCloseButton.trigger('click')
 
     await vi.waitFor(() => {

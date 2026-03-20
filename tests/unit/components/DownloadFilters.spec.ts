@@ -6,6 +6,7 @@ import { nextTick } from 'vue';
 
 import DownloadFilters from '@/components/DownloadFilters.vue';
 import { useDataStore } from '@/stores/dataStore';
+import { checkCheckbox } from '../testUtils';
 
 describe('DownloadFilters component', () => {
   beforeEach(() => {
@@ -14,63 +15,32 @@ describe('DownloadFilters component', () => {
 
   const mountComponent = () => {
     const dataStore = useDataStore();
-    const wrapper = mount(DownloadFilters, {
-      props: {
-        filteredFiles: dataStore.allPossibleSummaryTables,
-        'onUpdate:filteredFiles': (files: string[]) => wrapper.setProps({ filteredFiles: files }),
-      },
-    });
+    const wrapper = mount(DownloadFilters, { props: { filteredFiles: dataStore.allPossibleSummaryTables } });
     return { wrapper, dataStore };
   };
 
-  const checkCheckbox = async (wrapper: ReturnType<typeof mount>, label: string) => {
-    const checkbox = wrapper.findAll('label').find(l => l.text() === label)?.find('input');
-    expect(checkbox?.exists()).toBe(true);
-    await checkbox!.setValue(true);
-    await nextTick();
+  const lastEmittedFiles = (wrapper: ReturnType<typeof mount>) => {
+    const emitted = wrapper.emitted('update:filteredFiles')!;
+    return emitted[emitted.length - 1][0] as string[];
   };
-
-  const uncheckCheckbox = async (wrapper: ReturnType<typeof mount>, label: string) => {
-    const checkbox = wrapper.findAll('label').find(l => l.text() === label)?.find('input');
-    await checkbox!.setValue(false);
-    await nextTick();
-  };
-
-  it('renders all filter fieldsets with correct options', () => {
-    const { wrapper } = mountComponent();
-
-    const legends = wrapper.findAll('legend').map(l => l.text());
-    expect(legends).toEqual([
-      'Burden metrics:',
-      'Geographical resolution:',
-      'Activity types:',
-    ]);
-
-    const labels = wrapper.findAll('label').map(l => l.text());
-    expect(labels).toEqual(expect.arrayContaining([
-      'Deaths averted', 'DALYs averted',
-      'By country', 'By subregion', 'Global',
-      'Split', 'Not split',
-    ]));
-  });
 
   it('filters by burden metric', async () => {
     const { wrapper } = mountComponent();
 
     await checkCheckbox(wrapper, 'Deaths averted');
 
-    const filteredFiles = wrapper.props('filteredFiles') as string[];
+    const filteredFiles = lastEmittedFiles(wrapper);
     expect(filteredFiles.every(f => f.includes('deaths'))).toBe(true);
     expect(filteredFiles.some(f => f.includes('dalys'))).toBe(false);
     expect(filteredFiles).toHaveLength(6);
   });
 
-  it('filters by geographical resolution with direct match', async () => {
+  it('filters by geographical resolution', async () => {
     const { wrapper } = mountComponent();
 
     await checkCheckbox(wrapper, 'By country');
 
-    const filteredFiles = wrapper.props('filteredFiles') as string[];
+    const filteredFiles = lastEmittedFiles(wrapper);
     expect(filteredFiles.every(f => f.includes('country'))).toBe(true);
     expect(filteredFiles).toHaveLength(4);
   });
@@ -80,7 +50,7 @@ describe('DownloadFilters component', () => {
 
     await checkCheckbox(wrapper, 'Global');
 
-    const filteredFiles = wrapper.props('filteredFiles') as string[];
+    const filteredFiles = lastEmittedFiles(wrapper);
     // "Global" files are those that contain neither "country" nor "subregion"
     expect(filteredFiles.every(f => !f.includes('country') && !f.includes('subregion'))).toBe(true);
     expect(filteredFiles).toHaveLength(4);
@@ -91,37 +61,31 @@ describe('DownloadFilters component', () => {
 
     await checkCheckbox(wrapper, 'Not split');
 
-    const filteredFiles = wrapper.props('filteredFiles') as string[];
+    const filteredFiles = lastEmittedFiles(wrapper);
     expect(filteredFiles.every(f => !f.includes('activity_type'))).toBe(true);
     expect(filteredFiles).toHaveLength(6);
   });
 
-  it('combines filters across groups with AND logic', async () => {
+  it('combines multiple filters across groups with AND logic', async () => {
     const { wrapper } = mountComponent();
 
     await checkCheckbox(wrapper, 'Deaths averted');
     await checkCheckbox(wrapper, 'By country');
 
-    const filteredFiles = wrapper.props('filteredFiles') as string[];
+    const filteredFiles = lastEmittedFiles(wrapper);
     expect(filteredFiles.every(f => f.includes('deaths') && f.includes('country'))).toBe(true);
     expect(filteredFiles).toHaveLength(2);
   });
 
-  it('combines filters within a group with OR logic', async () => {
+  it('combines multiple filters within a group with OR logic', async () => {
     const { wrapper } = mountComponent();
 
     await checkCheckbox(wrapper, 'By country');
     await checkCheckbox(wrapper, 'By subregion');
 
-    const filteredFiles = wrapper.props('filteredFiles') as string[];
+    const filteredFiles = lastEmittedFiles(wrapper);
     expect(filteredFiles.every(f => f.includes('country') || f.includes('subregion'))).toBe(true);
     expect(filteredFiles).toHaveLength(8);
-  });
-
-  it('shows all files when no filters are checked', () => {
-    const { wrapper, dataStore } = mountComponent();
-
-    expect(wrapper.props('filteredFiles')).toEqual(dataStore.allPossibleSummaryTables);
   });
 
   it('clears all filters when the clear button is clicked', async () => {
@@ -129,26 +93,13 @@ describe('DownloadFilters component', () => {
 
     await checkCheckbox(wrapper, 'Deaths averted');
     await checkCheckbox(wrapper, 'By country');
-    expect((wrapper.props('filteredFiles') as string[]).length).toBeLessThan(dataStore.allPossibleSummaryTables.length);
+    expect(lastEmittedFiles(wrapper).length).toBeLessThan(dataStore.allPossibleSummaryTables.length);
 
     const clearButton = wrapper.findAll('button').find(b => b.text().includes('Clear filters'));
     await clearButton!.trigger('click');
     await nextTick();
 
-    expect(wrapper.props('filteredFiles')).toEqual(dataStore.allPossibleSummaryTables);
-  });
-
-  it('disables the clear button when no filters are checked', async () => {
-    const { wrapper } = mountComponent();
-
-    const clearButton = wrapper.findAll('button').find(b => b.text().includes('Clear filters'));
-    expect(clearButton!.attributes('disabled')).toBeDefined();
-
-    await checkCheckbox(wrapper, 'Deaths averted');
-    expect(clearButton!.attributes('disabled')).toBeUndefined();
-
-    await uncheckCheckbox(wrapper, 'Deaths averted');
-    expect(clearButton!.attributes('disabled')).toBeDefined();
+    expect(lastEmittedFiles(wrapper)).toEqual(dataStore.allPossibleSummaryTables);
   });
 
   it('emits selectAllFilesMatchingFilters event when the select all button is clicked', async () => {

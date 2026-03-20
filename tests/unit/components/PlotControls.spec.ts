@@ -33,7 +33,7 @@ describe('PlotControls component', () => {
     expect((exploreByRadios.find(e => e.element.value === "location")?.element.checked)).toBe(true);
 
     const vueSelect = wrapper.findComponent(VueSelect);
-    expect(vueSelect.attributes("aria-labelledby")).toEqual("focusLabel");
+    expect(vueSelect.props("aria").labelledby).toEqual("focusLabel");
     expect(wrapper.find(`label#focusLabel`).element.textContent).toMatch(/Focus Geography/);
     expect(vueSelect.props("modelValue")).toBe("global");
     await vueSelect.find(".dropdown-icon").trigger("click");

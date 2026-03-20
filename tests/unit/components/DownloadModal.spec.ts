@@ -9,6 +9,12 @@ import VueSelect from "vue3-select-component";
 import DownloadModal from '@/components/DownloadModal.vue';
 import DownloadSelect from '@/components/DownloadSelect.vue';
 
+const openModal = async (wrapper: ReturnType<typeof mount>) => {
+  const button = wrapper.findAll('button').find((btn) => btn.text() === "Downloads");
+  await button.trigger('click');
+  await nextTick();
+}
+
 describe('DownloadModal component', () => {
   beforeEach(() => {
     setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
@@ -22,20 +28,14 @@ describe('DownloadModal component', () => {
 
   it('should show the modal when the Downloads button is clicked', async () => {
     const wrapper = mount(DownloadModal);
-
-    const button = wrapper.find('button');
-    await button.trigger('click');
-    await nextTick();
+    await openModal(wrapper);
 
     expect(wrapper.findComponent(DownloadSelect).exists()).toBe(true);
   });
 
   it('should close the modal when the close button is clicked', async () => {
     const wrapper = mount(DownloadModal);
-
-    const button = wrapper.find('button');
-    await button.trigger('click');
-    await nextTick();
+    await openModal(wrapper);
 
     const closeButton = wrapper.find('button[aria-label="close"]');
     await closeButton.trigger('click');
@@ -46,10 +46,7 @@ describe('DownloadModal component', () => {
 
   it('should not close the modal when the VueSelect menu is open', async () => {
     const wrapper = mount(DownloadModal);
-
-    const button = wrapper.find('button');
-    await button.trigger('click');
-    await nextTick();
+    await openModal(wrapper);
 
     const vueSelect = wrapper.findComponent(DownloadSelect).findComponent(VueSelect);
     await vueSelect.find(".dropdown-icon").trigger("click");
