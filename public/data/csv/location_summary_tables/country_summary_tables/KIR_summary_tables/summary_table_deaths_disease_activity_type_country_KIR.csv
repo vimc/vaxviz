@@ -1,0 +1,15 @@
+"disease","activity_type","country","mean_value","lower_95","upper_95","median_value"
+"COVID-19","campaign","KIR",0,0,0,0
+"COVID-19","routine","KIR",0,0,0,0
+"HPV","campaign","KIR",11.143969,9.03709,13.775998,11.107582
+"HPV","routine","KIR",9.827869,7.982059,12.172768,9.820122
+"HepB","routine","KIR",6.527192,4.191619,11.063668,6.205737
+"Hib","routine","KIR",2.453067,1.779561,3.298768,2.438771
+"Measles","campaign","KIR",0.352607,-0.047779,0.707007,0.407458
+"Measles","routine","KIR",8.021646,6.781961,9.295,8.08213
+"PCV","routine","KIR",1.370255,0.427604,2.352878,1.371409
+"Rota","routine","KIR",0.647561,0.070832,1.149122,0.624966
+"Rubella","campaign","KIR",0.531976,-0.487197,1.736995,0.476664
+"Rubella","routine","KIR",0.041659,-1e-05,0.276458,0.000438
+"Typhoid","campaign","KIR",0.991827,0.069953,3.169475,0.772986
+"Typhoid","routine","KIR",0.551989,0.026511,2.456053,0.379965

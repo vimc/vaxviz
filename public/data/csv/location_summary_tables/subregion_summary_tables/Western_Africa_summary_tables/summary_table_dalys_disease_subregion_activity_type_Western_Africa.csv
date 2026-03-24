@@ -1,0 +1,23 @@
+"disease","subregion","activity_type","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Western Africa","campaign",2.089115,1.228601,3.37023,2.079785
+"COVID-19","Western Africa","routine",3.419877,2.122908,4.297658,3.481473
+"Cholera","Western Africa","campaign",3.073513,2.576289,3.921715,3.121041
+"HPV","Western Africa","campaign",507.621536,433.954472,583.027597,506.922707
+"HPV","Western Africa","routine",533.23802,474.565956,597.89708,530.658142
+"HepB","Western Africa","routine",144.956708,126.433432,166.285451,144.503907
+"Hib","Western Africa","routine",245.495872,178.296078,334.148868,240.182517
+"Malaria","Western Africa","routine",207.479555,156.787986,271.725049,205.480689
+"Measles","Western Africa","campaign",152.727287,94.437517,192.920126,157.680931
+"Measles","Western Africa","routine",1523.642972,1299.033912,1777.579568,1531.106442
+"MenA","Western Africa","campaign",39.642895,32.130218,46.656249,40.043074
+"MenA","Western Africa","routine",16.01054,8.59054,22.496271,16.500415
+"MenACWYX","Western Africa","campaign",54.833744,27.826869,89.363689,53.479755
+"MenACWYX","Western Africa","routine",33.390793,17.557998,46.79982,35.510172
+"PCV","Western Africa","routine",160.598066,56.717575,266.468267,157.805764
+"Rota","Western Africa","routine",106.750961,20.685376,186.196583,106.992544
+"Rubella","Western Africa","campaign",15.438355,-1.518444,47.330187,11.076648
+"Rubella","Western Africa","routine",57.939094,27.351633,88.889365,57.787458
+"Typhoid","Western Africa","campaign",45.122747,12.752146,114.681592,40.148943
+"Typhoid","Western Africa","routine",71.247967,15.28148,228.340898,54.685215
+"YF","Western Africa","campaign",18.166815,5.638681,37.391424,16.859396
+"YF","Western Africa","routine",276.690104,71.886743,657.747775,240.432403

@@ -1,0 +1,23 @@
+"disease","subregion","activity_type","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Northern Africa and Western Asia","campaign",0.163216,0.096652,0.22791,0.162303
+"COVID-19","Northern Africa and Western Asia","routine",0.026787,0.010459,0.039366,0.027602
+"Cholera","Northern Africa and Western Asia","campaign",0.246795,0.203992,0.347946,0.243925
+"HPV","Northern Africa and Western Asia","campaign",7.410597,6.845362,7.954529,7.414196
+"HPV","Northern Africa and Western Asia","routine",7.076682,6.589456,7.559142,7.076876
+"HepB","Northern Africa and Western Asia","routine",3.878398,3.410452,4.3715,3.866464
+"Hib","Northern Africa and Western Asia","routine",1.542637,1.264522,1.850057,1.535166
+"Malaria","Northern Africa and Western Asia","routine",1.747175,0.235686,4.213915,1.614421
+"Measles","Northern Africa and Western Asia","campaign",0.466793,0.215529,0.784829,0.458756
+"Measles","Northern Africa and Western Asia","routine",8.44445,6.613585,10.07483,8.450834
+"MenA","Northern Africa and Western Asia","campaign",0.718435,0.51221,0.919369,0.723798
+"MenA","Northern Africa and Western Asia","routine",0.317468,0.12887,0.48962,0.330026
+"MenACWYX","Northern Africa and Western Asia","campaign",0.903142,0.136631,1.601962,0.902425
+"MenACWYX","Northern Africa and Western Asia","routine",0.643938,0.320422,0.952752,0.669913
+"PCV","Northern Africa and Western Asia","routine",1.268072,0.624959,1.784259,1.257318
+"Rota","Northern Africa and Western Asia","routine",0.708908,0.407415,1.017706,0.695667
+"Rubella","Northern Africa and Western Asia","campaign",0.052104,0.000107,0.137487,0.045538
+"Rubella","Northern Africa and Western Asia","routine",0.277286,0.149352,0.457258,0.264102
+"Typhoid","Northern Africa and Western Asia","campaign",0.533717,0.068597,1.415226,0.473158
+"Typhoid","Northern Africa and Western Asia","routine",1.411285,-0.927338,8.530266,0.645377
+"YF","Northern Africa and Western Asia","campaign",1.138062,0.316569,2.531832,1.027576
+"YF","Northern Africa and Western Asia","routine",8.045951,1.824927,20.637468,7.096607

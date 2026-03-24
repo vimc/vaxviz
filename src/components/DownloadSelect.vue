@@ -71,7 +71,7 @@ import DownloadFilters from './DownloadFilters.vue';
 import DataErrorAlert from "./DataErrorAlert.vue";
 import { downloadCsvAsSingleOrZip } from "@/utils/csvDownload";
 
-const csvDataDir = `./data/csv`;
+const csvDataDir = `./data/csv/source`;
 const dataStore = useDataStore();
 
 const filteredFiles = ref<string[]>(dataStore.allPossibleSummaryTables);

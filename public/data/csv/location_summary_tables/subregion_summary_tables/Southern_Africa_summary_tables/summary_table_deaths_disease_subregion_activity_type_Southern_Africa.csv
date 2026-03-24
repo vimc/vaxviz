@@ -1,0 +1,15 @@
+"disease","subregion","activity_type","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Southern Africa","campaign",0.503221,0.165569,1.254734,0.42449
+"COVID-19","Southern Africa","routine",0.029038,-0.271662,0.234513,0.037853
+"HPV","Southern Africa","campaign",15.70264,14.595318,16.809192,15.721049
+"HPV","Southern Africa","routine",11.271712,10.471154,12.079632,11.275672
+"HepB","Southern Africa","routine",5.954565,4.823356,7.215956,5.947879
+"Hib","Southern Africa","routine",1.245566,0.956113,1.61061,1.23192
+"Measles","Southern Africa","campaign",0.277153,0.117895,0.472095,0.269205
+"Measles","Southern Africa","routine",6.374607,4.940681,7.888945,6.344294
+"PCV","Southern Africa","routine",0.739374,0.180197,1.450587,0.722237
+"Rota","Southern Africa","routine",0.454376,0.238209,0.715542,0.443898
+"Rubella","Southern Africa","campaign",-0.085762,-0.708788,0.476793,-0.077864
+"Rubella","Southern Africa","routine",0.379141,0.13786,0.690627,0.360007
+"Typhoid","Southern Africa","campaign",0.306133,0.02724,0.829025,0.238738
+"Typhoid","Southern Africa","routine",0.720373,0.027757,5.412978,0.316651

@@ -1,0 +1,14 @@
+"disease","subregion","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Northern Africa and Western Asia",4.044639,3.188468,4.974969,3.987914
+"Cholera","Northern Africa and Western Asia",16.491228,14.353062,19.73382,17.174527
+"HPV","Northern Africa and Western Asia",442.498681,408.581049,476.808563,442.873771
+"HepB","Northern Africa and Western Asia",108.667489,96.136703,121.559592,108.413538
+"Hib","Northern Africa and Western Asia",108.951371,89.979258,130.083521,108.456416
+"Malaria","Northern Africa and Western Asia",106.273099,22.372125,248.857874,96.47541
+"Measles","Northern Africa and Western Asia",315.456099,241.170893,379.428298,316.464996
+"Meningitis","Northern Africa and Western Asia",49.25708,32.436696,68.125443,49.708442
+"PCV","Northern Africa and Western Asia",89.747512,45.821345,124.643975,89.208637
+"Rota","Northern Africa and Western Asia",47.152094,25.618961,68.930769,46.34272
+"Rubella","Northern Africa and Western Asia",11.996631,6.560998,17.972711,11.959728
+"Typhoid","Northern Africa and Western Asia",27.456496,3.159655,122.080422,17.013435
+"YF","Northern Africa and Western Asia",79.377383,19.61097,193.17867,70.802705

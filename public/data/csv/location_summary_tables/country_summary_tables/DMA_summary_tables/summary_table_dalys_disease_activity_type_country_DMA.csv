@@ -1,0 +1,9 @@
+"disease","activity_type","country","mean_value","lower_95","upper_95","median_value"
+"COVID-19","campaign","DMA",0,0,0,0
+"COVID-19","routine","DMA",0,0,0,0
+"HPV","routine","DMA",1240.038322,1053.476108,1448.877402,1239.069836
+"HepB","routine","DMA",10.204572,6.972357,15.957146,9.774039
+"Measles","campaign","DMA",17.135773,5.234787,37.47933,16.061448
+"Measles","routine","DMA",242.178708,181.336691,297.40345,242.531254
+"Rubella","campaign","DMA",19.020475,-54.812484,92.950626,17.99517
+"Rubella","routine","DMA",6.28971,0,20.162899,4.874104

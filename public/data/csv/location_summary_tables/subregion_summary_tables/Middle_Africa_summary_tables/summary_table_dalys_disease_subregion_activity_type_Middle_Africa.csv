@@ -1,0 +1,23 @@
+"disease","subregion","activity_type","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Middle Africa","campaign",1.938756,-0.432329,4.139243,2.09136
+"COVID-19","Middle Africa","routine",3.048492,1.23473,4.667408,3.18081
+"Cholera","Middle Africa","campaign",3.601283,2.662863,6.452361,3.330463
+"HPV","Middle Africa","campaign",521.919091,429.390559,628.763993,520.356801
+"HPV","Middle Africa","routine",593.014812,507.401183,689.360221,590.314894
+"HepB","Middle Africa","routine",135.136654,116.32778,157.516402,134.803375
+"Hib","Middle Africa","routine",357.537885,251.042498,472.871926,357.684187
+"Malaria","Middle Africa","routine",245.382147,164.509483,333.723028,243.420106
+"Measles","Middle Africa","campaign",216.38418,154.351489,243.765805,222.424199
+"Measles","Middle Africa","routine",1544.663008,1340.687296,1762.81426,1551.631938
+"MenA","Middle Africa","campaign",31.892383,24.139584,40.082397,31.757743
+"MenA","Middle Africa","routine",26.093403,12.508184,37.940093,26.784903
+"MenACWYX","Middle Africa","campaign",58.981641,26.725983,95.848407,58.454462
+"MenACWYX","Middle Africa","routine",42.632187,23.403148,60.01413,44.045579
+"PCV","Middle Africa","routine",238.514598,96.592105,361.130332,246.967659
+"Rota","Middle Africa","routine",128.346741,26.23758,224.155837,130.090045
+"Rubella","Middle Africa","campaign",4.099865,-11.00895,44.097106,-0.655239
+"Rubella","Middle Africa","routine",54.377374,14.482904,102.141644,52.775384
+"Typhoid","Middle Africa","campaign",83.931814,21.206007,359.729552,55.819847
+"Typhoid","Middle Africa","routine",134.688059,18.761322,750.892284,64.091935
+"YF","Middle Africa","campaign",13.334517,4.158394,27.364091,12.36189
+"YF","Middle Africa","routine",317.104806,81.209695,729.181187,267.039529

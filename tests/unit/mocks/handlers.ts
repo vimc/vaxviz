@@ -62,7 +62,7 @@ export const handlers = jsonDataFiles.map((filename) =>
     return HttpResponse.json(data);
   })
 ).concat(downloadableCsvFiles.map((filename) =>
-  http.head(`./data/csv/${filename}.csv`, async () => {
+  http.head(`./data/csv/source/${filename}.csv`, async () => {
     return HttpResponse.text("", {
       headers: {
         "Content-Type": "text/csv",

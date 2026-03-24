@@ -1,0 +1,14 @@
+"disease","subregion","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Western Africa",0.049281,0.028966,0.071064,0.048663
+"Cholera","Western Africa",0.168867,0.136608,0.244291,0.166714
+"HPV","Western Africa",11.529468,10.4251,12.659299,11.534082
+"HepB","Western Africa",6.480524,5.495349,7.592279,6.449319
+"Hib","Western Africa",3.947206,2.74863,5.503049,3.859556
+"Malaria","Western Africa",2.967191,2.263803,3.852115,2.953806
+"Measles","Western Africa",10.17833,8.277336,11.684125,10.232062
+"Meningitis","Western Africa",0.643388,0.460242,0.842121,0.645529
+"PCV","Western Africa",2.572626,0.72238,4.439888,2.504335
+"Rota","Western Africa",2.301717,0.734876,3.760762,2.298131
+"Rubella","Western Africa",0.410307,0.148833,0.838592,0.361594
+"Typhoid","Western Africa",1.44691,0.40245,3.270064,1.282409
+"YF","Western Africa",2.490142,0.698803,5.702622,2.178055

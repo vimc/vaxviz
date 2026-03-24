@@ -1,17 +1,14 @@
-// This script is not intended to be called directly, but via the scripts/convert-csv-files-to-json.sh script.
+// This script is not intended to be called directly, but via the scripts/process-csv-data.sh script.
 // It is a pre-build step, using summary tables to generate the options for controls.
 import fs from "fs";
+import path from "path";
 import { Dimension, LocResolution, type Option, type SummaryTableDataRow } from "../src/types.ts";
 import { getCountryName } from "../src/utils/regions.ts";
 import titleCase from "../src/utils/titleCase.ts";
 
-const args = process.argv.slice(2);
-if (args.length !== 2) {
-  console.error("Usage: node generateOptions.ts <data-source directory> <`./src/data` sub-directory>");
-  process.exit(1);
-}
-const dataSourceDir = args[0];
-const targetDir = args[1];
+const scriptsDir = import.meta.dirname;
+const dataSourceDir = path.join(scriptsDir, "../public/data/json");
+const targetDir = path.join(scriptsDir, "../src/data/options");
 
 let countryOpts: Option[] = [];
 let subregionOpts: Option[] = [];

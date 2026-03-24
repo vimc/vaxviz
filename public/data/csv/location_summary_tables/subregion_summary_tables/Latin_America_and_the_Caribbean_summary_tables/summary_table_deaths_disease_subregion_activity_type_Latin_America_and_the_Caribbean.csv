@@ -1,0 +1,18 @@
+"disease","subregion","activity_type","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Latin America and the Caribbean","campaign",0.404789,0.247288,0.533121,0.412579
+"COVID-19","Latin America and the Caribbean","routine",0.019502,0.005487,0.03943,0.018068
+"Cholera","Latin America and the Caribbean","campaign",0.27447,0.043504,2.560913,0.052574
+"HPV","Latin America and the Caribbean","campaign",10.68627,10.250538,11.109065,10.688234
+"HPV","Latin America and the Caribbean","routine",13.820651,13.206072,14.423201,13.823121
+"HepB","Latin America and the Caribbean","routine",1.099872,0.963452,1.27048,1.095521
+"Hib","Latin America and the Caribbean","routine",0.900601,0.740604,1.058573,0.904232
+"Measles","Latin America and the Caribbean","campaign",0.449761,0.132758,0.815615,0.446391
+"Measles","Latin America and the Caribbean","routine",10.711965,8.388934,12.844082,10.687447
+"PCV","Latin America and the Caribbean","routine",0.774209,0.457082,1.183165,0.770385
+"Rota","Latin America and the Caribbean","routine",0.339673,0.248232,0.456391,0.340241
+"Rubella","Latin America and the Caribbean","campaign",0.181566,0.031099,0.482197,0.148246
+"Rubella","Latin America and the Caribbean","routine",0.107914,0.057199,0.204993,0.096539
+"Typhoid","Latin America and the Caribbean","campaign",0.175247,0.020858,0.621515,0.138394
+"Typhoid","Latin America and the Caribbean","routine",0.303752,0.00542,1.646285,0.181952
+"YF","Latin America and the Caribbean","campaign",0.867321,0.258068,1.851001,0.803154
+"YF","Latin America and the Caribbean","routine",2.537003,0.78839,5.447969,2.332346

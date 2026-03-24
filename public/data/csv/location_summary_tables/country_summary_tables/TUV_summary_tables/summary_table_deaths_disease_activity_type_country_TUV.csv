@@ -1,0 +1,12 @@
+"disease","activity_type","country","mean_value","lower_95","upper_95","median_value"
+"COVID-19","campaign","TUV",0,0,0,0
+"COVID-19","routine","TUV",0,0,0,0
+"HPV","routine","TUV",16.123485,12.451175,19.768952,16.136361
+"HepB","routine","TUV",2.743903,2.0275,3.49808,2.711732
+"Hib","routine","TUV",0.43009,0.339895,0.541905,0.424804
+"Measles","campaign","TUV",-0.114689,-0.305341,0.217644,-0.166191
+"Measles","routine","TUV",8.35773,6.751994,9.564167,8.437723
+"PCV","routine","TUV",0.147094,0.0475,0.255639,0.142499
+"Rota","routine","TUV",0.071071,0.015561,0.191727,0.055818
+"Rubella","campaign","TUV",0.198172,-0.589976,1.151955,0.185928
+"Rubella","routine","TUV",0.039002,0,0.345604,0.008566

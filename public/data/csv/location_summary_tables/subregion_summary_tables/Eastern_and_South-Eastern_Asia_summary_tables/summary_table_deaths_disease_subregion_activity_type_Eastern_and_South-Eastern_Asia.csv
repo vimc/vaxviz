@@ -1,0 +1,17 @@
+"disease","subregion","activity_type","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Eastern and South-Eastern Asia","campaign",0.104283,0.073494,0.143211,0.103647
+"COVID-19","Eastern and South-Eastern Asia","routine",0.009274,-0.000882,0.015829,0.009686
+"HPV","Eastern and South-Eastern Asia","campaign",5.902392,5.128877,6.66333,5.894649
+"HPV","Eastern and South-Eastern Asia","routine",10.792532,9.810034,11.809725,10.778538
+"HepB","Eastern and South-Eastern Asia","routine",6.285287,5.323113,7.329386,6.259949
+"Hib","Eastern and South-Eastern Asia","routine",0.957472,0.507689,1.379872,0.955184
+"JE","Eastern and South-Eastern Asia","campaign",0.084639,0.020504,0.299081,0.05891
+"JE","Eastern and South-Eastern Asia","routine",0.166101,0.088034,0.331926,0.151876
+"Measles","Eastern and South-Eastern Asia","campaign",0.252105,0.110005,0.39189,0.244516
+"Measles","Eastern and South-Eastern Asia","routine",5.405191,4.131283,6.643071,5.399419
+"PCV","Eastern and South-Eastern Asia","routine",0.677298,-0.327253,1.591469,0.679
+"Rota","Eastern and South-Eastern Asia","routine",0.257764,-0.13556,0.77413,0.261559
+"Rubella","Eastern and South-Eastern Asia","campaign",0.206518,0.062382,0.426912,0.196818
+"Rubella","Eastern and South-Eastern Asia","routine",0.099717,0.070198,0.135915,0.097938
+"Typhoid","Eastern and South-Eastern Asia","campaign",0.133379,0.034006,0.398138,0.10878
+"Typhoid","Eastern and South-Eastern Asia","routine",0.322768,-0.052478,1.555623,0.196037

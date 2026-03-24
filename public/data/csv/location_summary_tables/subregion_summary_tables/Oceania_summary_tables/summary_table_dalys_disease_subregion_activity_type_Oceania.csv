@@ -1,0 +1,17 @@
+"disease","subregion","activity_type","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Oceania","campaign",2.328851,0.656666,4.497106,2.211838
+"COVID-19","Oceania","routine",0.779377,-0.949232,2.046756,0.7767
+"HPV","Oceania","campaign",346.729139,184.53601,735.588299,315.850567
+"HPV","Oceania","routine",390.553983,262.056341,632.890528,371.873653
+"HepB","Oceania","routine",144.531461,123.977226,165.669041,144.210871
+"Hib","Oceania","routine",143.978532,73.84237,224.241241,143.125015
+"JE","Oceania","campaign",2.113233,0.044695,7.880354,1.370547
+"JE","Oceania","routine",100.370564,69.307203,132.744671,99.218419
+"Measles","Oceania","campaign",129.361933,86.063791,156.864687,131.976118
+"Measles","Oceania","routine",879.71956,727.578802,1063.107033,879.32499
+"PCV","Oceania","routine",85.956943,-41.447435,192.763249,88.070804
+"Rota","Oceania","routine",53.530147,-87.941942,194.194248,54.052903
+"Rubella","Oceania","campaign",38.318368,7.013686,77.491477,33.596865
+"Rubella","Oceania","routine",12.904814,3.564647,28.184498,12.132137
+"Typhoid","Oceania","campaign",190.463376,13.462448,622.571806,152.21555
+"Typhoid","Oceania","routine",117.368998,11.300366,413.964904,85.297976

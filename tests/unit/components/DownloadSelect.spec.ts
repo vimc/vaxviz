@@ -38,7 +38,7 @@ describe('DownloadSelect component', () => {
     await downloadSelectedBtn!.trigger('click');
 
     expect(downloadSpy).toHaveBeenCalledWith(
-      './data/csv',
+      './data/csv/source',
       dataStore.summaryTableFilenames.map(f => `${f}.csv`),
       'vaxviz_download.zip',
     );
@@ -59,7 +59,7 @@ describe('DownloadSelect component', () => {
     await downloadSelectedBtn!.trigger('click');
 
     expect(downloadSpy).toHaveBeenCalledWith(
-      './data/csv',
+      './data/csv/source',
       expect.arrayContaining([
         'summary_table_deaths_disease.csv',
         'summary_table_deaths_disease_activity_type.csv',
@@ -85,7 +85,7 @@ describe('DownloadSelect component', () => {
     await downloadAllBtn!.trigger('click');
 
     expect(downloadSpy).toHaveBeenCalledWith(
-      './data/csv',
+      './data/csv/source',
       dataStore.allPossibleSummaryTables.map(f => `${f}.csv`),
       'vaxviz_download.zip',
     );

@@ -1,0 +1,15 @@
+"disease","subregion","activity_type","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Eastern and Southern Europe","campaign",10.821198,7.53921,15.216912,10.544553
+"COVID-19","Eastern and Southern Europe","routine",0.407236,-0.35048,1.201274,0.381195
+"HPV","Eastern and Southern Europe","campaign",382.891434,331.167427,430.738127,382.712478
+"HPV","Eastern and Southern Europe","routine",400.027432,364.096917,429.035123,401.604319
+"HepB","Eastern and Southern Europe","routine",70.451414,62.642581,79.479826,70.313178
+"Hib","Eastern and Southern Europe","routine",17.531601,11.917927,23.984385,17.423467
+"Measles","Eastern and Southern Europe","campaign",18.519783,6.026423,34.128699,18.002543
+"Measles","Eastern and Southern Europe","routine",219.10482,170.281206,262.891072,219.179689
+"PCV","Eastern and Southern Europe","routine",12.123725,-9.490277,30.47766,13.46675
+"Rota","Eastern and Southern Europe","routine",1.576427,-4.766076,8.086918,1.459553
+"Rubella","Eastern and Southern Europe","campaign",6.927994,-4.165257,31.088931,4.00896
+"Rubella","Eastern and Southern Europe","routine",14.147759,2.021871,27.630324,13.545118
+"Typhoid","Eastern and Southern Europe","campaign",1.235374,0.010188,5.304497,0.452245
+"Typhoid","Eastern and Southern Europe","routine",6.079528,0.003305,46.087338,1.140218

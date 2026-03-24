@@ -1,0 +1,11 @@
+"disease","subregion","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Eastern and South-Eastern Asia",2.105837,1.485395,2.976182,2.103161
+"HPV","Eastern and South-Eastern Asia",417.63143,354.881095,478.838511,416.512431
+"HepB","Eastern and South-Eastern Asia",191.97665,162.937064,225.035993,191.224966
+"Hib","Eastern and South-Eastern Asia",72.596593,39.717725,103.925932,72.299243
+"JE","Eastern and South-Eastern Asia",108.322473,74.609252,143.017716,106.996158
+"Measles","Eastern and South-Eastern Asia",260.903347,195.651999,320.385765,261.405578
+"PCV","Eastern and South-Eastern Asia",52.648343,-22.487697,121.253765,51.903741
+"Rota","Eastern and South-Eastern Asia",19.145098,-10.096727,58.471426,19.343562
+"Rubella","Eastern and South-Eastern Asia",9.435836,5.641125,13.457413,9.384823
+"Typhoid","Eastern and South-Eastern Asia",7.513404,1.440718,25.489851,5.344236
