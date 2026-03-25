@@ -29,6 +29,7 @@
 
 :root {
   /* For vue3-select-component */
+  --vs-menu-height: 360px;
   --vs-font-size: 14px;
   --vs-option-disabled-text-color: var(--color-gray-400);
   --vs-option-disabled-background-color: var(--color-gray-200);
