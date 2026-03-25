@@ -41,10 +41,7 @@ import { Dimension, LocResolution } from '@/types';
 import { metricOptions } from '@/utils/options';
 import { FwbButton, FwbCheckbox } from 'flowbite-vue';
 import { computed, ref, watch } from 'vue';
-import { useDataStore } from '@/stores/dataStore';
 import { allPossibleSummaryTables } from '@/utils/allSummaryTables';
-
-const dataStore = useDataStore();
 
 const emit = defineEmits(['selectAllFilesMatchingFilters']);
 

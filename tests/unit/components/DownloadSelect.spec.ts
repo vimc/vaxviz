@@ -78,7 +78,6 @@ describe('DownloadSelect component', () => {
 
   it('should call downloadCsvAsSingleOrZip with all files when "Download all" is clicked', async () => {
     const downloadSpy = mockDownload();
-    const dataStore = useDataStore();
 
     const wrapper = mountComponent();
 
