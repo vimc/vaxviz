@@ -8,7 +8,7 @@ import histCountsDeathsDiseaseActivityType from "../../public/data/json/hist_cou
 import histCountsDalysDiseaseSubregionLog from "../../public/data/json/hist_counts_dalys_disease_subregion_log.json" with { type: "json" };
 import histCountsDalysDiseaseCountryLog from "../../public/data/json/hist_counts_dalys_disease_country_log.json" with { type: "json" };
 import histCountsDalysDiseaseLog from "../../public/data/json/hist_counts_dalys_disease_log.json" with { type: "json" };
-import { doDownload, readDownloadedFile } from './utils.ts';
+import { selectFocus } from './utils.ts';
 
 type FocusType = "disease" | "location";
 
@@ -28,14 +28,6 @@ const expectMultiSelectedFocus = async (page: Page, focusType: FocusType, expect
   for (let i = 0; i < expectedLabels.length; i++) {
     await expect(selected.nth(i)).toHaveText(expectedLabels[i]);
   }
-}
-
-const selectFocus = async (page: Page, optionLabel: string) => {
-  await page.click(".dropdown-icon");
-  const option = page.locator(`.menu .menu-option:has-text('${optionLabel}')`);
-  await option.scrollIntoViewIfNeeded();
-  await expect(option).toBeVisible();
-  await option.click();
 };
 
 const globalOptionLabel = "All 117 VIMC countries";
@@ -237,49 +229,4 @@ test('visits the app root url, selects options, and loads correct data', async (
     })
   );
   await expect(plotLegend.locator(".legend-label")).toHaveCount(2);
-});
-
-test.describe("Downloads", () => {
-  // Webkit downloads don't work in playwright, but they have been manually tested in Safari 26.2
-  // on an iPhone running iOS 26.2.1.
-  // eslint-disable-next-line playwright/no-skipped-test
-  test.skip(({ browserName }) => browserName === "webkit", "Skipping Downloads tests for webkit");
-
-  test("can download individual files", async ({ page }) => {
-    await page.goto('/');
-
-    const button = page.getByRole("button", { name: "Download summary" });
-
-    const download = await doDownload(page, button);
-    expect(download.suggestedFilename()).toBe("summary_table_deaths_disease.csv");
-
-    const fileContents = await readDownloadedFile(download);
-    expect(fileContents).toContain('"disease","mean_value","lower_95","upper_95","median_value"');
-
-    // Set burden metric to DALYs, and split plot by activity type, and check download again
-    const dalysRadio = page.getByRole("radio", { name: "DALYs averted" });
-    await dalysRadio.click();
-    const activityTypeCheckbox = page.getByRole("checkbox", { name: "Split by activity type" });
-    await activityTypeCheckbox.click();
-
-    const download2 = await doDownload(page, button);
-    expect(download2.suggestedFilename()).toBe("summary_table_dalys_disease_activity_type.csv");
-
-    const fileContents2 = await readDownloadedFile(download2);
-    expect(fileContents2).toContain('"disease","activity_type","mean_value","lower_95","upper_95","median_value"');
-  });
-
-  test("can download multiple files as a zip", async ({ page }) => {
-    await page.goto('/');
-
-    // Set focus to a country
-    const geographyRadio = page.getByRole("radio", { name: "Geography" });
-    await geographyRadio.click();
-    await selectFocus(page, "Kenya");
-
-    const button = page.getByRole("button", { name: "Download summary" });
-
-    const download = await doDownload(page, button);
-    expect(download.suggestedFilename()).toBe("summary_tables_deaths_disease_country_subregion_global.zip");
-  });
 });

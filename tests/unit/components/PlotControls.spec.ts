@@ -6,6 +6,7 @@ import VueSelect from "vue3-select-component";
 import { nextTick } from "vue";
 
 import PlotControls from '@/components/PlotControls.vue'
+import DownloadModal from '@/components/DownloadModal.vue';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 
 describe('PlotControls component', () => {
@@ -56,6 +57,8 @@ describe('PlotControls component', () => {
     const burdenMetricRadios = wrapper.findAll('input[name="burdenMetric"]');
     expect((burdenMetricRadios.find(e => e.element.value === "dalys")?.element.checked)).toBe(false);
     expect((burdenMetricRadios.find(e => e.element.value === "deaths")?.element.checked)).toBe(true);
+
+    expect(wrapper.findComponent(DownloadModal).exists()).toBe(true);
   });
 
   it("shows the negative estimates help info when decreed by the help info store", async () => {
