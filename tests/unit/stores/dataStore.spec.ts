@@ -245,22 +245,6 @@ describe('data store', () => {
     expect(dataStore.histogramData).toEqual([]);
   });
 
-  it('should expose allPossibleSummaryTables', () => {
-    const dataStore = useDataStore();
-
-    expect(dataStore.allPossibleSummaryTables).toEqual(expect.arrayContaining([
-      "summary_table_deaths_disease",
-      "summary_table_deaths_disease_activity_type",
-      "summary_table_deaths_disease_subregion",
-      "summary_table_deaths_disease_country",
-      "summary_table_dalys_disease",
-      "summary_table_dalys_disease_activity_type",
-      "summary_table_dalys_disease_subregion",
-      "summary_table_dalys_disease_country",
-    ]));
-    expect(dataStore.allPossibleSummaryTables.length).toBe(12);
-  });
-
   it('getSummaryDataRow returns correct summary data row for given metadata', async () => {
     const appStore = useAppStore();
     const dataStore = useDataStore();

@@ -42,6 +42,7 @@ import { metricOptions } from '@/utils/options';
 import { FwbButton, FwbCheckbox } from 'flowbite-vue';
 import { computed, ref, watch } from 'vue';
 import { useDataStore } from '@/stores/dataStore';
+import { allPossibleSummaryTables } from '@/utils/allSummaryTables';
 
 const dataStore = useDataStore();
 
@@ -92,7 +93,7 @@ const filtersAreClear = computed(() => {
 watch(filterConfigs.map(config => config.filter), () => {
   // When a filter changes,
   // derive a subset of all files to be presented as options in the select, based on filter selections.
-  filteredFiles.value = dataStore.allPossibleSummaryTables.filter((fileName) => {
+  filteredFiles.value = allPossibleSummaryTables.filter((fileName) => {
     return filterConfigs.every((config) => {
       if (Object.values(config.filter.value).every(filteredIn => filteredIn === false)) {
         // If no checkboxes are selected for this filter, don't apply this filter to files,

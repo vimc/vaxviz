@@ -34,7 +34,7 @@
               Download {{ toDownload.length }} selected file{{ toDownload.length === 1 ? '' : 's' }}
             </span>
           </FwbButton>
-          <FwbButton @click="doDownload(dataStore.allPossibleSummaryTables)" color="light">
+          <FwbButton @click="doDownload(allPossibleSummaryTables)" color="light">
             <span class="flex items-center gap-2 justify-center">
               <DownloadIcon class="size-4" />
               Download all available files
@@ -70,11 +70,12 @@ import DownloadIcon from './DownloadIcon.vue';
 import DownloadFilters from './DownloadFilters.vue';
 import DataErrorAlert from "./DataErrorAlert.vue";
 import { downloadCsvAsSingleOrZip } from "@/utils/csvDownload";
+import { allPossibleSummaryTables } from "@/utils/allSummaryTables";
 
 const csvDataDir = `./data/csv`;
 const dataStore = useDataStore();
 
-const filteredFiles = ref<string[]>(dataStore.allPossibleSummaryTables);
+const filteredFiles = ref<string[]>(allPossibleSummaryTables);
 // toDownload will be a subset of filteredFiles
 // Initialise toDownload to the files relevant to the current plot: this pre-selects them.
 const toDownload = ref<string[]>(dataStore.summaryTableFilenames);
@@ -102,7 +103,7 @@ const fileLabel = (fileName: string) => {
   return label;
 };
 
-const options = computed(() => dataStore.allPossibleSummaryTables.map((fileName) => ({
+const options = computed(() => allPossibleSummaryTables.map((fileName) => ({
   label: fileLabel(fileName),
   value: fileName,
   disabled: !filteredFiles.value.includes(fileName),
