@@ -32,7 +32,8 @@ export const getUserLocation = async () => {
     return await res.json();
   } catch (error) {
     console.error("Error fetching location:", error);
-    // posthog.captureException(error);
+    // The Vue app has not yet been created so app.config.errorHandler can't yet handle errors
+    posthog.captureException(error);
     return null;
   }
 };
