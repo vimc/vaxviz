@@ -29,9 +29,10 @@ describe('HelpInfoModal component', () => {
     const alert = wrapper.find('[role="alert"]');
     expect(alert.text()).toContain('Test alert text');
     expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(false);
+    expect(wrapper.text()).not.toContain('Help with test header');
   });
 
-  it('does not render the alert if it has been permanently dismissed', () => {
+  it('does not render the alert if it has been dismissed', () => {
     localStorage.setItem("helpInfoDismissed_test", "true")
     
     const wrapper = renderComponent();
@@ -39,19 +40,43 @@ describe('HelpInfoModal component', () => {
     const alert = wrapper.find('[role="alert"]');
     expect(alert.exists()).toBe(false);
     expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(false);
+    expect(wrapper.text()).toContain('Help with test header');
   });
 
-  it('closes the alert when dismissed permanently', async () => {
+  it('can be undismissed by clicking the more subtle help text', async () => {
+    localStorage.setItem("helpInfoDismissed_test", "true")
+
+    const wrapper = renderComponent();
+
+    const helpText = wrapper.find('.cursor-pointer');
+    expect(helpText.text()).toContain('Help with test header');
+    helpText.trigger('click');
+
+    await vi.waitFor(() => {
+      const alert = wrapper.find('[role="alert"]');
+      expect(alert.text()).toContain('Test alert text');
+    });
+    expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(false);
+
+    expect(wrapper.text()).not.toContain('Help with test header');
+
+    expect(localStorage.getItem("helpInfoDismissed_test")).toBeNull();
+  })
+
+  it('closes the alert when dismissed', async () => {
     const wrapper = renderComponent();
 
     const dismissButton = wrapper.findAll('button')[1];
-    expect(dismissButton.text()).toBe('Dismiss forever');
+    expect(dismissButton.text()).toBe('Dismiss');
     dismissButton.trigger('click');
 
     await vi.waitFor(() => {
       const alert = wrapper.find('[role="alert"]');
       expect(alert.exists()).toBe(false);
       expect(wrapper.findComponent({ name: 'FwbModal' }).exists()).toBe(false);
+      expect(wrapper.text()).toContain('Help with test header');
+
+      expect(localStorage.getItem("helpInfoDismissed_test")).toEqual("true");
     });
   });
 
