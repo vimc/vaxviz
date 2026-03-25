@@ -3,21 +3,17 @@ import { mount } from '@vue/test-utils'
 import { setActivePinia } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { nextTick } from "vue";
-import LegendContainer from '@/components/LegendContainer.vue'
+import HelpInfos from '@/components/HelpInfos.vue'
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import { useAppStore } from '@/stores/appStore'
 
-describe('legend container component', () => {
+describe('help infos component', () => {
   beforeEach(() => {
     setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
   });
 
   const renderComponent = () => {
-    return mount(LegendContainer, {
-      props: {
-        focusesWithoutData: []
-      }
-    });
+    return mount(HelpInfos);
   }
 
   it("shows the negative estimates help info when decreed by the help info store", async () => {
