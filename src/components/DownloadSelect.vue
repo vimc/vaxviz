@@ -1,5 +1,5 @@
 <template>
-  <div class="flex gap-20">
+  <div class="flex flex-col lg:flex-row gap-20">
     <div class="flex flex-col gap-4">
       <label id="downloadSelectLabel" class="font-medium text-lg">
         Select files to download
@@ -13,7 +13,7 @@
           :hide-selected-options="false"
           :close-on-select="false"
           :options="options"
-          :classes="{ control: '!items-start' }"
+          :classes="{ control: 'lg:w-[564px]' }"
           :aria="{ labelledby: 'downloadSelectLabel' }"
           @menu-closed="menuOpen = false"
           @menu-opened="menuOpen = true"
@@ -130,13 +130,7 @@ watch(toDownload, () => {
 
 <style lang="scss" scoped>
 :deep(.vue-select) {
-  --vs-min-height: 79px;
   --vs-menu-height: 360px;
-
-  .control {
-    // Based on longest file name
-    width: 564px;
-  }
 
   .menu[data-state-position^="bottom"] {
     --vs-menu-height: 500px;
