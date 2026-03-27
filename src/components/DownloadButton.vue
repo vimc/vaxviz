@@ -2,7 +2,7 @@
   <FwbButton
     @click="doDownload"
     color="light"
-    class="cursor-pointer"
+    class="cursor-pointer rounded"
   >
     <span class="flex items-center gap-2 justify-center">
       <img class="w-4 h-4" src="@/assets/images/icons/downloadIcon.svg" alt="Download icon" aria-hidden="true" tabindex="-1"/>

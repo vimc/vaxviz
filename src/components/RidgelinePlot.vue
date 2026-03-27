@@ -29,18 +29,10 @@
     </div>
     <div
       v-if="!noDataToDisplay && !dataStore.dataErrors.length"
-      id="legendContainer"
-      class="mb-5 w-fit max-xl:ml-10!"
+      id="legendContainerWrapper"
       :style="{ 'margin-left': `${plotLeftMargin}px` }"
     >
-      <FwbAlert v-if="legendWarnings.length" class="w-fit mb-5" icon>
-        <div class="flex flex-col gap-y-1">
-          <p v-for="(warning, index) in legendWarnings" :key="index">
-            {{ warning }}
-          </p>
-        </div>
-      </FwbAlert>
-      <ColorLegend v-if="colorStore.colorMapping.size >= 2 || focusesWithoutData.length"/>
+      <LegendContainer :focuses-without-data="focusesWithoutData"/>
     </div>
   </div>
 </template>
@@ -60,9 +52,9 @@ import useHistogramLines from '@/composables/useHistogramLines';
 import { dimensionOptionLabel, meningitisVaccines } from '@/utils/options';
 import { plotConfiguration, TOOLTIP_RADIUS_PX } from '@/utils/plotConfiguration';
 import usePlotTooltips from '@/composables/usePlotTooltips';
-import ColorLegend from '@/components/ColorLegend.vue';
 import DataErrorAlert from '@/components/DataErrorAlert.vue';
 import { getSubregionFromCountry } from '@/utils/regions';
+import LegendContainer from './LegendContainer.vue';
 
 const appStore = useAppStore();
 const dataStore = useDataStore();
@@ -77,18 +69,6 @@ const plotLeftMargin = ref<number>(0);
 const noDataToDisplay = ref<boolean>(false); // Whether there are no lines to display after applying all filters, or equivalently whether the chart would be empty.
 const focusesWithoutData = ref<string[]>([]); // Any focus values for which there are no lines to display after applying all filters.
 
-const legendWarnings = computed(() => {
-  const warnings = [];
-  if (appStore.focuses.some(f => meningitisVaccines.includes(f)) && !appStore.splitByActivityType) {
-    warnings.push("Estimates for meningitis vaccines (MenA/MenACWYX) are only available at the activity type (campaign/routine) level.");
-  } else if (appStore.focuses.includes('Meningitis') && appStore.splitByActivityType) {
-    warnings.push("Estimates for ‘Meningitis’ are not available at the activity type (campaign/routine) level.");
-  }
-  if (focusesWithoutData.value.length) {
-    warnings.push(`No estimates available with current options for the following focus selection(s): ${focusesWithoutData.value.join(", ")}.`);
-  }
-  return warnings;
-});
 
 const data = computed(() => dataStore.histogramData.filter(dataRow =>
   [Dimension.LOCATION, Dimension.DISEASE].every(dim => {
