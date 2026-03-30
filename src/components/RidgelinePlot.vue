@@ -2,7 +2,11 @@
   <div class="flex-1 min-w-0 h-full max-h-full flex flex-col gap-y-5 mx-10">
     <div class="chart-container flex-1 min-h-0 w-full">
       <FwbSpinner v-if="dataStore.isLoading" class="m-auto" size="8" />
-      <DataErrorAlert v-else-if="dataStore.dataErrors.length" />
+      <DataErrorAlert
+        v-else-if="dataStore.dataErrors.length"
+        :errors="dataStore.dataErrors"
+        :title="'Error loading data'"
+      />
       <FwbAlert v-else-if="noDataToDisplay" icon class="w-fit m-auto mt-10">
         <span v-if="appStore.focuses.length && appStore.focuses.every(f => meningitisVaccines.includes(f)) && !appStore.splitByActivityType">
           Estimates for {{ appStore.focuses.join(", ") }} are only available at the activity type (campaign/routine) level.<br/>

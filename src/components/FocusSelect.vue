@@ -1,5 +1,5 @@
 <template>
-  <label id="focusLabel" for="focus" class="sr-only">
+  <label id="focusLabel" class="sr-only">
     Focus {{ appStore.exploreByLabel }}
   </label>
   <VueSelect
@@ -92,7 +92,7 @@ watch(multiFocusMode, (multi) => {
 });
 </script>
 
-<style lang="css" scoped>
+<style lang="scss" scoped>
 :deep(.disabled-text-color) {
   color: var(--vs-option-disabled-text-color);
 }

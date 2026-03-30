@@ -1,27 +1,9 @@
-import { Download, Locator, Page } from "@playwright/test";
+import { expect, Page } from "@playwright/test";
 
-export const doDownload = async (page: Page, downloadButton: Locator): Promise<Download> => {
-  const downloadPromise = page.waitForEvent("download");
-  await downloadButton.click();
-  const download = await downloadPromise;
-
-  // Wait for the download process to complete
-  await download.path();
-
-  return download;
-};
-
-export const readDownloadedFile = async (download: Download) => {
-  const readStream = await download.createReadStream();
-  let fileContents = "";
-  readStream.on("readable", () => {
-    let chunk: string;
-    while (null !== (chunk = readStream.read())) {
-      fileContents += chunk;
-    }
-  });
-  await new Promise((resolve) => {
-    readStream.on("end", resolve);
-  });
-  return fileContents;
+export const selectFocus = async (page: Page, optionLabel: string) => {
+  await page.click(".dropdown-icon");
+  const option = page.locator(`.menu .menu-option:has-text('${optionLabel}')`);
+  await option.scrollIntoViewIfNeeded();
+  await expect(option).toBeVisible();
+  await option.click();
 };

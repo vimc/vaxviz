@@ -46,14 +46,14 @@
         :wrapper-class="'w-fit'"
       />
     </div>
-    <DownloadButton />
+    <DownloadModal />
   </div>
 </template>
 
 <script setup lang="ts">
 import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
 import { useAppStore } from '@/stores/appStore';
-import DownloadButton from '@/components/DownloadButton.vue';
+import DownloadModal from '@/components/DownloadModal.vue';
 import { metricOptions } from '@/utils/options';
 import FocusSelect from './FocusSelect.vue';
 

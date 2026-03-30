@@ -1,4 +1,4 @@
-import { csvDataDir, jsonDataDir } from "@/stores/dataStore"
+import { jsonDataDir } from "@/stores/dataStore"
 import { http, HttpResponse } from "msw"
 
 const jsonDataFiles = [
@@ -62,7 +62,7 @@ export const handlers = jsonDataFiles.map((filename) =>
     return HttpResponse.json(data);
   })
 ).concat(downloadableCsvFiles.map((filename) =>
-  http.head(`${csvDataDir}/${filename}.csv`, async () => {
+  http.head(`./data/csv/${filename}.csv`, async () => {
     return HttpResponse.text("", {
       headers: {
         "Content-Type": "text/csv",
