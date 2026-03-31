@@ -47,7 +47,8 @@ currently being done in the npm `build` script for production builds (including 
 There is also a `dev-embargo` npm script which can be used for manual testing of the embargo notice. The embargo switch is 
 implemented in the `App` component, which checks for the environment variable in `import.meta.env`.
 
-When we unembargo we can also restore the playwright config switch to run e2e tests against built app on CI. 
+When we unembargo we can also restore the playwright config switch to run e2e tests against built app on CI, and can
+unskip running the tests in `privacy.spec.ts` (which require production build).
 
 ## Node version
 

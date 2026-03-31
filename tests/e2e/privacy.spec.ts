@@ -29,7 +29,10 @@ const opt = async (inOrOut: "in" | "out", page: Page) => {
 test.describe('Privacy settings', () => {
   // Posthog is only initialised in production.
   // eslint-disable-next-line playwright/no-skipped-test
-  test.skip(() => !process.env.CI);
+
+  // TODO: revert on unembargo
+  // test.skip(() => !process.env.CI);
+  test.skip(() => true);
 
   test('user can change data collection preferences', async ({ context, page, baseURL }) => {
     // Count requests to one of the endpoints Posthog queries on start-up, as a proxy for counting the number of times Posthog starts up.
