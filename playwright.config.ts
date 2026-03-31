@@ -103,8 +103,13 @@ export default defineConfig({
        * Playwright will re-use the local server if there is already a dev-server running.
        */
       name: "vaxviz",
+      /*
+      TODO: revert these when we un-embargo. We are building with embargo flag on currently so
+      can't preview full aoo.
       command: process.env.CI ? 'npm run preview' : 'npm run dev',
-      port: process.env.CI ? 4173 : 5173,
+      port: process.env.CI ? 4173 : 5173,*/
+      command: "npm run dev",
+      port: 5173,
       reuseExistingServer: !process.env.CI,
     },
     {
