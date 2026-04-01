@@ -115,7 +115,7 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
-      name: "vaxvix-embargo",
+      name: "vaxviz-embargo",
       command: "npm run dev-embargo",
       port: 5174,
       reuseExistingServer: !process.env.CI
