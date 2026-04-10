@@ -1,7 +1,7 @@
 name: Deploy vaxviz-staging
 on:
   push:
-    branches: ["main", "redesign-downloads-button"]
+    branches: ["main"]
 
 permissions:
   contents: read

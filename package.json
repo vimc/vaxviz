@@ -1,6 +1,6 @@
 {
   "name": "vaxviz",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "type": "module",
   "engines": {
@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "dev-embargo": "export VITE_EMBARGO_VAXVIZ=1 && vite --port 5174",
+    "build": "export VITE_EMBARGO_VAXVIZ=1 && run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test:unit": "vitest",
     "test:coverage": "vitest --coverage",
@@ -19,7 +20,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@reside-ic/skadi-chart": "^1.1.13",
+    "@reside-ic/skadi-chart": "^1.1.14",
     "color-convert": "^3.1.3",
     "flowbite": "^4.0.1",
     "flowbite-vue": "^0.2.2",

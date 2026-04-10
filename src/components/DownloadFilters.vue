@@ -16,7 +16,7 @@
         />
       </div>
     </fieldset>
-    <div class="w-fit flex flex-col gap-4 ml-auto items-end">
+    <div class="w-fit flex flex-col gap-4 mx-auto items-start">
       <FwbButton
         color="default"
         size="sm"
@@ -41,9 +41,7 @@ import { Dimension, LocResolution } from '@/types';
 import { metricOptions } from '@/utils/options';
 import { FwbButton, FwbCheckbox } from 'flowbite-vue';
 import { computed, ref, watch } from 'vue';
-import { useDataStore } from '@/stores/dataStore';
-
-const dataStore = useDataStore();
+import { allPossibleSummaryTables } from '@/utils/allSummaryTables';
 
 const emit = defineEmits(['selectAllFilesMatchingFilters']);
 
@@ -92,7 +90,7 @@ const filtersAreClear = computed(() => {
 watch(filterConfigs.map(config => config.filter), () => {
   // When a filter changes,
   // derive a subset of all files to be presented as options in the select, based on filter selections.
-  filteredFiles.value = dataStore.allPossibleSummaryTables.filter((fileName) => {
+  filteredFiles.value = allPossibleSummaryTables.filter((fileName) => {
     return filterConfigs.every((config) => {
       if (Object.values(config.filter.value).every(filteredIn => filteredIn === false)) {
         // If no checkboxes are selected for this filter, don't apply this filter to files,

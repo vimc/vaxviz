@@ -33,7 +33,9 @@ export default defineConfig({
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173',
+    /* TODO: revert on un-embargo when testing against preview build again
+    baseURL: process.env.CI ? 'http://localhost:4173' : 'http://localhost:5173', */
+    baseURL: 'http://localhost:5173',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
 
@@ -95,14 +97,28 @@ export default defineConfig({
   outputDir: 'test-results/',
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    /**
-     * Use the dev server by default for faster feedback loop.
-     * Use the preview server on CI for more realistic testing.
-     * Playwright will re-use the local server if there is already a dev-server running.
-     */
-    command: process.env.CI ? 'npm run preview' : 'npm run dev',
-    port: process.env.CI ? 4173 : 5173,
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: [
+    {
+      /**
+       * Use the dev server by default for faster feedback loop.
+       * Use the preview server on CI for more realistic testing.
+       * Playwright will re-use the local server if there is already a dev-server running.
+       */
+      name: "vaxviz",
+      /*
+      TODO: revert these when we un-embargo. We are building with embargo flag on currently so
+      can't preview full app.
+      command: process.env.CI ? 'npm run preview' : 'npm run dev',
+      port: process.env.CI ? 4173 : 5173,*/
+      command: "npm run dev",
+      port: 5173,
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      name: "vaxviz-embargo",
+      command: "npm run dev-embargo",
+      port: 5174,
+      reuseExistingServer: !process.env.CI
+    }
+  ]
 })

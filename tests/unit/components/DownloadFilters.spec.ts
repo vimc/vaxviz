@@ -5,19 +5,19 @@ import { createTestingPinia } from '@pinia/testing';
 import { nextTick } from 'vue';
 
 import DownloadFilters from '@/components/DownloadFilters.vue';
-import { useDataStore } from '@/stores/dataStore';
 import { checkCheckbox } from '../testUtils';
+import { allPossibleSummaryTables } from "@/utils/allSummaryTables";
 
 describe('DownloadFilters component', () => {
   beforeEach(() => {
     setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
   });
 
-  const mountComponent = () => {
-    const dataStore = useDataStore();
-    const wrapper = mount(DownloadFilters, { props: { filteredFiles: dataStore.allPossibleSummaryTables } });
-    return { wrapper, dataStore };
-  };
+  const mountComponent = () => mount(DownloadFilters, {
+    props: {
+      filteredFiles: allPossibleSummaryTables,
+    },
+  });
 
   const lastEmittedFiles = (wrapper: ReturnType<typeof mount>) => {
     const emitted = wrapper.emitted('update:filteredFiles')!;
@@ -25,7 +25,7 @@ describe('DownloadFilters component', () => {
   };
 
   it('filters by burden metric', async () => {
-    const { wrapper } = mountComponent();
+    const wrapper = mountComponent();
 
     await checkCheckbox(wrapper, 'Deaths averted');
 
@@ -36,7 +36,7 @@ describe('DownloadFilters component', () => {
   });
 
   it('filters by geographical resolution', async () => {
-    const { wrapper } = mountComponent();
+    const wrapper = mountComponent();
 
     await checkCheckbox(wrapper, 'By country');
 
@@ -46,7 +46,7 @@ describe('DownloadFilters component', () => {
   });
 
   it('filters by geographical resolution with inverse match (Global)', async () => {
-    const { wrapper } = mountComponent();
+    const wrapper = mountComponent();
 
     await checkCheckbox(wrapper, 'Global');
 
@@ -57,7 +57,7 @@ describe('DownloadFilters component', () => {
   });
 
   it('filters by activity type with inverse match (Not split)', async () => {
-    const { wrapper } = mountComponent();
+    const wrapper = mountComponent();
 
     await checkCheckbox(wrapper, 'Not split');
 
@@ -67,7 +67,7 @@ describe('DownloadFilters component', () => {
   });
 
   it('combines multiple filters across groups with AND logic', async () => {
-    const { wrapper } = mountComponent();
+    const wrapper = mountComponent();
 
     await checkCheckbox(wrapper, 'Deaths averted');
     await checkCheckbox(wrapper, 'By country');
@@ -78,7 +78,7 @@ describe('DownloadFilters component', () => {
   });
 
   it('combines multiple filters within a group with OR logic', async () => {
-    const { wrapper } = mountComponent();
+    const wrapper = mountComponent();
 
     await checkCheckbox(wrapper, 'By country');
     await checkCheckbox(wrapper, 'By subregion');
@@ -89,21 +89,21 @@ describe('DownloadFilters component', () => {
   });
 
   it('clears all filters when the clear button is clicked', async () => {
-    const { wrapper, dataStore } = mountComponent();
+    const wrapper = mountComponent();
 
     await checkCheckbox(wrapper, 'Deaths averted');
     await checkCheckbox(wrapper, 'By country');
-    expect(lastEmittedFiles(wrapper).length).toBeLessThan(dataStore.allPossibleSummaryTables.length);
+    expect(lastEmittedFiles(wrapper).length).toBeLessThan(allPossibleSummaryTables.length);
 
     const clearButton = wrapper.findAll('button').find(b => b.text().includes('Clear filters'));
     await clearButton!.trigger('click');
     await nextTick();
 
-    expect(lastEmittedFiles(wrapper)).toEqual(dataStore.allPossibleSummaryTables);
+    expect(lastEmittedFiles(wrapper)).toEqual(allPossibleSummaryTables);
   });
 
   it('emits selectAllFilesMatchingFilters event when the select all button is clicked', async () => {
-    const { wrapper } = mountComponent();
+    const wrapper = mountComponent();
 
     const selectAllButton = wrapper.findAll('button').find(b => b.text().includes('Select all files matching filters'));
     await selectAllButton!.trigger('click');

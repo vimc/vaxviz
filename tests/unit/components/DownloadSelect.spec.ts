@@ -11,6 +11,7 @@ import DataErrorAlert from '@/components/DataErrorAlert.vue';
 import { useDataStore } from '@/stores/dataStore';
 import * as downloadModule from '@/utils/csvDownload';
 import { checkCheckbox } from '../testUtils';
+import { allPossibleSummaryTables } from "@/utils/allSummaryTables";
 
 const mockDownload = () => {
   return vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip').mockResolvedValue(undefined);
@@ -77,7 +78,6 @@ describe('DownloadSelect component', () => {
 
   it('should call downloadCsvAsSingleOrZip with all files when "Download all" is clicked', async () => {
     const downloadSpy = mockDownload();
-    const dataStore = useDataStore();
 
     const wrapper = mountComponent();
 
@@ -86,7 +86,7 @@ describe('DownloadSelect component', () => {
 
     expect(downloadSpy).toHaveBeenCalledWith(
       './data/csv/source',
-      dataStore.allPossibleSummaryTables.map(f => `${f}.csv`),
+      allPossibleSummaryTables.map(f => `${f}.csv`),
       'vaxviz_download.zip',
     );
   });

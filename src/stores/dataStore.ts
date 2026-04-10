@@ -3,37 +3,9 @@ import { computed, ref, shallowRef, watch, type ShallowRef } from "vue";
 import { defineStore } from "pinia";
 import { useAppStore } from "@/stores/appStore";
 import { type HistDataRow, type LineMetadata, type SummaryTableDataRow, Axis, Dimension, LocResolution } from "@/types";
-import { globalOption, metricOptions } from "@/utils/options";
+import { globalOption } from "@/utils/options";
 
 export const jsonDataDir = `./data/json`
-
-const getSummaryTableNames = () => {
-  const burdenMetrics = metricOptions.map(o => o.value);
-  const activityTypes = [Dimension.ACTIVITY_TYPE, ""];
-  const geogs = [LocResolution.COUNTRY, LocResolution.SUBREGION, ""];
-  const combinations: string[] = [];
-
-  burdenMetrics.forEach((metric) => {
-    activityTypes.forEach((activityType) => {
-      geogs.forEach((geog) => {
-        const fileNameParts = ["summary_table", metric, "disease"];
-        if (geog === LocResolution.SUBREGION) {
-          fileNameParts.push(LocResolution.SUBREGION);
-        }
-        fileNameParts.push(activityType);
-        if (geog === LocResolution.COUNTRY) {
-          fileNameParts.push(LocResolution.COUNTRY);
-        }
-        const fileName = fileNameParts.filter(p => p !== "").join("_");
-        combinations.push(fileName);
-      });
-    });
-  });
-
-  return combinations;
-};
-
-const allPossibleSummaryTables = getSummaryTableNames();
 
 export const useDataStore = defineStore("data", () => {
   const appStore = useAppStore();
@@ -150,7 +122,6 @@ export const useDataStore = defineStore("data", () => {
   }, { immediate: true });
 
   return {
-    allPossibleSummaryTables,
     dataErrors: fetchErrors,
     isLoading,
     getSummaryDataRow,
