@@ -3,7 +3,12 @@ import { test } from './fixtures/interceptNetworkRequests.ts';
 import { selectFocus } from './utils.ts';
 
 const openDownloadModal = async (page: Page) => {
-  await page.getByRole("button", { name: "Download" }).click();
+  await page.getByRole("button", { name: "Downloads" }).click();
+};
+
+const openOtherDownloads = async (page: Page) => {
+  await openDownloadModal(page);
+  await page.getByRole('button', { name: 'Other downloads' }).click();
 };
 
 const closeDownloadModal = async (page: Page) => {
@@ -13,7 +18,7 @@ const closeDownloadModal = async (page: Page) => {
 // Download the file(s) that are pre-selected by default, based on the plot controls
 const doDownload = async (page: Page, expectedNumberOfFiles: number): Promise<Download> => {
   const downloadPromise = page.waitForEvent("download");
-  await openDownloadModal(page);
+  await openOtherDownloads(page);
   await page.getByRole("button", { name: `Download ${expectedNumberOfFiles}` }).click();
 
   const download = await downloadPromise;
@@ -84,7 +89,7 @@ test.describe("Downloads", () => {
   test("can download all summary table files as a zip", async ({ page }) => {
     await page.goto('/');
 
-    await openDownloadModal(page);
+    await openOtherDownloads(page);
 
     const downloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download all available files' }).click();
@@ -97,7 +102,7 @@ test.describe("Downloads", () => {
   test("can download a custom selection of files using the filters", async ({ page }) => {
     await page.goto('/');
 
-    await openDownloadModal(page);
+    await openOtherDownloads(page);
 
     await page.getByRole('checkbox', { name: 'DALYs averted' }).check();
     await page.getByRole('checkbox', { name: 'By country' }).check();
