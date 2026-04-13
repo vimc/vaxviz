@@ -1,0 +1,23 @@
+"disease","subregion","activity_type","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Northern Africa and Western Asia","campaign",5.472471,3.665064,7.881302,5.313292
+"COVID-19","Northern Africa and Western Asia","routine",2.950603,2.576753,3.30945,2.943929
+"Cholera","Northern Africa and Western Asia","campaign",10.267205,8.936013,12.285997,10.692617
+"HPV","Northern Africa and Western Asia","campaign",449.739412,412.861746,486.673188,450.571331
+"HPV","Northern Africa and Western Asia","routine",433.60501,402.343026,466.81271,433.269714
+"HepB","Northern Africa and Western Asia","routine",108.667489,96.136703,121.559592,108.413538
+"Hib","Northern Africa and Western Asia","routine",108.951371,89.979258,130.083521,108.456416
+"Malaria","Northern Africa and Western Asia","routine",106.273099,22.372125,248.857874,96.47541
+"Measles","Northern Africa and Western Asia","campaign",33.74137,16.413556,55.176005,33.158892
+"Measles","Northern Africa and Western Asia","routine",594.774805,463.797581,709.492506,595.780888
+"MenA","Northern Africa and Western Asia","campaign",49.679518,34.775207,63.99548,49.673431
+"MenA","Northern Africa and Western Asia","routine",17.999044,8.167594,27.307242,18.170132
+"MenACWYX","Northern Africa and Western Asia","campaign",65.973163,9.961771,117.252083,65.81454
+"MenACWYX","Northern Africa and Western Asia","routine",39.731714,21.027628,57.245021,39.897819
+"PCV","Northern Africa and Western Asia","routine",89.747512,45.821345,124.643975,89.208637
+"Rota","Northern Africa and Western Asia","routine",47.152094,25.618961,68.930769,46.34272
+"Rubella","Northern Africa and Western Asia","campaign",4.643183,1.031987,10.037528,4.111444
+"Rubella","Northern Africa and Western Asia","routine",21.313401,11.739634,29.520361,21.335937
+"Typhoid","Northern Africa and Western Asia","campaign",19.534916,3.12301,64.641837,14.783543
+"Typhoid","Northern Africa and Western Asia","routine",65.680211,-9.545444,379.4929,28.33697
+"YF","Northern Africa and Western Asia","campaign",48.637496,12.907719,112.572609,43.726809
+"YF","Northern Africa and Western Asia","routine",266.951566,63.417594,676.880511,236.498111

@@ -1,0 +1,10 @@
+"disease","subregion","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Southern Africa",11.680665,4.141135,29.40095,9.527229
+"HPV","Southern Africa",505.287649,456.776271,551.579652,505.199391
+"HepB","Southern Africa",149.788988,121.229502,180.093554,149.724049
+"Hib","Southern Africa",78.526082,60.617411,101.052044,77.747354
+"Measles","Southern Africa",192.128969,145.989804,237.949242,191.602326
+"PCV","Southern Africa",49.571875,14.635391,93.8566,48.405828
+"Rota","Southern Africa",28.197159,14.986988,44.352676,27.548356
+"Rubella","Southern Africa",8.913982,-3.683003,23.65956,8.324254
+"Typhoid","Southern Africa",14.863758,1.475422,74.229301,7.631599

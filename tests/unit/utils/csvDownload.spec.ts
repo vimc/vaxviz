@@ -42,10 +42,10 @@ describe('downloadCsvAsSingleOrZip', () => {
   });
 
   it("should download single file directly when only one path", async () => {
-    await downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv"], "name.zip");
+    await downloadCsvAsSingleOrZip("./data/csv/source", ["summary_table_deaths_disease.csv"], "name.zip");
 
     expect(createdLinks).toHaveLength(1);
-    expect(createdLinks[0].href).toBe("./data/csv/summary_table_deaths_disease.csv");
+    expect(createdLinks[0].href).toBe("./data/csv/source/summary_table_deaths_disease.csv");
     expect(createdLinks[0].download).toBe("summary_table_deaths_disease.csv");
     expect(createdLinks[0].clicked).toBe(true);
   });
@@ -58,7 +58,7 @@ describe('downloadCsvAsSingleOrZip', () => {
     } as Response);
 
     await expect(
-      downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv"], "name.zip")
+      downloadCsvAsSingleOrZip("./data/csv/source", ["summary_table_deaths_disease.csv"], "name.zip")
     ).rejects.toThrow(
       'HTTP 404: Not Found'
     );
@@ -82,9 +82,9 @@ describe('downloadCsvAsSingleOrZip', () => {
     } as Response);
 
     await expect(
-      downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv"], "name.zip")
+      downloadCsvAsSingleOrZip("./data/csv/source", ["summary_table_deaths_disease.csv"], "name.zip")
     ).rejects.toThrow(
-      'File ./data/csv/summary_table_deaths_disease.csv is not a CSV file. Content-Type: text/html'
+      'File ./data/csv/source/summary_table_deaths_disease.csv is not a CSV file. Content-Type: text/html'
     );
 
     expect(createdLinks).toHaveLength(0);
@@ -102,7 +102,7 @@ describe('downloadCsvAsSingleOrZip', () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:test");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
 
-    await downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip");
+    await downloadCsvAsSingleOrZip("./data/csv/source", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip");
 
     await vi.waitFor(() => {
       expect(createdLinks).toHaveLength(1);
@@ -123,7 +123,7 @@ describe('downloadCsvAsSingleOrZip', () => {
     } as Response);
 
     await expect(
-      downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
+      downloadCsvAsSingleOrZip("./data/csv/source", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
     ).rejects.toThrow(
       'HTTP 404: Not Found'
     );
@@ -153,7 +153,7 @@ describe('downloadCsvAsSingleOrZip', () => {
     });
 
     await expect(
-      downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
+      downloadCsvAsSingleOrZip("./data/csv/source", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
     ).rejects.toThrow(
       'HTTP 404: Not Found'
     );
@@ -177,9 +177,9 @@ describe('downloadCsvAsSingleOrZip', () => {
     } as Response);
 
     await expect(
-      downloadCsvAsSingleOrZip("./data/csv", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
+      downloadCsvAsSingleOrZip("./data/csv/source", ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"], "name.zip")
     ).rejects.toThrow(
-      'File ./data/csv/summary_table_deaths_disease.csv is not a CSV file. Content-Type: text/html'
+      'File ./data/csv/source/summary_table_deaths_disease.csv is not a CSV file. Content-Type: text/html'
     );
 
     expect(createdLinks).toHaveLength(0);

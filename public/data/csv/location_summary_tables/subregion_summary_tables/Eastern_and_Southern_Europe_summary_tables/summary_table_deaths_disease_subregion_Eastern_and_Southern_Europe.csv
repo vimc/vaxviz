@@ -1,0 +1,10 @@
+"disease","subregion","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Eastern and Southern Europe",0.359132,0.249408,0.499853,0.343928
+"HPV","Eastern and Southern Europe",6.771405,6.195123,7.270178,6.775173
+"HepB","Eastern and Southern Europe",2.377052,2.100822,2.70338,2.365693
+"Hib","Eastern and Southern Europe",0.207309,0.127545,0.296903,0.206459
+"Measles","Eastern and Southern Europe",2.530599,1.972284,3.0405,2.53418
+"PCV","Eastern and Southern Europe",0.144222,-0.155894,0.401608,0.160961
+"Rota","Eastern and Southern Europe",0.013894,-0.076239,0.10442,0.01088
+"Rubella","Eastern and Southern Europe",0.177183,0.031345,0.439174,0.142658
+"Typhoid","Eastern and Southern Europe",0.021715,2.7e-05,0.167692,0.003697

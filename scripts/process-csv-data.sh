@@ -17,7 +17,7 @@ rm -rf $PUBLIC_JSON_DATA_DIR
 mkdir $PUBLIC_JSON_DATA_DIR
 
 # Iterate over all files in the data dir folder
-for filepath in $DATADIR/csv/*.csv; do
+for filepath in $DATADIR/csv/source/*.csv; do
   # https://github.com/Keyang/node-csvtojson?tab=readme-ov-file#command-line-usage
   npx csvtojson $filepath > $PUBLIC_JSON_DATA_DIR/$(basename ${filepath%.csv}.json) --checkType=true
   echo "Converted $filepath to JSON."
@@ -33,7 +33,10 @@ mv $DATADIR/json/who_sub_regions.json $SRC_DATA_DIR/WHORegions.json
 OPTIONS_TARGET_DIR=$SRC_DATA_DIR/options
 rm -rf $OPTIONS_TARGET_DIR
 mkdir $OPTIONS_TARGET_DIR
-node --experimental-transform-types $here/generateOptions.ts $PUBLIC_JSON_DATA_DIR $OPTIONS_TARGET_DIR
+node --experimental-transform-types $here/generateOptions.ts
+
+# Chunk CSV files with location data into per-location files
+node --experimental-transform-types $here/splitCsvsByLocation.ts
 
 # Write to a file to record the packet-id and date-time stamp.
 DATE_TIME=$(date '+%Y-%m-%d %H:%M:%S')

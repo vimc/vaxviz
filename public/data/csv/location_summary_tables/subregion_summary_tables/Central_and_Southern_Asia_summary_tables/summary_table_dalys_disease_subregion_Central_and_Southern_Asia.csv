@@ -1,0 +1,12 @@
+"disease","subregion","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Central and Southern Asia",6.961424,3.062836,13.611879,6.243456
+"Cholera","Central and Southern Asia",1.709335,1.307316,2.13808,1.987441
+"HPV","Central and Southern Asia",462.368985,416.938744,512.513049,461.961462
+"HepB","Central and Southern Asia",108.890855,92.831971,127.374411,108.468664
+"Hib","Central and Southern Asia",130.785785,72.942872,189.379486,129.436413
+"JE","Central and Southern Asia",51.144495,34.329476,69.723396,50.676092
+"Measles","Central and Southern Asia",451.144078,372.256353,519.541263,452.471391
+"PCV","Central and Southern Asia",85.838773,-33.959799,183.073419,87.69462
+"Rota","Central and Southern Asia",32.480424,-9.074767,72.976677,31.794624
+"Rubella","Central and Southern Asia",18.061218,7.517288,30.940012,18.250872
+"Typhoid","Central and Southern Asia",5.550906,1.365506,15.281648,4.62461

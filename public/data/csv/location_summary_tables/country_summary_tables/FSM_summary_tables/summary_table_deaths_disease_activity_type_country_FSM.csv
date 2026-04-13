@@ -1,0 +1,15 @@
+"disease","activity_type","country","mean_value","lower_95","upper_95","median_value"
+"COVID-19","campaign","FSM",0,0,0,0
+"COVID-19","routine","FSM",0,0,0,0
+"HPV","campaign","FSM",17.187115,14.068272,20.673222,17.166449
+"HPV","routine","FSM",13.576262,11.037883,16.621301,13.562449
+"HepB","routine","FSM",4.528077,2.725755,6.841251,4.291663
+"Hib","routine","FSM",2.146098,1.491341,3.002944,2.090466
+"Measles","campaign","FSM",0.143861,-0.038055,0.266441,0.156794
+"Measles","routine","FSM",5.439761,4.550144,6.150019,5.463589
+"PCV","routine","FSM",1.689072,0.530559,2.955344,1.636513
+"Rota","routine","FSM",0.7639,0.066251,1.378979,0.784241
+"Rubella","campaign","FSM",0.174093,-0.145887,0.520601,0.155579
+"Rubella","routine","FSM",0.113859,0,0.327223,0.09552
+"Typhoid","campaign","FSM",0.034454,0.004566,0.10671,0.028586
+"Typhoid","routine","FSM",0.012436,0.001111,0.039474,0.009181

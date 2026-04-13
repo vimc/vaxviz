@@ -1,0 +1,23 @@
+"disease","subregion","activity_type","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Eastern Africa","campaign",0.041592,0.013003,0.072926,0.043194
+"COVID-19","Eastern Africa","routine",0.024683,-0.015597,0.084759,0.022613
+"Cholera","Eastern Africa","campaign",0.237231,0.167566,0.57879,0.204434
+"HPV","Eastern Africa","campaign",20.751422,18.234757,23.668019,20.639317
+"HPV","Eastern Africa","routine",22.565568,21.419121,23.652937,22.604773
+"HepB","Eastern Africa","routine",6.451519,5.768491,7.309531,6.439053
+"Hib","Eastern Africa","routine",3.00368,2.52328,3.684814,2.975217
+"Malaria","Eastern Africa","routine",2.228911,1.475073,3.08041,2.208592
+"Measles","Eastern Africa","campaign",1.994289,1.351751,2.430083,2.028923
+"Measles","Eastern Africa","routine",14.525174,12.152391,17.099347,14.512436
+"MenA","Eastern Africa","campaign",0.491497,0.358264,0.643294,0.495855
+"MenA","Eastern Africa","routine",1.167758,0.462277,1.745038,1.209717
+"MenACWYX","Eastern Africa","campaign",0.854716,0.335596,1.337824,0.844136
+"MenACWYX","Eastern Africa","routine",0.707101,0.384612,1.002872,0.734612
+"PCV","Eastern Africa","routine",1.811952,1.108854,2.568744,1.818108
+"Rota","Eastern Africa","routine",0.874966,0.589561,1.142849,0.872942
+"Rubella","Eastern Africa","campaign",0.148302,-0.032523,0.694599,0.09701
+"Rubella","Eastern Africa","routine",0.437779,0.264248,0.723695,0.410606
+"Typhoid","Eastern Africa","campaign",0.807914,0.173347,2.221723,0.653589
+"Typhoid","Eastern Africa","routine",1.81402,0.033601,6.99287,1.185403
+"YF","Eastern Africa","campaign",0.173435,0.043,0.422411,0.151268
+"YF","Eastern Africa","routine",2.961648,0.806379,7.010471,2.61907

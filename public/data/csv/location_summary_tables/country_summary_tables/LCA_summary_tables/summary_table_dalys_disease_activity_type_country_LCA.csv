@@ -1,0 +1,9 @@
+"disease","activity_type","country","mean_value","lower_95","upper_95","median_value"
+"COVID-19","campaign","LCA",4.346791,2.2729,8.077903,4.244859
+"COVID-19","routine","LCA",1.881486,1.442436,2.303245,1.884473
+"HPV","routine","LCA",471.30418,331.518314,665.0322,463.508513
+"HepB","routine","LCA",10.145125,6.816877,18.564637,9.429814
+"Measles","campaign","LCA",17.550399,2.531818,33.991973,18.182599
+"Measles","routine","LCA",197.406889,144.114256,245.276137,197.634657
+"Rubella","campaign","LCA",18.35662,-61.519122,102.29603,16.239064
+"Rubella","routine","LCA",6.037873,0,20.13086,4.256547

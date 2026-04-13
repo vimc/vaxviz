@@ -1,0 +1,12 @@
+"disease","subregion","mean_value","lower_95","upper_95","median_value"
+"COVID-19","Latin America and the Caribbean",7.427113,4.826605,9.577032,7.378248
+"Cholera","Latin America and the Caribbean",9.288719,2.926932,70.113364,3.537908
+"HPV","Latin America and the Caribbean",634.550445,600.260239,667.329746,635.152224
+"HepB","Latin America and the Caribbean",31.641069,28.063383,36.025481,31.547541
+"Hib","Latin America and the Caribbean",67.660893,56.35466,79.171369,67.837401
+"Measles","Latin America and the Caribbean",338.201469,253.306455,410.246554,339.728655
+"PCV","Latin America and the Caribbean",59.144368,37.111305,87.794873,58.811193
+"Rota","Latin America and the Caribbean",23.836599,17.530599,32.115365,23.796889
+"Rubella","Latin America and the Caribbean",10.878139,2.863999,23.999844,9.337428
+"Typhoid","Latin America and the Caribbean",6.439794,0.961927,23.542079,4.57063
+"YF","Latin America and the Caribbean",102.647589,32.024368,220.324428,94.347092

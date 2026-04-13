@@ -137,7 +137,7 @@ npm run lint
 
 1. Download the dataviz.zip file from the VIMC reporting portal (packet group name paper-four-figures) and make note of the packet id.
 1. From the same packet, download `who_sub_regions.csv` (under 'Other files'). This provides the mapping from countries to subregions.
-1. Delete contents of `public/data/csv`.
-1. Unzip the dataviz.zip folder into `public/data/csv`, and move `who_sub_regions.csv` there too.
+1. Delete contents of `public/data/csv/source`.
+1. Unzip the dataviz.zip folder into `public/data/csv/source`, and move `who_sub_regions.csv` there too.
 1. Ensure your current Node version is >= 24.
-1. Run `./scripts/convert-csv-files-to-json.sh <packet-id>` replacing the packet id argument
+1. Run `./scripts/process-csv-data.sh <packet-id>` replacing the packet id argument
