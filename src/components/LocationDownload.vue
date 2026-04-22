@@ -52,14 +52,14 @@ const appStore = useAppStore();
 
 const options = locationSelectOptions.filter((opt) => opt.value !== globalOption.value && opt.label !== "Global");
 
-// Initialise selectedLocations to the files relevant to the current plot: this pre-selects them.
+// Pre-select the locations based on the filter.
 const selectedLocations = ref<string[]>(
   appStore.filters[Dimension.LOCATION]?.filter(l => options.some(opt => opt.value === l)) ?? []
 );
+
 const downloadErrors = ref<{ e: Error, message: string }[]>([]);
 
 const menuOpen = defineModel<boolean>('menuOpen', { required: true });
-
 
 const doDownload = async (locations: string[]) => {
   downloadErrors.value = [];
@@ -81,7 +81,6 @@ const doDownload = async (locations: string[]) => {
     };
   });
 
-
   const zipFilenameLocationPart = locations.length === 1 ? locations[0]!.replaceAll(" ", "_") : "";
   const zipFilename = ["vaxviz", "download", zipFilenameLocationPart].filter(part => part).join("_") + ".zip";
 
@@ -94,7 +93,7 @@ const doDownload = async (locations: string[]) => {
 };
 
 watch(selectedLocations, () => {
-  // Clear any previous download errors when filenames change
+  // Clear any previous download errors when selection changes
   downloadErrors.value = [];
 })
 </script>
