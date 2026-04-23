@@ -32,6 +32,8 @@ const expectMultiSelectedFocus = async (page: Page, focusType: FocusType, expect
 
 const globalOptionLabel = "All 117 VIMC countries";
 
+// Disable the "no-force-option" rule, as we need this to click Flowbite toggles (which obscure the underlying checkbox input)
+/* eslint-disable playwright/no-force-option */
 test('visits the app root url, selects options, and loads correct data', async ({ page, }) => {
   // Expect all data requests to have 'Cache-Control: no-cache' header in response
   // 'Cache-Control: no-cache' tells browsers and caches they can store a copy of a resource
@@ -82,8 +84,8 @@ test('visits the app root url, selects options, and loads correct data', async (
   // Change options: round 1
   await selectFocus(page, "Middle Africa");
   await dalysRadio.click();
-  await logScaleCheckbox.click();
-  await activityTypeCheckbox.click();
+  await logScaleCheckbox.click({ force: true });
+  await activityTypeCheckbox.click({ force: true });
 
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
@@ -134,8 +136,8 @@ test('visits the app root url, selects options, and loads correct data', async (
   await expectSingleSelectedFocus(page, "location", globalOptionLabel);
   await selectFocus(page, "AFG");
   await dalysRadio.click();
-  await logScaleCheckbox.click();
-  await activityTypeCheckbox.click();
+  await logScaleCheckbox.click({ force: true });
+  await activityTypeCheckbox.click({ force: true });
 
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();

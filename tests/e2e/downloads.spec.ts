@@ -60,7 +60,8 @@ test.describe("Downloads", () => {
     const dalysRadio = page.getByRole("radio", { name: "DALYs averted" });
     await dalysRadio.click();
     const activityTypeCheckbox = page.getByRole("checkbox", { name: "Split by activity type" });
-    await activityTypeCheckbox.click();
+    // eslint-disable-next-line playwright/no-force-option
+    await activityTypeCheckbox.click({ force: true });
 
     const download2 = await doDownload(page, 1);
     expect(download2.suggestedFilename()).toBe("summary_table_dalys_disease_activity_type.csv");
