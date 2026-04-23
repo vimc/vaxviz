@@ -6,7 +6,7 @@
     >
       <ColorLegend v-if="colorStore.colorMapping.size >= 2 || focusesWithoutData.length"/>
     </div>
-    <HelpInfos />
+    <HelpAlerts />
     <FwbAlert
       v-if="legendWarnings.length"
       class="w-fit h-full ml-auto"
@@ -28,7 +28,7 @@ import { useAppStore } from '@/stores/appStore';
 import { useColorStore } from '@/stores/colorStore';
 import { meningitisVaccines } from '@/utils/options';
 import ColorLegend from '@/components/ColorLegend.vue';
-import HelpInfos from './HelpInfos.vue';
+import HelpAlerts from './HelpAlerts.vue';
 
 const props = defineProps<{
   focusesWithoutData: string[];

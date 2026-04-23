@@ -66,7 +66,7 @@ import { computed, ref, watch } from 'vue';
 import { useDataStore } from '@/stores/dataStore';
 import { Dimension, LocResolution } from '@/types';
 import { metricOptions } from '@/utils/options';
-import DownloadIcon from './DownloadIcon.vue';
+import DownloadIcon from './icons/DownloadIcon.vue';
 import DownloadFilters from './DownloadFilters.vue';
 import DataErrorAlert from "./DataErrorAlert.vue";
 import { downloadCsvAsSingleOrZip } from "@/utils/csvDownload";

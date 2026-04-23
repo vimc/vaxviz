@@ -15,6 +15,7 @@ export const useAppStore = defineStore("app", () => {
   const burdenMetric = ref(BurdenMetric.DEATHS);
   const logScaleEnabled = ref(true);
   const splitByActivityType = ref<boolean>(false);
+  const normalizeYScale = ref<boolean>(true);
 
   // The column axis corresponds to horizontal splitting of the ridgeline plot, known internally to skadi-chart as the 'x categorical' axis.
   // The row axis corresponds to the rows of the ridgeline plot, known internally to skadi-chart as the 'y categorical' axis.
@@ -137,6 +138,7 @@ export const useAppStore = defineStore("app", () => {
     getAxisForDimension,
     geographicalResolutionForLocation,
     logScaleEnabled,
+    normalizeYScale,
     resetFocuses,
     resetLegendSelections,
     legendSelections,

@@ -56,5 +56,8 @@ describe('PlotControls component', () => {
     expect((burdenMetricRadios.find(e => e.element.value === "deaths")?.element.checked)).toBe(true);
 
     expect(wrapper.findComponent(DownloadModal).exists()).toBe(true);
+
+    const normalizeYScalesCheckbox = wrapper.findAll('label').find(e => e.text().includes("Normalize y-axis scales"))?.find('input');
+    expect(normalizeYScalesCheckbox.element.checked).toBe(true);
   });
 })

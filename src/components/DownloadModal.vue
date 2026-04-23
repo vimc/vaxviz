@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { FwbButton, FwbModal } from 'flowbite-vue';
 import { ref } from 'vue';
-import DownloadIcon from './DownloadIcon.vue';
+import DownloadIcon from './icons/DownloadIcon.vue';
 import DownloadSelect from './DownloadSelect.vue';
 
 const downloadModalVisible = ref(false);

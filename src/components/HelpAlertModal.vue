@@ -1,26 +1,16 @@
 <template>
-  <div
+  <button
     v-if="dismissed"
     @click="undismiss"
     class="ml-auto self-end flex items-center gap-x-1 text-sm text-gray-500 dark:text-gray-400 cursor-pointer"
   >
-    <svg
-      class="size-6 dark:text-white"
-      aria-hidden="true"
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.529 9.988a2.502 2.502 0 1 1 5 .191A2.441 2.441 0 0 1 12 12.582V14m-.01 3.008H12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-    </svg>
+    <QuestionIcon class="size-5" />
     Help with {{ props.header.toLocaleLowerCase() }}
-  </div>
+  </button>
   <FwbAlert
     v-else
     icon
-    class="w-fit h-full ml-auto"
+    class="w-fit h-full ml-auto p-3"
   >
     <div class="flex flex-col gap-2">
       <div>
@@ -76,9 +66,10 @@
 </template>
 
 <script setup lang="ts">
-import { FwbAlert, FwbButton, FwbModal } from 'flowbite-vue'
 import { ref } from 'vue';
+import { FwbAlert, FwbButton, FwbModal } from 'flowbite-vue'
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
+import QuestionIcon from '@/components/icons/QuestionIcon.vue';
 
 const props = defineProps<{
   id: string;

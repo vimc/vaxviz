@@ -33,29 +33,53 @@
         />
       </div>
     </fieldset>
-    <!-- TODO?: Disable this checkbox, or warn user, if the currently selected disease does not have multiple activity types? -->
     <div class="flex gap-y-5 flex-wrap flex-col w-fit">
-      <FwbCheckbox
+      <FwbToggle
         v-model="appStore.splitByActivityType"
         label="Split by activity type"
-        :wrapper-class="'w-fit'"
+        size="sm"
       />
-      <FwbCheckbox
+      <FwbToggle
         v-model="appStore.logScaleEnabled"
         label="Log scale"
-        :wrapper-class="'w-fit'"
+        size="sm"
       />
+      <div class="flex gap-3 items-center">
+        <FwbToggle
+          v-model="appStore.normalizeYScale"
+          label="Normalize y-axis scales"
+          size="sm"
+        />
+        <HelpInfo
+          alertText="Normalizing the y-axis scales helps to compare the shapes of the ridgelines more easily."
+          header="Y-axis normalization"
+        >
+          <template #body>
+            <div class="space-y-5">
+              <p>
+                The y-axis for each plot row is the run count: that is, number of model runs that fall within a certain range of impact estimates (on the x-axis).
+                When the y-axis values are normalized, the scales are zoomed in in order to make the most use of available vertical space.
+                This means that, as long as normalizing is enabled, y-axis values are not comparable across rows (though they remain comparable within each row).
+              </p>
+              <p>
+                Normalizing the y-axis scales is especially useful when ridgelines have very variable shapes, e.g. some having tall spikes, others very flat: in such cases it makes the shapes of the ridgelines easier to read.
+              </p>
+            </div>
+          </template>
+        </HelpInfo>
+      </div>
     </div>
     <DownloadModal />
   </div>
 </template>
 
 <script setup lang="ts">
-import { FwbCheckbox, FwbRadio } from 'flowbite-vue'
+import { FwbRadio, FwbToggle } from 'flowbite-vue'
 import { useAppStore } from '@/stores/appStore';
 import DownloadModal from '@/components/DownloadModal.vue';
 import { metricOptions } from '@/utils/options';
 import FocusSelect from './FocusSelect.vue';
+import HelpInfo from './HelpInfo.vue';
 
 const appStore = useAppStore();
 </script>

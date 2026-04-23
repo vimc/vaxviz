@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { setActivePinia, createPinia } from 'pinia';
 
-import HelpInfoModal from '@/components/HelpInfoModal.vue';
+import HelpAlertModal from '@/components/HelpAlertModal.vue';
 
 const renderComponent = () => {
-  return mount(HelpInfoModal, {
+  return mount(HelpAlertModal, {
     props: {
       id: 'test',
       alertText: 'Test alert text',
@@ -17,7 +17,7 @@ const renderComponent = () => {
   });
 }
 
-describe('HelpInfoModal component', () => {
+describe('HelpAlertModal component', () => {
   beforeEach(() => {
     localStorage.clear();
     setActivePinia(createPinia());
@@ -34,7 +34,7 @@ describe('HelpInfoModal component', () => {
 
   it('does not render the alert if it has been dismissed', () => {
     localStorage.setItem("helpInfoDismissed_test", "true")
-    
+
     const wrapper = renderComponent();
 
     const alert = wrapper.find('[role="alert"]');
