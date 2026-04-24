@@ -1,6 +1,6 @@
 import { expect, Download, Page } from '@playwright/test';
 import { test } from './fixtures/interceptNetworkRequests.ts';
-import { selectFocus } from './utils.ts';
+import { getCheckboxLabel, getCheckboxWithinLabel, selectFocus } from './utils.ts';
 
 const openDownloadModal = async (page: Page) => {
   await page.getByRole("button", { name: "Download" }).click();
@@ -59,9 +59,10 @@ test.describe("Downloads", () => {
     // Set burden metric to DALYs, and split plot by activity type, and check download again
     const dalysRadio = page.getByRole("radio", { name: "DALYs averted" });
     await dalysRadio.click();
-    const activityTypeCheckbox = page.getByRole("checkbox", { name: "Split by activity type" });
-    // eslint-disable-next-line playwright/no-force-option
-    await activityTypeCheckbox.click({ force: true });
+    const activityTypeToggle = getCheckboxLabel(page, "Split by activity type");
+    const activityTypeCheckbox = getCheckboxWithinLabel(page, "Split by activity type");
+    await activityTypeToggle.click();
+    await expect(activityTypeCheckbox).toBeChecked();
 
     const download2 = await doDownload(page, 1);
     expect(download2.suggestedFilename()).toBe("summary_table_dalys_disease_activity_type.csv");

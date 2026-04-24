@@ -8,7 +8,7 @@ import histCountsDeathsDiseaseActivityType from "../../public/data/json/hist_cou
 import histCountsDalysDiseaseSubregionLog from "../../public/data/json/hist_counts_dalys_disease_subregion_log.json" with { type: "json" };
 import histCountsDalysDiseaseCountryLog from "../../public/data/json/hist_counts_dalys_disease_country_log.json" with { type: "json" };
 import histCountsDalysDiseaseLog from "../../public/data/json/hist_counts_dalys_disease_log.json" with { type: "json" };
-import { selectFocus } from './utils.ts';
+import { getCheckboxLabel, getCheckboxWithinLabel, selectFocus } from './utils.ts';
 
 type FocusType = "disease" | "location";
 
@@ -32,8 +32,6 @@ const expectMultiSelectedFocus = async (page: Page, focusType: FocusType, expect
 
 const globalOptionLabel = "All 117 VIMC countries";
 
-// Disable the "no-force-option" rule, as we need this to click Flowbite toggles (which obscure the underlying checkbox input)
-/* eslint-disable playwright/no-force-option */
 test('visits the app root url, selects options, and loads correct data', async ({ page, }) => {
   // Expect all data requests to have 'Cache-Control: no-cache' header in response
   // 'Cache-Control: no-cache' tells browsers and caches they can store a copy of a resource
@@ -52,8 +50,10 @@ test('visits the app root url, selects options, and loads correct data', async (
 
   const diseaseRadio = page.getByRole("radio", { name: "Disease" });
   const geographyRadio = page.getByRole("radio", { name: "Geography" });
-  const activityTypeCheckbox = page.getByRole("checkbox", { name: "Split by activity type" });
-  const logScaleCheckbox = page.getByRole("checkbox", { name: "Log scale" });
+  const activityTypeToggle = getCheckboxLabel(page, "Split by activity type");
+  const activityTypeCheckbox = getCheckboxWithinLabel(page, "Split by activity type");
+  const logScaleToggle = getCheckboxLabel(page, "Log scale");
+  const logScaleCheckbox = getCheckboxWithinLabel(page, "Log scale");
   const dalysRadio = page.getByRole("radio", { name: "DALYs averted" });
   const deathsRadio = page.getByRole("radio", { name: "Deaths averted" });
   const chartWrapper = page.locator("#chartWrapper");
@@ -84,8 +84,8 @@ test('visits the app root url, selects options, and loads correct data', async (
   // Change options: round 1
   await selectFocus(page, "Middle Africa");
   await dalysRadio.click();
-  await logScaleCheckbox.click({ force: true });
-  await activityTypeCheckbox.click({ force: true });
+  await logScaleToggle.click();
+  await activityTypeToggle.click();
 
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
@@ -136,8 +136,8 @@ test('visits the app root url, selects options, and loads correct data', async (
   await expectSingleSelectedFocus(page, "location", globalOptionLabel);
   await selectFocus(page, "AFG");
   await dalysRadio.click();
-  await logScaleCheckbox.click({ force: true });
-  await activityTypeCheckbox.click({ force: true });
+  await logScaleToggle.click();
+  await activityTypeToggle.click();
 
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
