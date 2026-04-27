@@ -38,3 +38,17 @@ export const dimensionOptionLabel = (dim: Dimension | null, value: string): stri
     [Dimension.ACTIVITY_TYPE]: activityTypeOptions,
   }[dim]?.find(o => o.value === value)?.label ?? value
 };
+
+export const locationSelectOptions = [{
+  label: "Global",
+  options: [globalOption]
+}, {
+  label: "Subregions",
+  options: subregionOptions
+}, {
+  label: "Countries",
+  options: countryOptions
+}].map(group => {
+  const optgroup = { label: group.label, value: "optgroup", disabled: true };
+  return [optgroup, ...group.options];
+}).flat();
