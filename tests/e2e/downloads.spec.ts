@@ -1,6 +1,6 @@
 import { expect, Download, Page } from '@playwright/test';
 import { test } from './fixtures/interceptNetworkRequests.ts';
-import { getCheckboxLabel, getCheckboxWithinLabel, selectFocus } from './utils.ts';
+import { selectFocus } from './utils.ts';
 
 const openDownloadModal = async (page: Page) => {
   await page.getByRole("button", { name: "Download" }).click();
@@ -59,8 +59,8 @@ test.describe("Downloads", () => {
     // Set burden metric to DALYs, and split plot by activity type, and check download again
     const dalysRadio = page.getByRole("radio", { name: "DALYs averted" });
     await dalysRadio.click();
-    const activityTypeToggle = getCheckboxLabel(page, "Split by activity type");
-    const activityTypeCheckbox = getCheckboxWithinLabel(page, "Split by activity type");
+    const activityTypeToggle = page.locator("label").filter({ hasText: "Split by activity type" });
+    const activityTypeCheckbox = activityTypeToggle.locator('input[type="checkbox"]').first();
     await activityTypeToggle.click();
     await expect(activityTypeCheckbox).toBeChecked();
 

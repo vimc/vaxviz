@@ -7,9 +7,3 @@ export const selectFocus = async (page: Page, optionLabel: string) => {
   await expect(option).toBeVisible();
   await option.click();
 };
-
-export const getCheckboxWithinLabel = (page: Page, labelText: string) =>
-  page.locator("label").filter({ hasText: labelText }).locator('input[type="checkbox"]').first();
-
-export const getCheckboxLabel = (page: Page, labelText: string) =>
-  page.locator("label").filter({ hasText: labelText }).first();

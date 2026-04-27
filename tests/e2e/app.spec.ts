@@ -8,7 +8,7 @@ import histCountsDeathsDiseaseActivityType from "../../public/data/json/hist_cou
 import histCountsDalysDiseaseSubregionLog from "../../public/data/json/hist_counts_dalys_disease_subregion_log.json" with { type: "json" };
 import histCountsDalysDiseaseCountryLog from "../../public/data/json/hist_counts_dalys_disease_country_log.json" with { type: "json" };
 import histCountsDalysDiseaseLog from "../../public/data/json/hist_counts_dalys_disease_log.json" with { type: "json" };
-import { getCheckboxLabel, getCheckboxWithinLabel, selectFocus } from './utils.ts';
+import { selectFocus } from './utils.ts';
 
 type FocusType = "disease" | "location";
 
@@ -50,10 +50,10 @@ test('visits the app root url, selects options, and loads correct data', async (
 
   const diseaseRadio = page.getByRole("radio", { name: "Disease" });
   const geographyRadio = page.getByRole("radio", { name: "Geography" });
-  const activityTypeToggle = getCheckboxLabel(page, "Split by activity type");
-  const activityTypeCheckbox = getCheckboxWithinLabel(page, "Split by activity type");
-  const logScaleToggle = getCheckboxLabel(page, "Log scale");
-  const logScaleCheckbox = getCheckboxWithinLabel(page, "Log scale");
+  const activityTypeToggle = page.locator("label").filter({ hasText: "Split by activity type" });
+  const activityTypeCheckbox = activityTypeToggle.locator('input[type="checkbox"]').first();
+  const logScaleToggle = page.locator("label").filter({ hasText: "Log scale" });
+  const logScaleCheckbox = logScaleToggle.locator('input[type="checkbox"]').first();
   const dalysRadio = page.getByRole("radio", { name: "DALYs averted" });
   const deathsRadio = page.getByRole("radio", { name: "Deaths averted" });
   const chartWrapper = page.locator("#chartWrapper");
