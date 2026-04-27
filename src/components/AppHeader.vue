@@ -34,9 +34,9 @@
         <template #default>
           <div>
             <h2 class="text-lg font-medium">
-              Provisional estimates. Not to be forwarded or cited.
+              Not to be used or cited until 16th May 2026.
             </h2>
-            <p class="mt-2">This is a preview. All estimates shown are representative only. Do not use or forward them.</p>
+            <p class="mt-2">This is a pre-publication preview. Do not use or cite these estimates until publication of the associated paper.</p>
           </div>
         </template>
       </FwbAlert>

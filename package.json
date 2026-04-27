@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "dev-embargo": "export VITE_EMBARGO_VAXVIZ=1 && vite --port 5174",
-    "build": "export VITE_EMBARGO_VAXVIZ=1 && run-p type-check \"build-only {@}\" --",
+    "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "test:unit": "vitest",
     "test:coverage": "vitest --coverage",

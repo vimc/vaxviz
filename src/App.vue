@@ -16,7 +16,7 @@ import PlotControls from '@/components/PlotControls.vue';
 import RidgelinePlot from '@/components/RidgelinePlot.vue';
 
 // Embargo app if built with this env var
-const embargo = import.meta.env.VITE_EMBARGO_VAXVIZ
+const embargo = import.meta.env.VITE_EMBARGO_VAXVIZ;
 </script>
 
 <style lang="scss">
