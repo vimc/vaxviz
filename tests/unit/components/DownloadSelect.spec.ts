@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { setActivePinia } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
@@ -20,10 +20,6 @@ const mockDownload = () => {
 describe('DownloadSelect component', () => {
   beforeEach(() => {
     setActivePinia(createTestingPinia({ createSpy: vi.fn, stubActions: false }));
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   const mountComponent = () => mount(DownloadSelect, {

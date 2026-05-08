@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia';
 
 import JSZip from "jszip";
@@ -35,10 +35,6 @@ describe('downloadCsvAsSingleOrZip', () => {
       }
       return element;
     });
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
   });
 
   it("should download single file directly when only one path", async () => {

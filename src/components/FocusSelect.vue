@@ -46,10 +46,8 @@ import VueSelect, { type Option } from "vue3-select-component";
 import { computed, ref, watch } from 'vue';
 import { useAppStore } from '@/stores/appStore';
 import { Dimension } from '@/types';
-import countryOptions from '@/data/options/countryOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
-import subregionOptions from '@/data/options/subregionOptions.json';
-import { globalOption } from '@/utils/options';
+import { locationSelectOptions } from '@/utils/options';
 
 const appStore = useAppStore();
 
@@ -62,25 +60,9 @@ const focusModel = computed({
   }
 });
 
-const selectOptions = computed(() => {
-  if (appStore.exploreBy === Dimension.LOCATION) {
-    return [{
-      label: "Global",
-      options: [globalOption]
-    }, {
-      label: "Subregions",
-      options: subregionOptions
-    }, {
-      label: "Countries",
-      options: countryOptions
-    }].map(group => {
-      const optgroup = { label: group.label, value: "optgroup", disabled: true };
-      return [optgroup, ...group.options];
-    }).flat();
-  } else {
-    return diseaseOptions;
-  }
-});
+const selectOptions = computed(() =>
+  appStore.exploreBy === Dimension.LOCATION ? locationSelectOptions : diseaseOptions
+);
 
 watch(multiFocusMode, (multi) => {
   if (!multi && appStore.focuses.length === 0) {
