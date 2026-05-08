@@ -1,6 +1,7 @@
 <template>
   <button
     v-if="dismissed"
+    type="button"
     @click="undismiss"
     class="ml-auto self-end flex items-center gap-x-1 text-sm text-gray-500 dark:text-gray-400 cursor-pointer"
   >
