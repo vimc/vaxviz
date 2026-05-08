@@ -44,9 +44,6 @@ const normalizeLines = (lines: Lines<LineMetadata>, yMax: number): Lines<LineMet
   const yMaxWithPadding = yMax * 0.9; // Add padding to the max y value to prevent lines from touching the top of the plot after normalization.
   return lines.map(line => {
     const lineMaxY = Math.max(...line.points.map(p => p.y));
-    if (lineMaxY <= 0) {
-      return line;
-    }
     const normalizationFactor = yMaxWithPadding / lineMaxY;
     return {
       ...line,
