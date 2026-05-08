@@ -64,10 +64,10 @@ describe('PlotControls component', () => {
   it("shows the Y-axis normalization help info modal when the help button is clicked", async () => {
     const wrapper = mount(PlotControls)
     const normalizationHelpInfoButton = wrapper.findAll('button').filter(e => e.text() === "Help with Y-axis normalization").at(0);
-    await normalizationHelpInfoButton.trigger('click');
+    await normalizationHelpInfoButton!.trigger('click');
 
     await vi.waitFor(() => {
       expect(wrapper.findComponent({ name: 'FwbModal' }).isVisible()).toBe(true);
-    });
+
   });
 })
