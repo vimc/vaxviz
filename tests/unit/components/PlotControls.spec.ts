@@ -68,6 +68,6 @@ describe('PlotControls component', () => {
 
     await vi.waitFor(() => {
       expect(wrapper.findComponent({ name: 'FwbModal' }).isVisible()).toBe(true);
-
+    });
   });
 })

@@ -4,7 +4,6 @@ This allows 'currentColor' to pick up the contextual CSS color, rather
 than defaulting to black. -->
 <template>
   <svg
-    class="dark:text-white"
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     width="24"
