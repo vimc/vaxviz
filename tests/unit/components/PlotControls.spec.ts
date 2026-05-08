@@ -70,4 +70,4 @@ describe('PlotControls component', () => {
       expect(wrapper.findComponent({ name: 'FwbModal' }).isVisible()).toBe(true);
     });
   });
-})
+});

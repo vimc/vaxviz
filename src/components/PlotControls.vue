@@ -58,7 +58,7 @@
               <p>
                 The y-axis for each plot row is the run count: that is, number of model runs that fall within a certain range of impact estimates (on the x-axis).
                 When the y-axis values are normalized, the scales are zoomed in in order to make the most use of available vertical space.
-                This means that, as long as normalizing is enabled, y-axis values are not comparable across rows (though they remain comparable within each row).
+                This means that, as long as normalizing is enabled, y-axis values are not comparable across rows (nor between traces that share a row).
               </p>
               <p>
                 Normalizing the y-axis scales is especially useful when ridgelines have very variable shapes, e.g. some having tall spikes, others very flat: in such cases it makes the shapes of the ridgelines easier to read.
