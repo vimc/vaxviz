@@ -1,5 +1,6 @@
 <template>
   <button
+    type="button"
     @click="modalVisible = true"
     class="gap-x-1 text-sm text-gray-500 dark:text-gray-400"
   >

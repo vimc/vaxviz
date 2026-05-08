@@ -42,7 +42,7 @@ import VueSelect from "vue3-select-component";
 import { FwbButton } from 'flowbite-vue';
 import { ref, watch } from 'vue';
 import { useAppStore } from "@/stores/appStore";
-import DownloadIcon from './DownloadIcon.vue';
+import DownloadIcon from './icons/DownloadIcon.vue';
 import DataErrorAlert from "./DataErrorAlert.vue";
 import { downloadCsvAsSingleOrZip } from "@/utils/csvDownload";
 import { globalOption, locationSelectOptions } from "@/utils/options";
