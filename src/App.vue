@@ -1,22 +1,15 @@
 <template>
-  <EmbargoNotice v-if="embargo"></EmbargoNotice>
-  <template v-else>
   <AppHeader />
-    <main class="flex w-full max-w-full">
-      <PlotControls />
-      <RidgelinePlot />
-    </main>
-  </template>
+  <main class="flex w-full max-w-full">
+    <PlotControls />
+    <RidgelinePlot />
+  </main>
 </template>
 
 <script setup lang="ts">
 import AppHeader from '@/components/AppHeader.vue';
-import EmbargoNotice from "@/components/EmbargoNotice.vue";
 import PlotControls from '@/components/PlotControls.vue';
 import RidgelinePlot from '@/components/RidgelinePlot.vue';
-
-// Embargo app if built with this env var
-const embargo = import.meta.env.VITE_EMBARGO_VAXVIZ;
 </script>
 
 <style lang="scss">

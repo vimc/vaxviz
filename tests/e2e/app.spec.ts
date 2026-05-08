@@ -59,9 +59,6 @@ test('visits the app root url, selects options, and loads correct data', async (
   const chartWrapper = page.locator("#chartWrapper");
   const plotLegend = page.locator("#colorLegend");
 
-  //No embargo notice
-  await expect(page.locator("#embargo")).toBeHidden();
-
   // Initial selections
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
