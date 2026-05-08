@@ -51,7 +51,6 @@
           size="sm"
         />
         <HelpInfo
-          alertText="Normalizing the y-axis scales helps to compare the shapes of the ridgelines more easily."
           header="Y-axis normalization"
         >
           <template #body>

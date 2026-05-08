@@ -11,7 +11,7 @@ import DownloadSelect from '@/components/DownloadSelect.vue';
 
 const openModal = async (wrapper: ReturnType<typeof mount>) => {
   const button = wrapper.findAll('button').find((btn) => btn.text() === "Downloads");
-  await button.trigger('click');
+  await button!.trigger('click');
   await nextTick();
 }
 
