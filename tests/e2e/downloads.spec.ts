@@ -64,8 +64,10 @@ test.describe("Downloads", () => {
     // Set burden metric to DALYs, and split plot by activity type, and check download again
     const dalysRadio = page.getByRole("radio", { name: "DALYs averted" });
     await dalysRadio.click();
-    const activityTypeCheckbox = page.getByRole("checkbox", { name: "Split by activity type" });
-    await activityTypeCheckbox.click();
+    const activityTypeToggle = page.locator("label").filter({ hasText: "Split by activity type" });
+    const activityTypeCheckbox = activityTypeToggle.locator('input[type="checkbox"]').first();
+    await activityTypeToggle.click();
+    await expect(activityTypeCheckbox).toBeChecked();
 
     const download2 = await doDownload(page, 1);
     expect(download2.suggestedFilename()).toBe("summary_table_dalys_disease_activity_type.csv");

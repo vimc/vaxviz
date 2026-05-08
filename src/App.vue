@@ -62,4 +62,11 @@ main {
   height: calc(100dvh - #{$header-height} - #{$header-margin-bottom});
   max-height: calc(100dvh - #{$header-height} - #{$header-margin-bottom});
 }
+
+// Override a hard-coded color in Flowbite's FwbToggle component
+.peer-checked\:bg-blue-600 {
+  &:is(:where(.peer):checked ~ *) {
+    background-color: var(--color-brand)
+  }
+}
 </style>

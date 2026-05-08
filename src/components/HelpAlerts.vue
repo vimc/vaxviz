@@ -1,5 +1,5 @@
 <template>
-  <HelpInfoModal
+  <HelpAlertModal
     v-if="helpInfoStore.showNegativeValuesHelpInfo"
     id="negativeEstimates"
     alert-text="Some estimates are negative – this is expected."
@@ -18,8 +18,8 @@
         </details>
       </div>
     </template>
-  </HelpInfoModal>
-  <HelpInfoModal
+  </HelpAlertModal>
+  <HelpAlertModal
     v-else-if="appStore.logScaleEnabled"
     id="logScale"
     alert-text="Note: you are viewing estimates on a log 10 scale"
@@ -28,13 +28,13 @@
     <template #body>
       <p>This means that estimates that differ by orders of magnitude can be shown together. Please be aware the x-axis is non-linear and if you toggle between linear and log scales, the histogram bins may change.</p>
     </template>
-  </HelpInfoModal>
+  </HelpAlertModal>
 </template>
 
 <script setup lang="ts">
 import { useAppStore } from '@/stores/appStore';
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
-import HelpInfoModal from '@/components/HelpInfoModal.vue';
+import HelpAlertModal from '@/components/HelpAlertModal.vue';
 
 const helpInfoStore = useHelpInfoStore();
 const appStore = useAppStore();

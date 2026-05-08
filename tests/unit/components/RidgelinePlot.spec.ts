@@ -241,7 +241,7 @@ describe('RidgelinePlot component', () => {
         x: undefined,
         y: ["Northern Africa and Western Asia",
           "Latin America and the Caribbean",
-          "Eastern and Southern Europe", 
+          "Eastern and Southern Europe",
           "Southern Africa",
           "All 117 VIMC countries",
           "Eastern Africa",
@@ -442,12 +442,13 @@ describe('RidgelinePlot component', () => {
   });
 
   it('passes correct options to Chart', async () => {
+    const appStore = useAppStore();
+    appStore.normalizeYScale = false;
+
     mount(RidgelinePlot);
 
     await vi.waitFor(() => {
-      // Access the mock calls
       const chartMock = vi.mocked(Chart);
-      expect(chartMock).toHaveBeenCalled();
 
       // Get the options from the most recent call
       const lastCallArgs = chartMock.mock.calls[chartMock.mock.calls.length - 1];
@@ -476,6 +477,10 @@ describe('RidgelinePlot component', () => {
       const lines = tracesLastCallArgs[0];
 
       expect(lines).toHaveLength(14);
+
+      const maxYVals = lines.flatMap(l => Math.max(...l.points.map(p => p.y)));
+      // Since we are not normalizing the y-axis scales, there should be variation among the maximum y values per line.
+      expect(new Set(maxYVals).size).toEqual(11); // not 14 because three lines have the same maximum y value natively
 
       const lineRows = lines.map(l => l.metadata.row);
       const diseases = diseaseOptions.filter(d => lineRows.includes(d.value));
@@ -511,6 +516,21 @@ describe('RidgelinePlot component', () => {
       expect(margins).toEqual(expect.objectContaining({
         left: 110,
       }));
+    });
+
+    appStore.normalizeYScale = true;
+
+    await vi.waitFor(() => {
+      const tracesLastCallArgs = addTracesSpy.mock.calls[addTracesSpy.mock.calls.length - 1];
+      const lines = tracesLastCallArgs[0];
+
+      expect(lines).toHaveLength(14);
+
+      const maxYVals = lines.flatMap(l => Math.max(...l.points.map(p => p.y)));
+      // Since we are now normalizing the y-axis scales, each line's maximum y value should be the same.
+      maxYVals.forEach((y) => {
+        expect(y).toBeCloseTo(49.5); // 90% of 55
+      });
     });
   });
 

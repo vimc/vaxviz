@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { setActivePinia } from 'pinia';
 import { createTestingPinia } from '@pinia/testing';
 import { nextTick } from "vue";
-import HelpInfos from '@/components/HelpInfos.vue'
+import HelpAlerts from '@/components/HelpAlerts.vue'
 import { useHelpInfoStore } from '@/stores/helpInfoStore';
 import { useAppStore } from '@/stores/appStore'
 
@@ -13,7 +13,7 @@ describe('help infos component', () => {
   });
 
   const renderComponent = () => {
-    return mount(HelpInfos);
+    return mount(HelpAlerts);
   }
 
   it("shows the negative estimates help info when decreed by the help info store", async () => {
@@ -28,7 +28,7 @@ describe('help infos component', () => {
     expect(wrapper.findAll('[role="alert"]').find(e => e.text().includes("Some estimates are negative"))).toBeDefined();
   });
 
-  it("show the log scale help info when log scale is enabled", async () => {
+  it("shows the log scale help info when log scale is enabled", async () => {
     const wrapper = renderComponent();
 
     expect(wrapper.findAll('[role="alert"]').find(e => e.text().includes("Note: you are viewing estimates on a log 10 scale"))).toBeDefined();

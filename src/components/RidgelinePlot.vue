@@ -158,17 +158,18 @@ const updateChart = debounce(() => {
     return { ...line, style: { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor } };
   });
 
-  const { constructorOptions, axisConfig, chartAppendConfig, numericalScales } = plotConfiguration(
+  const { constructorOptions, axisConfig, chartAppendConfig, numericalScales, normalizedLines } = plotConfiguration(
     appStore.dimensions[Axis.ROW],
     appStore.logScaleEnabled,
     lines,
+    appStore.normalizeYScale,
   );
 
   helpInfoStore.showNegativeValuesHelpInfo = !appStore.logScaleEnabled && numericalScales.x.start < 0;
 
   new Chart(constructorOptions)
     .addAxes(...axisConfig)
-    .addTraces(lines)
+    .addTraces(normalizedLines)
     .addArea()
     .addGridLines({ y: { enabled: false } })
     .addTooltips(tooltipCallback, TOOLTIP_RADIUS_PX)
@@ -179,7 +180,7 @@ const updateChart = debounce(() => {
   plotLeftMargin.value = chartAppendConfig[3].left || 0;
 }, 25);
 
-watch([selectedLines, chartWrapper], updateChart, { immediate: true });
+watch([selectedLines, chartWrapper, () => appStore.normalizeYScale], updateChart, { immediate: true });
 </script>
 
 <style lang="scss" scoped>

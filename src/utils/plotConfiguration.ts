@@ -35,6 +35,23 @@ const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): 
   };
 };
 
+// In order to use different y-axis scales for different plot-rows, we normalize the y values of all lines.
+// We do this because the actual values (which represent the number of model runs that had results in each histogram bin)
+// do not matter absolutely, but rather they only matter relatively to each other _within_ a given line.
+// That is, it's the shape of the line that is of interest. Without normalization, flat lines become harder
+// to see when spikier lines push up the top end of a common y-axis scale.
+const normalizeLines = (lines: Lines<LineMetadata>, yMax: number): Lines<LineMetadata> => {
+  const yMaxWithPadding = yMax * 0.9; // Add padding to the max y value to prevent lines from touching the top of the plot after normalization.
+  return lines.map(line => {
+    const lineMaxY = Math.max(...line.points.map(p => p.y));
+    const normalizationFactor = yMaxWithPadding / lineMaxY;
+    return {
+      ...line,
+      points: line.points.map(p => ({ x: p.x, y: p.y * normalizationFactor })),
+    };
+  });
+};
+
 const categoricalScales = (lines: Lines<LineMetadata>): Partial<XY<string[]>> => {
   // Assume that the lines passed in have already been sorted for the y-axis.
   const xCategoricalScale = [...new Set(lines.map(l => l.bands?.x).filter(c => !!c))] as string[];
@@ -139,11 +156,13 @@ export const plotConfiguration = (
   rowDimension: Dimension,
   logScaleEnabled: boolean,
   lines: Lines<LineMetadata>,
+  normalizeYScale: boolean,
 ): {
   constructorOptions: PartialChartOptions
   axisConfig: AxisConfig
   chartAppendConfig: [Partial<Scales>, Partial<Scales>, Partial<XY<string[]>>, Partial<Bounds["margin"]>]
   numericalScales: Scales
+  normalizedLines: Lines<LineMetadata>
 } => {
   const numScales = numericalScales(logScaleEnabled, lines);
   const catScales = categoricalScales(lines);
@@ -161,5 +180,6 @@ export const plotConfiguration = (
     axisConfig,
     chartAppendConfig: [numScales, {}, catScales, margins(rowDimension)],
     numericalScales: numScales,
+    normalizedLines: normalizeYScale ? normalizeLines(lines, numScales.y.end) : lines,
   };
 };

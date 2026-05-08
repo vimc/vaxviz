@@ -50,8 +50,10 @@ test('visits the app root url, selects options, and loads correct data', async (
 
   const diseaseRadio = page.getByRole("radio", { name: "Disease" });
   const geographyRadio = page.getByRole("radio", { name: "Geography" });
-  const activityTypeCheckbox = page.getByRole("checkbox", { name: "Split by activity type" });
-  const logScaleCheckbox = page.getByRole("checkbox", { name: "Log scale" });
+  const activityTypeToggle = page.locator("label").filter({ hasText: "Split by activity type" });
+  const activityTypeCheckbox = activityTypeToggle.locator('input[type="checkbox"]').first();
+  const logScaleToggle = page.locator("label").filter({ hasText: "Log scale" });
+  const logScaleCheckbox = logScaleToggle.locator('input[type="checkbox"]').first();
   const dalysRadio = page.getByRole("radio", { name: "DALYs averted" });
   const deathsRadio = page.getByRole("radio", { name: "Deaths averted" });
   const chartWrapper = page.locator("#chartWrapper");
@@ -82,8 +84,8 @@ test('visits the app root url, selects options, and loads correct data', async (
   // Change options: round 1
   await selectFocus(page, "Middle Africa");
   await dalysRadio.click();
-  await logScaleCheckbox.click();
-  await activityTypeCheckbox.click();
+  await logScaleToggle.click();
+  await activityTypeToggle.click();
 
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
@@ -134,8 +136,8 @@ test('visits the app root url, selects options, and loads correct data', async (
   await expectSingleSelectedFocus(page, "location", globalOptionLabel);
   await selectFocus(page, "AFG");
   await dalysRadio.click();
-  await logScaleCheckbox.click();
-  await activityTypeCheckbox.click();
+  await logScaleToggle.click();
+  await activityTypeToggle.click();
 
   await expect(diseaseRadio).not.toBeChecked();
   await expect(geographyRadio).toBeChecked();
