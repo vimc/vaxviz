@@ -69,6 +69,7 @@ export const trackDownload = (
   downloadType: "summary_table_by_location" | "summary_table_by_filename",
   additionalProperties: Record<string, string | Array<string>>,
 ) => {
+  if (!analyticsPermittedInitially) return;
   posthog.capture('download', {
     download_type: downloadType,
     ...additionalProperties,
