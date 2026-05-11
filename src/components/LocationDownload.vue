@@ -47,6 +47,7 @@ import DataErrorAlert from "./DataErrorAlert.vue";
 import { downloadCsvAsSingleOrZip } from "@/utils/csvDownload";
 import { globalOption, locationSelectOptions } from "@/utils/options";
 import { BurdenMetric, Dimension, LocResolution } from "@/types";
+import { trackDownload } from "@/utils/analytics";
 
 const appStore = useAppStore();
 
@@ -80,6 +81,8 @@ const doDownload = async (locations: string[]) => {
       ]);
     };
   });
+
+  trackDownload("summary_table_by_location", { locations, filenames });
 
   const zipFilenameLocationPart = locations.length === 1 ? locations[0]!.replaceAll(" ", "_") : "";
   const zipFilename = ["vaxviz", "download", zipFilenameLocationPart].filter(part => part).join("_") + ".zip";

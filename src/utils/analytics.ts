@@ -64,3 +64,13 @@ export const initialisePosthog = () => {
     }
   });
 };
+
+export const trackDownload = (
+  downloadType: "summary_table_by_location" | "summary_table_by_filename",
+  additionalProperties: Record<string, string | Array<string>>,
+) => {
+  posthog.capture('download', {
+    download_type: downloadType,
+    ...additionalProperties,
+  });
+};

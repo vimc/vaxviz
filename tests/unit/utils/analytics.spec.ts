@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { analyticsPermittedInitially, disableAnalytics, enableAnalytics, getUserLocation, initialisePosthog } from '@/utils/analytics';
+import { analyticsPermittedInitially, disableAnalytics, enableAnalytics, getUserLocation, initialisePosthog, trackDownload } from '@/utils/analytics';
 import posthog from "posthog-js";
 
 const mockFetch = vi.fn();
@@ -87,5 +87,18 @@ describe('initialisePosthog', () => {
       expect(registerSpy).toHaveBeenCalledWith({ country: 'Testland' });
     });
     expect(captureSpy).toHaveBeenCalledWith('app_loaded');
+  });
+});
+
+describe('trackDownload', () => {
+  it('captures a download event with the correct properties', () => {
+    const captureSpy = vi.spyOn(posthog, 'capture');
+
+    trackDownload("summary_table_by_location", { locations: ['Testland'] });
+
+    expect(captureSpy).toHaveBeenCalledWith('download', {
+      download_type: "summary_table_by_location",
+      locations: ['Testland'],
+    });
   });
 });

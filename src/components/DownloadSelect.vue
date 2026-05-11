@@ -71,6 +71,7 @@ import DownloadFilters from './DownloadFilters.vue';
 import DataErrorAlert from "./DataErrorAlert.vue";
 import { downloadCsvAsSingleOrZip } from "@/utils/csvDownload";
 import { allPossibleSummaryTables } from "@/utils/allSummaryTables";
+import { trackDownload } from "@/utils/analytics";
 
 const dataStore = useDataStore();
 
@@ -113,6 +114,8 @@ const selectAllFilesMatchingFilters = (allFiltersUnchecked: boolean) => toDownlo
 const doDownload = async (files: string[]) => {
   downloadErrors.value = [];
   const filenames = files.map((f) => `${f}.csv`);
+
+  trackDownload("summary_table_by_filename", { filenames });
 
   try {
     await downloadCsvAsSingleOrZip("./data/csv/source", filenames, "vaxviz_download.zip");

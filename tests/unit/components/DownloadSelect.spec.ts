@@ -10,11 +10,16 @@ import DownloadFilters from '@/components/DownloadFilters.vue';
 import DataErrorAlert from '@/components/DataErrorAlert.vue';
 import { useDataStore } from '@/stores/dataStore';
 import * as downloadModule from '@/utils/csvDownload';
+import * as analyticsModule from '@/utils/analytics';
 import { checkCheckbox } from '../testUtils';
 import { allPossibleSummaryTables } from "@/utils/allSummaryTables";
 
 const mockDownload = () => {
   return vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip').mockResolvedValue(undefined);
+};
+
+const mockTrackDownload = () => {
+  return vi.spyOn(analyticsModule, 'trackDownload').mockResolvedValue(undefined);
 };
 
 describe('DownloadSelect component', () => {
@@ -28,6 +33,7 @@ describe('DownloadSelect component', () => {
 
   it('should call downloadCsvAsSingleOrZip with pre-selected files from the current plot', async () => {
     const downloadSpy = mockDownload();
+    const analyticsSpy = mockTrackDownload();
     const dataStore = useDataStore();
     const wrapper = mountComponent();
 
@@ -39,10 +45,15 @@ describe('DownloadSelect component', () => {
       dataStore.summaryTableFilenames.map(f => `${f}.csv`),
       'vaxviz_download.zip',
     );
+    expect(analyticsSpy).toHaveBeenCalledWith(
+      "summary_table_by_filename",
+      { filenames: dataStore.summaryTableFilenames.map(f => `${f}.csv`) },
+    );
   });
 
   it('should download the correct files after the selection has changed', async () => {
     const downloadSpy = mockDownload();
+    const analyticsSpy = mockTrackDownload();
     const wrapper = mountComponent();
 
     // Apply a filter and select all matching files to change the selection
@@ -70,11 +81,15 @@ describe('DownloadSelect component', () => {
     // Should only contain deaths files, not dalys
     const calledFilenames = downloadSpy.mock.calls[0][1];
     expect(calledFilenames.every((f: string) => f.includes('deaths'))).toBe(true);
+    expect(analyticsSpy).toHaveBeenCalledWith(
+      "summary_table_by_filename",
+      { filenames: calledFilenames },
+    );
   });
 
   it('should call downloadCsvAsSingleOrZip with all files when "Download all" is clicked', async () => {
     const downloadSpy = mockDownload();
-
+    const analyticsSpy = mockTrackDownload();
     const wrapper = mountComponent();
 
     const downloadAllBtn = wrapper.findAll('button').find(b => b.text().includes('Download all'));
@@ -84,6 +99,10 @@ describe('DownloadSelect component', () => {
       './data/csv/source',
       allPossibleSummaryTables.map(f => `${f}.csv`),
       'vaxviz_download.zip',
+    );
+    expect(analyticsSpy).toHaveBeenCalledWith(
+      "summary_table_by_filename",
+      { filenames: allPossibleSummaryTables.map(f => `${f}.csv`) },
     );
   });
 
