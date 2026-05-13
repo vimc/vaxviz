@@ -47,7 +47,6 @@ import DataErrorAlert from "./DataErrorAlert.vue";
 import { downloadCsvAsSingleOrZip } from "@/utils/csvDownload";
 import { globalOption, locationSelectOptions } from "@/utils/options";
 import { BurdenMetric, Dimension, LocResolution } from "@/types";
-import { trackDownload } from "@/utils/analytics";
 
 const appStore = useAppStore();
 
