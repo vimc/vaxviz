@@ -1,5 +1,6 @@
 import posthog from "posthog-js";
 import { locationURL } from "./externalURLs";
+import type { Dimension } from "@/types";
 
 const analyticsDisabledKey: Readonly<string> = "analyticsDisabled";
 
@@ -73,5 +74,25 @@ export const trackDownload = (
   posthog.capture('download', {
     download_type: downloadType,
     ...additionalProperties,
+  });
+};
+
+export const trackLogScaleToggle = (
+  newScale: "log" | "linear",
+  plotProperties: {
+    focuses: string[],
+    exploreBy: string,
+    splitByActivityType: boolean,
+    legendSelections?: string[],
+    burdenMetric: string,
+    rowDimension: string,
+    columnDimension: string | null,
+    withinBandDimension: string,
+  },
+) => {
+  if (!analyticsPermittedInitially) return;
+  posthog.capture('log_scale_toggle', {
+    newScale,
+    ...plotProperties,
   });
 };

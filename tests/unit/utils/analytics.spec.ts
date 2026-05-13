@@ -1,5 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { analyticsPermittedInitially, disableAnalytics, enableAnalytics, getUserLocation, initialisePosthog, trackDownload } from '@/utils/analytics';
+import {
+  analyticsPermittedInitially,
+  disableAnalytics,
+  enableAnalytics,
+  getUserLocation,
+  initialisePosthog,
+  trackDownload,
+  trackLogScaleToggle
+} from '@/utils/analytics';
 import posthog from "posthog-js";
 
 const mockFetch = vi.fn();
@@ -99,6 +107,35 @@ describe('trackDownload', () => {
     expect(captureSpy).toHaveBeenCalledWith('download', {
       download_type: "summary_table_by_location",
       locations: ['Testland'],
+    });
+  });
+});
+
+describe('trackLogScaleToggle', () => {
+  it('captures a log scale toggle event with the correct properties', () => {
+    const captureSpy = vi.spyOn(posthog, 'capture');
+
+    trackLogScaleToggle("log", {
+      focuses: ['Testland'],
+      exploreBy: 'disease',
+      splitByActivityType: false,
+      legendSelections: ['Testland'],
+      burdenMetric: 'cases',
+      rowDimension: 'age',
+      columnDimension: 'gender',
+      withinBandDimension: 'location',
+    });
+
+    expect(captureSpy).toHaveBeenCalledWith('log_scale_toggle', {
+      newScale: "log",
+      focuses: ['Testland'],
+      exploreBy: 'disease',
+      splitByActivityType: false,
+      legendSelections: ['Testland'],
+      burdenMetric: 'cases',
+      rowDimension: 'age',
+      columnDimension: 'gender',
+      withinBandDimension: 'location',
     });
   });
 });

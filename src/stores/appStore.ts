@@ -6,6 +6,7 @@ import countryOptions from '@/data/options/countryOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { exploreOptions, globalOption } from "@/utils/options";
+import { trackLogScaleToggle } from '@/utils/analytics';
 
 const locationOptions = [...countryOptions, ...subregionOptions, globalOption];
 const defaultLocationOption = globalOption.value;
@@ -125,6 +126,20 @@ export const useAppStore = defineStore("app", () => {
   watch(splitByActivityType, (split) => columnDimension.value = split ? Dimension.ACTIVITY_TYPE : null);
 
   watch(filters, resetLegendSelections);
+
+  // Analytics on log scale toggle
+  watch(logScaleEnabled, (enabled) => {
+    trackLogScaleToggle(enabled ? 'log' : 'linear', {
+      focuses: focuses.value,
+      exploreBy: exploreBy.value,
+      splitByActivityType: splitByActivityType.value,
+      legendSelections: legendSelections.value[exploreBy.value],
+      burdenMetric: burdenMetric.value,
+      rowDimension: rowDimension.value,
+      columnDimension: columnDimension.value,
+      withinBandDimension: withinBandDimension.value,
+    });
+  });
 
   return {
     burdenMetric,
