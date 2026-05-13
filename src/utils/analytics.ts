@@ -89,7 +89,12 @@ type PlotAnalyticsProperties = {
   logScaleEnabled: boolean,
 };
 
-export const trackLogScaleToggle = (
+// Only capture changes to plot controls if they are stable for 8 seconds.
+// This is in order to see which combinations of plot controls are most of interest,
+// avoiding transient states as users navigate to their desired state.
+const debounceDuration = 8000;
+
+export const trackLogScaleToggle = debounce((
   newScale: "log" | "linear",
   plotProperties: Omit<PlotAnalyticsProperties, 'logScaleEnabled'>,
 ) => {
@@ -98,14 +103,11 @@ export const trackLogScaleToggle = (
     newScale,
     ...plotProperties,
   });
-};
+}, debounceDuration);
 
-// Only capture changes to plot controls if they are stable for 8 seconds.
-// This is in order to see which combinations of plot controls are most of interest,
-// avoiding transient states as users navigate to their desired state.
 export const trackPlotControls = debounce((plotProperties: PlotAnalyticsProperties) => {
   if (!analyticsPermittedInitially) return;
   posthog.capture('plot_controls_change', {
     ...plotProperties,
   });
-}, 8000);
+}, debounceDuration);

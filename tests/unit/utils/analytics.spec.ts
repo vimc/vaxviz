@@ -122,16 +122,23 @@ describe('trackLogScaleToggle', () => {
   it('captures a log scale toggle event with the correct properties', () => {
     const captureSpy = vi.spyOn(posthog, 'capture');
 
-    trackLogScaleToggle("log", {
-      focuses: ['Testland'],
-      exploreBy: 'disease',
-      splitByActivityType: false,
-      legendSelections: ['Testland'],
-      burdenMetric: 'cases',
-      rowDimension: 'age',
-      columnDimension: 'gender',
-      withinBandDimension: 'location',
-    });
+    // Call the debounced function multiple times in quick succession
+    for (let i = 0; i < 5; i++) {
+      trackLogScaleToggle("log", {
+        focuses: ['Testland'],
+        exploreBy: 'disease',
+        splitByActivityType: false,
+        legendSelections: ['Testland'],
+        burdenMetric: 'cases',
+        rowDimension: 'age',
+        columnDimension: 'gender',
+        withinBandDimension: 'location',
+      });
+    }
+
+    expect(captureSpy).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(8000); // Advance time by the debounce duration
 
     expect(captureSpy).toHaveBeenCalledWith('log_scale_toggle', {
       newScale: "log",
