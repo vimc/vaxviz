@@ -115,8 +115,6 @@ const doDownload = async (files: string[]) => {
   downloadErrors.value = [];
   const filenames = files.map((f) => `${f}.csv`);
 
-  trackDownload("summary_table_by_filename", { filenames });
-
   try {
     await downloadCsvAsSingleOrZip("./data/csv/source", filenames, "vaxviz_download.zip");
   } catch (error) {

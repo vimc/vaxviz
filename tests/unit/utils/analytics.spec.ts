@@ -170,7 +170,7 @@ describe('trackPlotControls', () => {
 
     expect(captureSpy).not.toHaveBeenCalled();
 
-    vi.advanceTimersByTime(10000); // Advance time by the debounce duration
+    vi.advanceTimersByTime(8000); // Advance time by the debounce duration
 
     expect(captureSpy).toHaveBeenCalledExactlyOnceWith('plot_controls_change', plotProperties);
   });

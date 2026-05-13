@@ -9,14 +9,9 @@ import LocationDownload from '@/components/LocationDownload.vue';
 import DataErrorAlert from '@/components/DataErrorAlert.vue';
 import { useAppStore } from '@/stores/appStore';
 import * as downloadModule from '@/utils/csvDownload';
-import * as analyticsModule from '@/utils/analytics';
 
 const mockDownload = () => {
   return vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip').mockResolvedValue(undefined);
-};
-
-const mockTrackDownload = () => {
-  return vi.spyOn(analyticsModule, 'trackDownload').mockResolvedValue(undefined);
 };
 
 const setSelectedLocations = async (wrapper: ReturnType<typeof mount>, locations: string[]) => {
@@ -44,7 +39,6 @@ describe('LocationDownload component', () => {
 
   it('downloads the expected files for a selected country', async () => {
     const downloadSpy = mockDownload();
-    const analyticsSpy = mockTrackDownload();
     const wrapper = mount(LocationDownload, {
       props: { menuOpen: false },
     });
@@ -65,16 +59,12 @@ describe('LocationDownload component', () => {
       './data/csv/location_summary_tables',
       expectedFiles,
       'vaxviz_download_AFG.zip',
+      ['AFG'],
     );
-    expect(analyticsSpy).toHaveBeenCalledWith("summary_table_by_location", {
-      locations: ['AFG'],
-      filenames: expectedFiles
-    });
   });
 
   it('downloads the expected files for multiple selected locations', async () => {
     const downloadSpy = mockDownload();
-    const analyticsSpy = mockTrackDownload();
     const wrapper = mount(LocationDownload, {
       props: { menuOpen: false },
     });
@@ -99,11 +89,8 @@ describe('LocationDownload component', () => {
       './data/csv/location_summary_tables',
       expectedFiles,
       'vaxviz_download.zip',
+      ['AFG', 'Central and Southern Asia'],
     );
-    expect(analyticsSpy).toHaveBeenCalledWith("summary_table_by_location", {
-      locations: ['AFG', 'Central and Southern Asia'],
-      filenames: expectedFiles,
-    });
   });
 
 

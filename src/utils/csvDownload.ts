@@ -1,4 +1,5 @@
 import JSZip from "jszip";
+import { trackDownload } from "./analytics";
 
 // Make a HEAD request to check if the file exists and is a CSV
 const headAndCheckCsv = async (path: string) => {
@@ -70,7 +71,14 @@ export const downloadCsvAsSingleOrZip = async (
   dataDir: string,
   filenames: string[],
   zipFileName: string,
+  locationsForAnalytics?: string[]
 ) => {
+  if (locationsForAnalytics) {
+    trackDownload("summary_table_by_location", { locations: locationsForAnalytics, filenames });
+  } else {
+    trackDownload("summary_table_by_filename", { filenames });
+  }
+
   if (filenames.length === 1 && filenames[0]) {
     await downloadSingleFile(dataDir, filenames[0]);
   } else if (filenames.length > 1) {

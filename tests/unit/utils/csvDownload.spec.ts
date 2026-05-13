@@ -1,8 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia';
-
 import JSZip from "jszip";
+import * as analyticsModule from '@/utils/analytics';
 import { downloadCsvAsSingleOrZip } from '@/utils/csvDownload';
+
+const mockTrackDownload = () => {
+  return vi.spyOn(analyticsModule, 'trackDownload').mockResolvedValue(undefined);
+};
 
 describe('downloadCsvAsSingleOrZip', () => {
   let originalCreateElement: typeof document.createElement;
@@ -37,13 +41,33 @@ describe('downloadCsvAsSingleOrZip', () => {
     });
   });
 
-  it("should download single file directly when only one path", async () => {
+  it("should download single file directly when only one path, and track downloads by filename", async () => {
+    const analyticsSpy = mockTrackDownload();
     await downloadCsvAsSingleOrZip("./data/csv/source", ["summary_table_deaths_disease.csv"], "name.zip");
 
     expect(createdLinks).toHaveLength(1);
     expect(createdLinks[0].href).toBe("./data/csv/source/summary_table_deaths_disease.csv");
     expect(createdLinks[0].download).toBe("summary_table_deaths_disease.csv");
     expect(createdLinks[0].clicked).toBe(true);
+
+    expect(analyticsSpy).toHaveBeenCalledWith("summary_table_by_filename", {
+      filenames: ["summary_table_deaths_disease.csv"]
+    });
+  });
+
+  it("should download single file directly when only one path, and track downloads by location", async () => {
+    const analyticsSpy = mockTrackDownload();
+    await downloadCsvAsSingleOrZip("./data/csv/source", ["summary_table_deaths_disease.csv"], "name.zip", ["Testland"]);
+
+    expect(createdLinks).toHaveLength(1);
+    expect(createdLinks[0].href).toBe("./data/csv/source/summary_table_deaths_disease.csv");
+    expect(createdLinks[0].download).toBe("summary_table_deaths_disease.csv");
+    expect(createdLinks[0].clicked).toBe(true);
+
+    expect(analyticsSpy).toHaveBeenCalledWith("summary_table_by_location", {
+      locations: ["Testland"],
+      filenames: ["summary_table_deaths_disease.csv"],
+    });
   });
 
   it("should throw if fetch fails when only one path", async () => {
@@ -87,6 +111,7 @@ describe('downloadCsvAsSingleOrZip', () => {
   });
 
   it("should download as zip when multiple paths", async () => {
+    const analyticsSpy = mockTrackDownload();
     const zipFileSpy = vi.spyOn(JSZip.prototype, "file");
     vi.spyOn(global, "fetch").mockResolvedValue({
       ok: true,
@@ -109,6 +134,10 @@ describe('downloadCsvAsSingleOrZip', () => {
 
     expect(zipFileSpy).toHaveBeenCalledWith("summary_table_deaths_disease.csv", "csv,content");
     expect(zipFileSpy).toHaveBeenCalledWith("summary_table_deaths_disease_subregion.csv", "csv,content");
+
+    expect(analyticsSpy).toHaveBeenCalledWith("summary_table_by_filename", {
+      filenames: ["summary_table_deaths_disease.csv", "summary_table_deaths_disease_subregion.csv"]
+    });
   });
 
   it("should throw if fetch (HEAD) fails when multiple paths", async () => {

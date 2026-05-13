@@ -82,13 +82,11 @@ const doDownload = async (locations: string[]) => {
     };
   });
 
-  trackDownload("summary_table_by_location", { locations, filenames });
-
   const zipFilenameLocationPart = locations.length === 1 ? locations[0]!.replaceAll(" ", "_") : "";
   const zipFilename = ["vaxviz", "download", zipFilenameLocationPart].filter(part => part).join("_") + ".zip";
 
   try {
-    await downloadCsvAsSingleOrZip("./data/csv/location_summary_tables", filenames, zipFilename);
+    await downloadCsvAsSingleOrZip("./data/csv/location_summary_tables", filenames, zipFilename, locations);
   } catch (error) {
     const message = `Error downloading summary tables: ${filenames.join(", ")}. ${error}`;
     downloadErrors.value.push({ e: error as Error, message });

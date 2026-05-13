@@ -100,7 +100,7 @@ export const trackLogScaleToggle = (
   });
 };
 
-// Only capture changes to plot controls if they are stable for 10 seconds.
+// Only capture changes to plot controls if they are stable for 8 seconds.
 // This is in order to see which combinations of plot controls are most of interest,
 // avoiding transient states as users navigate to their desired state.
 export const trackPlotControls = debounce((plotProperties: PlotAnalyticsProperties) => {
@@ -108,4 +108,4 @@ export const trackPlotControls = debounce((plotProperties: PlotAnalyticsProperti
   posthog.capture('plot_controls_change', {
     ...plotProperties,
   });
-}, 10000);
+}, 8000);
