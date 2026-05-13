@@ -6,9 +6,11 @@ import {
   getUserLocation,
   initialisePosthog,
   trackDownload,
-  trackLogScaleToggle
+  trackLogScaleToggle,
+  trackPlotControls,
 } from '@/utils/analytics';
 import posthog from "posthog-js";
+import { afterEach } from 'node:test';
 
 const mockFetch = vi.fn();
 mockFetch.mockResolvedValue({
@@ -19,6 +21,11 @@ mockFetch.mockResolvedValue({
 beforeEach(() => {
   vi.stubGlobal('fetch', mockFetch);
   localStorage.clear();
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('analytics utils', () => {
@@ -137,5 +144,34 @@ describe('trackLogScaleToggle', () => {
       columnDimension: 'gender',
       withinBandDimension: 'location',
     });
+  });
+});
+
+describe('trackPlotControls', () => {
+  it('captures a plot controls change event with the correct properties after a debounce', async () => {
+    const captureSpy = vi.spyOn(posthog, 'capture');
+
+    const plotProperties = {
+      focuses: ['Testland'],
+      exploreBy: 'disease',
+      splitByActivityType: false,
+      legendSelections: ['Testland'],
+      burdenMetric: 'cases',
+      rowDimension: 'age',
+      columnDimension: 'gender',
+      withinBandDimension: 'location',
+      logScaleEnabled: false,
+    };
+
+    // Call the debounced function multiple times in quick succession
+    for (let i = 0; i < 5; i++) {
+      trackPlotControls(plotProperties);
+    }
+
+    expect(captureSpy).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(10000); // Advance time by the debounce duration
+
+    expect(captureSpy).toHaveBeenCalledExactlyOnceWith('plot_controls_change', plotProperties);
   });
 });

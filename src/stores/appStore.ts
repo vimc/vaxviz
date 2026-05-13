@@ -5,8 +5,8 @@ import { Axis, BurdenMetric, Dimension, LocResolution } from "@/types";
 import countryOptions from '@/data/options/countryOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
+import useAppStoreAnalytics from '@/stores/composables/useAppStoreAnalytics';
 import { exploreOptions, globalOption } from "@/utils/options";
-import { trackLogScaleToggle } from '@/utils/analytics';
 
 const locationOptions = [...countryOptions, ...subregionOptions, globalOption];
 const defaultLocationOption = globalOption.value;
@@ -51,6 +51,18 @@ export const useAppStore = defineStore("app", () => {
     [Dimension.LOCATION]: [...(filters.value[Dimension.LOCATION] ?? [])],
   };
   resetLegendSelections();
+
+  useAppStoreAnalytics({
+    focuses,
+    exploreBy,
+    splitByActivityType,
+    legendSelections,
+    burdenMetric,
+    rowDimension,
+    columnDimension,
+    withinBandDimension,
+    logScaleEnabled,
+  });
 
   const exploreByLabel = computed(() => {
     const option = exploreOptions.find(o => o.value === exploreBy.value);
@@ -127,20 +139,6 @@ export const useAppStore = defineStore("app", () => {
 
   watch(filters, resetLegendSelections);
 
-  // Analytics on log scale toggle
-  watch(logScaleEnabled, (enabled) => {
-    trackLogScaleToggle(enabled ? 'log' : 'linear', {
-      focuses: focuses.value,
-      exploreBy: exploreBy.value,
-      splitByActivityType: splitByActivityType.value,
-      legendSelections: legendSelections.value[exploreBy.value],
-      burdenMetric: burdenMetric.value,
-      rowDimension: rowDimension.value,
-      columnDimension: columnDimension.value,
-      withinBandDimension: withinBandDimension.value,
-    });
-  });
-
   return {
     burdenMetric,
     dimensions,
@@ -160,4 +158,3 @@ export const useAppStore = defineStore("app", () => {
     splitByActivityType,
   };
 })
-

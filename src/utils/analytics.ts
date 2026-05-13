@@ -1,6 +1,6 @@
 import posthog from "posthog-js";
 import { locationURL } from "./externalURLs";
-import type { Dimension } from "@/types";
+import { debounce } from 'perfect-debounce';
 
 const analyticsDisabledKey: Readonly<string> = "analyticsDisabled";
 
@@ -77,18 +77,21 @@ export const trackDownload = (
   });
 };
 
+type PlotAnalyticsProperties = {
+  focuses: string[],
+  exploreBy: string,
+  splitByActivityType: boolean,
+  legendSelections?: string[],
+  burdenMetric: string,
+  rowDimension: string,
+  columnDimension: string | null,
+  withinBandDimension: string,
+  logScaleEnabled: boolean,
+};
+
 export const trackLogScaleToggle = (
   newScale: "log" | "linear",
-  plotProperties: {
-    focuses: string[],
-    exploreBy: string,
-    splitByActivityType: boolean,
-    legendSelections?: string[],
-    burdenMetric: string,
-    rowDimension: string,
-    columnDimension: string | null,
-    withinBandDimension: string,
-  },
+  plotProperties: Omit<PlotAnalyticsProperties, 'logScaleEnabled'>,
 ) => {
   if (!analyticsPermittedInitially) return;
   posthog.capture('log_scale_toggle', {
@@ -96,3 +99,13 @@ export const trackLogScaleToggle = (
     ...plotProperties,
   });
 };
+
+// Only capture changes to plot controls if they are stable for 10 seconds.
+// This is in order to see which combinations of plot controls are most of interest,
+// avoiding transient states as users navigate to their desired state.
+export const trackPlotControls = debounce((plotProperties: PlotAnalyticsProperties) => {
+  if (!analyticsPermittedInitially) return;
+  posthog.capture('plot_controls_change', {
+    ...plotProperties,
+  });
+}, 10000);

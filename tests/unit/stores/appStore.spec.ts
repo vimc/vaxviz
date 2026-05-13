@@ -268,6 +268,26 @@ describe("app store", () => {
     expect(store.focuses).toEqual(["Cholera"]);
   });
 
+  it("calls trackPlotControls with the correct properties when plot controls change", async () => {
+    const store = useAppStore();
+    const trackPlotControlsSpy = vi.spyOn(analyticsModule, 'trackPlotControls');
+
+    store.burdenMetric = "dalys";
+    await nextTick();
+
+    expect(trackPlotControlsSpy).toHaveBeenCalledWith({
+      focuses: store.focuses,
+      exploreBy: store.exploreBy,
+      splitByActivityType: store.splitByActivityType,
+      legendSelections: store.legendSelections[store.exploreBy],
+      burdenMetric: store.burdenMetric,
+      rowDimension: store.dimensions.row,
+      columnDimension: store.dimensions.column,
+      withinBandDimension: store.dimensions.withinBand,
+      logScaleEnabled: store.logScaleEnabled,
+    });
+  });
+
   it("calls trackLogScaleToggle with the correct properties when logScaleEnabled changes", async () => {
     const store = useAppStore();
     const trackLogScaleToggleSpy = vi.spyOn(analyticsModule, 'trackLogScaleToggle');
