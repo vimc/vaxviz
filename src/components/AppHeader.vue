@@ -24,8 +24,10 @@
       class="absolute float-right flex flex-col"
     >
       <div class="flex flex-col gap-4 items-end my-auto">
-        <!-- TODO: When paper is published, add the link, and doi number. -->
-        <p class="text-right text-sm">This is a data visualization tool to accompany (doi number and link)</p>
+        <!-- TODO: When paper is published, replace the paper name with the doi number and link it to the paper URL. -->
+        <p class="text-right text-sm">
+          This is a data visualization tool to accompany Gaythorpe et al. (2026)
+        </p>
         <div class="flex gap-10">
           <button
             id="aboutButton"

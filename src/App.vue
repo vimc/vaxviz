@@ -39,11 +39,6 @@ header {
     top: $header-padding;
     right: $header-padding;
     height: calc(#{$header-height} - (#{$header-padding} * 2));
-
-    p {
-      // Overflow blurbContainer horizontally rather than breaking lines which would potentially overflow header vertically
-      width: max-content;
-    }
   }
 
   #headingContainer {
