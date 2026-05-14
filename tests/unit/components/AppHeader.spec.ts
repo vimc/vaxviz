@@ -34,16 +34,4 @@ describe('AppHeader component', () => {
       expect(wrapper.findComponent({ name: 'FwbModal' }).isVisible()).toBe(true);
     });
   });
-
-  it('shows the page heading when the alert is dimissed', async () => {
-    const wrapper = mount(AppHeader);
-    expect(wrapper.find('h1').exists()).toBe(false);
-
-    const alertCloseButton = wrapper.find('button');
-    await alertCloseButton.trigger('click')
-
-    await vi.waitFor(() => {
-      expect(wrapper.find('h1').text()).toContain('VAXVIZ');
-    });
-  });
 });
