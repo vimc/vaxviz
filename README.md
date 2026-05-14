@@ -40,16 +40,6 @@ as the token in the Checkout action. This token has been created as a fine-grain
 Contents of the vaxviz-staging repo only, and has been set as the VAXVIZ_STAGING_TOKEN secret in the vaxviz repo. VIMC
 does not allow creation of tokens without expiry and the current token will expire on 29/10/2026.
 
-### Embargo notice
-
-An embargo notice can be displayed by setting the environment variable VITE_EMBARGO_VAXVIZ at build time. This is 
-currently being done in the npm `build` script for production builds (including staging).
-There is also a `dev-embargo` npm script which can be used for manual testing of the embargo notice. The embargo switch is 
-implemented in the `App` component, which checks for the environment variable in `import.meta.env`.
-
-When we unembargo we can also restore the playwright config switch to run e2e tests against built app on CI, and can
-unskip running the tests in `privacy.spec.ts` (which require production build).
-
 ## Node version
 
 Build with Node 24. There is currently (November '25) a problem with building @vue/devtools with Node 25 - an error 

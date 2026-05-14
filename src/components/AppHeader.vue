@@ -9,10 +9,7 @@
       id="headingContainer"
       class="flex items-center justify-between gap-8 max-w-max mx-auto"
     >
-      <div
-        v-if="showPageHeading"
-        class="flex items-center"
-      >
+      <div class="flex items-center">
         <h1 class="text-2xl font-semibold text-brand brand-heading tracking-tight">
           VAXVIZ
         </h1>
@@ -21,33 +18,16 @@
           Vaccine impact visualization tool
         </p>
       </div>
-      <!-- TODO: When paper is published and data finalised, remove this warning. -->
-      <FwbAlert
-        type="danger"
-        class="border-t-4 rounded-none max-h-20 py-3"
-        closable
-        @close="showPageHeading = true"
-      >
-        <template #icon>
-          <img class="w-4 h-4 mr-2" src="@/assets/images/icons/dangerInfoIcon.svg" alt=""/>
-        </template>
-        <template #default>
-          <div>
-            <h2 class="text-lg font-medium">
-              Not to be used or cited until 16th May 2026.
-            </h2>
-            <p class="mt-2">This is a pre-publication preview. Do not use or cite these estimates until publication of the associated paper.</p>
-          </div>
-        </template>
-      </FwbAlert>
     </div>
     <div
       id="blurbContainer"
       class="absolute float-right flex flex-col"
     >
       <div class="flex flex-col gap-4 items-end my-auto">
-        <!-- TODO: When paper is published, add the link, and remove 'forthcoming'. -->
-        <p class="text-right text-sm">This data visualization tool accompanies Gaythorpe et al. (forthcoming)</p>
+        <!-- TODO: When paper is published, replace the paper name with the doi number and link it to the paper URL. -->
+        <p class="text-right text-sm">
+          This is a data visualization tool to accompany Gaythorpe et al. (2026)
+        </p>
         <div class="flex gap-10">
           <button
             id="aboutButton"
@@ -79,19 +59,15 @@
     </template>
     <template #body>
       <div class="flex flex-col gap-y-4 leading-relaxed">
-        <!-- TODO: When paper is published, add the link and replace '(forthcoming)' with '(2026)'. -->
+        <!-- TODO: When paper is published, add the link -->
         <!-- NB: The number of diseases is 14 per the paper, and not (necessarily) the length of diseaseOptions.json, which may carve up diseases differently (particularly meningitis). -->
         <p>
-          This data visualization tool accompanies VIMC's fourth publication, Gaythorpe et al (forthcoming).
+          This data visualization tool accompanies VIMC's fourth publication:
+          &lsquo;Quantifying relative health impact across Gavi, the Vaccine Alliance’s portfolio in 117 countries at the subregional level: a modelling study&rsquo;.
         </p>
-        <!-- TODO: The commented text will be uncommented once the estimates are final / published; until then we have to caveat them. -->
-        <!-- <p>
+        <p>
           It shows VIMC's estimates of health impact from vaccination against 14 diseases in {{ countryOptions.length }} low- and middle-income countries from 2000 to 2030
           (2040 for cholera) for the <a href="https://www.gavi.org/" target="_blank">Gavi</a> portfolio of vaccination programmes.
-        </p> -->
-        <p>
-          Once that paper is published, this will show VIMC's estimates of health impact from vaccination against 14 diseases in {{ countryOptions.length }} low- and middle-income countries from 2000 to 2030
-          (2040 for cholera) for the <a href="https://www.gavi.org/" target="_blank">Gavi</a> portfolio of vaccination programmes. The numbers shown are only representative, pending publication.
         </p>
         <p>
           Model estimates are presented in terms of 'vaccine impact ratios', defined as deaths or disability-adjusted life years (DALYs) averted per 1000 vaccinations.
@@ -108,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { FwbAlert, FwbModal } from 'flowbite-vue';
+import { FwbModal } from 'flowbite-vue';
 import countryOptions from '@/data/options/countryOptions.json';
 import { ref } from 'vue';
 
@@ -120,7 +96,6 @@ const helpInfoStore = useHelpInfoStore();
 
 const aboutModalVisible = ref(false);
 const privacyModalVisible = ref(false);
-const showPageHeading = ref(false);
 </script>
 
 <style scoped lang="scss">
