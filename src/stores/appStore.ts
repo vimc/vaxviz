@@ -5,6 +5,7 @@ import { Axis, BurdenMetric, Dimension, LocResolution } from "@/types";
 import countryOptions from '@/data/options/countryOptions.json';
 import subregionOptions from '@/data/options/subregionOptions.json';
 import diseaseOptions from '@/data/options/diseaseOptions.json';
+import useAppStoreAnalytics from '@/stores/composables/useAppStoreAnalytics';
 import { exploreOptions, globalOption } from "@/utils/options";
 
 const locationOptions = [...countryOptions, ...subregionOptions, globalOption];
@@ -50,6 +51,18 @@ export const useAppStore = defineStore("app", () => {
     [Dimension.LOCATION]: [...(filters.value[Dimension.LOCATION] ?? [])],
   };
   resetLegendSelections();
+
+  useAppStoreAnalytics({
+    focuses,
+    exploreBy,
+    splitByActivityType,
+    legendSelections,
+    burdenMetric,
+    rowDimension,
+    columnDimension,
+    withinBandDimension,
+    logScaleEnabled,
+  });
 
   const exploreByLabel = computed(() => {
     const option = exploreOptions.find(o => o.value === exploreBy.value);
@@ -145,4 +158,3 @@ export const useAppStore = defineStore("app", () => {
     splitByActivityType,
   };
 })
-

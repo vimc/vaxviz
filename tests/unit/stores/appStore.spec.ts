@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { nextTick } from "vue";
 import diseaseOptions from '@/data/options/diseaseOptions.json';
 import { useAppStore } from "@/stores/appStore";
+import * as analyticsModule from "@/utils/analytics";
 
 const expectedInitialFilters = Object.freeze({
   disease: [
@@ -265,5 +266,58 @@ describe("app store", () => {
     await nextTick();
 
     expect(store.focuses).toEqual(["Cholera"]);
+  });
+
+  it("calls trackPlotControls with the correct properties when plot controls change", async () => {
+    const store = useAppStore();
+    const trackPlotControlsSpy = vi.spyOn(analyticsModule, 'trackPlotControls');
+
+    store.burdenMetric = "dalys";
+    await nextTick();
+
+    expect(trackPlotControlsSpy).toHaveBeenCalledWith({
+      focuses: store.focuses,
+      exploreBy: store.exploreBy,
+      activityTypeSplit: "unsplit",
+      legendSelections: store.legendSelections[store.exploreBy],
+      burdenMetric: store.burdenMetric,
+      rowDimension: store.dimensions.row,
+      columnDimension: store.dimensions.column,
+      withinBandDimension: store.dimensions.withinBand,
+      logOrLinearScale: "log",
+    });
+  });
+
+  it("calls trackLogScaleToggle with the correct properties when logScaleEnabled changes", async () => {
+    const store = useAppStore();
+    const trackLogScaleToggleSpy = vi.spyOn(analyticsModule, 'trackLogScaleToggle');
+
+    store.logScaleEnabled = false;
+    await nextTick();
+
+    expect(trackLogScaleToggleSpy).toHaveBeenCalledWith('linear', {
+      focuses: store.focuses,
+      exploreBy: store.exploreBy,
+      activityTypeSplit: "unsplit",
+      legendSelections: store.legendSelections[store.exploreBy],
+      burdenMetric: store.burdenMetric,
+      rowDimension: store.dimensions.row,
+      columnDimension: store.dimensions.column,
+      withinBandDimension: store.dimensions.withinBand,
+    });
+
+    store.logScaleEnabled = true;
+    await nextTick();
+
+    expect(trackLogScaleToggleSpy).toHaveBeenCalledWith('log', {
+      focuses: store.focuses,
+      exploreBy: store.exploreBy,
+      activityTypeSplit: "unsplit",
+      legendSelections: store.legendSelections[store.exploreBy],
+      burdenMetric: store.burdenMetric,
+      rowDimension: store.dimensions.row,
+      columnDimension: store.dimensions.column,
+      withinBandDimension: store.dimensions.withinBand,
+    });
   });
 });

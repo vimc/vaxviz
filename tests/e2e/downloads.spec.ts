@@ -1,35 +1,6 @@
-import { expect, Download, Page } from '@playwright/test';
+import { expect, Download } from '@playwright/test';
 import { test } from './fixtures/interceptNetworkRequests.ts';
-import { selectFocus } from './utils.ts';
-
-const openDownloadModal = async (page: Page) => {
-  await page.getByRole("button", { name: "Downloads" }).click();
-};
-
-const openOtherDownloads = async (page: Page) => {
-  await openDownloadModal(page);
-  await page.getByRole('button', { name: 'Other downloads' }).click();
-};
-
-const closeDownloadModal = async (page: Page) => {
-  await page.getByRole("button", { name: "close", exact: true }).click();
-};
-
-// Download the file(s) that are pre-selected by default, based on the plot controls
-const doDownload = async (page: Page, expectedNumberOfFiles: number): Promise<Download> => {
-  const downloadPromise = page.waitForEvent("download");
-  await openOtherDownloads(page);
-  await page.getByRole("button", { name: `Download ${expectedNumberOfFiles}` }).click();
-
-  const download = await downloadPromise;
-
-  // Wait for the download process to complete
-  await download.path();
-
-  await closeDownloadModal(page);
-
-  return download;
-};
+import { doDownload, selectFocus } from './utils.ts';
 
 const readDownloadedFile = async (download: Download) => {
   const readStream = await download.createReadStream();
@@ -91,10 +62,11 @@ test.describe("Downloads", () => {
   test("can download all summary table files as a zip", async ({ page }) => {
     await page.goto('/');
 
-    await openOtherDownloads(page);
+    await page.getByRole("button", { name: "Downloads" }).click();
+    await page.getByRole('button', { name: "Other downloads" }).click();
 
     const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Download all available files' }).click();
+    await page.getByRole('button', { name: "Download all available files" }).click();
     const download = await downloadPromise;
     // Wait for the download process to complete
     await download.path();
@@ -104,7 +76,8 @@ test.describe("Downloads", () => {
   test("can download a custom selection of files using the filters", async ({ page }) => {
     await page.goto('/');
 
-    await openOtherDownloads(page);
+    await page.getByRole("button", { name: "Downloads" }).click();
+    await page.getByRole('button', { name: "Other downloads" }).click();
 
     await page.getByRole('checkbox', { name: 'DALYs averted' }).check();
     await page.getByRole('checkbox', { name: 'By country' }).check();
@@ -119,5 +92,23 @@ test.describe("Downloads", () => {
 
     const fileContents = await readDownloadedFile(download);
     expect(fileContents).toContain('"disease","activity_type","country","mean_value","lower_95","upper_95","median_value"');
+  });
+
+  test("can download all files relating to some selected locations", async ({ page }) => {
+    await page.goto('/');
+
+    // Set focus to a country and subregion
+    const geographyRadio = page.getByRole("radio", { name: "Geography" });
+    await geographyRadio.click();
+    await selectFocus(page, "Oceania");
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByRole("button", { name: "Downloads" }).click();
+    await page.getByRole('button', { name: "Download location-specific estimates" }).click();
+    await page.getByRole('button', { name: "Download estimates" }).click();
+    const download = await downloadPromise;
+    // Wait for the download process to complete
+    await download.path();
+    expect(download.suggestedFilename()).toBe("vaxviz_download_Oceania.zip");
   });
 });

@@ -10,6 +10,10 @@ import DataErrorAlert from '@/components/DataErrorAlert.vue';
 import { useAppStore } from '@/stores/appStore';
 import * as downloadModule from '@/utils/csvDownload';
 
+const mockDownload = () => {
+  return vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip').mockResolvedValue(undefined);
+};
+
 const setSelectedLocations = async (wrapper: ReturnType<typeof mount>, locations: string[]) => {
   const select = wrapper.findComponent(VueSelect);
   select.vm.$emit('update:modelValue', locations);
@@ -34,7 +38,7 @@ describe('LocationDownload component', () => {
   });
 
   it('downloads the expected files for a selected country', async () => {
-    const downloadSpy = vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip').mockResolvedValue(undefined);
+    const downloadSpy = mockDownload();
     const wrapper = mount(LocationDownload, {
       props: { menuOpen: false },
     });
@@ -44,20 +48,23 @@ describe('LocationDownload component', () => {
     const downloadButton = wrapper.findAll('button').find((b) => b.text().includes('Download estimates'));
     await downloadButton!.trigger('click');
 
+    const expectedFiles = [
+      'country_summary_tables/AFG_summary_tables/summary_table_dalys_disease_activity_type_country_AFG.csv',
+      'country_summary_tables/AFG_summary_tables/summary_table_dalys_disease_country_AFG.csv',
+      'country_summary_tables/AFG_summary_tables/summary_table_deaths_disease_activity_type_country_AFG.csv',
+      'country_summary_tables/AFG_summary_tables/summary_table_deaths_disease_country_AFG.csv',
+    ];
+
     expect(downloadSpy).toHaveBeenCalledWith(
       './data/csv/location_summary_tables',
-      [
-        'country_summary_tables/AFG_summary_tables/summary_table_dalys_disease_activity_type_country_AFG.csv',
-        'country_summary_tables/AFG_summary_tables/summary_table_dalys_disease_country_AFG.csv',
-        'country_summary_tables/AFG_summary_tables/summary_table_deaths_disease_activity_type_country_AFG.csv',
-        'country_summary_tables/AFG_summary_tables/summary_table_deaths_disease_country_AFG.csv',
-      ],
+      expectedFiles,
       'vaxviz_download_AFG.zip',
+      ['AFG'],
     );
   });
 
   it('downloads the expected files for multiple selected locations', async () => {
-    const downloadSpy = vi.spyOn(downloadModule, 'downloadCsvAsSingleOrZip').mockResolvedValue(undefined);
+    const downloadSpy = mockDownload();
     const wrapper = mount(LocationDownload, {
       props: { menuOpen: false },
     });
@@ -67,19 +74,22 @@ describe('LocationDownload component', () => {
     const downloadButton = wrapper.findAll('button').find((b) => b.text().includes('Download estimates'));
     await downloadButton!.trigger('click');
 
+    const expectedFiles = [
+      'country_summary_tables/AFG_summary_tables/summary_table_dalys_disease_activity_type_country_AFG.csv',
+      'country_summary_tables/AFG_summary_tables/summary_table_dalys_disease_country_AFG.csv',
+      'country_summary_tables/AFG_summary_tables/summary_table_deaths_disease_activity_type_country_AFG.csv',
+      'country_summary_tables/AFG_summary_tables/summary_table_deaths_disease_country_AFG.csv',
+      'subregion_summary_tables/Central_and_Southern_Asia_summary_tables/summary_table_dalys_disease_subregion_activity_type_Central_and_Southern_Asia.csv',
+      'subregion_summary_tables/Central_and_Southern_Asia_summary_tables/summary_table_dalys_disease_subregion_Central_and_Southern_Asia.csv',
+      'subregion_summary_tables/Central_and_Southern_Asia_summary_tables/summary_table_deaths_disease_subregion_activity_type_Central_and_Southern_Asia.csv',
+      'subregion_summary_tables/Central_and_Southern_Asia_summary_tables/summary_table_deaths_disease_subregion_Central_and_Southern_Asia.csv',
+    ];
+
     expect(downloadSpy).toHaveBeenCalledWith(
       './data/csv/location_summary_tables',
-      [
-        'country_summary_tables/AFG_summary_tables/summary_table_dalys_disease_activity_type_country_AFG.csv',
-        'country_summary_tables/AFG_summary_tables/summary_table_dalys_disease_country_AFG.csv',
-        'country_summary_tables/AFG_summary_tables/summary_table_deaths_disease_activity_type_country_AFG.csv',
-        'country_summary_tables/AFG_summary_tables/summary_table_deaths_disease_country_AFG.csv',
-        'subregion_summary_tables/Central_and_Southern_Asia_summary_tables/summary_table_dalys_disease_subregion_activity_type_Central_and_Southern_Asia.csv',
-        'subregion_summary_tables/Central_and_Southern_Asia_summary_tables/summary_table_dalys_disease_subregion_Central_and_Southern_Asia.csv',
-        'subregion_summary_tables/Central_and_Southern_Asia_summary_tables/summary_table_deaths_disease_subregion_activity_type_Central_and_Southern_Asia.csv',
-        'subregion_summary_tables/Central_and_Southern_Asia_summary_tables/summary_table_deaths_disease_subregion_Central_and_Southern_Asia.csv',
-      ],
+      expectedFiles,
       'vaxviz_download.zip',
+      ['AFG', 'Central and Southern Asia'],
     );
   });
 

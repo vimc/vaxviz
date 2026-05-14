@@ -1,12 +1,5 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest';
 import posthog from "posthog-js";
-import { getUserLocation, initialisePosthog } from '@/utils/analytics';
-
-vi.hoisted(() => {
-  localStorage.setItem('analyticsDisabled', 'true');
-});
-
-import { analyticsPermittedInitially } from '@/utils/analytics';
 
 const mockFetch = vi.fn();
 mockFetch.mockResolvedValue({
@@ -15,17 +8,27 @@ mockFetch.mockResolvedValue({
 });
 
 beforeEach(() => {
+  vi.resetModules();
+  localStorage.clear();
+  mockFetch.mockClear();
   vi.stubGlobal('fetch', mockFetch);
 });
 
+const loadAnalytics = async () => import('@/utils/analytics');
+
 describe('analyticsPermittedInitially', () => {
-  it('is false when analyticsDisabled is "true" in localStorage', () => {
+  it('is false when analyticsDisabled is "true" in localStorage', async () => {
+    localStorage.setItem('analyticsDisabled', 'true');
+    const { analyticsPermittedInitially } = await loadAnalytics();
+
     expect(analyticsPermittedInitially).toBe(false);
   });
 });
 
 describe('initialisePosthog', () => {
-  it('does not initialise Posthog when analytics are not permitted', () => {
+  it('does not initialise Posthog when analytics are not permitted', async () => {
+    localStorage.setItem('analyticsDisabled', 'true');
+    const { initialisePosthog } = await loadAnalytics();
     const initSpy = vi.spyOn(posthog, 'init');
 
     initialisePosthog();
@@ -35,6 +38,9 @@ describe('initialisePosthog', () => {
 
 describe('getUserLocation', () => {
   it('does not get user location when analytics are not permitted', async () => {
+    localStorage.setItem('analyticsDisabled', 'true');
+    const { getUserLocation } = await loadAnalytics();
+
     await getUserLocation();
 
     expect(mockFetch).not.toHaveBeenCalled();
