@@ -2,6 +2,7 @@ import { computed, watch, type Ref } from 'vue';
 import {
   trackLogScaleToggle,
   trackPlotControls,
+  type PlotAnalyticsProperties,
 } from '@/utils/analytics';
 import { BurdenMetric, Dimension } from '@/types';
 
@@ -26,10 +27,10 @@ export default ({
   withinBandDimension: Ref<Dimension>,
   logScaleEnabled: Ref<boolean>,
 }) => {
-  const plotAnalyticsProperties = computed(() => ({
+  const plotAnalyticsProperties = computed((): Omit<PlotAnalyticsProperties, 'logScaleEnabled'> => ({
     focuses: [...focuses.value],
     exploreBy: exploreBy.value,
-    splitByActivityType: splitByActivityType.value,
+    splitByActivityType: splitByActivityType.value ? 'split' : 'unsplit',
     legendSelections: [...(legendSelections.value[exploreBy.value] ?? [])],
     burdenMetric: burdenMetric.value,
     rowDimension: rowDimension.value,
@@ -39,7 +40,10 @@ export default ({
 
   // This does not fire on initial app load, only on user-initiated changes to plot controls.
   watch([plotAnalyticsProperties, logScaleEnabled], ([plotProperties, logScaleEnabledValue]) => {
-    trackPlotControls({ ...plotProperties, logScaleEnabled: logScaleEnabledValue });
+    trackPlotControls({
+      ...plotProperties,
+      logScaleEnabled: logScaleEnabledValue ? 'log' : 'linear',
+    });
   });
 
   watch(logScaleEnabled, (enabled) => {

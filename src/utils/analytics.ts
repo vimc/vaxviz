@@ -77,16 +77,16 @@ export const trackDownload = (
   });
 };
 
-type PlotAnalyticsProperties = {
+export type PlotAnalyticsProperties = {
   focuses: string[],
   exploreBy: string,
-  splitByActivityType: boolean,
+  splitByActivityType: 'split' | 'unsplit',
   legendSelections?: string[],
   burdenMetric: string,
   rowDimension: string,
   columnDimension: string | null,
   withinBandDimension: string,
-  logScaleEnabled: boolean,
+  logScaleEnabled: 'log' | 'linear',
 };
 
 // Only capture changes to plot controls if they are stable for 8 seconds.

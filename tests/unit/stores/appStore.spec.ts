@@ -278,13 +278,13 @@ describe("app store", () => {
     expect(trackPlotControlsSpy).toHaveBeenCalledWith({
       focuses: store.focuses,
       exploreBy: store.exploreBy,
-      splitByActivityType: store.splitByActivityType,
+      splitByActivityType: "unsplit",
       legendSelections: store.legendSelections[store.exploreBy],
       burdenMetric: store.burdenMetric,
       rowDimension: store.dimensions.row,
       columnDimension: store.dimensions.column,
       withinBandDimension: store.dimensions.withinBand,
-      logScaleEnabled: store.logScaleEnabled,
+      logScaleEnabled: "log",
     });
   });
 
@@ -298,7 +298,7 @@ describe("app store", () => {
     expect(trackLogScaleToggleSpy).toHaveBeenCalledWith('linear', {
       focuses: store.focuses,
       exploreBy: store.exploreBy,
-      splitByActivityType: store.splitByActivityType,
+      splitByActivityType: "unsplit",
       legendSelections: store.legendSelections[store.exploreBy],
       burdenMetric: store.burdenMetric,
       rowDimension: store.dimensions.row,
@@ -312,7 +312,7 @@ describe("app store", () => {
     expect(trackLogScaleToggleSpy).toHaveBeenCalledWith('log', {
       focuses: store.focuses,
       exploreBy: store.exploreBy,
-      splitByActivityType: store.splitByActivityType,
+      splitByActivityType: "unsplit",
       legendSelections: store.legendSelections[store.exploreBy],
       burdenMetric: store.burdenMetric,
       rowDimension: store.dimensions.row,
