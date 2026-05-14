@@ -27,10 +27,10 @@ export default ({
   withinBandDimension: Ref<Dimension>,
   logScaleEnabled: Ref<boolean>,
 }) => {
-  const plotAnalyticsProperties = computed((): Omit<PlotAnalyticsProperties, 'logScaleEnabled'> => ({
+  const plotAnalyticsProperties = computed((): Omit<PlotAnalyticsProperties, 'logOrLinearScale'> => ({
     focuses: [...focuses.value],
     exploreBy: exploreBy.value,
-    splitByActivityType: splitByActivityType.value ? 'split' : 'unsplit',
+    activityTypeSplit: splitByActivityType.value ? 'split' : 'unsplit',
     legendSelections: [...(legendSelections.value[exploreBy.value] ?? [])],
     burdenMetric: burdenMetric.value,
     rowDimension: rowDimension.value,
@@ -42,7 +42,7 @@ export default ({
   watch([plotAnalyticsProperties, logScaleEnabled], ([plotProperties, logScaleEnabledValue]) => {
     trackPlotControls({
       ...plotProperties,
-      logScaleEnabled: logScaleEnabledValue ? 'log' : 'linear',
+      logOrLinearScale: logScaleEnabledValue ? 'log' : 'linear',
     });
   });
 

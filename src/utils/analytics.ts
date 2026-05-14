@@ -80,13 +80,13 @@ export const trackDownload = (
 export type PlotAnalyticsProperties = {
   focuses: string[],
   exploreBy: string,
-  splitByActivityType: 'split' | 'unsplit',
+  activityTypeSplit: 'split' | 'unsplit',
   legendSelections?: string[],
   burdenMetric: string,
   rowDimension: string,
   columnDimension: string | null,
   withinBandDimension: string,
-  logScaleEnabled: 'log' | 'linear',
+  logOrLinearScale: 'log' | 'linear',
 };
 
 // Only capture changes to plot controls if they are stable for 8 seconds.
@@ -96,7 +96,7 @@ const debounceDuration = 8000;
 
 export const trackLogScaleToggle = debounce((
   newScale: "log" | "linear",
-  plotProperties: Omit<PlotAnalyticsProperties, 'logScaleEnabled'>,
+  plotProperties: Omit<PlotAnalyticsProperties, 'logOrLinearScale'>,
 ) => {
   if (!analyticsPermittedInitially) return;
   posthog.capture('log_scale_toggle', {
