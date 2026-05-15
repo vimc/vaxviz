@@ -39,6 +39,10 @@ header {
     top: $header-padding;
     right: $header-padding;
     height: calc(#{$header-height} - (#{$header-padding} * 2));
+
+    p {
+      width: 500px; // Force text onto two equal-width lines
+    }
   }
 
   #headingContainer {
