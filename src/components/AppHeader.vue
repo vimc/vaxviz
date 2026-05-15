@@ -1,7 +1,7 @@
 <template>
   <header class="border-b border-gray-300">
     <div class="flex flex-col absolute">
-      <a href="https://www.vaccineimpact.org/" target="_blank">
+      <a href="https://www.vaccineimpact.org/" target="_blank" rel="noopener noreferrer">
         <img src="/logo.png" id="logo" alt="VIMC logo" />
       </a>
     </div>
@@ -24,9 +24,11 @@
       class="absolute float-right flex flex-col"
     >
       <div class="flex flex-col gap-4 items-end my-auto">
-        <!-- TODO: When paper is published, replace the paper name with the doi number and link it to the paper URL. -->
-        <p class="text-right text-sm">
-          This is a data visualization tool to accompany Gaythorpe et al. (2026)
+        <p class="text-right text-xs text-gray-500">
+          This is a data visualization for
+          <a href="https://doi.org/10.1016/S0140-6736(26)00555-6" target="_blank" rel="noopener noreferrer">
+            <span>&lsquo;Quantifying relative health impact across Gavi, the Vaccine Alliance's portfolio in 117 countries at the subregional level: a modelling study&rsquo;</span>
+          </a>.
         </p>
         <div class="flex gap-10">
           <button
@@ -59,15 +61,16 @@
     </template>
     <template #body>
       <div class="flex flex-col gap-y-4 leading-relaxed">
-        <!-- TODO: When paper is published, add the link -->
         <!-- NB: The number of diseases is 14 per the paper, and not (necessarily) the length of diseaseOptions.json, which may carve up diseases differently (particularly meningitis). -->
         <p>
           This data visualization tool accompanies VIMC's fourth publication:
-          &lsquo;Quantifying relative health impact across Gavi, the Vaccine Alliance’s portfolio in 117 countries at the subregional level: a modelling study&rsquo;.
+          <a href="https://doi.org/10.1016/S0140-6736(26)00555-6" target="_blank" rel="noopener noreferrer">
+            <span>&lsquo;Quantifying relative health impact across Gavi, the Vaccine Alliance's portfolio in 117 countries at the subregional level: a modelling study&rsquo;</span>
+          </a>.
         </p>
         <p>
           It shows VIMC's estimates of health impact from vaccination against 14 diseases in {{ countryOptions.length }} low- and middle-income countries from 2000 to 2030
-          (2040 for cholera) for the <a href="https://www.gavi.org/" target="_blank">Gavi</a> portfolio of vaccination programmes.
+          (2040 for cholera) for the <a href="https://www.gavi.org/" target="_blank" rel="noopener noreferrer">Gavi</a> portfolio of vaccination programmes.
         </p>
         <p>
           Model estimates are presented in terms of 'vaccine impact ratios', defined as deaths or disability-adjusted life years (DALYs) averted per 1000 vaccinations.
