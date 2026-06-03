@@ -7,7 +7,8 @@ import usePlotTooltips from '@/composables/usePlotTooltips';
 import { useAppStore } from '@/stores/appStore';
 import { useColorStore } from '@/stores/colorStore';
 import { useDataStore } from '@/stores/dataStore';
-import { Axis, BurdenMetric, Dimension, SummaryTableColumn, type PointWithMetadata, type SummaryTableDataRow } from '@/types';
+import { Axis, BurdenMetric, Dimension, LineMetadata, SummaryTableColumn, type SummaryTableDataRow } from '@/types';
+import { PointWithMetadata } from "types";
 
 describe('usePlotTooltips', () => {
   beforeEach(() => {
@@ -17,7 +18,7 @@ describe('usePlotTooltips', () => {
   describe('tooltipCallback', () => {
     it('returns empty string when point has no metadata', () => {
       const { tooltipCallback } = usePlotTooltips();
-      const point: PointWithMetadata = { x: 1, y: 2 };
+      const point: PointWithMetadata<LineMetadata> = { x: 1, y: 2 };
 
       expect(tooltipCallback(point)).toBe('');
     });
@@ -40,7 +41,7 @@ describe('usePlotTooltips', () => {
 
       const { tooltipCallback } = usePlotTooltips();
 
-      const afgTooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
+      const afgTooltip = tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata });
 
       expect(afgTooltip).toContain('Location: <b>Afghanistan</b>');
       expect(afgTooltip).toContain('style="color: #009d9a'); // teal50
@@ -48,7 +49,7 @@ describe('usePlotTooltips', () => {
       expect(afgTooltip).toContain('Disease: <b>Cholera</b>');
       expect(afgTooltip).not.toContain('Activity type');
 
-      const globalTooltip = tooltipCallback({ x: 1, y: 2, metadata: globalPointMetadata.metadata! });
+      const globalTooltip = tooltipCallback({ x: 1, y: 2, metadata: globalPointMetadata.metadata });
 
       expect(globalTooltip).toContain('Location: <b>All 117 VIMC countries</b>');
       expect(globalTooltip).toContain('style="color: #6929c4'); // purple70
@@ -74,7 +75,7 @@ describe('usePlotTooltips', () => {
 
       const { tooltipCallback } = usePlotTooltips();
 
-      const choleraTooltip = tooltipCallback({ x: 1, y: 2, metadata: choleraPointMetadata.metadata! });
+      const choleraTooltip = tooltipCallback({ x: 1, y: 2, metadata: choleraPointMetadata.metadata });
 
       expect(choleraTooltip).toContain('Disease: <b>Cholera</b>');
       expect(choleraTooltip).toContain('style="color: #6929c4'); // purple70
@@ -82,7 +83,7 @@ describe('usePlotTooltips', () => {
       expect(choleraTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(choleraTooltip).not.toContain('Activity type');
 
-      const measlesTooltip = tooltipCallback({ x: 1, y: 2, metadata: measlesPointMetadata.metadata! });
+      const measlesTooltip = tooltipCallback({ x: 1, y: 2, metadata: measlesPointMetadata.metadata });
 
       expect(measlesTooltip).toContain('Disease: <b>Measles</b>');
       expect(measlesTooltip).toContain('style="color: #009d9a'); // teal50
@@ -114,14 +115,14 @@ describe('usePlotTooltips', () => {
 
       const { tooltipCallback } = usePlotTooltips();
 
-      const routineTooltip = tooltipCallback({ x: 1, y: 2, metadata: routinePointMetadata.metadata! });
+      const routineTooltip = tooltipCallback({ x: 1, y: 2, metadata: routinePointMetadata.metadata });
       expect(routineTooltip).toContain('Disease: <b>Cholera</b>');
       expect(routineTooltip).toContain('Activity type: <b>Routine</b>');
       // Row dimension (disease) is NOT shown separately because it's the same as color dimension
       expect(routineTooltip.match(/Disease:/g)?.length).toBe(1);
       expect(routineTooltip).toContain('style="color: #6929c4'); // purple70
 
-      const campaignTooltip = tooltipCallback({ x: 1, y: 2, metadata: campaignPointMetadata.metadata! });
+      const campaignTooltip = tooltipCallback({ x: 1, y: 2, metadata: campaignPointMetadata.metadata });
 
       expect(campaignTooltip).toContain('Disease: <b>Cholera</b>');
       expect(campaignTooltip).toContain('Activity type: <b>Campaign</b>');
@@ -153,7 +154,7 @@ describe('usePlotTooltips', () => {
 
         const { tooltipCallback } = usePlotTooltips();
 
-        return tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata! });
+        return tooltipCallback({ x: 1, y: 2, metadata: afgPointMetadata.metadata });
       }
 
       it('displays summary data (linear scale)', () => {

@@ -93,21 +93,21 @@ const relevantRidgeLines = computed(() => {
   if (appStore.focuses.length !== 1 || !eachRowRepresentsADisease) {
     return ridgeLines.value;
   };
-  
+
   // If data for a disease does not exist for the focused location, nor the corresponding subregion,
   // we should consider the disease irrelevant and exclude its entire row from the plot.
   // E.g. Say the focus value is 'Afghanistan'. For some row of ridgelines (where rows are diseases, such as malaria)
   // there may be data available at a global level, but none for Afghanistan or its subregion Southern Asia.
   // In such cases we should consider the malaria row irrelevant to the focus location, and exclude all the lines within the row,
   // Check if any of the locations for the current line's disease match either the focus location or its subregion.
-  const focusLocation = appStore.focuses[0];
+  const focusLocation = appStore.focuses[0]!;
   return ridgeLines.value.filter((line) => {
-    const disease = line.metadata?.[Axis.ROW];
+    const disease = line.metadata[Axis.ROW];
     const locationsForDisease = ridgeLines.value
-      .filter(l => l.metadata?.[Axis.ROW] === disease) // Get all lines whose disease matches that of the current line.
-      .map(({ metadata }) => metadata?.withinBand); // Look up their locations.
-      // Check if any of the locations for the current line's disease match either the focus location or its subregion.
-      return [focusLocation, getSubregionFromCountry(focusLocation)].some(loc => locationsForDisease.includes(loc));
+      .filter(l => l.metadata[Axis.ROW] === disease) // Get all lines whose disease matches that of the current line.
+      .map(({ metadata }) => metadata[Axis.WITHIN_BAND]); // Look up their locations.
+    // Check if any of the locations for the current line's disease match either the focus location or its subregion.
+    return [focusLocation, getSubregionFromCountry(focusLocation)].some(loc => locationsForDisease.includes(loc));
   });
 });
 
@@ -115,23 +115,23 @@ const relevantRidgeLines = computed(() => {
 // Return the mean of the means for all ridgelines in the plot row.
 // The plot row is specified by its category along the relevant dimension, e.g. 'Djibouti' (a location) or 'Malaria' (a disease).
 const getMeanOfMeansForPlotRow = (plotRowCategory?: string) => {
-  const ridgelinesForPlotRow = relevantRidgeLines.value.filter(line => line.metadata?.[Axis.ROW] === plotRowCategory);
+  const ridgelinesForPlotRow = relevantRidgeLines.value.filter(line => line.metadata[Axis.ROW] === plotRowCategory);
   const meanValues = ridgelinesForPlotRow.map(({ metadata }) => {
-    const dataTableRow = dataStore.getSummaryDataRow(metadata!)!;
+    const dataTableRow = dataStore.getSummaryDataRow(metadata)!;
     return dataTableRow[SummaryTableColumn.MEAN];
   });
   return meanValues.reduce((sum, val) => sum + val, 0) / meanValues.length;
 };
 
 const sortedRidgeLines = computed(() => relevantRidgeLines.value.toSorted((lineA, lineB) => {
-  const meanA = getMeanOfMeansForPlotRow(lineA.metadata?.[Axis.ROW]);
-  const meanB = getMeanOfMeansForPlotRow(lineB.metadata?.[Axis.ROW]);
+  const meanA = getMeanOfMeansForPlotRow(lineA.metadata[Axis.ROW]);
+  const meanB = getMeanOfMeansForPlotRow(lineB.metadata[Axis.ROW]);
   return meanA - meanB;
 }));
 
 // Apply the filtering specified by the legend selections.
 const selectedLines = computed(() => sortedRidgeLines.value.filter(line => {
-  const colorVal = line.metadata?.[colorStore.colorAxis];
+  const colorVal = line.metadata[colorStore.colorAxis];
   return colorVal && appStore.legendSelections[colorStore.colorDimension]?.includes(colorVal);
 }));
 
@@ -139,7 +139,7 @@ const selectedLines = computed(() => sortedRidgeLines.value.filter(line => {
 const updateChart = debounce(() => {
   helpInfoStore.showNegativeValuesHelpInfo = false;
 
-  const categoriesInUse = relevantRidgeLines.value.flatMap(line => Object.keys(appStore.dimensions).map(axis => line.metadata?.[axis as Axis]));
+  const categoriesInUse = relevantRidgeLines.value.flatMap(line => Object.keys(appStore.dimensions).map(axis => line.metadata[axis as Axis]));
   focusesWithoutData.value = appStore.focuses.filter(focus => !categoriesInUse.includes(focus));
 
   noDataToDisplay.value = selectedLines.value.length === 0;
@@ -153,7 +153,7 @@ const updateChart = debounce(() => {
   colorStore.setColors(sortedRidgeLines.value);
 
   const lines = selectedLines.value.map(line => {
-    const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata!);
+    const { fillColor, fillOpacity, strokeColor, strokeOpacity } = colorStore.getColorsForLine(line.metadata);
 
     return { ...line, style: { strokeWidth: 1, opacity: strokeOpacity, fillOpacity, strokeColor, fillColor } };
   });

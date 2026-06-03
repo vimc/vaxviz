@@ -1,9 +1,8 @@
-import { Axis, Dimension, HistColumn, type Coords, type HistDataRow, type LineMetadata } from '@/types';
-import type { LineConfig, Lines } from 'types';
+import { Axis, Dimension, HistColumn, type LineWithMetadata, type Coords, type HistDataRow, type LineMetadata } from '@/types';
 import { computed, toValue, type MaybeRefOrGetter } from 'vue';
 
 // Construct histogram/ridge-shaped lines by building area lines whose points trace the
-// outline of the histogram.  
+// outline of the histogram.
 export default (
   data: MaybeRefOrGetter<HistDataRow[]>,
   axisDimensions: () => {
@@ -33,7 +32,7 @@ export default (
   const initializeLine = (
     barCoords: Coords[],
     categoryValues: LineMetadata,
-  ): Lines<LineMetadata>[0] => {
+  ): LineWithMetadata => {
     return {
       points: barCoords,
       bands: {
@@ -48,11 +47,11 @@ export default (
 
   // Construct histogram/ridge-shaped lines by building area lines whose points trace the
   // outline of the histogram bars (including the spaces in between them).
-  const constructLines = (): Lines<LineMetadata> => {
+  const constructLines = (): LineWithMetadata[] => {
     // A 3-dimensional dictionary of lines.
     // We use x-value as the key at the first level, then y-value on the second, then withinBandValue.
     // If the x-value (or anything else) is undefined, then the key should be an empty string.
-    const lines: Record<string, Record<string, Record<string, LineConfig<LineMetadata>>>> = {};
+    const lines: Record<string, Record<string, Record<string, LineWithMetadata>>> = {};
 
     toValue(data).forEach(dataRow => {
       // Each line needs to know its category for each categorical axis in use.
