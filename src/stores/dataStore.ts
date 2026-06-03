@@ -22,7 +22,7 @@ export const useDataStore = defineStore("data", () => {
   const getSummaryDataRow = (metadata: LineMetadata) => {
     return summaryTableData.value.find(d => {
       return Object.entries(appStore.dimensions).every(([axis, dim]) => {
-        return !dim || d[dim] === metadata?.[axis as Axis];
+        return !dim || d[dim] === metadata[axis as Axis];
       });
     });
   };

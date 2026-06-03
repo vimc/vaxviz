@@ -1,6 +1,6 @@
-import { Dimension, type LineMetadata } from "@/types";
+import { Dimension, type LineWithMetadata } from "@/types";
 import { globalOption } from "./options";
-import type { Lines, Scales } from "@reside-ic/skadi-chart";
+import type { Scales } from "@reside-ic/skadi-chart";
 // "Chart" and "types" are modules declared by @reside-ic/skadi-chart
 import type { PartialChartOptions } from "Chart";
 import type { Bounds, XY } from "types";
@@ -10,7 +10,7 @@ const ELLIPSIS = "...";
 const Y_TICK_LABEL_MAX_LENGTH = globalOption.label.length;
 export const TOOLTIP_RADIUS_PX = 100; // Maximum distance in px from point for triggering tooltips to be displayed
 
-const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): Scales => {
+const numericalScales = (logScaleEnabled: boolean, lines: LineWithMetadata[]): Scales => {
   const maxX = Math.max(...lines.flatMap(l => {
     const lastPoint = l.points[l.points.length - 1]!;
     return lastPoint.x;
@@ -40,7 +40,7 @@ const numericalScales = (logScaleEnabled: boolean, lines: Lines<LineMetadata>): 
 // do not matter absolutely, but rather they only matter relatively to each other _within_ a given line.
 // That is, it's the shape of the line that is of interest. Without normalization, flat lines become harder
 // to see when spikier lines push up the top end of a common y-axis scale.
-const normalizeLines = (lines: Lines<LineMetadata>, yMax: number): Lines<LineMetadata> => {
+const normalizeLines = (lines: LineWithMetadata[], yMax: number): LineWithMetadata[] => {
   const yMaxWithPadding = yMax * 0.9; // Add padding to the max y value to prevent lines from touching the top of the plot after normalization.
   return lines.map(line => {
     const lineMaxY = Math.max(...line.points.map(p => p.y));
@@ -52,7 +52,7 @@ const normalizeLines = (lines: Lines<LineMetadata>, yMax: number): Lines<LineMet
   });
 };
 
-const categoricalScales = (lines: Lines<LineMetadata>): Partial<XY<string[]>> => {
+const categoricalScales = (lines: LineWithMetadata[]): Partial<XY<string[]>> => {
   // Assume that the lines passed in have already been sorted for the y-axis.
   const xCategoricalScale = [...new Set(lines.map(l => l.bands?.x).filter(c => !!c))] as string[];
   const yCategoricalScale = [...new Set(lines.map(l => l.bands?.y).filter(c => !!c))] as string[];
@@ -155,14 +155,14 @@ const margins = (rowDimension: Dimension) => ({ left: yAxisNeedsExtraSpace(rowDi
 export const plotConfiguration = (
   rowDimension: Dimension,
   logScaleEnabled: boolean,
-  lines: Lines<LineMetadata>,
+  lines: LineWithMetadata[],
   normalizeYScale: boolean,
 ): {
   constructorOptions: PartialChartOptions
   axisConfig: AxisConfig
   chartAppendConfig: [Partial<Scales>, Partial<Scales>, Partial<XY<string[]>>, Partial<Bounds["margin"]>]
   numericalScales: Scales
-  normalizedLines: Lines<LineMetadata>
+  normalizedLines: LineWithMetadata[]
 } => {
   const numScales = numericalScales(logScaleEnabled, lines);
   const catScales = categoricalScales(lines);

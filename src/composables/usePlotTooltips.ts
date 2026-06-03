@@ -1,9 +1,10 @@
 import { useAppStore } from "@/stores/appStore";
 import { useColorStore } from "@/stores/colorStore";
 import { useDataStore } from "@/stores/dataStore";
-import { Axis, BurdenMetric, SummaryTableColumn, type PointWithMetadata } from "@/types";
+import { Axis, BurdenMetric, type LineMetadata, SummaryTableColumn } from "@/types";
 import { dimensionOptionLabel } from "@/utils/options";
 import sentenceCase from "@/utils/sentenceCase";
+import { type Point } from "@reside-ic/skadi-chart";
 
 export default () => {
   const colorStore = useColorStore();
@@ -22,7 +23,8 @@ export default () => {
 
   // Generate HTML for tooltips on ridgeline plot points.
   // This callback is passed to skadi-chart, and is invoked when hovering over the chart.
-  const tooltipCallback = (point: PointWithMetadata) => {
+  // skadi-chart's types dictate the function signature: the 'point' parameter's metadata prop must be optional.
+  const tooltipCallback = (point: Point & { metadata?: LineMetadata }) => {
     if (!point.metadata) return "";
 
     const { strokeColor } = colorStore.getColorsForLine(point.metadata)

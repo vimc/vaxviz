@@ -1,8 +1,7 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
-import type { Lines } from "@reside-ic/skadi-chart";
 import convert, { type HEX } from "color-convert";
-import { Axis, type LineColors, type LineMetadata } from "@/types";
+import { Axis, type LineColors, type LineMetadata, type LineWithMetadata } from "@/types";
 import { useAppStore } from "@/stores/appStore";
 import { globalOption } from "@/utils/options";
 
@@ -84,11 +83,11 @@ export const useColorStore = defineStore("color", () => {
   const colorMapping = computed(() => mapping.value as ReadonlyMap<string, string>);
 
   // Based on an array of all the lines, set up the color mapping.
-  const setColors = (lines: Lines<LineMetadata>) => {
+  const setColors = (lines: LineWithMetadata[]) => {
     mapping.value = new Map<string, string>()
 
     // A 'value' refers to the specific location or disease whose color we need to assign.
-    const uniqueValues = Array.from(new Set(lines.map(line => line.metadata?.[colorAxis.value]))) as string[];
+    const uniqueValues = Array.from(new Set(lines.map(line => line.metadata[colorAxis.value])));
     let palette: string[] = [];
     if (palettesByCategoryCount[uniqueValues.length]) {
       // Use a specific palette designed for this number of categories.
