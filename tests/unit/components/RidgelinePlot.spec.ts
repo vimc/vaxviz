@@ -535,6 +535,15 @@ describe('RidgelinePlot component', () => {
   });
 
   it('shows a loading spinner while data is being loaded', async () => {
+    vi.useFakeTimers();
+
+    server.use(
+      http.get("./data/json/hist_counts_deaths_disease.json", async () => {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return HttpResponse.json([]);
+      }),
+    );
+
     const dataStore = useDataStore();
     const helpInfoStore = useHelpInfoStore();
     const wrapper = mount(RidgelinePlot);
@@ -545,14 +554,26 @@ describe('RidgelinePlot component', () => {
     expect(wrapper.text()).not.toContain("No estimates available for the selected options.");
     expect(wrapper.find("#chartWrapper").exists()).toBe(false);
 
+    // Elapse enough time for debounced updateChart to have been called,
+    // but not enough for the data to have been loaded yet
+    vi.advanceTimersByTime(250);
+
+    expect(dataStore.isLoading).toBe(true);
+    expect(wrapper.find(spinnerMatcher).exists()).toBe(true);
+    expect(wrapper.text()).not.toContain("No estimates available for the selected options.");
+    expect(wrapper.find("#chartWrapper").exists()).toBe(false);
+
+    // Elapse enough time for data to have been loaded
+    vi.advanceTimersByTime(500);
+
     await vi.waitFor(() => {
       expect(dataStore.isLoading).toBe(false);
     });
 
-    await vi.waitFor(() => {
-      expect(wrapper.find(spinnerMatcher).exists()).toBe(false);
-      expect(wrapper.find("#chartWrapper").exists()).toBe(true);
-      expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
-    });
+    expect(wrapper.find(spinnerMatcher).exists()).toBe(false);
+    expect(wrapper.find("#chartWrapper").exists()).toBe(true);
+    expect(helpInfoStore.showNegativeValuesHelpInfo).toBe(false);
+
+    vi.useRealTimers();
   });
 });

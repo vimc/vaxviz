@@ -142,7 +142,7 @@ const updateChart = debounce(() => {
   const categoriesInUse = relevantRidgeLines.value.flatMap(line => Object.keys(appStore.dimensions).map(axis => line.metadata[axis as Axis]));
   focusesWithoutData.value = appStore.focuses.filter(focus => !categoriesInUse.includes(focus));
 
-  noDataToDisplay.value = selectedLines.value.length === 0;
+  noDataToDisplay.value = selectedLines.value.length === 0 && !dataStore.isLoading;
   if (noDataToDisplay.value || !chartWrapper.value) {
     colorStore.setColors([]); // Remove color legend when there is no data to display
     return;
