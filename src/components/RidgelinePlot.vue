@@ -135,7 +135,8 @@ const selectedLines = computed(() => sortedRidgeLines.value.filter(line => {
   return colorVal && appStore.legendSelections[colorStore.colorDimension]?.includes(colorVal);
 }));
 
-// Debounce chart updates so that there is no flickering if filters change at a different moment from focus/dimensions.
+// Debounce chart updates to prevent flickering from rapid chart updates.
+// Rapid chart updates are caused by data (and hence selectedLines) changing at a different moment from focus/dimensions/filters.
 const updateChart = debounce(() => {
   helpInfoStore.showNegativeValuesHelpInfo = false;
 
@@ -178,9 +179,9 @@ const updateChart = debounce(() => {
 
   // Align the left edge of the legend with that of the plot.
   plotLeftMargin.value = chartAppendConfig[3].left || 0;
-}, 25);
+}, 200);
 
-watch([selectedLines, chartWrapper, () => appStore.normalizeYScale], updateChart, { immediate: true });
+watch([selectedLines, chartWrapper, () => appStore.normalizeYScale], updateChart);
 </script>
 
 <style lang="scss" scoped>
