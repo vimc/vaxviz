@@ -1,4 +1,4 @@
-import type { Point } from "@reside-ic/skadi-chart";
+import type { Lines } from "@reside-ic/skadi-chart";
 
 export enum BurdenMetric {
   DALYS = "dalys",
@@ -68,8 +68,7 @@ export enum Axis {
 
 // Metadata associated with each line in a ridgeline plot, which skadi-chart copies onto each line's points.
 export type LineMetadata = Record<Axis, string>;
-
-export type PointWithMetadata = Point & { metadata?: LineMetadata };
+export type LineWithMetadata = Lines<LineMetadata>[0] & { metadata: LineMetadata } // Make metadata non-optional
 
 export type LineColors = {
   fillColor: string | undefined;
