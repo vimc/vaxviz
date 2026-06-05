@@ -8,7 +8,7 @@ import { useAppStore } from '@/stores/appStore';
 import { useColorStore } from '@/stores/colorStore';
 import { useDataStore } from '@/stores/dataStore';
 import { Axis, BurdenMetric, Dimension, LineMetadata, SummaryTableColumn, type SummaryTableDataRow } from '@/types';
-import { PointWithMetadata } from "types";
+import type { PointWithMetadata } from "types";
 
 describe('usePlotTooltips', () => {
   beforeEach(() => {
