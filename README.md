@@ -36,9 +36,9 @@ vaxviz-staging, builds the app in vaxviz, copies the dist folder to vax-staging 
 the vaxviz-staging changes (on its main branch). An action in vaxviz-staging then deploys to pages on this push to main.
 
 In order to push to a non-local repository we need to provide a token with permissions over vaxviz-staging, and set it
-as the token in the Checkout action. This token has been created as a fine-grained token with read-write permissions on
-Contents of the vaxviz-staging repo only, and has been set as the VAXVIZ_STAGING_TOKEN secret in the vaxviz repo. VIMC
-does not allow creation of tokens without expiry and the current token will expire on 29/10/2026.
+as the token in the Checkout action. This token has been created as a fine-grained token (under the vimc org) with
+read-write permissions on Contents of the vaxviz-staging repo only, and has been set as the VAXVIZ_STAGING_TOKEN secret
+in the vaxviz repo. VIMC does not allow creation of tokens without expiry and the current token will expire on 13/11/2027.
 
 ## Node version
 

@@ -1,0 +1,1 @@
+When submitting a PR, increment the package version, so that we can tell which version is in deployment.
