@@ -33,7 +33,7 @@
   },
   "devDependencies": {
     "@pinia/testing": "^1.0.3",
-    "@playwright/test": "^1.56.1",
+    "@playwright/test": "^1.65.0",
     "@tailwindcss/vite": "^4.1.17",
     "@tsconfig/node24": "^24.0.3",
     "@types/color-convert": "^2.0.4",
