@@ -55,7 +55,12 @@ const multiFocusMode = ref(false);
 
 const focusModel = computed({
   get: () => multiFocusMode.value ? appStore.focuses : appStore.focuses[0],
-  set: (val: string | string[]) => {
+  set: (val: string | string[] | undefined) => {
+    // In single-focus mode, the select emits undefined when the user deletes the selection (e.g. with backspace).
+    // Keep the current focus, since there must always be at least one focus in single-focus mode.
+    if (val === undefined || val === null) {
+      return;
+    }
     appStore.focuses = Array.isArray(val) ? val : [val];
   }
 });
