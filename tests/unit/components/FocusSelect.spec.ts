@@ -57,7 +57,7 @@ describe('FocusSelect component', () => {
   });
 
   it("keeps the current focus when the selection is removed with backspace in single-focus mode", async () => {
-    const wrapper = mount(FocusSelect, { attachTo: document.body });
+    const wrapper = mount(FocusSelect);
     const appStore = useAppStore();
     appStore.focuses = ["AFG"];
     await nextTick();
@@ -72,8 +72,6 @@ describe('FocusSelect component', () => {
     expect(appStore.focuses).toEqual(["AFG"]);
     expect(appStore.filters).toBe(filtersBefore);
     expect(vueSelect.props("modelValue")).toBe("AFG");
-
-    wrapper.unmount();
   });
 
   it("handles multi-focus mode toggle correctly (when exploring by location)", async () => {
