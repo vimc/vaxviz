@@ -56,6 +56,24 @@ describe('FocusSelect component', () => {
     expect(vueSelect.props("modelValue")).toBe("global");
   });
 
+  it("keeps the current focus when the selection is removed with backspace in single-focus mode", async () => {
+    const wrapper = mount(FocusSelect);
+    const appStore = useAppStore();
+    appStore.focuses = ["AFG"];
+    await nextTick();
+    const filtersBefore = appStore.filters;
+
+    const vueSelect = wrapper.findComponent(VueSelect);
+    await vueSelect.find(".dropdown-icon").trigger("click");
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Backspace" }));
+    await nextTick();
+
+    expect(vueSelect.emitted("update:modelValue")).toEqual([[undefined]]);
+    expect(appStore.focuses).toEqual(["AFG"]);
+    expect(appStore.filters).toBe(filtersBefore);
+    expect(vueSelect.props("modelValue")).toBe("AFG");
+  });
+
   it("handles multi-focus mode toggle correctly (when exploring by location)", async () => {
     const wrapper = mount(FocusSelect);
 
